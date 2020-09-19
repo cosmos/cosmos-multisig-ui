@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
-import Head from "../../components/head";
-import { queries } from "../../database/connectDatabase";
-import TransactionForm from "../../components/TransactionForm";
+import Head from "../../../components/head";
+import { queries } from "../../../database/connectDatabase";
+import TransactionForm from "../../../components/TransactionForm";
 
 export async function getStaticPaths() {
   return {
@@ -73,6 +73,13 @@ export default ({ transactions }) => {
           color: white;
           background: #500a58;
           font-size: 16px;
+        }
+
+        *:focus {
+          outline: none;
+        }
+        button {
+          cursor: pointer;
         }
       `}</style>
     </div>

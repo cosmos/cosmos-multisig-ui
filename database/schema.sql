@@ -19,5 +19,5 @@ CREATE TABLE transactions (
   signatures text,
   signed text,
   completed_tx text,
-  multi_key_name text NOT NULL UNIQUE
+  multi_key_name text NOT NULL
 );

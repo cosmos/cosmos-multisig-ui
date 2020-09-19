@@ -36,6 +36,13 @@ export default () => (
         background: #500a58;
         font-size: 16px;
       }
+
+      *:focus {
+        outline: none;
+      }
+      button {
+        cursor: pointer;
+      }
     `}</style>
   </div>
 );

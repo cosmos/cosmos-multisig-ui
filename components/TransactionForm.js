@@ -71,7 +71,9 @@ class MultiSigForm extends React.Component {
         multiAddress: this.props.multiAddress,
       });
 
-      this.props.router.push(`/transaction/${res.data}`);
+      this.props.router.push(
+        `${this.props.multiAddress}/transaction/${res.data}`
+      );
     } else {
       this.setState({ addressError: "Use a valid cosmos-hub address" });
     }
