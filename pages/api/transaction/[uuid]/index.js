@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
-const { queries } = require("../../../database/connectDatabase");
+const { queries } = require("../../../../database/connectDatabase");
 
 const post = async (req, res) => {
   try {
@@ -11,7 +11,7 @@ const post = async (req, res) => {
     // signature for this transaction
     const { signature } = req.body;
 
-    // get corresponding multi record
+    // get corresponding transaction record
     const transaction = queries.getTransactionForUUID.get(uuid);
 
     if (!transaction) {

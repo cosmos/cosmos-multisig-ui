@@ -42,9 +42,6 @@ const post = async (req, res) => {
     });
     let multiAddress = gaiaWrap.getMultiAddress({ keyName: multiName });
 
-    // strip newlines
-    multiAddress = multiAddress.replace(/(\r\n|\n|\r)/gm, "");
-
     // save multisig
     const saveResult = queries.insertMultiKey.run({
       key_name: multiName,

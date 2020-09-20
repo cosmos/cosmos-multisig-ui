@@ -1,4 +1,3 @@
-import fileDownload from "js-file-download";
 import Head from "../../../../components/head";
 import { queries } from "../../../../database/connectDatabase";
 import TransactionSigning from "../../../../components/TransactionSigning";
@@ -24,13 +23,31 @@ export async function getStaticProps(context) {
 }
 
 export default ({ transaction, multi }) => {
+  const txInfo = (transaction && JSON.parse(transaction.unsigned)) || null;
   return (
     <div>
       <Head title="Home" />
-
       <div className="hero">
-        <h1 className="title">multisig: {multi && multi.address}</h1>
-        <h2>transaction: {transaction && transaction.uuid}</h2>
+        {txInfo && (
+          <div className="transaction-info">
+            <h2>Transaction Info</h2>
+            <ul>
+              <li>
+                <span>To:</span> {txInfo.value.msg[0].value.to_address}
+              </li>
+              <li>
+                <span>From:</span> {txInfo.value.msg[0].value.from_address}
+              </li>
+              <li>
+                <span>Amount:</span>{" "}
+                {txInfo.value.msg[0].value.amount[0].amount} uatom
+              </li>
+              <li>
+                <span>To:</span> {txInfo.value.fee.gas} uatom
+              </li>
+            </ul>
+          </div>
+        )}
         <p className="description">
           Download the unsigned transaction json to sign. Once the necessary
           signatures are gathered here, you will be able to broadcast your
@@ -40,6 +57,28 @@ export default ({ transaction, multi }) => {
       </div>
 
       <style jsx>{`
+        .transaction-info {
+          text-align: left;
+          border: 1px solid rebeccapurple;
+          border-radius: 1em;
+          padding: 0.5em 1em;
+          width: 60%;
+          margin: 2em auto 1em;
+        }
+
+        .transaction-info ul {
+          list-style: none;
+          padding: 0;
+          font-size: 1.2em;
+        }
+
+        .transaction-info span {
+          font-weight: bold;
+          margin-right: 0.5em;
+        }
+        .transaction-info li {
+          margin: 0.5em 0;
+        }
         .hero {
           width: 100%;
           text-align: center;
@@ -54,7 +93,7 @@ export default ({ transaction, multi }) => {
 
         h2 {
           font-size: 1.5em;
-          margin: 1em 0;
+          margin: 0.25em 0;
           font-weight: bold;
         }
         .title {

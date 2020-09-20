@@ -1,7 +1,14 @@
+import axios from "axios";
+import fileDownload from "js-file-download";
 import React from "react";
 
 const JsonDropDown = ({ object }) => {
   const [isOpen, setOpen] = React.useState(false);
+  let json = object;
+
+  if (typeof object === "string") {
+    json = JSON.parse(object);
+  }
   return (
     <div>
       <button
@@ -11,9 +18,7 @@ const JsonDropDown = ({ object }) => {
       >
         {isOpen ? "Hide" : "Show"} JSON
       </button>
-      {isOpen && (
-        <pre>{object && JSON.stringify(JSON.parse(object), null, 2)}</pre>
-      )}
+      {isOpen && <pre>{object && JSON.stringify(json, null, 2)}</pre>}
       <style jsx>{`
         button {
           display: block;
@@ -51,6 +56,7 @@ export default class TransactionSigning extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (!prevProps.transaction && this.props.transaction) {
       this.setState({ transaction: this.props.transaction });
+      console.log(JSON.parse(this.props.transaction.signatures));
     }
   }
 
@@ -58,12 +64,37 @@ export default class TransactionSigning extends React.Component {
     const signatureFile = e.target.files[0];
     const reader = new FileReader();
 
-    reader.addEventListener("load", (event) => {
+    reader.addEventListener("load", async (event) => {
       // do the upload
-      console.log(event.target.result);
+      const signature = JSON.parse(event.target.result);
+
+      const res = await axios.post(
+        `/api/transaction/${this.state.transaction.uuid}`,
+        {
+          signature: signature,
+        }
+      );
+
+      const updatedTx = res.data;
+
+      this.setState({
+        transaction: updatedTx,
+      });
     });
 
     reader.readAsText(signatureFile);
+  };
+
+  handleBroadcast = async () => {
+    this.setState({ processing: true });
+    const res = await axios.get(
+      `/api/transaction/${this.state.transaction.uuid}/broadcast`
+    );
+
+    this.setState({
+      transaction: res.data,
+      processing: false,
+    });
   };
 
   clickFileUpload = () => {
@@ -76,7 +107,7 @@ export default class TransactionSigning extends React.Component {
         <p className="required-sigs">
           {(this.state.transaction &&
             this.state.transaction.signatures &&
-            this.state.transaction.signatures.length) ||
+            JSON.parse(this.state.transaction.signatures).length) ||
             0}{" "}
           of {this.props.multi && this.props.multi.multi_threshold} signatures
           uploaded
@@ -98,9 +129,9 @@ export default class TransactionSigning extends React.Component {
               <div className="instructions">
                 Download this and sign the transaction by running:
                 <pre>
-                  gaiacli tx sign (path/to/unsigned.json) --multisig=
-                  {this.props.multi && this.props.multi.address}{" "}
-                  --output-document signed.json
+                  gaiacli tx sign {"{"}path/to/unsigned.json{"}"} --multisig=
+                  {this.props.multi && this.props.multi.address} --from {"{"}
+                  local-key-name{"}"} --output-document signed.json
                 </pre>
               </div>
               <div className="json">
@@ -113,19 +144,50 @@ export default class TransactionSigning extends React.Component {
           {this.state.transaction && this.state.transaction.signatures && (
             <div className="tx-piece">
               <h3>Current signatures</h3>
-              {this.state.transaction.signatures.map((signature) => (
-                <div className="group">
-                  <div className="json">
-                    <JsonDropDown object={signature} />
-                  </div>
-                </div>
-              ))}
+              <div className="signatures">
+                {JSON.parse(this.state.transaction.signatures).map(
+                  (signature, i) => (
+                    <div className="group signature">
+                      <h4>Sig {i + 1}</h4>
+                      <div className="json">
+                        <JsonDropDown object={signature} />
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
           )}
         </div>
-        <button className="upload-signature" onClick={this.clickFileUpload}>
-          Upload Signature
-        </button>
+        {this.state.transaction && !this.state.transaction.completed_tx && (
+          <div>
+            {(this.state.transaction.signatures &&
+              JSON.parse(this.state.transaction.signatures).length) >=
+            (this.props.multi && this.props.multi.multi_threshold) ? (
+              <div>
+                {this.state.processing ? (
+                  <button className="main broadcast processing" disabled>
+                    Processing
+                  </button>
+                ) : (
+                  <button
+                    className="main broadcast"
+                    onClick={this.handleBroadcast}
+                  >
+                    Sign and Broadcast Transaction
+                  </button>
+                )}
+              </div>
+            ) : (
+              <button
+                className="main upload-signature"
+                onClick={this.clickFileUpload}
+              >
+                Upload Signature
+              </button>
+            )}
+          </div>
+        )}
         <input
           id="fileInput"
           type="file"
@@ -134,6 +196,12 @@ export default class TransactionSigning extends React.Component {
           accept=".json"
           onChange={this.handleFileSelection}
         />
+        {this.state.transaction && this.state.transaction.completed_tx && (
+          <div className="transaction-response">
+            <h3>Transaction info</h3>
+            <pre>{this.state.transaction.completed_tx}</pre>
+          </div>
+        )}
         <style jsx>{`
           .hero {
             width: 100%;
@@ -168,6 +236,7 @@ export default class TransactionSigning extends React.Component {
             border: 1px solid rebeccapurple;
             border-radius: 1em;
             padding: 1em;
+            margin-bottom: 1em;
             width: 60%;
           }
           .instructions {
@@ -179,6 +248,22 @@ export default class TransactionSigning extends React.Component {
           }
           .group {
             display: flex;
+          }
+          .signatures {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+          }
+          .group.signature {
+            flex-direction: column;
+            width: 48%;
+            margin-bottom: 1em;
+          }
+          .group.signature .json {
+            width: 100%;
+          }
+          h4 {
+            margin: 0 0 0.5em;
           }
           pre {
             font-size: 10px;
@@ -196,10 +281,16 @@ export default class TransactionSigning extends React.Component {
             padding: 0.5em 1em;
             cursor: pointer;
           }
-          button.upload-signature {
+          button.main {
             width: 60%;
             margin: 2em auto;
             font-size: 1.3em;
+          }
+          button.broadcast {
+            background: coral;
+          }
+          button.broadcast.processing {
+            font-style: italic;
           }
           button.upload-signature:hover {
             background: rebeccapurple;

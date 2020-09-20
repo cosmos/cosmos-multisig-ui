@@ -1,6 +1,5 @@
-const exec = require("../../utilities/promiseExec");
 const { v4: uuidv4 } = require("uuid");
-const { queries } = require("../../database/connectDatabase");
+const { queries } = require("../../../database/connectDatabase");
 
 const post = async (req, res) => {
   try {

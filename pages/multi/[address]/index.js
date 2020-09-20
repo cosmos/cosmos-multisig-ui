@@ -37,19 +37,6 @@ export default ({ transactions }) => {
           From here you can create and view transactions
         </p>
         <TransactionForm multiAddress={address} />
-
-        <div className="existing-transactions">
-          <h2>Transaction List</h2>
-          {transactions && transactions.length > 0 ? (
-            <ul>
-              {transactions.map((transaction) => (
-                <li key={transaction.id}>{transaction.id}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>No transactions yet</p>
-          )}
-        </div>
       </div>
 
       <style jsx>{`

@@ -14,7 +14,7 @@ const baseTX = {
           amount: [
             {
               denom: "uatom",
-              amount: 0,
+              amount: "0",
             },
           ],
         },
@@ -22,7 +22,7 @@ const baseTX = {
     ],
     fee: {
       amount: [],
-      gas: 0,
+      gas: "0",
     },
     signatures: null,
     memo: "",
@@ -52,8 +52,8 @@ class MultiSigForm extends React.Component {
   createTransaction = (toAddress, amount, gas) => {
     baseTX.value.msg[0].value.to_address = toAddress;
     baseTX.value.msg[0].value.from_address = this.props.multiAddress;
-    baseTX.value.msg[0].value.amount[0].amount = amount;
-    baseTX.value.fee.gas = gas;
+    baseTX.value.msg[0].value.amount[0].amount = amount.toString();
+    baseTX.value.fee.gas = gas.toString();
     return baseTX;
   };
 
