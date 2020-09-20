@@ -147,7 +147,7 @@ export default class TransactionSigning extends React.Component {
               <div className="signatures">
                 {JSON.parse(this.state.transaction.signatures).map(
                   (signature, i) => (
-                    <div className="group signature">
+                    <div key={`sig-${i}`} className="group signature">
                       <h4>Sig {i + 1}</h4>
                       <div className="json">
                         <JsonDropDown object={signature} />

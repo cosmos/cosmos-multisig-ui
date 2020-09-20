@@ -68,12 +68,16 @@ const get = async (req, res) => {
 
         // delete unsigned and signatures
         fs.unlink(unsignedJsonPath, (err) => {
-          throw err;
+          if (err) {
+            throw err;
+          }
         });
 
         for (var i = 0; i < signatureFilePaths.length; i++) {
           fs.unlink(signatureFilePaths[i], (err) => {
-            throw err;
+            if (err) {
+              throw err;
+            }
           });
         }
       }

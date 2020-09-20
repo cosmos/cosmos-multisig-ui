@@ -12,11 +12,13 @@ Build production with `npm run build`
 
 If you want to reset the db run `node database/initialize.js`
 
+The `--dry-run` flag is [currently set](https://github.com/samepant/cosmos-multisig-ui/blob/master/lib/gaiaWrap.js#L59) on the wrapped `gaiacli tx broadcast` command, so if you want to run this with real transactions, be sure to remove.
+
 ## Reason for Being
 
 Conducting a simple multi-signature transaction using the [gaiacli](https://hub.cosmos.network/master/gaia-tutorials/what-is-gaia.html) currently requires a couple handfuls of terminal commands, and for the initial multi-sig creator to send files to all the different signers, who must sign and then send back. It's a little arduous.
 
-This app is a little stop gap that makes creating and signing multi-sig transactions a little simpler while we wait for some upcoming developments in the cosmos dev world. It does this by wrapping the gaiacli in a little [node.js module](https://github.com/samepant/cosmos-multisig-ui/blob/master/lib/gaiaWrap.js), making it available to whatever node.js app we can imagine, and in this case it's a small next.js app that walks through the multi-sig creation and signing process.
+This app is a little stop gap that makes creating and signing multi-sig transactions a little simpler while we wait for some upcoming developments in the cosmos dev world. It does this by wrapping the gaiacli in its own little [node.js module](https://github.com/samepant/cosmos-multisig-ui/blob/master/lib/gaiaWrap.js), making it available to whatever node.js app we can imagine, and in this case it's a small next.js app that walks through the multi-sig creation and signing process.
 
 At the moment the app reduces the need for direct command line interaction to a single command per signer, and there are plans to eliminate those as well below.
 

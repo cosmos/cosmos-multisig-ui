@@ -1,22 +1,14 @@
 import axios from "axios";
 import Head from "../../../../components/head";
-import { queries } from "../../../../database/connectDatabase";
 import TransactionSigning from "../../../../components/TransactionSigning";
 import { useRouter } from "next/router";
 
-export async function getInitialProps({ req, query }) {
-  const { transactionUUID, address } = query;
-  if (req) {
-    // server
-    const transaction = queries.getTransactionForUUID.get(transactionUUID);
-    const multi = queries.getMultiFromAddress.get(address);
-    return { transaction, multi };
-  } else {
-    // browser
-    const multi = await axios.get(`/api/multiaddress/${address}`);
-    const transaction = await axios.get(`/api/transaction/${transactionUUID}`);
-    return { transaction, multi };
-  }
+export async function getServerSideProps({ params }) {
+  const { transactionUUID, address } = params;
+  const { queries } = require("../../../../database/connectDatabase");
+  const transaction = queries.getTransactionForUUID.get(transactionUUID);
+  const multi = queries.getMultiFromAddress.get(address);
+  return { props: { transaction, multi } };
 }
 
 export default ({ transaction, multi }) => {

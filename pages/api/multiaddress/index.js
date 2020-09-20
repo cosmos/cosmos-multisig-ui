@@ -62,7 +62,11 @@ const createAndSaveKey = async (member) => {
   try {
     // create gaiacli key
     member.key_name = uuidv4();
-    await exec(`gaiacli keys add ${member.key_name} --pubkey=${member.pubkey}`);
+
+    await gaiaWrap.createKey({
+      keyName: member.key_name,
+      pubkey: member.pubkey,
+    });
 
     // save single key
     const saveResult = queries.insertSingleKey.run(member);
