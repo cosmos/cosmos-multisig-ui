@@ -1,3 +1,5 @@
+## Gaiacli node.js wrapper and demo app
+
 You must have the gaiacli available to the node process running this app.
 
 Run with `npm run dev`

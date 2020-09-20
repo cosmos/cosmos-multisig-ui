@@ -1,6 +1,6 @@
-const gaiaWrap = require("../../lib/gaiaWrap");
+const gaiaWrap = require("../../../lib/gaiaWrap");
 const { v4: uuidv4 } = require("uuid");
-const { queries } = require("../../database/connectDatabase");
+const { queries } = require("../../../database/connectDatabase");
 
 const get = async (req, res) => {
   const allKeys = await gaiaWrap.listKeys();

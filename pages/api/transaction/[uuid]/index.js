@@ -1,6 +1,20 @@
 const { v4: uuidv4 } = require("uuid");
 const { queries } = require("../../../../database/connectDatabase");
 
+const get = async (req, res) => {
+  try {
+    const {
+      query: { uuid },
+    } = req;
+
+    const transaction = query.getTransactionForUUID.get(uuid);
+    res.status(200).send(transaction);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err.message);
+  }
+};
+
 const post = async (req, res) => {
   try {
     const {
@@ -39,6 +53,9 @@ const post = async (req, res) => {
 export default (req, res) => {
   switch (req.method) {
     case "POST":
+      post(req, res);
+      break;
+    case "GET":
       post(req, res);
       break;
     default:

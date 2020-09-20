@@ -1,30 +1,9 @@
+import axios from "axios";
 import { useRouter } from "next/router";
 import Head from "../../../components/head";
-import { queries } from "../../../database/connectDatabase";
 import TransactionForm from "../../../components/TransactionForm";
 
-export async function getStaticPaths() {
-  return {
-    paths: [{ params: { address: "*" } }],
-    fallback: true,
-  };
-}
-
-export async function getStaticProps(context) {
-  const { address } = context.params;
-  let transactions = [];
-  const multi = queries.getMultiFromAddress.get(address);
-  if (multi) {
-    transactions = queries.getTransactionsForMultiKeyName.all(multi.key_name);
-  }
-  return {
-    props: {
-      transactions,
-    },
-  };
-}
-
-export default ({ transactions }) => {
+export default () => {
   const router = useRouter();
   const { address } = router.query;
   return (
