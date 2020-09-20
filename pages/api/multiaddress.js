@@ -40,7 +40,7 @@ const post = async (req, res) => {
       commaSepKeyNames,
       threshold,
     });
-    let multiAddress = gaiaWrap.getMultiAddress({ keyName: multiName });
+    let multiAddress = await gaiaWrap.getMultiAddress({ keyName: multiName });
 
     // save multisig
     const saveResult = queries.insertMultiKey.run({
