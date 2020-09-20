@@ -1,9 +1,9 @@
-const exec = require("../../utilities/promiseExec");
+const gaiaWrap = require("../../lib/gaiaWrap");
 const { v4: uuidv4 } = require("uuid");
 const { queries } = require("../../database/connectDatabase");
 
 const get = async (req, res) => {
-  const allKeys = await exec("gaiacli keys list");
+  const allKeys = await gaiaWrap.listKeys();
   res.status(200).send(allKeys);
 };
 
@@ -35,10 +35,12 @@ const post = async (req, res) => {
 
     // create multisig key
     const multiName = uuidv4();
-    await exec(
-      `gaiacli keys add ${multiName} --multisig=${commaSepKeyNames} --multisig-threshold=${threshold}`
-    );
-    let multiAddress = await exec(`gaiacli keys show ${multiName} -a`);
+    await gaiaWrap.createMultiSigKey({
+      multiName,
+      commaSepKeyNames,
+      threshold,
+    });
+    let multiAddress = gaiaWrap.getMultiAddress({ keyName: multiName });
 
     // strip newlines
     multiAddress = multiAddress.replace(/(\r\n|\n|\r)/gm, "");

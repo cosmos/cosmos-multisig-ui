@@ -30,8 +30,14 @@ queries.getTransactionForUUID = db.prepare(
 queries.insertTransaction = db.prepare(
   "INSERT INTO transactions(multi_key_name, unsigned, uuid) VALUES($multi_key_name, $unsigned, $uuid)"
 );
-queries.updateTransaction = db.prepare(
-  "UPDATE transactions SET completed_tx = $completed_tx WHERE id = $id"
+queries.updateTransactionSignatures = db.prepare(
+  "UPDATE transactions SET signatures = $signatures WHERE uuid = $uuid"
+);
+queries.updateTransactionSigned = db.prepare(
+  "UPDATE transactions SET signed = $signed WHERE uuid = $uuid"
+);
+queries.updateTransactionCompleted = db.prepare(
+  "UPDATE transactions SET completed_tx = $completed_tx WHERE uuid = $uuid"
 );
 queries.getTransactionsForMultiKeyName = db.prepare(
   "SELECT * FROM transactions WHERE multi_key_name = ?"
