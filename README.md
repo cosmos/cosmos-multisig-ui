@@ -9,6 +9,7 @@ This app is a little stop gap that makes creating and signing multi-sig transact
 At the moment the app reduces the need for direct command line interaction to a single command per signer, and there are [plans to eliminate those as well below](https://github.com/samepant/cosmos-multisig-ui#future-enhancements).
 
 ## Install / Running
+A demo app is running here: https://cosmos-multi-sig.herokuapp.com/ It's running with `gaiacli tx broadcast --dry-run` on, so none of the transactions will go through, but you'll still see some transaction information returned.
 
 #### With Docker
 
