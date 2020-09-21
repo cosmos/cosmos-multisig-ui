@@ -1,19 +1,5 @@
 # Gaiacli node.js wrapper and demo app
 
-## Install / Running
-
-You must have the gaiacli available to the node process running this app.
-
-Install with `npm install`
-
-Run developer mode with `npm run dev`
-
-Build production with `npm run build`
-
-If you want to reset the db run `node database/initialize.js`
-
-The `--dry-run` flag is [currently set](https://github.com/samepant/cosmos-multisig-ui/blob/master/lib/gaiaWrap.js#L59) on the wrapped `gaiacli tx broadcast` command, so if you want to run this with real transactions, be sure to remove.
-
 ## Reason for Being
 
 Conducting a simple multi-signature transaction using the [gaiacli](https://hub.cosmos.network/master/gaia-tutorials/what-is-gaia.html) currently requires a couple handfuls of terminal commands, and for the initial multi-sig creator to send files to all the different signers, who must sign and then send back. It's a little arduous.
@@ -21,6 +7,34 @@ Conducting a simple multi-signature transaction using the [gaiacli](https://hub.
 This app is a little stop gap that makes creating and signing multi-sig transactions a little simpler while we wait for some upcoming developments in the cosmos dev world. It does this by wrapping the gaiacli in its own little [node.js module](https://github.com/samepant/cosmos-multisig-ui/blob/master/lib/gaiaWrap.js), making it available to whatever node.js app we can imagine, and in this case it's a small next.js app that walks through the multi-sig creation and signing process.
 
 At the moment the app reduces the need for direct command line interaction to a single command per signer, and there are plans to eliminate those as well below.
+
+## Install / Running
+
+#### With Docker
+
+While inside the directory, run `docker build -t multi-sig-wrap .` to build the image. (note that `multi-sig-wrap` can be any string). This builds an image with all the dependencies, including `gaiacli` connected to the node at `https://cosmos.chorus.one:26657` with a chain-id of `cosmoshub-3`. These values are [configured here](https://github.com/samepant/cosmos-multisig-ui/blob/master/Dockerfile#L12).
+
+Run the container with `docker run --name multi_sig_app -p 0.0.0.0:5000:3000 multi-sig-wrap`
+
+The app should be live at http://localhost:5000
+
+#### No Docker
+
+You must have the `gaiacli` and `node` running on your machine
+
+Install dependencies with `npm install`
+
+Run developer mode with `npm run dev`
+
+Build production with `npm run build`
+
+If you want to reset the db run `node database/initialize.js`
+
+#### Notes
+
+- The `--dry-run` flag is [currently set](https://github.com/samepant/cosmos-multisig-ui/blob/master/lib/gaiaWrap.js#L59) on the wrapped `gaiacli tx broadcast` command, so if you want to run this with real transactions, be sure to remove.
+
+- Building the docker container resets the sqlite database
 
 ## Future Enhancements
 
