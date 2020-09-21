@@ -6,7 +6,7 @@ Conducting a simple multi-signature transaction using the [gaiacli](https://hub.
 
 This app is a little stop gap that makes creating and signing multi-sig transactions a little simpler while we wait for some upcoming developments in the cosmos dev world. It does this by wrapping the gaiacli in its own little [node.js module](https://github.com/samepant/cosmos-multisig-ui/blob/master/lib/gaiaWrap.js), making it available to whatever node.js app we can imagine, and in this case it's a small next.js app that walks through the multi-sig creation and signing process.
 
-At the moment the app reduces the need for direct command line interaction to a single command per signer, and there are plans to eliminate those as well below.
+At the moment the app reduces the need for direct command line interaction to a single command per signer, and there are [plans to eliminate those as well below](https://github.com/samepant/cosmos-multisig-ui#future-enhancements).
 
 ## Install / Running
 
