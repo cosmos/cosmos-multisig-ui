@@ -37,7 +37,7 @@ class MultiSigForm extends React.Component {
       toAddress: "",
       amount: 0,
       memo: "",
-      gas: 2000,
+      gas: 200000,
       processing: false,
       addressError: "",
     };
