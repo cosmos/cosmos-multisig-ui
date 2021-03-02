@@ -1,4 +1,4 @@
-import FindMultisigForm from "../components/forms/FindMultisigForm";
+import MultisigForm from "../components/forms/MultisigForm";
 import Page from "../components/layout/Page";
 import StackableContainer from "../components/layout/StackableContainer";
 
@@ -6,9 +6,9 @@ export default () => (
   <Page>
     <StackableContainer base>
       <StackableContainer lessPadding>
-        <h1 className="title">Cosmoshub Multisig Manager</h1>
+        <h1 className="title">Create Legacy Multisig</h1>
       </StackableContainer>
-        <FindMultisigForm />
+      <MultisigForm />
     </StackableContainer>
   </Page>
 );

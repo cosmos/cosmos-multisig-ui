@@ -1,53 +1,47 @@
-import axios from "axios";
-import { useRouter } from "next/router";
-import Head from "../../../components/head";
-import TransactionForm from "../../../components/TransactionForm";
+import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
+import MultisigMembers from "../../../components/dataViews/MultisigMembers";
+import Page from "../../../components/layout/Page";
+import StackableContainer from "../../../components/layout/StackableContainer";
+import TransactionForm from "../../../components/forms/TransactionForm";
+import TransactionList from "../../../components/dataViews/TransactionList";
 
 export default () => {
-  const router = useRouter();
-  const { address } = router.query;
   return (
-    <div>
-      <Head title="Home" />
-
-      <div className="hero">
-        <h1 className="title">multiSig: {address}</h1>
-        <p className="description">
-          From here you can create and view transactions
-        </p>
-        <TransactionForm multiAddress={address} />
-      </div>
-
+    <Page>
+      <StackableContainer base>
+        <StackableContainer>
+          <label>Multisig Address</label>
+          <h1>cosmos1fjrzd7ycxzse05zme3r2zqwpsvcrskv80wj82h</h1>
+        </StackableContainer>
+        <div className="interfaces">
+          <div className="col-1">
+            <MultisigMembers />
+            <TransactionList />
+          </div>
+          <div className="col-2">
+            <MultisigHoldings />
+            <TransactionForm />
+          </div>
+        </div>
+      </StackableContainer>
       <style jsx>{`
-        .hero {
-          width: 100%;
-          text-align: center;
+        .interfaces {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 50px;
         }
-        .title {
-          margin: 0;
-          width: 100%;
-          padding-top: 2em;
-          line-height: 1.15;
-          font-size: 2em;
+        .col-1 {
+          flex: 2;
+          padding-right: 50px;
         }
-      `}</style>
-      <style global jsx>{`
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-          color: white;
-          background: #500a58;
-          font-size: 16px;
+        .col-2 {
+          flex: 1;
         }
-
-        *:focus {
-          outline: none;
-        }
-        button {
-          cursor: pointer;
+        label {
+          font-size: 12px;
+          font-style: italic;
         }
       `}</style>
-    </div>
+    </Page>
   );
 };
