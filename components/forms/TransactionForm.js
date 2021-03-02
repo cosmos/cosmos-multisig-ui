@@ -1,7 +1,10 @@
 import axios from "axios";
 import React from "react";
 import { withRouter } from "next/router";
+
+import Button from "../../components/inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
+
 const baseTX = {
   type: "cosmos-sdk/StdTx",
   value: {
@@ -82,8 +85,14 @@ class TransactionForm extends React.Component {
   render() {
     return (
       <StackableContainer lessPadding>
-        <h2>Create transaction</h2>
-        <style jsx>{``}</style>
+        <h2>New transaction</h2>
+        <p>Connect your wallet to create a new transaction.</p>
+        <Button label="Connect Wallet" onClick={() => {}} />
+        <style jsx>{`
+          p {
+            margin-top: 15px;
+          }
+        `}</style>
       </StackableContainer>
     );
   }

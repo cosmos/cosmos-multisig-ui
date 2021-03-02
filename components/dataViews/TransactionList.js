@@ -54,13 +54,34 @@ class TransactionList extends React.Component {
           {dummyTXs.map((tx, i) => (
             <li key={tx.txHash} className="tx">
               <StackableContainer lessPadding lessMargin>
-                <h3>{abbreviateLongString(tx.txHash)}</h3>
-                <ul>
-                  <li>Amount: {tx.amount} ATOM</li>
-                  <li>To: {abbreviateLongString(tx.to)}</li>
-                  <li>status: {tx.status}</li>
-                  <li>fee: {tx.fee}</li>
-                  <li>Date: {tx.time}</li>
+                <ul className="meta-data">
+                  <li>
+                    <label>Amount:</label>
+                    <div>{tx.amount} ATOM</div>
+                  </li>
+                  <li>
+                    <label>To:</label>
+                    <div title={tx.to}>{abbreviateLongString(tx.to)}</div>
+                  </li>
+
+                  <li>
+                    <label>Tx Hash:</label>
+                    <div title={tx.txHash}>
+                      {abbreviateLongString(tx.txHash)}
+                    </div>
+                  </li>
+                  <li>
+                    <label>Status:</label>
+                    <div>{tx.status}</div>
+                  </li>
+                  <li>
+                    <label>Fee:</label>
+                    <div>{tx.fee}</div>
+                  </li>
+                  <li>
+                    <label>Date:</label>
+                    <div>{tx.time}</div>
+                  </li>
                 </ul>
               </StackableContainer>
             </li>
@@ -74,6 +95,27 @@ class TransactionList extends React.Component {
           }
           .tx {
             margin-top: 20px;
+          }
+          .meta-data li {
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+          }
+          .meta-data li:first-child {
+            margin-top: 0;
+          }
+          .meta-data label {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3px 6px;
+            border-radius: 5px;
+            display: block;
+          }
+          .meta-data li div {
+            padding: 3px 6px;
           }
         `}</style>
       </StackableContainer>
