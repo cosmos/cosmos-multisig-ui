@@ -3,6 +3,7 @@ import React from "react";
 import { withRouter } from "next/router";
 
 import Button from "../../components/inputs/Button";
+import Input from "../../components/inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
 
 const baseTX = {
@@ -54,7 +55,7 @@ class TransactionForm extends React.Component {
 
   createTransaction = (toAddress, amount, gas) => {
     baseTX.value.msg[0].value.to_address = toAddress;
-    baseTX.value.msg[0].value.from_address = this.props.multiAddress;
+    baseTX.value.msg[0].value.from_address = this.props.address;
     baseTX.value.msg[0].value.amount[0].amount = amount.toString();
     baseTX.value.fee.gas = gas.toString();
     return baseTX;
@@ -85,12 +86,48 @@ class TransactionForm extends React.Component {
   render() {
     return (
       <StackableContainer lessPadding>
-        <h2>New transaction</h2>
-        <p>Connect your wallet to create a new transaction.</p>
-        <Button label="Connect Wallet" onClick={() => {}} />
+        <h2>Create New transaction</h2>
+        <div className="form-item">
+          <Input
+            label="To Address"
+            name="toAddress"
+            value={this.state.toAddress}
+            onChange={this.handleChange}
+            placeholder="cosmos1fjrzd7ycxzse05zme3r2zqwpsvcrskv80wj82h"
+          />
+        </div>
+        <div className="form-item">
+          <Input
+            label="Amount (ATOM)"
+            name="amount"
+            type="number"
+            value={this.state.amount}
+            onChange={this.handleChange}
+          />
+        </div>
+        <div className="form-item">
+          <Input
+            label="Gas"
+            name="gas"
+            type="number"
+            value={this.state.gas}
+            onChange={this.handleChange}
+          />
+        </div>
+        <Button
+          label="Create Transaction"
+          onClick={() => {
+            this.props.router.push(
+              `${this.props.address}/transaction/${"kjas-q981-asda-143d"}`
+            );
+          }}
+        />
         <style jsx>{`
           p {
             margin-top: 15px;
+          }
+          .form-item {
+            margin-top: 1.5em;
           }
         `}</style>
       </StackableContainer>

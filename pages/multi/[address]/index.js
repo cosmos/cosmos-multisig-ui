@@ -1,3 +1,7 @@
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+
+import ConnectWallet from "../../../components/forms/ConnectWallet";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
@@ -5,7 +9,10 @@ import StackableContainer from "../../../components/layout/StackableContainer";
 import TransactionForm from "../../../components/forms/TransactionForm";
 import TransactionList from "../../../components/dataViews/TransactionList";
 
-export default () => {
+const multipage = (props) => {
+  const [showTxForm, setShowTxForm] = useState(false);
+  const router = useRouter();
+  const { address } = router.query;
   return (
     <Page>
       <StackableContainer base>
@@ -13,16 +20,20 @@ export default () => {
           <label>Multisig Address</label>
           <h1>cosmos1fjrzd7ycxzse05zme3r2zqwpsvcrskv80wj82h</h1>
         </StackableContainer>
-        <div className="interfaces">
-          <div className="col-1">
-            <MultisigMembers />
-            <TransactionList />
+        {showTxForm ? (
+          <TransactionForm address={address} />
+        ) : (
+          <div className="interfaces">
+            <div className="col-1">
+              <MultisigMembers address={address} />
+              <TransactionList address={address} />
+            </div>
+            <div className="col-2">
+              <MultisigHoldings address={address} />
+              <ConnectWallet onConnect={setShowTxForm} />
+            </div>
           </div>
-          <div className="col-2">
-            <MultisigHoldings />
-            <TransactionForm />
-          </div>
-        </div>
+        )}
       </StackableContainer>
       <style jsx>{`
         .interfaces {
@@ -45,3 +56,5 @@ export default () => {
     </Page>
   );
 };
+
+export default multipage;

@@ -1,118 +1,35 @@
-import axios from "axios";
-import Head from "../../../../components/head";
-import TransactionSigning from "../../../../components/TransactionSigning";
-import { useRouter } from "next/router";
+import Page from "../../../../components/layout/Page";
+import StackableContainer from "../../../../components/layout/StackableContainer";
+import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
+import TransactionSigning from "../../../../components/forms/TransactionSigning";
 
-export async function getServerSideProps({ params }) {
-  const { transactionUUID, address } = params;
-  const { queries } = require("../../../../database/connectDatabase");
-  const transaction = queries.getTransactionForUUID.get(transactionUUID);
-  const multi = queries.getMultiFromAddress.get(address);
-  return { props: { transaction, multi } };
-}
+const dummyTX = {
+  to: "cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae",
+  from: "cosmos1whn7htz4ktrnmvjzvd6nvsye6l8k238ma7uzaf",
+  amount: 405.8807,
+  status: "unsigned",
+  fee: 0.0025,
+  memo: "1473141937",
+  gas: "62,532 / 100,000",
+  height: 5327793,
+  type: "send",
+};
 
-export default ({ transaction, multi }) => {
+const transactionPage = ({ transaction, multi }) => {
   const txInfo = (transaction && JSON.parse(transaction.unsigned)) || null;
   return (
-    <div>
-      <Head title="Home" />
-      <div className="hero">
-        {txInfo && (
-          <div className="transaction-info">
-            <h2>Transaction Info</h2>
-            <ul>
-              <li>
-                <span>To:</span> {txInfo.value.msg[0].value.to_address}
-              </li>
-              <li>
-                <span>From:</span> {txInfo.value.msg[0].value.from_address}
-              </li>
-              <li>
-                <span>Amount:</span>{" "}
-                {txInfo.value.msg[0].value.amount[0].amount} uatom
-              </li>
-              <li>
-                <span>To:</span> {txInfo.value.fee.gas} uatom
-              </li>
-            </ul>
-          </div>
-        )}
-        <p className="description">
-          Download the unsigned transaction json to sign. Once the necessary
-          signatures are gathered here, you will be able to broadcast your
-          transaction.
-        </p>
-        <TransactionSigning transaction={transaction} multi={multi} />
-      </div>
+    <Page>
+      <StackableContainer base>
+        <StackableContainer>
+          <h1>Un-broadcast Transaction</h1>
+        </StackableContainer>
+        <TransactionInfo tx={dummyTX} />
+        <TransactionSigning />
+      </StackableContainer>
 
-      <style jsx>{`
-        .transaction-info {
-          text-align: left;
-          border: 1px solid rebeccapurple;
-          border-radius: 1em;
-          padding: 0.5em 1em;
-          width: 60%;
-          margin: 2em auto 1em;
-        }
-
-        .transaction-info ul {
-          list-style: none;
-          padding: 0;
-          font-size: 1.2em;
-        }
-
-        .transaction-info span {
-          font-weight: bold;
-          margin-right: 0.5em;
-        }
-        .transaction-info li {
-          margin: 0.5em 0;
-        }
-        .hero {
-          width: 100%;
-          text-align: center;
-        }
-        p {
-          max-width: 600px;
-          margin: 0 auto 1em;
-        }
-        .required-sigs {
-          font-size: 1.5em;
-        }
-
-        h2 {
-          font-size: 1.5em;
-          margin: 0.25em 0;
-          font-weight: bold;
-        }
-        .title {
-          margin: 0;
-          width: 100%;
-          padding-top: 2em;
-          line-height: 1.15;
-          font-size: 2em;
-        }
-      `}</style>
-      <style global jsx>{`
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-          color: white;
-          background: #500a58;
-          font-size: 16px;
-          margin: 0;
-        }
-        *:focus {
-          outline: none;
-        }
-        button {
-          cursor: pointer;
-        }
-        button:hover {
-          font-style: italic;
-        }
-      `}</style>
-    </div>
+      <style jsx>{``}</style>
+    </Page>
   );
 };
+
+export default transactionPage;
