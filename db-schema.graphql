@@ -1,0 +1,37 @@
+type Multisig {
+  threshold: Int!
+  sourceAddresses: [SourceAddress]! @relation
+  address: String
+  nickname: String
+}
+
+type SourceAddress {
+  nickname: String
+  address: String!
+  pubkey: String!
+  multisig: Multisig @relation
+}
+
+type Transaction {
+  multisigId: Multisig!
+  signatures: [Signature] @relation
+  toAddress: String!
+  fromAddress: String!
+  amount: Float!
+  threshold: Int!
+  txHash: String
+  broadcastDate: String
+  gas: Int!
+  fee: Float
+  JSON: String
+}
+
+type Signature {
+  transaction: Transaction! @relation
+  JSON: String!
+  sourceAddress: SourceAddress @relation
+}
+
+type Query {
+  getMultisig(address: String!): Multisig
+}

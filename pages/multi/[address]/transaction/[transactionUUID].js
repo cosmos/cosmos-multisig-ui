@@ -21,7 +21,7 @@ const transactionPage = ({ transaction, multi }) => {
     <Page>
       <StackableContainer base>
         <StackableContainer>
-          <h1>Un-broadcast Transaction</h1>
+          <h1>In Progress Transaction</h1>
         </StackableContainer>
         <TransactionInfo tx={dummyTX} />
         <TransactionSigning />

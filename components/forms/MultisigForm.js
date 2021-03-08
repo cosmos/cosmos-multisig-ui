@@ -58,12 +58,28 @@ class MultiSigForm extends React.Component {
 
   handleCreate = async () => {
     this.setState({ processing: true });
-    const res = await axios.post("/api/multiaddress", {
-      members: this.state.pubkeys,
-      threshold: this.state.threshold,
+    const res = await axios.post("/.netlify/functions/create-multisig", {
+      threshold: 3,
+      sourceAddresses: [
+        {
+          nickname: "samtest",
+          address: "cosmossam1",
+          pubkey: "sampubkey",
+        },
+        {
+          nickname: "samtest2",
+          address: "cosmossam2",
+          pubkey: "sampubkey",
+        },
+        {
+          nickname: "samtest3",
+          address: "cosmossam3",
+          pubkey: "sampubkey",
+        },
+      ],
     });
-
-    this.props.router.push(`/multi/${res.data}`);
+    console.log(res);
+    // this.props.router.push(`/multi/${res.data}`);
   };
 
   render() {
@@ -78,7 +94,7 @@ class MultiSigForm extends React.Component {
             </p>
           </StackableContainer>
           {this.state.pubkeys.map((pubkeyGroup, index) => (
-            <StackableContainer lessPadding lessMargin>
+            <StackableContainer lessPadding lessMargin key={index}>
               <div className="key-row">
                 {this.state.pubkeys.length > 2 && (
                   <button
