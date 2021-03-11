@@ -15,6 +15,7 @@
     "@cosmjs/stargate": "^0.24.0-alpha.26",
     "axios": "^0.21.1",
     "chalk": "^4.1.0",
+    "encoding": "^0.1.13",
     "faunadb": "^4.1.1",
     "next": "^10.0.7",
     "react": "^16.13.1",
