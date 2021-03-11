@@ -4,10 +4,11 @@
     "dev": "next",
     "build": "npm-run-all --parallel build:**",
     "build:app": "next build",
-    "build:functions": "netlify-lambda build functions",
+    "build:functions": "netlify-lambda build lambda",
     "start": "npm-run-all --parallel start:app start:server",
     "start:app": "PORT=3000 node server.js",
-    "start:server": "netlify-lambda serve lambda"
+    "start:server": "netlify-lambda serve lambda",
+    "export": "next export"
   },
   "dependencies": {
     "@cosmjs/launchpad": "^0.23.2",

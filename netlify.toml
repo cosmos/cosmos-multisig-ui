@@ -1,8 +1,8 @@
 # example netlify.toml
 [build]
-command = "next build"
+command = "npm run build && npm run export"
 functions = "lambda-build"
-publish = ".next"
+publish = "out"
 
 ## Uncomment to use this redirect for Single Page Applications like create-react-app.
 ## Not needed for static site generators.
