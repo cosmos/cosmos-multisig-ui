@@ -16,10 +16,10 @@ exports.handler = async (event, context, callback) => {
     const faunaRes = await client.query(
       q.Create(q.Collection("Multisig"), multisig)
     );
-    console.log("success", response);
+    console.log("success", faunaRes);
     return {
       statusCode: 200,
-      body: JSON.stringify(response),
+      body: JSON.stringify(faunaRes),
     };
   } catch (error) {
     console.log("error", error);
