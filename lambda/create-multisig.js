@@ -8,7 +8,7 @@ const client = new faunadb.Client({
 });
 
 /* export our lambda function as named "handler" export */
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context, callback) => {
   /* parse the string body into a useable JS object */
   const data = JSON.parse(event.body);
   console.log("Function `createMultisig` invoked", data);
@@ -16,16 +16,18 @@ exports.handler = (event, context, callback) => {
     data: data,
   };
   try {
-    const faunaRes = await client.query(q.Create(q.Collection("Multisig"), multisig))
+    const faunaRes = await client.query(
+      q.Create(q.Collection("Multisig"), multisig)
+    );
     console.log("success", response);
     return {
       statusCode: 200,
       body: JSON.stringify(response),
-    }
+    };
   } catch (error) {
-    return { 
+    return {
       statusCode: 400,
       body: JSON.stringify(error),
-    }
+    };
   }
 };
