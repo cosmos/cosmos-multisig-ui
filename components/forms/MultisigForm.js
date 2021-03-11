@@ -1,14 +1,15 @@
 import axios from "axios";
 import React from "react";
 import { withRouter } from "next/router";
+import { rawSecp256k1PubkeyToAddress } from "@cosmjs/launchpad";
 
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
 import ThresholdInput from "../inputs/ThresholdInput";
 
-const emptyPubKeyGroup = () => {
-  return { pubkey: "", nickname: "", keyError: "" };
+let emptyPubKeyGroup = () => {
+  return { pubkey: "", nickname: "", keyError: "", address: "" };
 };
 
 class MultiSigForm extends React.Component {
@@ -17,8 +18,6 @@ class MultiSigForm extends React.Component {
 
     this.state = {
       pubkeys: [emptyPubKeyGroup(), emptyPubKeyGroup()],
-      key: "",
-      nickname: "",
       threshold: 2,
       processing: false,
     };
@@ -56,30 +55,39 @@ class MultiSigForm extends React.Component {
     });
   };
 
+  handleKeyBlur = (index, e) => {
+    const pubkey = e.target.value;
+    try {
+      const address = rawSecp256k1PubkeyToAddress(pubkey);
+      const { pubkeys } = this.state;
+      pubkeys[index].address = address;
+      this.setState({ pubkeys });
+    } catch (error) {
+      const { pubkeys } = this.state;
+      pubkeys[index].keyError = "Invalid Secp256k1 pubkey";
+      this.setState({ pubkeys });
+    }
+  };
+
   handleCreate = async () => {
     this.setState({ processing: true });
-    const res = await axios.post("/.netlify/functions/create-multisig", {
-      threshold: 3,
-      sourceAddresses: [
-        {
-          nickname: "samtest",
-          address: "cosmossam1",
-          pubkey: "sampubkey",
-        },
-        {
-          nickname: "samtest2",
-          address: "cosmossam2",
-          pubkey: "sampubkey",
-        },
-        {
-          nickname: "samtest3",
-          address: "cosmossam3",
-          pubkey: "sampubkey",
-        },
-      ],
-    });
-    console.log(res);
-    // this.props.router.push(`/multi/${res.data}`);
+    const multisig = {
+      threshold: this.state.threshold,
+      address: "cosmos1fjrcosmosDUMMYADDRESSqwpsvcrskv80wj82h",
+      sourceAddresses: this.state.pubkeys.map((pubkey) => {
+        return {
+          nickname: pubkey.nickname,
+          address: pubkey.address,
+          pubkey: pubkey.pubkey,
+        };
+      }),
+    };
+    const res = await axios.post(
+      "/.netlify/functions/create-multisig",
+      multisig
+    );
+    const multiAddress = res.data.data.address;
+    this.props.router.push(`/multi/${multiAddress}`);
   };
 
   render() {
@@ -111,7 +119,7 @@ class MultiSigForm extends React.Component {
                     onChange={(e) => {
                       this.handleKeyGroupChange(index, e);
                     }}
-                    value={this.state.pubkeys[index].nickname}
+                    value={pubkeyGroup.nickname}
                     label="Nickname"
                     name="nickname"
                     width="30%"
@@ -120,11 +128,14 @@ class MultiSigForm extends React.Component {
                     onChange={(e) => {
                       this.handleKeyGroupChange(index, e);
                     }}
-                    value={this.state.pubkeys[index].key}
+                    value={pubkeyGroup.pubkey}
                     label="Public Key"
-                    name="key"
+                    name="pubkey"
                     width="65%"
-                    error={this.state.pubkeys[index].keyError}
+                    error={pubkeyGroup.keyError}
+                    onBlur={(e) => {
+                      this.handleKeyBlur(index, e);
+                    }}
                   />
                 </div>
               </div>

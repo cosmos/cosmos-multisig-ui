@@ -1,6 +1,10 @@
-export default (props) => (
+const Button = (props) => (
   <>
-    <button className={props.primary ? "primary" : ""} onClick={props.onClick}>
+    <button
+      className={props.primary ? "primary" : ""}
+      onClick={props.onClick}
+      disable={props.disable && props.disable.toString()}
+    >
       {props.label}
     </button>
     <style jsx>{`
@@ -24,3 +28,5 @@ export default (props) => (
     `}</style>
   </>
 );
+
+export default Button;

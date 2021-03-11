@@ -1,4 +1,4 @@
-export default (props) => (
+const Input = (props) => (
   <div className="text-input">
     <label>{props.label || ""}</label>
     <input
@@ -8,6 +8,7 @@ export default (props) => (
       value={props.value}
       placeholder={props.placeholder || ""}
       autoComplete="off"
+      onBlur={props.onBlur}
     />
     {props.error && <div className="error">{props.error}</div>}
     <style jsx>{`
@@ -44,3 +45,5 @@ export default (props) => (
     `}</style>
   </div>
 );
+
+export default Input;

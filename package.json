@@ -10,6 +10,7 @@
     "start:server": "netlify-lambda serve lambda"
   },
   "dependencies": {
+    "@cosmjs/launchpad": "^0.23.2",
     "@cosmjs/proto-signing": "^0.24.0-alpha.26",
     "@cosmjs/stargate": "^0.24.0-alpha.26",
     "axios": "^0.21.1",
