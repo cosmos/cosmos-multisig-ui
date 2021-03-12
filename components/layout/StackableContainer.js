@@ -19,6 +19,7 @@ export default (props) => (
       }
 
       .base {
+        max-width: 700px;
         background: #62145f;
         box-shadow: 0px 28px 80px rgba(0, 0, 0, 0.07),
           0px 12.7134px 39.2617px rgba(0, 0, 0, 0.0519173),

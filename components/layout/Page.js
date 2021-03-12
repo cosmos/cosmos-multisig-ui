@@ -1,10 +1,12 @@
 import Head from "../head";
+import DevHelper from "../DevHelper";
 
 export default (props) => {
   return (
     <div className="page">
       <Head title={props.title || "Cosmos Multisig Manager"} />
       {props.children}
+      <DevHelper />
       <style jsx>{`
         .page {
           display: flex;

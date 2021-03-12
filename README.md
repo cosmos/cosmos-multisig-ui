@@ -2,7 +2,7 @@
 
 ### 🚧🚧🚧🚧🚧 UNDER CONSTRUCTION 🚧🚧🚧🚧🚧🚧
 
-This app allows for legacy multisig users to create, sign and broadcast transactions on the stargate enabled cosmos hub chain.
+This app allows for legacy multisig users to create, sign and broadcast transactions on the stargate enabled cosmos hub chain. It's built with Cosmjs, Next.js, FaunaDB and Netlify.
 
 ## Running locally
 
