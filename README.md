@@ -1,12 +1,12 @@
 # Cosmoshub Legacy Multisig
 
-### 🚧🚧🚧🚧🚧 UNDER CONSTRUCTION 🚧🚧🚧🚧🚧🚧
+### 🚧🚧🚧🚧🚧 In Active Development 🚧🚧🚧🚧🚧🚧
 
 ## Reason for Being
 
-This app allows for legacy multisig users to create, sign and broadcast transactions on the stargate enabled cosmos hub chain. It's built with Cosmjs, Next.js, FaunaDB and Netlify.
+This app allows for legacy multisig users to create, sign and broadcast transactions on the stargate enabled cosmos hub chain. It's built with Cosmjs, Next.js, FaunaDB and Vercel.
 
-[The app can be tested out here](https://cosmos-legacy-multisig.netlify.app/). (_*Note:*_ Only the UI and datastore are functional, waiting on some Cosmjs updates to handle multisig creation and signing)
+[The app can be tested out here](https://cosmoshub-legacy-multisig.vercel.app/). (_*Note:*_ Only the UI and datastore are functional, waiting on some Cosmjs updates to handle multisig creation and signing)
 
 ## Dev Setup
 
@@ -19,5 +19,3 @@ Clone the repo, then run:
 npm install
 npm run dev
 ```
-
-Since this app uses Netlify based Lambda functions to interact with FaunaDB, when run locally it uses a proxy server locally (housed in `server.js`) to emulate Netlify's function endpoints.

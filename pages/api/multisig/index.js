@@ -8,7 +8,6 @@ export default async function (req, res) {
         const client = new faunadb.Client({
           secret: process.env.FAUNADB_SECRET,
         });
-        console.log(req.body);
         try {
           const data = req.body;
           console.log("Function `createMultisig` invoked", data);
