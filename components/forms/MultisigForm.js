@@ -82,10 +82,7 @@ class MultiSigForm extends React.Component {
         };
       }),
     };
-    const res = await axios.post(
-      "/.netlify/functions/create-multisig",
-      multisig
-    );
+    const res = await axios.post("/api/multisig", multisig);
     const multiAddress = res.data.data.address;
     this.props.router.push(`/multi/${multiAddress}`);
   };

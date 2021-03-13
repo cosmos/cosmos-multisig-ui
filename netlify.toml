@@ -1,5 +1,0 @@
-# example netlify.toml
-[build]
-command = "npm run build && npm run export"
-functions = "lambda-build"
-publish = "out"
