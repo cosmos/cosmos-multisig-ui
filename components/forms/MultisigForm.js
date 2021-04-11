@@ -1,15 +1,15 @@
 import axios from "axios";
 import React from "react";
 import { withRouter } from "next/router";
-import { rawSecp256k1PubkeyToAddress } from "@cosmjs/launchpad";
 
 import Button from "../inputs/Button";
+import { createMultisigFromCompressedSecp256k1Pubkeys } from "../../lib/multisigHelpers";
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
 import ThresholdInput from "../inputs/ThresholdInput";
 
 let emptyPubKeyGroup = () => {
-  return { pubkey: "", nickname: "", keyError: "", address: "" };
+  return { compressedPubkey: "", keyError: "" };
 };
 
 class MultiSigForm extends React.Component {
@@ -56,35 +56,38 @@ class MultiSigForm extends React.Component {
   };
 
   handleKeyBlur = (index, e) => {
-    const pubkey = e.target.value;
     try {
-      const address = rawSecp256k1PubkeyToAddress(pubkey);
+      let compressedPubkey = e.target.value;
+      if (compressedPubkey.length !== 44) {
+        throw new Error("Invalid Secp256k1 pubkey");
+      }
       const { pubkeys } = this.state;
-      pubkeys[index].address = address;
+      pubkeys[index].compressedPubkey = compressedPubkey;
+      pubkeys[index].keyError = "";
       this.setState({ pubkeys });
     } catch (error) {
+      console.log(error);
       const { pubkeys } = this.state;
-      pubkeys[index].keyError = "Invalid Secp256k1 pubkey";
+      pubkeys[index].keyError = error.message;
       this.setState({ pubkeys });
     }
   };
 
   handleCreate = async () => {
     this.setState({ processing: true });
-    const multisig = {
-      threshold: this.state.threshold,
-      address: "cosmos1fjrcosmosDUMMYADDRESSqwpsvcrskv80wj82h",
-      sourceAddresses: this.state.pubkeys.map((pubkey) => {
-        return {
-          nickname: pubkey.nickname,
-          address: pubkey.address,
-          pubkey: pubkey.pubkey,
-        };
-      }),
-    };
-    const res = await axios.post("/api/multisig", multisig);
-    const multiAddress = res.data.data.address;
-    this.props.router.push(`/multi/${multiAddress}`);
+    const compressedPubkeys = this.state.pubkeys.map(
+      (item) => item.compressedPubkey
+    );
+    let multisigAddress;
+    try {
+      multisigAddress = createMultisigFromCompressedSecp256k1Pubkeys(
+        compressedPubkeys,
+        this.state.threshold
+      );
+    } catch (error) {
+      console.log(error);
+    }
+    this.props.router.push(`/multi/${multisigAddress}`);
   };
 
   render() {
@@ -92,10 +95,10 @@ class MultiSigForm extends React.Component {
       <>
         <StackableContainer>
           <StackableContainer lessPadding>
+            <p>Add the Public Keys that will make up this multisig.</p>
             <p>
-              Add the public keys of the addresses that will make up this
-              multisig. The 'Nickname' field is a casual name for the key that
-              will be used to help identify it in the future.
+              Note this only supports compressed Secp256k1 pubkeys, double check
+              this is the algo used to create your account.
             </p>
           </StackableContainer>
           {this.state.pubkeys.map((pubkeyGroup, index) => (
@@ -116,19 +119,11 @@ class MultiSigForm extends React.Component {
                     onChange={(e) => {
                       this.handleKeyGroupChange(index, e);
                     }}
-                    value={pubkeyGroup.nickname}
-                    label="Nickname"
-                    name="nickname"
-                    width="30%"
-                  />
-                  <Input
-                    onChange={(e) => {
-                      this.handleKeyGroupChange(index, e);
-                    }}
-                    value={pubkeyGroup.pubkey}
+                    value={pubkeyGroup.compressedPubkey}
                     label="Public Key"
-                    name="pubkey"
-                    width="65%"
+                    name="compressedPubkey"
+                    width="100%"
+                    placeholder="Akd/qKMWdZXyiMnSu6aFLpQEGDO0ijyal9mXUIcVaPNX"
                     error={pubkeyGroup.keyError}
                     onBlur={(e) => {
                       this.handleKeyBlur(index, e);
@@ -139,7 +134,7 @@ class MultiSigForm extends React.Component {
             </StackableContainer>
           ))}
 
-          <Button label="Add another key" onClick={this.handleAddKey} />
+          <Button label="Add another address" onClick={this.handleAddKey} />
         </StackableContainer>
         <StackableContainer>
           <StackableContainer lessPadding>
@@ -184,6 +179,12 @@ class MultiSigForm extends React.Component {
             position: absolute;
             right: -23px;
             top: -22px;
+          }
+          p {
+            margin-top: 1em;
+          }
+          p:first-child {
+            margin-top: 0;
           }
         `}</style>
       </>
