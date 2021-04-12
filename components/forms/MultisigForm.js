@@ -134,7 +134,7 @@ class MultiSigForm extends React.Component {
             </StackableContainer>
           ))}
 
-          <Button label="Add another address" onClick={this.handleAddKey} />
+          <Button label="Add another pubkey" onClick={this.handleAddKey} />
         </StackableContainer>
         <StackableContainer>
           <StackableContainer lessPadding>
