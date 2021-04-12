@@ -15,7 +15,7 @@ const DevHelper = (props) => (
         </a>
       </li>
       <li>
-        <a href="/multi/cosmos1fjrcosmosDUMMYADDRESSqwpsvcrskv80wj82h/transaction/kjas-q981-asda-143d">
+        <a href="/multi/cosmos10nmdf6nt2qzvgn9q2nuwmmfc359yfesmu3gw22/transaction/295630000375202310">
           View/Sign Transaction
         </a>
       </li>
