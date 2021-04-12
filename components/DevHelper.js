@@ -10,7 +10,7 @@ const DevHelper = (props) => (
         <a href="/create">Create Multisig</a>
       </li>
       <li>
-        <a href="/multi/cosmos1fjrcosmosDUMMYADDRESSqwpsvcrskv80wj82h">
+        <a href="/multi/cosmos10nmdf6nt2qzvgn9q2nuwmmfc359yfesmu3gw22">
           View Multisig
         </a>
       </li>
