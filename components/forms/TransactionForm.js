@@ -1,37 +1,11 @@
 import axios from "axios";
+import { coins } from "@cosmjs/launchpad";
 import React from "react";
 import { withRouter } from "next/router";
 
 import Button from "../../components/inputs/Button";
 import Input from "../../components/inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
-
-const baseTX = {
-  type: "cosmos-sdk/StdTx",
-  value: {
-    msg: [
-      {
-        type: "cosmos-sdk/MsgSend",
-        value: {
-          from_address: "",
-          to_address: "",
-          amount: [
-            {
-              denom: "uatom",
-              amount: "0",
-            },
-          ],
-        },
-      },
-    ],
-    fee: {
-      amount: [],
-      gas: "0",
-    },
-    signatures: null,
-    memo: "",
-  },
-};
 
 class TransactionForm extends React.Component {
   constructor(props) {
@@ -54,10 +28,29 @@ class TransactionForm extends React.Component {
   };
 
   createTransaction = (toAddress, amount, gas) => {
-    baseTX.value.msg[0].value.to_address = toAddress;
-    baseTX.value.msg[0].value.from_address = this.props.address;
-    baseTX.value.msg[0].value.amount[0].amount = amount.toString();
-    baseTX.value.fee.gas = gas.toString();
+    const msgSend = {
+      fromAddress: this.props.address,
+      toAddress: toAddress,
+      amount: coins(amount * 1000000, "uatom"),
+    };
+    const msg = {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: msgSend,
+    };
+    const gasLimit = gas;
+    const fee = {
+      amount: coins(2000, "uatom"),
+      gas: gasLimit.toString(),
+    };
+
+    return {
+      accountNumber: this.props.accountOnChain.accountNumber,
+      sequence: this.props.accountOnChain.sequence,
+      chainId: "cosmoshub-4",
+      msgs: [msg],
+      fee: fee,
+      memo: this.state.memo,
+    };
     return baseTX;
   };
 
@@ -70,13 +63,11 @@ class TransactionForm extends React.Component {
         this.state.gas
       );
 
-      const res = await axios.post("/api/transaction", {
-        unsignedJson: JSON.stringify(tx),
-        multiAddress: this.props.multiAddress,
-      });
-
+      const dataJSON = JSON.stringify(tx);
+      const res = await axios.post("/api/transaction", { dataJSON });
+      const { transactionID } = res.data;
       this.props.router.push(
-        `${this.props.multiAddress}/transaction/${res.data}`
+        `${this.props.address}/transaction/${transactionID}`
       );
     } else {
       this.setState({ addressError: "Use a valid cosmos-hub address" });
@@ -86,6 +77,9 @@ class TransactionForm extends React.Component {
   render() {
     return (
       <StackableContainer lessPadding>
+        <button className="remove" onClick={this.props.closeForm}>
+          ✕
+        </button>
         <h2>Create New transaction</h2>
         <div className="form-item">
           <Input
@@ -93,6 +87,7 @@ class TransactionForm extends React.Component {
             name="toAddress"
             value={this.state.toAddress}
             onChange={this.handleChange}
+            error={this.state.addressError}
             placeholder="cosmos1fjrzd7ycxzse05zme3r2zqwpsvcrskv80wj82h"
           />
         </div>
@@ -107,27 +102,40 @@ class TransactionForm extends React.Component {
         </div>
         <div className="form-item">
           <Input
-            label="Gas"
+            label="Gas (UATOM)"
             name="gas"
             type="number"
             value={this.state.gas}
             onChange={this.handleChange}
           />
         </div>
-        <Button
-          label="Create Transaction"
-          onClick={() => {
-            this.props.router.push(
-              `${this.props.address}/transaction/${"kjas-q981-asda-143d"}`
-            );
-          }}
-        />
+        <div className="form-item">
+          <Input
+            label="Memo"
+            name="memo"
+            type="text"
+            value={this.state.memo}
+            onChange={this.handleChange}
+          />
+        </div>
+        <Button label="Create Transaction" onClick={this.handleCreate} />
         <style jsx>{`
           p {
             margin-top: 15px;
           }
           .form-item {
             margin-top: 1.5em;
+          }
+          button.remove {
+            background: rgba(255, 255, 255, 0.2);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            position: absolute;
+            right: 10px;
+            top: 10px;
           }
         `}</style>
       </StackableContainer>

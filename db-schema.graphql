@@ -13,22 +13,13 @@ type SourceAddress {
 }
 
 type Transaction {
-  multisigId: Multisig!
   signatures: [Signature] @relation
-  toAddress: String!
-  fromAddress: String!
-  amount: Float!
-  threshold: Int!
-  txHash: String
-  broadcastDate: String
-  gas: Int!
-  fee: Float
-  JSON: String
+  dataJSON: String
 }
 
 type Signature {
   transaction: Transaction! @relation
-  JSON: String!
+  dataJSON: String!
   sourceAddress: SourceAddress @relation
 }
 

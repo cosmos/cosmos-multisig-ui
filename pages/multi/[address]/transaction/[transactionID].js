@@ -1,3 +1,5 @@
+import faunadb from "faunadb";
+
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
@@ -15,15 +17,38 @@ const dummyTX = {
   type: "send",
 };
 
-const transactionPage = ({ transaction, multi }) => {
-  const txInfo = (transaction && JSON.parse(transaction.unsigned)) || null;
+export async function getServerSideProps(context) {
+  const q = faunadb.query;
+  const client = new faunadb.Client({
+    secret: process.env.FAUNADB_SECRET,
+  });
+  const transactionID = context.params.transactionID;
+  let transactionJSON = "";
+  try {
+    console.log("Function `getTransactionByID` invoked", transactionID);
+    const faunaRes = await client.query(
+      q.Get(q.Ref(q.Collection("Transaction"), transactionID))
+    );
+    console.log("success", faunaRes);
+    transactionJSON = faunaRes.data.dataJSON;
+  } catch (err) {
+    console.log(err);
+  }
+  return {
+    props: { transactionJSON },
+  };
+}
+
+const transactionPage = ({ transactionJSON }) => {
+  const txInfo = (transactionJSON && JSON.parse(transactionJSON)) || null;
+  console.log(txInfo);
   return (
     <Page>
       <StackableContainer base>
         <StackableContainer>
           <h1>In Progress Transaction</h1>
         </StackableContainer>
-        <TransactionInfo tx={dummyTX} />
+        <TransactionInfo tx={txInfo} />
         <TransactionSigning />
       </StackableContainer>
 

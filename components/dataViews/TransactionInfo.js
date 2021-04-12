@@ -1,48 +1,43 @@
 import { abbreviateLongString } from "../../lib/displayHelpers";
 import StackableContainer from "../layout/StackableContainer";
 
+const uatomToAtom = (uatom) => {
+  return uatom / 1000000;
+};
 export default (props) => (
   <StackableContainer lessPadding lessMargin>
     <ul className="meta-data">
-      {props.tx.amount && (
+      {props.tx.msgs && (
         <li>
           <label>Amount:</label>
-          <div>{props.tx.amount} ATOM</div>
+          <div>{uatomToAtom(props.tx.msgs[0].value.amount[0].amount)} ATOM</div>
         </li>
       )}
-      {props.tx.to && (
+      {props.tx.msgs && (
         <li>
           <label>To:</label>
-          <div title={props.tx.to}>
-            {props.abbreviate ? abbreviateLongString(props.tx.to) : props.tx.to}
+          <div title={props.tx.msgs[0].value.toAddress}>
+            {props.tx.abbreviate
+              ? abbreviateLongString(props.tx.msgs[0].value.toAddress)
+              : props.tx.msgs[0].value.toAddress}
           </div>
         </li>
       )}
 
-      {props.tx.txHash && (
-        <li>
-          <label>Tx Hash:</label>
-          <div title={props.tx.txHash}>
-            {abbreviateLongString(props.tx.txHash)}
-          </div>
-        </li>
-      )}
-      {props.tx.status && (
-        <li>
-          <label>Status:</label>
-          <div>{props.tx.status}</div>
-        </li>
-      )}
+      <li>
+        <label>Status:</label>
+        <div>{props.tx.status || "signing in progress"}</div>
+      </li>
       {props.tx.fee && (
         <li>
-          <label>Fee:</label>
-          <div>{props.tx.fee}</div>
+          <label>Gas:</label>
+          <div>{props.tx.fee.gas} UATOM</div>
         </li>
       )}
-      {props.tx.time && (
+      {props.tx.memo && (
         <li>
-          <label>Date:</label>
-          <div>{props.tx.time}</div>
+          <label>Memo:</label>
+          <div>{props.tx.memo}</div>
         </li>
       )}
     </ul>
