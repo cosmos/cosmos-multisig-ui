@@ -1,41 +1,31 @@
-import faunadb from "faunadb";
+import { StargateClient } from "@cosmjs/stargate";
 
+import { findTransactionByID } from "../../../../lib/graphqlHelpers";
+import { getMultisigAccount } from "../../../../lib/multisigHelpers";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
 import TransactionSigning from "../../../../components/forms/TransactionSigning";
 
-const dummyTX = {
-  to: "cosmos1nynns8ex9fq6sjjfj8k79ymkdz4sqth06xexae",
-  from: "cosmos1whn7htz4ktrnmvjzvd6nvsye6l8k238ma7uzaf",
-  amount: 405.8807,
-  status: "unsigned",
-  fee: 0.0025,
-  memo: "1473141937",
-  gas: "62,532 / 100,000",
-  height: 5327793,
-  type: "send",
-};
-
 export async function getServerSideProps(context) {
-  const q = faunadb.query;
-  const client = new faunadb.Client({
-    secret: process.env.FAUNADB_SECRET,
-  });
+  // get multisig account and transaction info
+  const client = await StargateClient.connect("143.198.6.14:26657");
+  const multisigAddress = context.params.address;
+  const holdings = await client.getBalance(multisigAddress, "uatom");
   const transactionID = context.params.transactionID;
-  let transactionJSON = "";
+  let transactionJSON;
+  let accountOnChain;
   try {
-    console.log("Function `getTransactionByID` invoked", transactionID);
-    const faunaRes = await client.query(
-      q.Get(q.Ref(q.Collection("Transaction"), transactionID))
-    );
-    console.log("success", faunaRes);
-    transactionJSON = faunaRes.data.dataJSON;
+    accountOnChain = await getMultisigAccount(multisigAddress, client);
+    console.log("Function `findTransactionByID` invoked", transactionID);
+    const getRes = await findTransactionByID(transactionID);
+    console.log("success", getRes.data);
+    transactionJSON = getRes.data.data.findTransactionByID.dataJSON;
   } catch (err) {
     console.log(err);
   }
   return {
-    props: { transactionJSON },
+    props: { transactionJSON, accountOnChain, holdings },
   };
 }
 

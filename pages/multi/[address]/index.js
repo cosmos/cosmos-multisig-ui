@@ -3,6 +3,7 @@ import { StargateClient } from "@cosmjs/stargate";
 import { useRouter } from "next/router";
 
 import Button from "../../../components/inputs/Button";
+import { getMultisigAccount } from "../../../lib/multisigHelpers";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
@@ -14,8 +15,8 @@ export async function getServerSideProps(context) {
   const client = await StargateClient.connect("143.198.6.14:26657");
   const multisigAddress = context.params.address;
   const holdings = await client.getBalance(multisigAddress, "uatom");
-  const accountOnChain = await client.getAccount(multisigAddress);
-  const id = await client.getChainId();
+  const accountOnChain = await getMultisigAccount(multisigAddress, client);
+
   return {
     props: { accountOnChain, holdings: holdings.amount / 1000000 },
   };

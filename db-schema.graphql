@@ -1,8 +1,6 @@
 type Multisig {
-  threshold: Int!
-  sourceAddresses: [SourceAddress]! @relation
-  address: String
-  nickname: String
+  pubkeyJSON: String!
+  address: String!
 }
 
 type SourceAddress {
