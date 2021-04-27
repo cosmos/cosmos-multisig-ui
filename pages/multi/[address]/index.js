@@ -12,20 +12,29 @@ import TransactionForm from "../../../components/forms/TransactionForm";
 import TransactionList from "../../../components/dataViews/TransactionList";
 
 export async function getServerSideProps(context) {
-  const client = await StargateClient.connect("143.198.6.14:26657");
-  const multisigAddress = context.params.address;
-  const holdings = await client.getBalance(multisigAddress, "uatom");
-  const accountOnChain = await getMultisigAccount(multisigAddress, client);
+  let holdings;
+  try {
+    const client = await StargateClient.connect("143.198.6.14:26657");
+    const multisigAddress = context.params.address;
+    holdings = await client.getBalance(multisigAddress, "uatom");
+    const accountOnChain = await getMultisigAccount(multisigAddress, client);
 
-  return {
-    props: { accountOnChain, holdings: holdings.amount / 1000000 },
-  };
+    return {
+      props: { accountOnChain, holdings: holdings.amount / 1000000 },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      props: { error: error.message, holdings: holdings.amount / 1000000 },
+    };
+  }
 }
 
 const multipage = (props) => {
   const [showTxForm, setShowTxForm] = useState(false);
   const router = useRouter();
   const { address } = router.query;
+  console.log(props);
   return (
     <Page>
       <StackableContainer base>
@@ -33,6 +42,22 @@ const multipage = (props) => {
           <label>Multisig Address</label>
           <h1>{address}</h1>
         </StackableContainer>
+        {props.error && (
+          <StackableContainer>
+            <div className="multisig-error">
+              <p>
+                This multisig address's pubkeys are not available, and so it
+                cannot be used with this tool.
+              </p>
+              <p>
+                You can recreate it with this tool here, or sign and broadcast a
+                transaction with the tool you used to create it. Either option
+                will make the pubkeys accessible and will allow this tool to use
+                this multisig fully.
+              </p>
+            </div>
+          </StackableContainer>
+        )}
         {showTxForm ? (
           <TransactionForm
             address={address}
@@ -84,6 +109,15 @@ const multipage = (props) => {
         }
         p {
           margin-top: 15px;
+        }
+        .multisig-error p {
+          max-width: 550px;
+          color: red;
+          font-size: 16px;
+          line-height: 1.4;
+        }
+        .multisig-error p:first-child {
+          margin-top: 0;
         }
       `}</style>
     </Page>
