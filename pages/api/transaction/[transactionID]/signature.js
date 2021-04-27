@@ -1,4 +1,4 @@
-import { createTransaction } from "../../../lib/graphqlHelpers";
+import { createTransaction } from "../../../../lib/graphqlHelpers";
 
 export default async function (req, res) {
   return new Promise(async (resolve) => {
