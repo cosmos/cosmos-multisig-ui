@@ -39,7 +39,7 @@ const transactionPage = ({ transactionJSON }) => {
           <h1>In Progress Transaction</h1>
         </StackableContainer>
         <TransactionInfo tx={txInfo} />
-        <TransactionSigning />
+        <TransactionSigning tx={txInfo} />
       </StackableContainer>
 
       <style jsx>{``}</style>

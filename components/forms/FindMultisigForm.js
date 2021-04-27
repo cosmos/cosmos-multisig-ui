@@ -26,7 +26,7 @@ class FindMultisigForm extends React.Component {
   handleSearch = async () => {
     this.setState({ processing: true });
 
-    this.props.router.push(`/multi/${res.data}`);
+    this.props.router.push(`/multi/${this.state.address}`);
   };
 
   render() {
