@@ -1,13 +1,12 @@
-import { StargateClient } from "@cosmjs/stargate";
-
-import { findTransactionByID } from "../../../../lib/graphqlHelpers";
-import { getMultisigAccount } from "../../../../lib/multisigHelpers";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
 import TransactionSigning from "../../../../components/forms/TransactionSigning";
 
 export async function getServerSideProps(context) {
+  import { StargateClient } from "@cosmjs/stargate";
+  import { findTransactionByID } from "../../../../lib/graphqlHelpers";
+  import { getMultisigAccount } from "../../../../lib/multisigHelpers";
   // get multisig account and transaction info
   const client = await StargateClient.connect("143.198.6.14:26657");
   const multisigAddress = context.params.address;
