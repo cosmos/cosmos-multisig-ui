@@ -13,18 +13,15 @@ type SourceAddress {
 type Transaction {
   signatures: [Signature] @relation
   dataJSON: String
-  bodyBytes: String
 }
 
 type Signature {
   transaction: Transaction! @relation
-  dataJSON: String!
+  bodyBytes: String!
+  signature: String!
+  address: String!
 }
 
 type Query {
   getMultisig(address: String!): Multisig
-}
-
-type Mutation {
-  setTransactionBody(address: String!): Multisig
 }

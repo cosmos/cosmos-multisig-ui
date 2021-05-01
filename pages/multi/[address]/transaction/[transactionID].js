@@ -25,11 +25,11 @@ export async function getServerSideProps(context) {
     console.log(err);
   }
   return {
-    props: { transactionJSON, accountOnChain, holdings },
+    props: { transactionJSON, accountOnChain, holdings, transactionID },
   };
 }
 
-const transactionPage = ({ transactionJSON }) => {
+const transactionPage = ({ transactionJSON, transactionID }) => {
   const txInfo = (transactionJSON && JSON.parse(transactionJSON)) || null;
   console.log(txInfo);
   return (
@@ -39,7 +39,7 @@ const transactionPage = ({ transactionJSON }) => {
           <h1>In Progress Transaction</h1>
         </StackableContainer>
         <TransactionInfo tx={txInfo} />
-        <TransactionSigning tx={txInfo} />
+        <TransactionSigning tx={txInfo} transactionID={transactionID} />
       </StackableContainer>
 
       <style jsx>{``}</style>

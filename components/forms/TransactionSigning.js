@@ -1,4 +1,5 @@
 import axios from "axios";
+import { encode, decode } from "uint8-to-base64";
 import React from "react";
 import { SigningStargateClient } from "@cosmjs/stargate";
 
@@ -43,7 +44,6 @@ export default class TransactionSigning extends React.Component {
     try {
       await window.keplr.enable("cosmoshub");
       const walletAccount = await window.keplr.getKey("cosmoshub");
-      console.log(walletAccount);
       this.setState({ walletAccount });
     } catch (e) {
       console.log("enable err: ", e);
@@ -68,11 +68,20 @@ export default class TransactionSigning extends React.Component {
         this.props.tx.memo,
         signerData
       );
-      // save body bytes to the tx
-      // save/create the signature in the db
-      console.log(bodyBytes, signatures);
+
+      console.log(bodyBytes, signatures[0]);
+      const signature = {
+        bodyBytes,
+        signature: encode(signatures[0]),
+        address: this.state.walletAccount.bech32Address,
+      };
+      const res = await axios.post(
+        `/api/transaction/${this.props.transactionID}/signature`,
+        signature
+      );
+      console.log(decode(res.data.signature));
     } catch (error) {
-      console.log(error);
+      console.log("Error creating signature:", error);
     }
   };
 
