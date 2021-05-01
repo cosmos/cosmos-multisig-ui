@@ -84,10 +84,10 @@ class MultiSigForm extends React.Component {
         compressedPubkeys,
         this.state.threshold
       );
+      this.props.router.push(`/multi/${multisigAddress}`);
     } catch (error) {
-      console.log(error);
+      console.log("Failed to creat multisig: ", error);
     }
-    this.props.router.push(`/multi/${multisigAddress}`);
   };
 
   render() {

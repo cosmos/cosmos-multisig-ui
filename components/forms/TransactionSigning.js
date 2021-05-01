@@ -68,6 +68,8 @@ export default class TransactionSigning extends React.Component {
         this.props.tx.memo,
         signerData
       );
+      // save body bytes to the tx
+      // save/create the signature in the db
       console.log(bodyBytes, signatures);
     } catch (error) {
       console.log(error);

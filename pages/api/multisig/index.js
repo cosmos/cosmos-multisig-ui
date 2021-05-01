@@ -1,24 +1,15 @@
-import faunadb from "faunadb";
+import { createMultisig } from "../../../lib/graphqlHelpers";
 
 export default async function (req, res) {
   return new Promise(async (resolve) => {
     switch (req.method) {
       case "POST":
-        const q = faunadb.query;
-        const client = new faunadb.Client({
-          secret: process.env.FAUNADB_SECRET,
-        });
         try {
           const data = req.body;
           console.log("Function `createMultisig` invoked", data);
-          const multisig = {
-            data: data,
-          };
-          const faunaRes = await client.query(
-            q.Create(q.Collection("Multisig"), multisig)
-          );
-          console.log("success", faunaRes);
-          res.status(200).send(faunaRes);
+          const saveRes = await createMultisig(data);
+          console.log("success", saveRes.data);
+          res.status(200).send(saveRes.data.data.createMultisig);
           return resolve();
         } catch (err) {
           console.log(err);
