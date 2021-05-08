@@ -1,9 +1,13 @@
-import { StargateClient } from "@cosmjs/stargate";
+import { StargateClient, makeMultisignedTx } from "@cosmjs/stargate";
+import { TxRaw } from "@cosmjs/stargate/build/codec/cosmos/tx/v1beta1/tx";
+import { useState } from "react";
+import { encode, decode } from "uint8-to-base64";
 
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
 import { getMultisigAccount } from "../../../../lib/multisigHelpers";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
+import ThresholdInfo from "../../../../components/dataViews/ThresholdInfo";
 import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
 import TransactionSigning from "../../../../components/forms/TransactionSigning";
 
@@ -15,23 +19,62 @@ export async function getServerSideProps(context) {
   const transactionID = context.params.transactionID;
   let transactionJSON;
   let accountOnChain;
+  let signatures;
   try {
     accountOnChain = await getMultisigAccount(multisigAddress, client);
     console.log("Function `findTransactionByID` invoked", transactionID);
     const getRes = await findTransactionByID(transactionID);
     console.log("success", getRes.data);
     transactionJSON = getRes.data.data.findTransactionByID.dataJSON;
+    signatures = getRes.data.data.findTransactionByID.signatures.data || [];
   } catch (err) {
     console.log(err);
   }
   return {
-    props: { transactionJSON, accountOnChain, holdings, transactionID },
+    props: {
+      transactionJSON,
+      accountOnChain,
+      holdings,
+      transactionID,
+      signatures,
+    },
   };
 }
 
-const transactionPage = ({ transactionJSON, transactionID }) => {
+const transactionPage = ({
+  transactionJSON,
+  transactionID,
+  signatures,
+  accountOnChain,
+}) => {
+  const [currentSignatures, setCurrentSignatures] = useState(signatures);
   const txInfo = (transactionJSON && JSON.parse(transactionJSON)) || null;
-  console.log(txInfo);
+  console.log(accountOnChain);
+  const addSignature = (signature) => {
+    setCurrentSignatures(currentSignatures.push(signature));
+  };
+  const broadcastTx = async () => {
+    const signatures = new Map();
+    currentSignatures.forEach((signature) => {
+      signatures.set(signature.address, decode(signature.signature));
+    });
+    console.log(signatures);
+    const bodyBytes = decode(currentSignatures[0].bodyBytes);
+    const signedTx = makeMultisignedTx(
+      accountOnChain.pubkey,
+      txInfo.sequence,
+      txInfo.fee,
+      bodyBytes,
+      signatures
+    );
+    console.log(signedTx);
+    const broadcaster = await StargateClient.connect("143.198.6.14:26657");
+    const result = await broadcaster.broadcastTx(
+      Uint8Array.from(TxRaw.encode(signedTx).finish())
+    );
+    console.log(result);
+  };
+
   return (
     <Page>
       <StackableContainer base>
@@ -39,7 +82,14 @@ const transactionPage = ({ transactionJSON, transactionID }) => {
           <h1>In Progress Transaction</h1>
         </StackableContainer>
         <TransactionInfo tx={txInfo} />
-        <TransactionSigning tx={txInfo} transactionID={transactionID} />
+        <ThresholdInfo signatures={signatures} account={accountOnChain} />
+        <button onClick={broadcastTx}>broadcast</button>
+        <TransactionSigning
+          tx={txInfo}
+          transactionID={transactionID}
+          signatures={signatures}
+          addSignature={addSignature}
+        />
       </StackableContainer>
 
       <style jsx>{``}</style>
