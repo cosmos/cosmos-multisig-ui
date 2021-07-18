@@ -2,6 +2,7 @@ import axios from "axios";
 import { encode, decode } from "uint8-to-base64";
 import React from "react";
 import { SigningStargateClient } from "@cosmjs/stargate";
+import { registry } from "@cosmjs/proto-signing";
 
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
@@ -43,8 +44,8 @@ export default class TransactionSigning extends React.Component {
 
   connectWallet = async () => {
     try {
-      await window.keplr.enable("cosmoshub");
-      const walletAccount = await window.keplr.getKey("cosmoshub");
+      await window.keplr.enable("cosmoshub-4");
+      const walletAccount = await window.keplr.getKey("cosmoshub-4");
       this.setState({ walletAccount });
     } catch (e) {
       console.log("enable err: ", e);
@@ -53,15 +54,23 @@ export default class TransactionSigning extends React.Component {
 
   signTransaction = async () => {
     try {
-      const offlineSigner = window.getOfflineSigner("cosmoshub");
+      const offlineSigner = window.getOfflineSigner("cosmoshub-4");
       const accounts = await offlineSigner.getAccounts();
-      console.log(accounts);
+      console.log("accounts", accounts);
+      console.log("wallet address", this.state.walletAccount.bech32Address);
       const signingClient = await SigningStargateClient.offline(offlineSigner);
       const signerData = {
         accountNumber: this.props.tx.accountNumber,
         sequence: this.props.tx.sequence,
-        chainId: "cosmoshub",
+        chainId: "cosmoshub-4",
       };
+      console.log(
+        this.state.walletAccount.bech32Address,
+        this.props.tx.msgs,
+        this.props.tx.fee,
+        this.props.tx.memo,
+        signerData
+      );
       const { bodyBytes, signatures } = await signingClient.sign(
         this.state.walletAccount.bech32Address,
         this.props.tx.msgs,
@@ -69,28 +78,28 @@ export default class TransactionSigning extends React.Component {
         this.props.tx.memo,
         signerData
       );
-
+      console.log(`bodyBytes ${bodyBytes}`, `signatures ${signatures}`);
       // check existing signatures
-      const bases64EncodedSignature = encode(signatures[0]);
-      const prevSigMatch = this.props.signatures.findIndex(
-        (signature) => signature.signature === bases64EncodedSignature
-      );
+      // const bases64EncodedSignature = encode(signatures[0]);
+      // const prevSigMatch = this.props.signatures.findIndex(
+      //   (signature) => signature.signature === bases64EncodedSignature
+      // );
 
-      if (prevSigMatch > -1) {
-        this.setState({ sigError: "This account has already signed." });
-      } else {
-        const signature = {
-          bodyBytes,
-          signature: bases64EncodedSignature,
-          address: this.state.walletAccount.bech32Address,
-        };
-        const res = await axios.post(
-          `/api/transaction/${this.props.transactionID}/signature`,
-          signature
-        );
-        console.log(res.data);
-        this.props.addSignature(res.data);
-      }
+      // if (prevSigMatch > -1) {
+      //   this.setState({ sigError: "This account has already signed." });
+      // } else {
+      //   const signature = {
+      //     bodyBytes,
+      //     signature: bases64EncodedSignature,
+      //     address: this.state.walletAccount.bech32Address,
+      //   };
+      //   const res = await axios.post(
+      //     `/api/transaction/${this.props.transactionID}/signature`,
+      //     signature
+      //   );
+      //   console.log(res.data);
+      //   this.props.addSignature(res.data);
+      // }
     } catch (error) {
       console.log("Error creating signature:", error);
     }

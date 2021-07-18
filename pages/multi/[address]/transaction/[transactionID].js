@@ -2,7 +2,10 @@ import { StargateClient, makeMultisignedTx } from "@cosmjs/stargate";
 import { TxRaw } from "@cosmjs/stargate/build/codec/cosmos/tx/v1beta1/tx";
 import { useState } from "react";
 import { encode, decode } from "uint8-to-base64";
+import { createMultisigThresholdPubkey, pubkeyToAddress } from "@cosmjs/amino";
+import { registry } from "@cosmjs/proto-signing";
 
+import Button from "../../../../components/inputs/Button";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
 import { getMultisigAccount } from "../../../../lib/multisigHelpers";
 import Page from "../../../../components/layout/Page";
@@ -58,7 +61,7 @@ const transactionPage = ({
     currentSignatures.forEach((signature) => {
       signatures.set(signature.address, decode(signature.signature));
     });
-    console.log(signatures);
+
     const bodyBytes = decode(currentSignatures[0].bodyBytes);
     const signedTx = makeMultisignedTx(
       accountOnChain.pubkey,
@@ -67,7 +70,6 @@ const transactionPage = ({
       bodyBytes,
       signatures
     );
-    console.log(signedTx);
     const broadcaster = await StargateClient.connect("143.198.6.14:26657");
     const result = await broadcaster.broadcastTx(
       Uint8Array.from(TxRaw.encode(signedTx).finish())
@@ -83,7 +85,10 @@ const transactionPage = ({
         </StackableContainer>
         <TransactionInfo tx={txInfo} />
         <ThresholdInfo signatures={signatures} account={accountOnChain} />
-        <button onClick={broadcastTx}>broadcast</button>
+        {signatures.length >=
+          parseInt(accountOnChain.pubkey.value.threshold) && (
+          <Button label="Broadcast Transaction" onClick={broadcastTx} primary />
+        )}
         <TransactionSigning
           tx={txInfo}
           transactionID={transactionID}
@@ -92,7 +97,10 @@ const transactionPage = ({
         />
       </StackableContainer>
 
-      <style jsx>{``}</style>
+      <style jsx>{`
+        .broadcast {
+        }
+      `}</style>
     </Page>
   );
 };
