@@ -82,7 +82,7 @@ class MultiSigForm extends React.Component {
     try {
       multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
         compressedPubkeys,
-        this.state.threshold
+        parseInt(this.state.threshold, 10)
       );
       this.props.router.push(`/multi/${multisigAddress}`);
     } catch (error) {

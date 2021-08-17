@@ -64,7 +64,10 @@ const transactionPage = ({
   const [transactionHash, setTransactionHash] = useState(txHash);
   const txInfo = (transactionJSON && JSON.parse(transactionJSON)) || null;
   const addSignature = (signature) => {
-    setCurrentSignatures(currentSignatures.push(signature));
+    setCurrentSignatures((currentSignatures) => [
+      ...currentSignatures,
+      signature,
+    ]);
   };
   const broadcastTx = async () => {
     setIsBroadcasting(true);
@@ -108,9 +111,13 @@ const transactionPage = ({
         )}
         <TransactionInfo tx={txInfo} />
         {!transactionHash && (
-          <ThresholdInfo signatures={signatures} account={accountOnChain} />
+          <ThresholdInfo
+            signatures={currentSignatures}
+            account={accountOnChain}
+          />
         )}
-        {signatures.length >= parseInt(accountOnChain.pubkey.value.threshold) &&
+        {currentSignatures.length >=
+          parseInt(accountOnChain.pubkey.value.threshold) &&
           !transactionHash && (
             <Button
               label={
@@ -125,7 +132,7 @@ const transactionPage = ({
           <TransactionSigning
             tx={txInfo}
             transactionID={transactionID}
-            signatures={signatures}
+            signatures={currentSignatures}
             addSignature={addSignature}
           />
         )}

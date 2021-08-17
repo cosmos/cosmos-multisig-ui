@@ -4,7 +4,7 @@ const Button = (props) => (
       <a
         className={props.primary ? "primary button" : "button"}
         href={props.href}
-        disabled={props.disabled && props.disabled.toString()}
+        disabled={props.disabled}
       >
         {props.label}
       </a>
@@ -12,7 +12,7 @@ const Button = (props) => (
       <button
         className={props.primary ? "primary button" : "button"}
         onClick={props.onClick}
-        disabled={props.disabled && props.disabled.toString()}
+        disabled={props.disabled}
       >
         {props.label}
       </button>

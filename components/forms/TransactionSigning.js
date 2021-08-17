@@ -98,7 +98,7 @@ export default class TransactionSigning extends React.Component {
           `/api/transaction/${this.props.transactionID}/signature`,
           signature
         );
-        this.props.addSignature(res.data);
+        this.props.addSignature(signature);
       }
     } catch (error) {
       console.log("Error creating signature:", error);
