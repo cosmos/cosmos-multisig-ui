@@ -157,7 +157,7 @@ const transactionPage = ({
           border-radius: 10px;
           text-align: center;
           font-family: monospace;
-          max-width: 475px;
+          max-width: 476px;
         }
       `}</style>
     </Page>
