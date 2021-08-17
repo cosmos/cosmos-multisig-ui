@@ -14,9 +14,14 @@ import TransactionList from "../../../components/dataViews/TransactionList";
 export async function getServerSideProps(context) {
   let holdings;
   try {
-    const client = await StargateClient.connect(process.env.NODE_ADDRESS);
+    const client = await StargateClient.connect(
+      process.env.NEXT_PUBLIC_NODE_ADDRESS
+    );
     const multisigAddress = context.params.address;
-    holdings = await client.getBalance(multisigAddress, "stake");
+    holdings = await client.getBalance(
+      multisigAddress,
+      process.env.NEXT_PUBLIC_DENOM
+    );
     const accountOnChain = await getMultisigAccount(multisigAddress, client);
 
     return {
@@ -34,7 +39,6 @@ const multipage = (props) => {
   const [showTxForm, setShowTxForm] = useState(false);
   const router = useRouter();
   const { address } = router.query;
-  console.log(props);
   return (
     <Page>
       <StackableContainer base>

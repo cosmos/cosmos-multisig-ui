@@ -50,8 +50,10 @@ export default class TransactionSigning extends React.Component {
           preferNoSetFee: true,
         },
       };
-      await window.keplr.enable("purp-chain");
-      const walletAccount = await window.keplr.getKey("purp-chain");
+      await window.keplr.enable(process.env.NEXT_PUBLIC_CHAIN_ID);
+      const walletAccount = await window.keplr.getKey(
+        process.env.NEXT_PUBLIC_CHAIN_ID
+      );
       this.setState({ walletAccount });
     } catch (e) {
       console.log("enable err: ", e);
@@ -60,13 +62,15 @@ export default class TransactionSigning extends React.Component {
 
   signTransaction = async () => {
     try {
-      const offlineSigner = window.getOfflineSignerOnlyAmino("purp-chain");
+      const offlineSigner = window.getOfflineSignerOnlyAmino(
+        process.env.NEXT_PUBLIC_CHAIN_ID
+      );
       const accounts = await offlineSigner.getAccounts();
       const signingClient = await SigningStargateClient.offline(offlineSigner);
       const signerData = {
         accountNumber: this.props.tx.accountNumber,
         sequence: this.props.tx.sequence,
-        chainId: "purp-chain",
+        chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
       };
       const { bodyBytes, signatures } = await signingClient.sign(
         this.state.walletAccount.bech32Address,

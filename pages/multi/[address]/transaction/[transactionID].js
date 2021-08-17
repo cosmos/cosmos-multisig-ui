@@ -18,7 +18,7 @@ import CompletedTransaction from "../../../../components/dataViews/CompletedTran
 
 export async function getServerSideProps(context) {
   // get multisig account and transaction info
-  const nodeAddress = process.env.NODE_ADDRESS;
+  const nodeAddress = process.env.NEXT_PUBLIC_NODE_ADDRESS;
   const client = await StargateClient.connect(nodeAddress);
   const multisigAddress = context.params.address;
   const holdings = await client.getBalance(multisigAddress, "uatom");

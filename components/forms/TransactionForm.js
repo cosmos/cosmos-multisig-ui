@@ -31,7 +31,7 @@ class TransactionForm extends React.Component {
     const msgSend = {
       fromAddress: this.props.address,
       toAddress: toAddress,
-      amount: coins(amount * 1000000, "stake"),
+      amount: coins(amount * 1000000, process.env.NEXT_PUBLIC_DENOM),
     };
     const msg = {
       typeUrl: "/cosmos.bank.v1beta1.MsgSend",
@@ -39,14 +39,14 @@ class TransactionForm extends React.Component {
     };
     const gasLimit = gas;
     const fee = {
-      amount: coins(2000, "stake"),
+      amount: coins(2000, process.env.NEXT_PUBLIC_DENOM),
       gas: gasLimit.toString(),
     };
 
     return {
       accountNumber: this.props.accountOnChain.accountNumber,
       sequence: this.props.accountOnChain.sequence,
-      chainId: "purp-chain",
+      chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
       msgs: [msg],
       fee: fee,
       memo: this.state.memo,
