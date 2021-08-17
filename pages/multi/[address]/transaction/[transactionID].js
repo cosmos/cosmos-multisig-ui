@@ -60,6 +60,7 @@ const transactionPage = ({
   txHash,
 }) => {
   const [currentSignatures, setCurrentSignatures] = useState(signatures);
+  const [broadcastError, setBroadcastError] = useState("");
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [transactionHash, setTransactionHash] = useState(txHash);
   const txInfo = (transactionJSON && JSON.parse(transactionJSON)) || null;
@@ -70,29 +71,34 @@ const transactionPage = ({
     ]);
   };
   const broadcastTx = async () => {
-    setIsBroadcasting(true);
-    const signatures = new Map();
-    currentSignatures.forEach((signature) => {
-      signatures.set(signature.address, decode(signature.signature));
-    });
+    try {
+      setIsBroadcasting(true);
+      setBroadcastError("");
+      const signatures = new Map();
+      currentSignatures.forEach((signature) => {
+        signatures.set(signature.address, decode(signature.signature));
+      });
 
-    const bodyBytes = decode(currentSignatures[0].bodyBytes);
-    const signedTx = makeMultisignedTx(
-      accountOnChain.pubkey,
-      txInfo.sequence,
-      txInfo.fee,
-      bodyBytes,
-      signatures
-    );
-    const broadcaster = await StargateClient.connect(nodeAddress);
-    const result = await broadcaster.broadcastTx(
-      Uint8Array.from(TxRaw.encode(signedTx).finish())
-    );
-    console.log(result);
-    const res = await axios.post(`/api/transaction/${transactionID}`, {
-      txHash: result.transactionHash,
-    });
-    setTransactionHash(result.transactionHash);
+      const bodyBytes = decode(currentSignatures[0].bodyBytes);
+      const signedTx = makeMultisignedTx(
+        accountOnChain.pubkey,
+        txInfo.sequence,
+        txInfo.fee,
+        bodyBytes,
+        signatures
+      );
+      const broadcaster = await StargateClient.connect(nodeAddress);
+      const result = await broadcaster.broadcastTx(
+        Uint8Array.from(TxRaw.encode(signedTx).finish())
+      );
+      console.log(result);
+      const res = await axios.post(`/api/transaction/${transactionID}`, {
+        txHash: result.transactionHash,
+      });
+      setTransactionHash(result.transactionHash);
+    } catch (e) {
+      setBroadcastError(e.message);
+    }
   };
 
   return (
@@ -119,14 +125,19 @@ const transactionPage = ({
         {currentSignatures.length >=
           parseInt(accountOnChain.pubkey.value.threshold) &&
           !transactionHash && (
-            <Button
-              label={
-                isBroadcasting ? "Broadcasting..." : "Broadcast Transaction"
-              }
-              onClick={broadcastTx}
-              primary
-              disabled={isBroadcasting}
-            />
+            <>
+              <Button
+                label={
+                  isBroadcasting ? "Broadcasting..." : "Broadcast Transaction"
+                }
+                onClick={broadcastTx}
+                primary
+                disabled={isBroadcasting}
+              />
+              {broadcastError && (
+                <div className="broadcast-error">{broadcastError}</div>
+              )}
+            </>
           )}
         {!transactionHash && (
           <TransactionSigning
@@ -139,7 +150,13 @@ const transactionPage = ({
       </StackableContainer>
 
       <style jsx>{`
-        .broadcast {
+        .broadcast-error {
+          background: firebrick;
+          margin: 20px 0;
+          padding: 15px;
+          border-radius: 10px;
+          text-align: center;
+          font-family: monospace;
         }
       `}</style>
     </Page>
