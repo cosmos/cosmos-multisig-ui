@@ -31,7 +31,7 @@ class TransactionForm extends React.Component {
     const msgSend = {
       fromAddress: this.props.address,
       toAddress: toAddress,
-      amount: coins(amount * 1000000, "uatom"),
+      amount: coins(amount * 1000000, "stake"),
     };
     const msg = {
       typeUrl: "/cosmos.bank.v1beta1.MsgSend",
@@ -39,19 +39,18 @@ class TransactionForm extends React.Component {
     };
     const gasLimit = gas;
     const fee = {
-      amount: coins(2000, "uatom"),
+      amount: coins(2000, "stake"),
       gas: gasLimit.toString(),
     };
 
     return {
       accountNumber: this.props.accountOnChain.accountNumber,
       sequence: this.props.accountOnChain.sequence,
-      chainId: "cosmoshub-4",
+      chainId: "purp-chain",
       msgs: [msg],
       fee: fee,
       memo: this.state.memo,
     };
-    return baseTX;
   };
 
   handleCreate = async () => {
@@ -62,7 +61,7 @@ class TransactionForm extends React.Component {
         this.state.amount,
         this.state.gas
       );
-
+      console.log(tx);
       const dataJSON = JSON.stringify(tx);
       const res = await axios.post("/api/transaction", { dataJSON });
       const { transactionID } = res.data;

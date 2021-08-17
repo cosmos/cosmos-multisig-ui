@@ -1,3 +1,4 @@
+import axios from "axios";
 import { StargateClient, makeMultisignedTx } from "@cosmjs/stargate";
 import { TxRaw } from "@cosmjs/stargate/build/codec/cosmos/tx/v1beta1/tx";
 import { useState } from "react";
@@ -13,14 +14,17 @@ import StackableContainer from "../../../../components/layout/StackableContainer
 import ThresholdInfo from "../../../../components/dataViews/ThresholdInfo";
 import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
 import TransactionSigning from "../../../../components/forms/TransactionSigning";
+import CompletedTransaction from "../../../../components/dataViews/CompletedTransaction";
 
 export async function getServerSideProps(context) {
   // get multisig account and transaction info
-  const client = await StargateClient.connect("143.198.6.14:26657");
+  const nodeAddress = process.env.NODE_ADDRESS;
+  const client = await StargateClient.connect(nodeAddress);
   const multisigAddress = context.params.address;
   const holdings = await client.getBalance(multisigAddress, "uatom");
   const transactionID = context.params.transactionID;
   let transactionJSON;
+  let txHash;
   let accountOnChain;
   let signatures;
   try {
@@ -28,6 +32,7 @@ export async function getServerSideProps(context) {
     console.log("Function `findTransactionByID` invoked", transactionID);
     const getRes = await findTransactionByID(transactionID);
     console.log("success", getRes.data);
+    txHash = getRes.data.data.findTransactionByID.txHash;
     transactionJSON = getRes.data.data.findTransactionByID.dataJSON;
     signatures = getRes.data.data.findTransactionByID.signatures.data || [];
   } catch (err) {
@@ -36,10 +41,12 @@ export async function getServerSideProps(context) {
   return {
     props: {
       transactionJSON,
+      txHash,
       accountOnChain,
       holdings,
       transactionID,
       signatures,
+      nodeAddress,
     },
   };
 }
@@ -49,14 +56,18 @@ const transactionPage = ({
   transactionID,
   signatures,
   accountOnChain,
+  nodeAddress,
+  txHash,
 }) => {
   const [currentSignatures, setCurrentSignatures] = useState(signatures);
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [transactionHash, setTransactionHash] = useState(txHash);
   const txInfo = (transactionJSON && JSON.parse(transactionJSON)) || null;
-  console.log(accountOnChain);
   const addSignature = (signature) => {
     setCurrentSignatures(currentSignatures.push(signature));
   };
   const broadcastTx = async () => {
+    setIsBroadcasting(true);
     const signatures = new Map();
     currentSignatures.forEach((signature) => {
       signatures.set(signature.address, decode(signature.signature));
@@ -70,31 +81,54 @@ const transactionPage = ({
       bodyBytes,
       signatures
     );
-    const broadcaster = await StargateClient.connect("143.198.6.14:26657");
+    const broadcaster = await StargateClient.connect(nodeAddress);
     const result = await broadcaster.broadcastTx(
       Uint8Array.from(TxRaw.encode(signedTx).finish())
     );
     console.log(result);
+    const res = await axios.post(`/api/transaction/${transactionID}`, {
+      txHash: result.transactionHash,
+    });
+    setTransactionHash(result.transactionHash);
   };
 
   return (
     <Page>
       <StackableContainer base>
         <StackableContainer>
-          <h1>In Progress Transaction</h1>
+          <h1>
+            {transactionHash
+              ? "Completed Transaction"
+              : "In Progress Transaction"}
+          </h1>
         </StackableContainer>
-        <TransactionInfo tx={txInfo} />
-        <ThresholdInfo signatures={signatures} account={accountOnChain} />
-        {signatures.length >=
-          parseInt(accountOnChain.pubkey.value.threshold) && (
-          <Button label="Broadcast Transaction" onClick={broadcastTx} primary />
+
+        {transactionHash && (
+          <CompletedTransaction transactionHash={transactionHash} />
         )}
-        <TransactionSigning
-          tx={txInfo}
-          transactionID={transactionID}
-          signatures={signatures}
-          addSignature={addSignature}
-        />
+        <TransactionInfo tx={txInfo} />
+        {!transactionHash && (
+          <ThresholdInfo signatures={signatures} account={accountOnChain} />
+        )}
+        {signatures.length >= parseInt(accountOnChain.pubkey.value.threshold) &&
+          !transactionHash && (
+            <Button
+              label={
+                isBroadcasting ? "Broadcasting..." : "Broadcast Transaction"
+              }
+              onClick={broadcastTx}
+              primary
+              disabled={isBroadcasting}
+            />
+          )}
+        {!transactionHash && (
+          <TransactionSigning
+            tx={txInfo}
+            transactionID={transactionID}
+            signatures={signatures}
+            addSignature={addSignature}
+          />
+        )}
       </StackableContainer>
 
       <style jsx>{`

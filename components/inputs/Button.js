@@ -1,14 +1,25 @@
 const Button = (props) => (
   <>
-    <button
-      className={props.primary ? "primary" : ""}
-      onClick={props.onClick}
-      disable={props.disable && props.disable.toString()}
-    >
-      {props.label}
-    </button>
+    {props.href ? (
+      <a
+        className={props.primary ? "primary button" : "button"}
+        href={props.href}
+        disabled={props.disabled && props.disabled.toString()}
+      >
+        {props.label}
+      </a>
+    ) : (
+      <button
+        className={props.primary ? "primary button" : "button"}
+        onClick={props.onClick}
+        disabled={props.disabled && props.disabled.toString()}
+      >
+        {props.label}
+      </button>
+    )}
     <style jsx>{`
-      button {
+      .button {
+        display: block;
         border-radius: 10px;
         background: rgba(255, 255, 255, 0.15);
         border: none;
@@ -17,6 +28,8 @@ const Button = (props) => (
         color: white;
         font-style: italic;
         margin-top: 20px;
+        text-decoration: none;
+        text-align: center;
       }
       .primary {
         border: 2px solid white;
@@ -24,6 +37,10 @@ const Button = (props) => (
 
       button:first-child {
         margin-top: 0;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: initial;
       }
     `}</style>
   </>

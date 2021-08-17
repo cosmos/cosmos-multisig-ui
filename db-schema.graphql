@@ -13,6 +13,7 @@ type SourceAddress {
 type Transaction {
   signatures: [Signature] @relation
   dataJSON: String
+  txHash: String
 }
 
 type Signature {
