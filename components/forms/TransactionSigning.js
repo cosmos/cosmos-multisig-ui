@@ -1,6 +1,8 @@
 import axios from "axios";
+import { encode, decode } from "uint8-to-base64";
 import React from "react";
 import { SigningStargateClient } from "@cosmjs/stargate";
+import { registry } from "@cosmjs/proto-signing";
 
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
@@ -13,6 +15,7 @@ export default class TransactionSigning extends React.Component {
       transaction: this.props.transaction,
       walletAccount: null,
       walletError: null,
+      sigError: null,
     };
   }
 
@@ -41,9 +44,14 @@ export default class TransactionSigning extends React.Component {
 
   connectWallet = async () => {
     try {
-      await window.keplr.enable("cosmoshub");
-      const walletAccount = await window.keplr.getKey("cosmoshub");
-      console.log(walletAccount);
+      window.keplr.defaultOptions = {
+        sign: {
+          preferNoSetMemo: true,
+          preferNoSetFee: true,
+        },
+      };
+      await window.keplr.enable("purp-chain");
+      const walletAccount = await window.keplr.getKey("purp-chain");
       this.setState({ walletAccount });
     } catch (e) {
       console.log("enable err: ", e);
@@ -52,14 +60,13 @@ export default class TransactionSigning extends React.Component {
 
   signTransaction = async () => {
     try {
-      const offlineSigner = window.getOfflineSigner("cosmoshub");
+      const offlineSigner = window.getOfflineSignerOnlyAmino("purp-chain");
       const accounts = await offlineSigner.getAccounts();
-      console.log(accounts);
       const signingClient = await SigningStargateClient.offline(offlineSigner);
       const signerData = {
         accountNumber: this.props.tx.accountNumber,
         sequence: this.props.tx.sequence,
-        chainId: "cosmoshub",
+        chainId: "purp-chain",
       };
       const { bodyBytes, signatures } = await signingClient.sign(
         this.state.walletAccount.bech32Address,
@@ -68,30 +75,63 @@ export default class TransactionSigning extends React.Component {
         this.props.tx.memo,
         signerData
       );
-      // save body bytes to the tx
-      // save/create the signature in the db
-      console.log(bodyBytes, signatures);
+      // check existing signatures
+      const bases64EncodedSignature = encode(signatures[0]);
+      const bases64EncodedBodyBytes = encode(bodyBytes);
+      const prevSigMatch = this.props.signatures.findIndex(
+        (signature) => signature.signature === bases64EncodedSignature
+      );
+
+      if (prevSigMatch > -1) {
+        this.setState({ sigError: "This account has already signed." });
+      } else {
+        const signature = {
+          bodyBytes: bases64EncodedBodyBytes,
+          signature: bases64EncodedSignature,
+          address: this.state.walletAccount.bech32Address,
+        };
+        const res = await axios.post(
+          `/api/transaction/${this.props.transactionID}/signature`,
+          signature
+        );
+        this.props.addSignature(res.data);
+      }
     } catch (error) {
-      console.log(error);
+      console.log("Error creating signature:", error);
     }
   };
 
   render() {
     return (
-      <StackableContainer lessPadding>
+      <StackableContainer lessPadding lessMargin>
         <h2>Sign this transaction</h2>
         {this.state.walletAccount ? (
           <Button label="Sign transaction" onClick={this.signTransaction} />
         ) : (
           <Button label="Connect Wallet" onClick={this.connectWallet} />
         )}
-
-        <h2>Current Signatures</h2>
-        {!this.state.signatures && (
-          <StackableContainer lessPadding lessMargin lessRadius>
-            <p>No signatures yet</p>
+        {this.state.sigError && (
+          <StackableContainer lessPadding lessRadius lessMargin>
+            <div className="signature-error">
+              <p>This account has already signed this transaction.</p>
+            </div>
           </StackableContainer>
         )}
+        <h2>Current Signers</h2>
+        <StackableContainer lessPadding lessMargin lessRadius>
+          {this.props.signatures.map((signature, i) => (
+            <StackableContainer
+              lessPadding
+              lessRadius
+              lessMargin
+              key={`${signature.address}_${i}`}
+            >
+              <p>{signature.address}</p>
+            </StackableContainer>
+          ))}
+
+          {this.props.signatures.length === 0 && <p>No signatures yet</p>}
+        </StackableContainer>
         <style jsx>{`
           p {
             text-align: center;
@@ -101,6 +141,20 @@ export default class TransactionSigning extends React.Component {
             margin-top: 1em;
           }
           h2:first-child {
+            margin-top: 0;
+          }
+          ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+          }
+          .signature-error p {
+            max-width: 550px;
+            color: red;
+            font-size: 16px;
+            line-height: 1.4;
+          }
+          .signature-error p:first-child {
             margin-top: 0;
           }
         `}</style>

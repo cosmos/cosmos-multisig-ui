@@ -1,4 +1,4 @@
-import { createSignature } from "../../../../lib/graphqlHelpers";
+import { updateTxHash } from "../../../../lib/graphqlHelpers";
 
 export default async function (req, res) {
   return new Promise(async (resolve) => {
@@ -6,11 +6,11 @@ export default async function (req, res) {
       case "POST":
         try {
           const { transactionID } = req.query;
-          const data = req.body;
-          console.log("Function `createSignature` invoked", data);
-          const saveRes = await createSignature(data, transactionID);
+          const { txHash } = req.body;
+          console.log("Function `updateTransaction` invoked", txHash);
+          const saveRes = await updateTxHash(transactionID, txHash);
           console.log("success", saveRes.data);
-          res.status(200).send(saveRes.data.data.createSignature);
+          res.status(200).send(saveRes.data.data.updateTransaction);
           return resolve();
         } catch (err) {
           console.log(err);

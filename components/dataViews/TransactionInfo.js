@@ -23,11 +23,6 @@ export default (props) => (
           </div>
         </li>
       )}
-
-      <li>
-        <label>Status:</label>
-        <div>{props.tx.status || "signing in progress"}</div>
-      </li>
       {props.tx.fee && (
         <li>
           <label>Gas:</label>
