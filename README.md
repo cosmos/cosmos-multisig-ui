@@ -1,12 +1,10 @@
 # Cosmoshub Legacy Multisig
 
-### 🚧🚧🚧🚧🚧 In Active Development 🚧🚧🚧🚧🚧🚧
-
 ## Reason for Being
 
 This app allows for legacy multisig users to create, sign and broadcast transactions on the stargate enabled cosmos hub chain. It's built with Cosmjs, Next.js, FaunaDB and Vercel.
 
-[The app can be tested out here](https://cosmoshub-legacy-multisig.vercel.app/). (_*Note:*_ Only the UI and datastore are functional, waiting on some Cosmjs updates to handle multisig creation and signing)
+[The app can be tested out here](https://cosmoshub-legacy-multisig.vercel.app/).
 
 ## Dev Setup
 
