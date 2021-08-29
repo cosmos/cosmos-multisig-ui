@@ -1,4 +1,4 @@
-import { abbreviateLongString } from "../../lib/displayHelpers";
+import HashView from "./HashView";
 import StackableContainer from "../layout/StackableContainer";
 
 const uatomToAtom = (uatom) => {
@@ -17,9 +17,7 @@ export default (props) => (
         <li>
           <label>To:</label>
           <div title={props.tx.msgs[0].value.toAddress}>
-            {props.tx.abbreviate
-              ? abbreviateLongString(props.tx.msgs[0].value.toAddress)
-              : props.tx.msgs[0].value.toAddress}
+            <HashView hash={props.tx.msgs[0].value.toAddress} />
           </div>
         </li>
       )}

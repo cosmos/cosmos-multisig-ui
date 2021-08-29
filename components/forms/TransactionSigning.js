@@ -19,6 +19,10 @@ export default class TransactionSigning extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.connectWallet();
+  }
+
   componentDidUpdate(prevProps, prevState) {
     if (!prevProps.transaction && this.props.transaction) {
       this.setState({ transaction: this.props.transaction });
