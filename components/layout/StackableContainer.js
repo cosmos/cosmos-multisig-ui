@@ -13,6 +13,7 @@ export default (props) => (
         flex-direction: column;
         justify-content: space-between;
         position: relative;
+        height: ${props.fullHeight ? "100%" : "auto"};
       }
 
       .container:first-child {

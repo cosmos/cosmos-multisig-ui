@@ -7,7 +7,7 @@ export default (props) => {
   };
 
   return (
-    <StackableContainer lessPadding>
+    <StackableContainer lessPadding fullHeight>
       <h2>Holdings</h2>
       <StackableContainer lessPadding lessMargin>
         <span>{props.holdings} ATOM</span>
