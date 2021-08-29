@@ -43,7 +43,7 @@ export default (props) => {
           margin: 0;
           font-weight: 400;
           line-height: 1.15;
-          font-size: 1.5em;
+          font-size: 1.4em;
           text-align: center;
         }
         h2 {

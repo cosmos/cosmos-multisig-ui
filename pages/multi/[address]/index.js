@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 
 import Button from "../../../components/inputs/Button";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
+import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
@@ -44,7 +45,9 @@ const multipage = (props) => {
       <StackableContainer base>
         <StackableContainer>
           <label>Multisig Address</label>
-          <h1>{address}</h1>
+          <h1>
+            <HashView hash={address} />
+          </h1>
         </StackableContainer>
         {props.error && (
           <StackableContainer>
