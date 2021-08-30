@@ -40,6 +40,7 @@ export async function getServerSideProps(context) {
   }
   return {
     props: {
+      multisigAddress,
       transactionJSON,
       txHash,
       accountOnChain,
@@ -52,6 +53,7 @@ export async function getServerSideProps(context) {
 }
 
 const transactionPage = ({
+  multisigAddress,
   transactionJSON,
   transactionID,
   signatures,
@@ -102,7 +104,7 @@ const transactionPage = ({
   };
 
   return (
-    <Page>
+    <Page rootMultisig={multisigAddress}>
       <StackableContainer base>
         <StackableContainer>
           <h1>

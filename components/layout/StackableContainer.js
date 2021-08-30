@@ -1,4 +1,4 @@
-export default (props) => (
+const StackableContainer = (props) => (
   <div className={`container ${props.base ? "base" : ""}`}>
     {props.children}
 
@@ -6,7 +6,7 @@ export default (props) => (
       .container {
         background: rgba(255, 255, 255, 0.05);
         padding: ${props.lessPadding ? "15px" : "30px"};
-        margin-top: ${props.lessMargin ? "25px" : "50px"};
+        margin-top: ${props.lessMargin || props.base ? "25px" : "50px"};
         border-radius: ${props.lessRadius ? "10px" : "20px"};
 
         display: flex;
@@ -34,3 +34,4 @@ export default (props) => (
     `}</style>
   </div>
 );
+export default StackableContainer;

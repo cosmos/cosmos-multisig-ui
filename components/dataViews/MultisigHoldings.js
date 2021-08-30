@@ -1,6 +1,6 @@
 import StackableContainer from "../layout/StackableContainer";
 
-export default (props) => {
+const MultisigHoldings = (props) => {
   const uatomToAtom = (uatom) => {
     if (uatom === 0) return 0;
     return uatom / 1000000;
@@ -20,3 +20,4 @@ export default (props) => {
     </StackableContainer>
   );
 };
+export default MultisigHoldings;

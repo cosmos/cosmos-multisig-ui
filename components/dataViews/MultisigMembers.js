@@ -18,7 +18,7 @@ const dummyMembers = [
     address: "cosmos1t5u0jfg3ljsjrh2m9e47d4ny2hea7eehxrzdgd",
   },
 ];
-export default (props) => (
+const MultisigMembers = (props) => (
   <StackableContainer lessPadding>
     <h2>Members</h2>
     <ul className="meta-data">
@@ -67,3 +67,5 @@ export default (props) => (
     `}</style>
   </StackableContainer>
 );
+
+export default MultisigMembers;

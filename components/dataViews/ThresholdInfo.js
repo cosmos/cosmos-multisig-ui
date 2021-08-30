@@ -1,6 +1,6 @@
 import StackableContainer from "../layout/StackableContainer";
 
-export default ({ signatures, account }) => (
+const ThresholdInfo = ({ signatures, account }) => (
   <StackableContainer lessPadding lessMargin>
     <h2>Signatures</h2>
     <StackableContainer lessPadding lessMargin lessRadius>
@@ -39,3 +39,4 @@ export default ({ signatures, account }) => (
     `}</style>
   </StackableContainer>
 );
+export default ThresholdInfo;

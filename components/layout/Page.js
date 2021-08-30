@@ -1,17 +1,56 @@
 import Head from "../head";
-import DevHelper from "../DevHelper";
+import StackableContainer from "./StackableContainer";
 
-export default (props) => {
+const Page = (props) => {
   return (
     <div className="page">
       <Head title={props.title || "Cosmos Multisig Manager"} />
-      {props.children}
-      <DevHelper />
+      <div className="container">
+        {props.rootMultisig && (
+          <div className="nav">
+            <StackableContainer base lessPadding lessMargin>
+              <p>
+                <a href={`/multi/${props.rootMultisig}`}>
+                  ← Back to multisig account
+                </a>
+              </p>
+            </StackableContainer>
+          </div>
+        )}
+        {props.children}
+      </div>
+      <div className="footer-links">
+        <StackableContainer base lessPadding lessMargin>
+          <p>
+            <a href="https://github.com/samepant/cosmoshub-legacy-multisig">
+              View on github
+            </a>
+          </p>
+        </StackableContainer>
+      </div>
       <style jsx>{`
         .page {
           display: flex;
           justify-content: center;
-          padding: 80px 0;
+          padding: 120px 0;
+        }
+        .container {
+          position: relative;
+        }
+        .nav {
+          position: absolute;
+          top: -8%;
+          left: 0;
+          display: flex;
+        }
+        a,
+        a:visited {
+          color: white;
+        }
+        .footer-links {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
         }
       `}</style>
       <style global jsx>{`
@@ -68,3 +107,5 @@ export default (props) => {
     </div>
   );
 };
+
+export default Page;

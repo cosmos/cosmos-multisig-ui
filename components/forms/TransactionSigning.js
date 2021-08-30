@@ -108,6 +108,7 @@ export default class TransactionSigning extends React.Component {
           signature
         );
         this.props.addSignature(signature);
+        this.setState({ hasSigned: true });
       }
     } catch (error) {
       console.log("Error creating signature:", error);
