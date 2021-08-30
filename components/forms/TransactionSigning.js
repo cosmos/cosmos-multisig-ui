@@ -5,6 +5,7 @@ import { SigningStargateClient } from "@cosmjs/stargate";
 import { registry } from "@cosmjs/proto-signing";
 
 import Button from "../inputs/Button";
+import HashView from "../dataViews/HashView";
 import StackableContainer from "../layout/StackableContainer";
 
 export default class TransactionSigning extends React.Component {
@@ -16,6 +17,7 @@ export default class TransactionSigning extends React.Component {
       walletAccount: null,
       walletError: null,
       sigError: null,
+      hasSigned: false,
     };
   }
 
@@ -58,7 +60,10 @@ export default class TransactionSigning extends React.Component {
       const walletAccount = await window.keplr.getKey(
         process.env.NEXT_PUBLIC_CHAIN_ID
       );
-      this.setState({ walletAccount });
+      const hasSigned = this.props.signatures.some(
+        (sig) => sig.address === walletAccount.bech32Address
+      );
+      this.setState({ walletAccount, hasSigned });
     } catch (e) {
       console.log("enable err: ", e);
     }
@@ -112,11 +117,28 @@ export default class TransactionSigning extends React.Component {
   render() {
     return (
       <StackableContainer lessPadding lessMargin>
-        <h2>Sign this transaction</h2>
-        {this.state.walletAccount ? (
-          <Button label="Sign transaction" onClick={this.signTransaction} />
+        {this.state.hasSigned ? (
+          <StackableContainer lessPadding lessMargin lessRadius>
+            <div className="confirmation">
+              <svg
+                viewBox="0 0 77 60"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M5 30L26 51L72 5" stroke="white" strokeWidth="12" />
+              </svg>
+              <p>You've signed this transaction.</p>
+            </div>
+          </StackableContainer>
         ) : (
-          <Button label="Connect Wallet" onClick={this.connectWallet} />
+          <>
+            <h2>Sign this transaction</h2>
+            {this.state.walletAccount ? (
+              <Button label="Sign transaction" onClick={this.signTransaction} />
+            ) : (
+              <Button label="Connect Wallet" onClick={this.connectWallet} />
+            )}
+          </>
         )}
         {this.state.sigError && (
           <StackableContainer lessPadding lessRadius lessMargin>
@@ -134,7 +156,7 @@ export default class TransactionSigning extends React.Component {
               lessMargin
               key={`${signature.address}_${i}`}
             >
-              <p>{signature.address}</p>
+              <HashView hash={signature.address} />
             </StackableContainer>
           ))}
 
@@ -164,6 +186,14 @@ export default class TransactionSigning extends React.Component {
           }
           .signature-error p:first-child {
             margin-top: 0;
+          }
+          .confirmation {
+            display: flex;
+            justify-content: center;
+          }
+          .confirmation svg {
+            height: 0.8em;
+            margin-right: 0.5em;
           }
         `}</style>
       </StackableContainer>
