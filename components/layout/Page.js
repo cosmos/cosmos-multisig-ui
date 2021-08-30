@@ -39,7 +39,7 @@ const Page = (props) => {
         }
         .nav {
           position: absolute;
-          top: -8%;
+          top: -40px;
           left: 0;
           display: flex;
         }
