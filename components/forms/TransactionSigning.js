@@ -50,12 +50,6 @@ export default class TransactionSigning extends React.Component {
 
   connectWallet = async () => {
     try {
-      window.keplr.defaultOptions = {
-        sign: {
-          preferNoSetMemo: true,
-          preferNoSetFee: true,
-        },
-      };
       await window.keplr.enable(process.env.NEXT_PUBLIC_CHAIN_ID);
       const walletAccount = await window.keplr.getKey(
         process.env.NEXT_PUBLIC_CHAIN_ID
@@ -71,6 +65,12 @@ export default class TransactionSigning extends React.Component {
 
   signTransaction = async () => {
     try {
+      window.keplr.defaultOptions = {
+        sign: {
+          preferNoSetMemo: true,
+          preferNoSetFee: true,
+        },
+      };
       const offlineSigner = window.getOfflineSignerOnlyAmino(
         process.env.NEXT_PUBLIC_CHAIN_ID
       );
