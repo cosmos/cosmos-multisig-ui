@@ -99,6 +99,7 @@ const transactionPage = ({
       });
       setTransactionHash(result.transactionHash);
     } catch (e) {
+      setIsBroadcasting(false);
       setBroadcastError(e.message);
     }
   };
@@ -154,7 +155,7 @@ const transactionPage = ({
       <style jsx>{`
         .broadcast-error {
           background: firebrick;
-          margin: 20px 0;
+          margin: 20px auto;
           padding: 15px;
           border-radius: 10px;
           text-align: center;

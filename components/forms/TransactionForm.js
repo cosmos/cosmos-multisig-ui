@@ -39,7 +39,7 @@ class TransactionForm extends React.Component {
     };
     const gasLimit = gas;
     const fee = {
-      amount: coins(2000, process.env.NEXT_PUBLIC_DENOM),
+      amount: coins(6000, process.env.NEXT_PUBLIC_DENOM),
       gas: gasLimit.toString(),
     };
 
@@ -101,7 +101,7 @@ class TransactionForm extends React.Component {
         </div>
         <div className="form-item">
           <Input
-            label="Gas (UATOM)"
+            label="Gas Limit (UATOM)"
             name="gas"
             type="number"
             value={this.state.gas}
