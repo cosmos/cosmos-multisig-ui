@@ -1,16 +1,16 @@
 # Cosmoshub Multisig App
 
-This app allows for multisig users to create, sign and broadcast transactions on the stargate enabled cosmos hub chain. It's built with Cosmjs, Next.js, FaunaDB and Vercel.
+This app allows for multisig users to create, sign and broadcast transactions on any stargate enabled chain. It's built with Cosmjs, Next.js, FaunaDB and Vercel.
 
 [The app is live here](https://cosmoshub-legacy-multisig.vercel.app/).
 
-[Here is a user guide on how to use the app](/cosmoshub-legacy-multisig/blob/master/docs/App%20User%20Guide.md/)
+[Here is a user guide on how to use the app](https://github.com/samepant/cosmoshub-legacy-multisig/blob/master/docs/App%20User%20Guide.md)
 
 ## Running your own instance
 
 ### 1. Clone project / setup Vercel deployment
 
-This app uses Vercel for deployment and hosting, since they support next.js's serverless functions. You will need a vercel account to deploy this app. Use the button below to one-click clone and deploy this repo. The initial deployment will fail until all the necessary environment variables are input.
+This app uses Vercel for deployment and hosting, since they support next.js's serverless functions. You will need a vercel account to deploy this app. Use the button below to one-click clone and deploy this repo. The initial deployment will fail until all the necessary environment variables are input from the following steps.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fhello-world)
 
@@ -38,7 +38,7 @@ Redeploy the app and it will pickup the new environment variables and should be 
 
 ### 1. Setup .env.local file
 
-- Copy the `.env.sample` file and rename it to `.env.local`
+Copy the `.env.sample` file and rename it to `.env.local`
 
 ### 2. Run a local cosmos-sdk Simapp instance
 
