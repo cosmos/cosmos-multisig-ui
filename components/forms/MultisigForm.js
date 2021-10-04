@@ -1,6 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { withRouter } from "next/router";
+import { StargateClient } from "@cosmjs/stargate";
 
 import Button from "../inputs/Button";
 import { createMultisigFromCompressedSecp256k1Pubkeys } from "../../lib/multisigHelpers";
@@ -9,7 +10,7 @@ import StackableContainer from "../layout/StackableContainer";
 import ThresholdInput from "../inputs/ThresholdInput";
 
 let emptyPubKeyGroup = () => {
-  return { compressedPubkey: "", keyError: "" };
+  return { address: "", compressedPubkey: "", keyError: "" };
 };
 
 class MultiSigForm extends React.Component {
@@ -55,21 +56,39 @@ class MultiSigForm extends React.Component {
     });
   };
 
-  handleKeyBlur = (index, e) => {
-    try {
-      let compressedPubkey = e.target.value;
-      if (compressedPubkey.length !== 44) {
-        throw new Error("Invalid Secp256k1 pubkey");
+  getPubkeyFromNode = async (address) => {
+    const nodeAddress = process.env.NEXT_PUBLIC_NODE_ADDRESS;
+    const client = await StargateClient.connect(nodeAddress);
+    const accountOnChain = await client.getAccount(address);
+    console.log(accountOnChain);
+    if (!accountOnChain || !accountOnChain.pubkey) {
+      throw new Error(
+        "Account has no pubkey on chain, this address will need to send a transaction to appear on chain."
+      );
+    }
+    return accountOnChain.pubkey.value;
+  };
+
+  handleKeyBlur = async (index, e) => {
+    let address = e.target.value;
+    if (address.length > 0) {
+      try {
+        // let compressedPubkey = e.target.value;
+        // if (compressedPubkey.length !== 44) {
+        //   throw new Error("Invalid Secp256k1 pubkey");
+        // }
+
+        const pubkey = await this.getPubkeyFromNode(address);
+        const { pubkeys } = this.state;
+        pubkeys[index].compressedPubkey = pubkey;
+        pubkeys[index].keyError = "";
+        this.setState({ pubkeys });
+      } catch (error) {
+        console.log(error);
+        const { pubkeys } = this.state;
+        pubkeys[index].keyError = error.message;
+        this.setState({ pubkeys });
       }
-      const { pubkeys } = this.state;
-      pubkeys[index].compressedPubkey = compressedPubkey;
-      pubkeys[index].keyError = "";
-      this.setState({ pubkeys });
-    } catch (error) {
-      console.log(error);
-      const { pubkeys } = this.state;
-      pubkeys[index].keyError = error.message;
-      this.setState({ pubkeys });
     }
   };
 
@@ -119,11 +138,11 @@ class MultiSigForm extends React.Component {
                     onChange={(e) => {
                       this.handleKeyGroupChange(index, e);
                     }}
-                    value={pubkeyGroup.compressedPubkey}
-                    label="Public Key"
-                    name="compressedPubkey"
+                    value={pubkeyGroup.address}
+                    label="Address"
+                    name="address"
                     width="100%"
-                    placeholder="Akd/qKMWdZXyiMnSu6aFLpQEGDO0ijyal9mXUIcVaPNX"
+                    placeholder="cosmos1vqpjljwsynsn58dugz0w8ut7kun7t8ls2qkmsq"
                     error={pubkeyGroup.keyError}
                     onBlur={(e) => {
                       this.handleKeyBlur(index, e);
