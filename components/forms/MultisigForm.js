@@ -114,11 +114,7 @@ class MultiSigForm extends React.Component {
       <>
         <StackableContainer>
           <StackableContainer lessPadding>
-            <p>Add the Public Keys that will make up this multisig.</p>
-            <p>
-              Note this only supports compressed Secp256k1 pubkeys, double check
-              this is the algo used to create your account.
-            </p>
+            <p>Add the addresses that will make up this multisig.</p>
           </StackableContainer>
           {this.state.pubkeys.map((pubkeyGroup, index) => (
             <StackableContainer lessPadding lessMargin key={index}>
@@ -153,7 +149,7 @@ class MultiSigForm extends React.Component {
             </StackableContainer>
           ))}
 
-          <Button label="Add another pubkey" onClick={this.handleAddKey} />
+          <Button label="Add another address" onClick={this.handleAddKey} />
         </StackableContainer>
         <StackableContainer>
           <StackableContainer lessPadding>
