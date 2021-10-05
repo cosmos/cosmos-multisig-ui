@@ -23,10 +23,11 @@ You may want to [Create a Transaction](#creating-a-transaction) next.
 
 ### Creating a new multisig account
 
-To create a new multisig account, click the "Create New Multisig" button on the app's homepage. Then enter in the Secp256k1 encoded pubkeys of the accounts you would like to use, as well as the number of signatures required to sign a transaction. Click "Create Multisig". 
+To create a new multisig account, click the "Create New Multisig" button on the app's homepage. Then enter in the addresses of the accounts you would like to use, as well as the number of signatures required to sign a transaction. Click "Create Multisig". These addresses must have sent transactions in the past to be used, the app will show an error if there is no on chain account information for any of the addresses.
 
-![Screen Shot 2021-09-05 at 1 16 32 PM](https://user-images.githubusercontent.com/6718506/132136709-c387ab87-51cc-4c1d-8fc3-130188287929.png)
-![Screen Shot 2021-09-05 at 1 16 41 PM](https://user-images.githubusercontent.com/6718506/132136736-d0be1e9a-b3e9-4307-a6c2-6925e28d71e3.png)
+![Screen Shot 2021-10-04 at 10 10 21 PM](https://user-images.githubusercontent.com/6718506/135949511-b0d51820-7359-4707-a873-966e31b187c0.png)
+![Screen Shot 2021-10-04 at 10 10 24 PM](https://user-images.githubusercontent.com/6718506/135949518-08e9e994-9695-4847-b152-5f28610dd221.png)
+
 
 You may want to [Create a Transaction](#creating-a-transaction) next.
 
