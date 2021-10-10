@@ -12,7 +12,7 @@ export default ({ transactionHash }) => (
       </div>
     </StackableContainer>
     <Button
-      href={`https://www.mintscan.io/cosmos/txs/${transactionHash}`}
+      href={`https://www.mintscan.io/osmosis/txs/${transactionHash}`}
       label=" View on Mintscan"
     ></Button>
     <style jsx>{`
