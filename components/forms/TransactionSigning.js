@@ -1,5 +1,5 @@
 import axios from "axios";
-import { encode, decode } from "uint8-to-base64";
+import { toBase64 } from "@cosmjs/encoding";
 import React from "react";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { registry } from "@cosmjs/proto-signing";
@@ -90,8 +90,8 @@ export default class TransactionSigning extends React.Component {
         signerData
       );
       // check existing signatures
-      const bases64EncodedSignature = encode(signatures[0]);
-      const bases64EncodedBodyBytes = encode(bodyBytes);
+      const bases64EncodedSignature = toBase64(signatures[0]);
+      const bases64EncodedBodyBytes = toBase64(bodyBytes);
       const prevSigMatch = this.props.signatures.findIndex(
         (signature) => signature.signature === bases64EncodedSignature
       );

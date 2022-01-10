@@ -2,7 +2,7 @@ import axios from "axios";
 import { StargateClient, makeMultisignedTx } from "@cosmjs/stargate";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { useState } from "react";
-import { encode, decode } from "uint8-to-base64";
+import { fromBase64 } from "@cosmjs/encoding";
 import { createMultisigThresholdPubkey, pubkeyToAddress } from "@cosmjs/amino";
 import { registry } from "@cosmjs/proto-signing";
 
@@ -78,10 +78,10 @@ const transactionPage = ({
       setBroadcastError("");
       const signatures = new Map();
       currentSignatures.forEach((signature) => {
-        signatures.set(signature.address, decode(signature.signature));
+        signatures.set(signature.address, fromBase64(signature.signature));
       });
 
-      const bodyBytes = decode(currentSignatures[0].bodyBytes);
+      const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTx = makeMultisignedTx(
         accountOnChain.pubkey,
         txInfo.sequence,
