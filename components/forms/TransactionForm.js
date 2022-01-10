@@ -6,19 +6,7 @@ import { withRouter } from "next/router";
 import Button from "../../components/inputs/Button";
 import Input from "../../components/inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
-import { GasPrice } from "@cosmjs/stargate";
-import { Uint53 } from "@cosmjs/math";
-
-// TODO: use `calculateFee` from @cosmjs/stargate after upgrading CosmJS to 0.26+
-function calculateFee(gasLimit, gasPrice) {
-  const processedGasPrice = typeof gasPrice === "string" ? GasPrice.fromString(gasPrice) : gasPrice;
-  const { denom, amount: gasPriceAmount } = processedGasPrice;
-  const amount = Math.ceil(gasPriceAmount.multiply(new Uint53(gasLimit)).toFloatApproximation());
-  return {
-    amount: coins(amount, denom),
-    gas: gasLimit.toString(),
-  };
-}
+import { calculateFee } from "@cosmjs/stargate";
 
 class TransactionForm extends React.Component {
   constructor(props) {
