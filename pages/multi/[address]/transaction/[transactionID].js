@@ -1,6 +1,6 @@
 import axios from "axios";
 import { StargateClient, makeMultisignedTx } from "@cosmjs/stargate";
-import { TxRaw } from "@cosmjs/stargate/build/codec/cosmos/tx/v1beta1/tx";
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { useState } from "react";
 import { encode, decode } from "uint8-to-base64";
 import { createMultisigThresholdPubkey, pubkeyToAddress } from "@cosmjs/amino";
