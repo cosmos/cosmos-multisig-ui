@@ -20,10 +20,16 @@ export default (props) => (
         </li>
       )}
       {props.tx.fee && (
-        <li>
-          <label>Gas:</label>
-          <div>{props.tx.fee.gas} UATOM</div>
-        </li>
+        <>
+          <li>
+            <label>Gas:</label>
+            <div>{props.tx.fee.gas}</div>
+          </li>
+          <li>
+            <label>Fee:</label>
+            <div>{printableCoins(props.tx.fee.amount)}</div>
+          </li>
+        </>
       )}
       {props.tx.memo && (
         <li>
