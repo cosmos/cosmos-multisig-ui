@@ -9,6 +9,7 @@ const Input = (props) => (
       placeholder={props.placeholder || ""}
       autoComplete="off"
       onBlur={props.onBlur}
+      disabled={props.disabled}
     />
     {props.error && <div className="error">{props.error}</div>}
     <style jsx>{`

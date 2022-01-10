@@ -6,6 +6,19 @@ import { withRouter } from "next/router";
 import Button from "../../components/inputs/Button";
 import Input from "../../components/inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
+import { GasPrice } from "@cosmjs/stargate";
+import { Uint53 } from "@cosmjs/math";
+
+// TODO: use `calculateFee` from @cosmjs/stargate after upgrading CosmJS to 0.26+
+function calculateFee(gasLimit, gasPrice) {
+  const processedGasPrice = typeof gasPrice === "string" ? GasPrice.fromString(gasPrice) : gasPrice;
+  const { denom, amount: gasPriceAmount } = processedGasPrice;
+  const amount = Math.ceil(gasPriceAmount.multiply(new Uint53(gasLimit)).toFloatApproximation());
+  return {
+    amount: coins(amount, denom),
+    gas: gasLimit.toString(),
+  };
+}
 
 class TransactionForm extends React.Component {
   constructor(props) {
@@ -16,6 +29,7 @@ class TransactionForm extends React.Component {
       amount: 0,
       memo: "",
       gas: 200000,
+      gasPrice: `0.03${process.env.NEXT_PUBLIC_DENOM}`,
       processing: false,
       addressError: "",
     };
@@ -37,12 +51,7 @@ class TransactionForm extends React.Component {
       typeUrl: "/cosmos.bank.v1beta1.MsgSend",
       value: msgSend,
     };
-    const gasLimit = gas;
-    const fee = {
-      amount: coins(6000, process.env.NEXT_PUBLIC_DENOM),
-      gas: gasLimit.toString(),
-    };
-
+    const fee = calculateFee(Number(gas), this.state.gasPrice);
     return {
       accountNumber: this.props.accountOnChain.accountNumber,
       sequence: this.props.accountOnChain.sequence,
@@ -101,11 +110,20 @@ class TransactionForm extends React.Component {
         </div>
         <div className="form-item">
           <Input
-            label="Gas Limit (UATOM)"
+            label="Gas Limit"
             name="gas"
             type="number"
             value={this.state.gas}
             onChange={this.handleChange}
+          />
+        </div>
+        <div className="form-item">
+          <Input
+            label="Gas Price"
+            name="gas_price"
+            type="string"
+            value={this.state.gasPrice}
+            disabled={true}
           />
         </div>
         <div className="form-item">

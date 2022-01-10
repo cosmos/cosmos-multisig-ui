@@ -1,6 +1,6 @@
 import HashView from "./HashView";
 import StackableContainer from "../layout/StackableContainer";
-import { printableCoin } from "../../lib/displayHelpers";
+import { printableCoins } from "../../lib/displayHelpers";
 
 export default (props) => (
   <StackableContainer lessPadding lessMargin>
@@ -8,7 +8,7 @@ export default (props) => (
       {props.tx.msgs && (
         <li>
           <label>Amount:</label>
-          <div>{printableCoin(props.tx.msgs[0].value.amount[0])}</div>
+          <div>{printableCoins(props.tx.msgs[0].value.amount)}</div>
         </li>
       )}
       {props.tx.msgs && (
@@ -20,10 +20,16 @@ export default (props) => (
         </li>
       )}
       {props.tx.fee && (
-        <li>
-          <label>Gas:</label>
-          <div>{props.tx.fee.gas} UATOM</div>
-        </li>
+        <>
+          <li>
+            <label>Gas:</label>
+            <div>{props.tx.fee.gas}</div>
+          </li>
+          <li>
+            <label>Fee:</label>
+            <div>{printableCoins(props.tx.fee.amount)}</div>
+          </li>
+        </>
       )}
       {props.tx.memo && (
         <li>
