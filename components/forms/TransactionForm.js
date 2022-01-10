@@ -1,12 +1,12 @@
 import axios from "axios";
-import { coins } from "@cosmjs/launchpad";
+import { coins } from "@cosmjs/amino";
+import { calculateFee } from "@cosmjs/stargate";
 import React from "react";
 import { withRouter } from "next/router";
 
 import Button from "../../components/inputs/Button";
 import Input from "../../components/inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
-import { calculateFee } from "@cosmjs/stargate";
 
 class TransactionForm extends React.Component {
   constructor(props) {
