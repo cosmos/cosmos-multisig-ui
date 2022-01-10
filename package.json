@@ -13,7 +13,6 @@
     "@cosmjs/stargate": "^0.27.0",
     "@keplr-wallet/types": "^0.9.0-alpha.4",
     "axios": "^0.21.1",
-    "chalk": "^4.1.0",
     "copy-to-clipboard": "^3.3.1",
     "cosmjs-types": "^0.4.1",
     "encoding": "^0.1.13",
