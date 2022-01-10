@@ -1,16 +1,14 @@
 import HashView from "./HashView";
 import StackableContainer from "../layout/StackableContainer";
+import { printableCoin } from "../../lib/displayHelpers";
 
-const uatomToAtom = (uatom) => {
-  return uatom / 1000000;
-};
 export default (props) => (
   <StackableContainer lessPadding lessMargin>
     <ul className="meta-data">
       {props.tx.msgs && (
         <li>
           <label>Amount:</label>
-          <div>{uatomToAtom(props.tx.msgs[0].value.amount[0].amount)} ATOM</div>
+          <div>{printableCoin(props.tx.msgs[0].value.amount[0])}</div>
         </li>
       )}
       {props.tx.msgs && (
