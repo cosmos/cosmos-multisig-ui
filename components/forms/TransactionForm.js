@@ -1,6 +1,6 @@
 import axios from "axios";
-import { coins } from "@cosmjs/amino";
 import { calculateFee } from "@cosmjs/stargate";
+import { Decimal } from "@cosmjs/math";
 import React from "react";
 import { withRouter } from "next/router";
 
@@ -15,7 +15,7 @@ class TransactionForm extends React.Component {
 
     this.state = {
       toAddress: "",
-      amount: 0,
+      amount: "0",
       memo: "",
       gas: 200000,
       gasPrice: process.env.NEXT_PUBLIC_GAS_PRICE,
@@ -31,10 +31,14 @@ class TransactionForm extends React.Component {
   };
 
   createTransaction = (toAddress, amount, gas) => {
+    const amountInAtomics = Decimal.fromUserInput(amount, Number(process.env.NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT)).atomics;
     const msgSend = {
       fromAddress: this.props.address,
       toAddress: toAddress,
-      amount: coins(amount * 1000000, process.env.NEXT_PUBLIC_DENOM),
+      amount: [{
+        amount: amountInAtomics,
+        denom: process.env.NEXT_PUBLIC_DENOM
+      }],
     };
     const msg = {
       typeUrl: "/cosmos.bank.v1beta1.MsgSend",
@@ -90,7 +94,7 @@ class TransactionForm extends React.Component {
         </div>
         <div className="form-item">
           <Input
-            label="Amount (ATOM)"
+            label={`Amount (${process.env.NEXT_PUBLIC_DISPLAY_DENOM})`}
             name="amount"
             type="number"
             value={this.state.amount}
