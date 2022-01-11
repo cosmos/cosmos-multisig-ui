@@ -18,7 +18,7 @@ class TransactionForm extends React.Component {
       amount: 0,
       memo: "",
       gas: 200000,
-      gasPrice: `0.03${process.env.NEXT_PUBLIC_DENOM}`,
+      gasPrice: process.env.NEXT_PUBLIC_GAS_PRICE,
       processing: false,
       addressError: "",
     };
