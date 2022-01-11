@@ -7,6 +7,7 @@ import { withRouter } from "next/router";
 import Button from "../../components/inputs/Button";
 import Input from "../../components/inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
+import { exampleAddress } from "../../lib/displayHelpers";
 
 class TransactionForm extends React.Component {
   constructor(props) {
@@ -84,7 +85,7 @@ class TransactionForm extends React.Component {
             value={this.state.toAddress}
             onChange={this.handleChange}
             error={this.state.addressError}
-            placeholder="cosmos1fjrzd7ycxzse05zme3r2zqwpsvcrskv80wj82h"
+            placeholder={exampleAddress()}
           />
         </div>
         <div className="form-item">

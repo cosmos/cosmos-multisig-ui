@@ -5,6 +5,7 @@ import { withRouter } from "next/router";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 import Input from "../inputs/Input";
+import { exampleAddress } from "../../lib/displayHelpers";
 
 class FindMultisigForm extends React.Component {
   constructor(props) {
@@ -45,7 +46,7 @@ class FindMultisigForm extends React.Component {
             value={this.state.address}
             label="Multisig Address"
             name="address"
-            placeholder="cosmos1vqpjljwsynsn58dugz0w8ut7kun7t8ls2qkmsq"
+            placeholder={exampleAddress()}
           />
           <Button
             label="Use this Multisig"
