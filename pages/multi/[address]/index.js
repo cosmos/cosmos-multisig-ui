@@ -13,25 +13,23 @@ import TransactionForm from "../../../components/forms/TransactionForm";
 import TransactionList from "../../../components/dataViews/TransactionList";
 
 export async function getServerSideProps(context) {
-  let holdings;
   try {
     const client = await StargateClient.connect(
       process.env.NEXT_PUBLIC_NODE_ADDRESS
     );
     const multisigAddress = context.params.address;
-    holdings = await client.getBalance(
+    const holdings = await client.getBalance(
       multisigAddress,
       process.env.NEXT_PUBLIC_DENOM
     );
     const accountOnChain = await getMultisigAccount(multisigAddress, client);
-
     return {
-      props: { accountOnChain, holdings: holdings },
+      props: { accountOnChain, holdings },
     };
   } catch (error) {
     console.log(error);
     return {
-      props: { error: error.message, holdings: holdings },
+      props: { error: error.message },
     };
   }
 }
