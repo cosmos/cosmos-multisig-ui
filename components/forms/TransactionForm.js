@@ -7,7 +7,7 @@ import { withRouter } from "next/router";
 import Button from "../../components/inputs/Button";
 import Input from "../../components/inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
-import { exampleAddress } from "../../lib/displayHelpers";
+import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
 
 class TransactionForm extends React.Component {
   constructor(props) {
@@ -56,23 +56,25 @@ class TransactionForm extends React.Component {
   };
 
   handleCreate = async () => {
-    if (this.state.toAddress.length === 45) {
-      this.setState({ processing: true });
-      const tx = this.createTransaction(
-        this.state.toAddress,
-        this.state.amount,
-        this.state.gas
-      );
-      console.log(tx);
-      const dataJSON = JSON.stringify(tx);
-      const res = await axios.post("/api/transaction", { dataJSON });
-      const { transactionID } = res.data;
-      this.props.router.push(
-        `${this.props.address}/transaction/${transactionID}`
-      );
-    } else {
-      this.setState({ addressError: "Use a valid cosmos-hub address" });
+    const addressError = checkAddress(this.state.toAddress);
+    if (addressError) {
+      this.setState({ addressError: `Invalid address for network ${process.env.NEXT_PUBLIC_CHAIN_ID}: ${addressError}` });
+      return;
     }
+
+    this.setState({ processing: true });
+    const tx = this.createTransaction(
+      this.state.toAddress,
+      this.state.amount,
+      this.state.gas
+    );
+    console.log(tx);
+    const dataJSON = JSON.stringify(tx);
+    const res = await axios.post("/api/transaction", { dataJSON });
+    const { transactionID } = res.data;
+    this.props.router.push(
+      `${this.props.address}/transaction/${transactionID}`
+    );
   };
 
   render() {
