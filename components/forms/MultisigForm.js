@@ -8,7 +8,7 @@ import { createMultisigFromCompressedSecp256k1Pubkeys } from "../../lib/multisig
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
 import ThresholdInput from "../inputs/ThresholdInput";
-import { exampleAddress } from "../../lib/displayHelpers";
+import { exampleAddress, examplePubkey } from "../../lib/displayHelpers";
 
 let emptyPubKeyGroup = () => {
   return { address: "", compressedPubkey: "", keyError: "", isPubkey: false };
@@ -162,7 +162,7 @@ class MultiSigForm extends React.Component {
                     width="100%"
                     placeholder={
                       pubkeyGroup.isPubkey
-                        ? "Akd/qKMWdZXyiMnSu6aFLpQEGDO0ijyal9mXUIcVaPNX"
+                        ? examplePubkey(index)
                         : exampleAddress(index)
                     }
                     error={pubkeyGroup.keyError}
