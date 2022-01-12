@@ -26,9 +26,7 @@ class MultiSigForm extends React.Component {
 
   handleChangeThreshold(e) {
     const threshold =
-      e.target.value <= this.state.pubkeys.length
-        ? e.target.value
-        : this.state.pubkeys.length;
+      e.target.value <= this.state.pubkeys.length ? e.target.value : this.state.pubkeys.length;
     this.setState({ threshold });
   }
 
@@ -47,10 +45,7 @@ class MultiSigForm extends React.Component {
       const pubkeys = Array.from(prevState.pubkeys);
       pubkeys.splice(index, 1);
 
-      const threshold =
-        prevState.threshold > pubkeys.length
-          ? pubkeys.length
-          : prevState.threshold;
+      const threshold = prevState.threshold > pubkeys.length ? pubkeys.length : prevState.threshold;
 
       return { pubkeys, threshold };
     });
@@ -63,7 +58,7 @@ class MultiSigForm extends React.Component {
     console.log(accountOnChain);
     if (!accountOnChain || !accountOnChain.pubkey) {
       throw new Error(
-        "Account has no pubkey on chain, this address will need to send a transaction to appear on chain."
+        "Account has no pubkey on chain, this address will need to send a transaction to appear on chain.",
       );
     }
     return accountOnChain.pubkey.value;
@@ -101,14 +96,12 @@ class MultiSigForm extends React.Component {
 
   async handleCreate() {
     this.setState({ processing: true });
-    const compressedPubkeys = this.state.pubkeys.map(
-      (item) => item.compressedPubkey
-    );
+    const compressedPubkeys = this.state.pubkeys.map((item) => item.compressedPubkey);
     let multisigAddress;
     try {
       multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
         compressedPubkeys,
-        parseInt(this.state.threshold, 10)
+        parseInt(this.state.threshold, 10),
       );
       this.props.router.push(`/multi/${multisigAddress}`);
     } catch (error) {
@@ -148,31 +141,20 @@ class MultiSigForm extends React.Component {
                       this.handleKeyGroupChange(index, e);
                     }}
                     value={
-                      pubkeyGroup.isPubkey
-                        ? pubkeyGroup.compressedPubkey
-                        : pubkeyGroup.address
+                      pubkeyGroup.isPubkey ? pubkeyGroup.compressedPubkey : pubkeyGroup.address
                     }
-                    label={
-                      pubkeyGroup.isPubkey
-                        ? "Public Key (Secp256k1)"
-                        : "Address"
-                    }
+                    label={pubkeyGroup.isPubkey ? "Public Key (Secp256k1)" : "Address"}
                     name={pubkeyGroup.isPubkey ? "compressedPubkey" : "address"}
                     width="100%"
                     placeholder={
-                      pubkeyGroup.isPubkey
-                        ? examplePubkey(index)
-                        : exampleAddress(index)
+                      pubkeyGroup.isPubkey ? examplePubkey(index) : exampleAddress(index)
                     }
                     error={pubkeyGroup.keyError}
                     onBlur={(e) => {
                       this.handleKeyBlur(index, e);
                     }}
                   />
-                  <button
-                    className="toggle-type"
-                    onClick={() => this.togglePubkey(index)}
-                  >
+                  <button className="toggle-type" onClick={() => this.togglePubkey(index)}>
                     Use {pubkeyGroup.isPubkey ? "Address" : "Public Key"}
                   </button>
                 </div>
@@ -194,8 +176,8 @@ class MultiSigForm extends React.Component {
           <StackableContainer lessPadding lessMargin>
             <p>
               This means that each transaction this multisig makes will require{" "}
-              {this.state.threshold} of the members to sign it for it to be
-              accepted by the validators.
+              {this.state.threshold} of the members to sign it for it to be accepted by the
+              validators.
             </p>
           </StackableContainer>
         </StackableContainer>

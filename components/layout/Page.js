@@ -12,9 +12,7 @@ const Page = (props) => {
           <div className="nav">
             <StackableContainer base lessPadding lessMargin>
               <p>
-                <a href={`/multi/${props.rootMultisig}`}>
-                  ← Back to multisig account
-                </a>
+                <a href={`/multi/${props.rootMultisig}`}>← Back to multisig account</a>
               </p>
             </StackableContainer>
           </div>
@@ -24,9 +22,7 @@ const Page = (props) => {
       <div className="footer-links">
         <StackableContainer base lessPadding lessMargin>
           <p>
-            <a href="https://github.com/samepant/cosmoshub-legacy-multisig">
-              View on github
-            </a>
+            <a href="https://github.com/samepant/cosmoshub-legacy-multisig">View on github</a>
           </p>
         </StackableContainer>
       </div>
@@ -57,17 +53,11 @@ const Page = (props) => {
       `}</style>
       <style global jsx>{`
         body {
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
+            Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
           color: white;
           min-height: 100vh;
-          background: linear-gradient(
-            240.16deg,
-            #3f023c 10.46%,
-            #561253 54.88%,
-            #580a55 94.89%
-          );
+          background: linear-gradient(240.16deg, #3f023c 10.46%, #561253 54.88%, #580a55 94.89%);
           font-size: 16px;
           margin: 0;
         }

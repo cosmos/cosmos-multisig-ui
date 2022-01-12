@@ -79,13 +79,11 @@ const transactionPage = ({
         txInfo.sequence,
         txInfo.fee,
         bodyBytes,
-        new Map(
-          currentSignatures.map((s) => [s.address, fromBase64(s.signature)])
-        )
+        new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
       );
       const broadcaster = await StargateClient.connect(nodeAddress);
       const result = await broadcaster.broadcastTx(
-        Uint8Array.from(TxRaw.encode(signedTx).finish())
+        Uint8Array.from(TxRaw.encode(signedTx).finish()),
       );
       console.log(result);
       const _res = await axios.post(`/api/transaction/${transactionID}`, {
@@ -102,38 +100,24 @@ const transactionPage = ({
     <Page rootMultisig={multisigAddress}>
       <StackableContainer base>
         <StackableContainer>
-          <h1>
-            {transactionHash
-              ? "Completed Transaction"
-              : "In Progress Transaction"}
-          </h1>
+          <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>
         </StackableContainer>
 
-        {transactionHash && (
-          <CompletedTransaction transactionHash={transactionHash} />
-        )}
+        {transactionHash && <CompletedTransaction transactionHash={transactionHash} />}
         <TransactionInfo tx={txInfo} />
         {!transactionHash && (
-          <ThresholdInfo
-            signatures={currentSignatures}
-            account={accountOnChain}
-          />
+          <ThresholdInfo signatures={currentSignatures} account={accountOnChain} />
         )}
-        {currentSignatures.length >=
-          parseInt(accountOnChain.pubkey.value.threshold, 10) &&
+        {currentSignatures.length >= parseInt(accountOnChain.pubkey.value.threshold, 10) &&
           !transactionHash && (
             <>
               <Button
-                label={
-                  isBroadcasting ? "Broadcasting..." : "Broadcast Transaction"
-                }
+                label={isBroadcasting ? "Broadcasting..." : "Broadcast Transaction"}
                 onClick={broadcastTx}
                 primary
                 disabled={isBroadcasting}
               />
-              {broadcastError && (
-                <div className="broadcast-error">{broadcastError}</div>
-              )}
+              {broadcastError && <div className="broadcast-error">{broadcastError}</div>}
             </>
           )}
         {!transactionHash && (

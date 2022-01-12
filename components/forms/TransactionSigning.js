@@ -33,9 +33,7 @@ export default class TransactionSigning extends React.Component {
 
   async handleBroadcast() {
     this.setState({ processing: true });
-    const res = await axios.get(
-      `/api/transaction/${this.state.transaction.uuid}/broadcast`
-    );
+    const res = await axios.get(`/api/transaction/${this.state.transaction.uuid}/broadcast`);
 
     this.setState({
       transaction: res.data,
@@ -50,11 +48,9 @@ export default class TransactionSigning extends React.Component {
   async connectWallet() {
     try {
       await window.keplr.enable(process.env.NEXT_PUBLIC_CHAIN_ID);
-      const walletAccount = await window.keplr.getKey(
-        process.env.NEXT_PUBLIC_CHAIN_ID
-      );
+      const walletAccount = await window.keplr.getKey(process.env.NEXT_PUBLIC_CHAIN_ID);
       const hasSigned = this.props.signatures.some(
-        (sig) => sig.address === walletAccount.bech32Address
+        (sig) => sig.address === walletAccount.bech32Address,
       );
       this.setState({ walletAccount, hasSigned });
     } catch (e) {
@@ -71,9 +67,7 @@ export default class TransactionSigning extends React.Component {
           disableBalanceCheck: true,
         },
       };
-      const offlineSigner = window.getOfflineSignerOnlyAmino(
-        process.env.NEXT_PUBLIC_CHAIN_ID
-      );
+      const offlineSigner = window.getOfflineSignerOnlyAmino(process.env.NEXT_PUBLIC_CHAIN_ID);
       const signingClient = await SigningStargateClient.offline(offlineSigner);
       const signerData = {
         accountNumber: this.props.tx.accountNumber,
@@ -85,13 +79,13 @@ export default class TransactionSigning extends React.Component {
         this.props.tx.msgs,
         this.props.tx.fee,
         this.props.tx.memo,
-        signerData
+        signerData,
       );
       // check existing signatures
       const bases64EncodedSignature = toBase64(signatures[0]);
       const bases64EncodedBodyBytes = toBase64(bodyBytes);
       const prevSigMatch = this.props.signatures.findIndex(
-        (signature) => signature.signature === bases64EncodedSignature
+        (signature) => signature.signature === bases64EncodedSignature,
       );
 
       if (prevSigMatch > -1) {
@@ -104,7 +98,7 @@ export default class TransactionSigning extends React.Component {
         };
         const _res = await axios.post(
           `/api/transaction/${this.props.transactionID}/signature`,
-          signature
+          signature,
         );
         this.props.addSignature(signature);
         this.setState({ hasSigned: true });
@@ -120,11 +114,7 @@ export default class TransactionSigning extends React.Component {
         {this.state.hasSigned ? (
           <StackableContainer lessPadding lessMargin lessRadius>
             <div className="confirmation">
-              <svg
-                viewBox="0 0 77 60"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg viewBox="0 0 77 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 30L26 51L72 5" stroke="white" strokeWidth="12" />
               </svg>
               <p>You've signed this transaction.</p>
@@ -150,12 +140,7 @@ export default class TransactionSigning extends React.Component {
         <h2>Current Signers</h2>
         <StackableContainer lessPadding lessMargin lessRadius>
           {this.props.signatures.map((signature, i) => (
-            <StackableContainer
-              lessPadding
-              lessRadius
-              lessMargin
-              key={`${signature.address}_${i}`}
-            >
+            <StackableContainer lessPadding lessRadius lessMargin key={`${signature.address}_${i}`}>
               <HashView hash={signature.address} />
             </StackableContainer>
           ))}

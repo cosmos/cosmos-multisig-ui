@@ -7,8 +7,8 @@ const ThresholdInfo = ({ signatures, account }) => (
     <h2>Signatures</h2>
     <StackableContainer lessPadding lessMargin lessRadius>
       <p>
-        Once the number of required signatures have been created, this
-        transaction will be ready to broadcast.
+        Once the number of required signatures have been created, this transaction will be ready to
+        broadcast.
       </p>
     </StackableContainer>
     <StackableContainer lessPadding lessMargin lessRadius>

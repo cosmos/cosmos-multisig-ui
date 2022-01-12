@@ -33,7 +33,7 @@ class TransactionForm extends React.Component {
   createTransaction(toAddress, amount, gas) {
     const amountInAtomics = Decimal.fromUserInput(
       amount,
-      Number(process.env.NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT)
+      Number(process.env.NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT),
     ).atomics;
     const msgSend = {
       fromAddress: this.props.address,
@@ -70,18 +70,12 @@ class TransactionForm extends React.Component {
     }
 
     this.setState({ processing: true });
-    const tx = this.createTransaction(
-      this.state.toAddress,
-      this.state.amount,
-      this.state.gas
-    );
+    const tx = this.createTransaction(this.state.toAddress, this.state.amount, this.state.gas);
     console.log(tx);
     const dataJSON = JSON.stringify(tx);
     const res = await axios.post("/api/transaction", { dataJSON });
     const { transactionID } = res.data;
-    this.props.router.push(
-      `${this.props.address}/transaction/${transactionID}`
-    );
+    this.props.router.push(`${this.props.address}/transaction/${transactionID}`);
   }
 
   render() {

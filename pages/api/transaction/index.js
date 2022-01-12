@@ -8,9 +8,7 @@ export default async function (req, res) {
         console.log("Function `createTransaction` invoked", data);
         const saveRes = await createTransaction(data.dataJSON);
         console.log("success", saveRes.data);
-        res
-          .status(200)
-          .send({ transactionID: saveRes.data.data.createTransaction._id });
+        res.status(200).send({ transactionID: saveRes.data.data.createTransaction._id });
         return;
       } catch (err) {
         console.log(err);

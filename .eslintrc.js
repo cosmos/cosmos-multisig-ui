@@ -27,10 +27,7 @@ module.exports = {
     "no-console": "off",
     "no-param-reassign": "warn",
     "no-shadow": "warn",
-    "no-unused-vars": [
-      "warn",
-      { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-    ],
+    "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     "prefer-const": "warn",
     radix: ["warn", "always"],
     "spaced-comment": ["warn", "always"],

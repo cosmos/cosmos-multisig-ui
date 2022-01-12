@@ -34,9 +34,8 @@ class FindMultisigForm extends React.Component {
       <StackableContainer>
         <StackableContainer lessPadding>
           <p>
-            Already have a multisig address? Enter it below. If it’s a valid
-            address, you will be able to view its transactions and create new
-            ones.
+            Already have a multisig address? Enter it below. If it’s a valid address, you will be
+            able to view its transactions and create new ones.
           </p>
         </StackableContainer>
         <StackableContainer lessPadding lessMargin>
@@ -47,18 +46,11 @@ class FindMultisigForm extends React.Component {
             name="address"
             placeholder={exampleAddress()}
           />
-          <Button
-            label="Use this Multisig"
-            onClick={this.handleSearch}
-            primary
-          />
+          <Button label="Use this Multisig" onClick={this.handleSearch} primary />
         </StackableContainer>
         <StackableContainer lessPadding>
           <p className="create-help">Don't have a multisig?</p>
-          <Button
-            label="Create New Multisig"
-            onClick={() => this.props.router.push("create")}
-          />
+          <Button label="Create New Multisig" onClick={() => this.props.router.push("create")} />
         </StackableContainer>
         <style jsx>{`
           .multisig-form {
