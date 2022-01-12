@@ -1,4 +1,3 @@
-import axios from "axios";
 import React from "react";
 
 import StackableContainer from "../layout/StackableContainer";
@@ -51,7 +50,7 @@ class TransactionList extends React.Component {
       <StackableContainer lessPadding>
         <h2>Past Transactions</h2>
         <ul>
-          {dummyTXs.map((tx, i) => (
+          {dummyTXs.map((tx) => (
             <li key={tx.txHash} className="tx">
               <TransactionInfo tx={tx} abbreviate />
             </li>

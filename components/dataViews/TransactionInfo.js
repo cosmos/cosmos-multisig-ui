@@ -1,8 +1,10 @@
+import React from "react";
+
 import HashView from "./HashView";
 import StackableContainer from "../layout/StackableContainer";
 import { printableCoins } from "../../lib/displayHelpers";
 
-export default (props) => (
+const TransactionInfo = (props) => (
   <StackableContainer lessPadding lessMargin>
     <ul className="meta-data">
       {props.tx.msgs && (
@@ -68,3 +70,5 @@ export default (props) => (
     `}</style>
   </StackableContainer>
 );
+
+export default TransactionInfo;

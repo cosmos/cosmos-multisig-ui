@@ -24,21 +24,26 @@ class TransactionForm extends React.Component {
     };
   }
 
-  handleChange = (e) => {
+  handleChange(e) {
     this.setState({
       [e.target.name]: e.target.value,
     });
-  };
+  }
 
-  createTransaction = (toAddress, amount, gas) => {
-    const amountInAtomics = Decimal.fromUserInput(amount, Number(process.env.NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT)).atomics;
+  createTransaction(toAddress, amount, gas) {
+    const amountInAtomics = Decimal.fromUserInput(
+      amount,
+      Number(process.env.NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT)
+    ).atomics;
     const msgSend = {
       fromAddress: this.props.address,
       toAddress: toAddress,
-      amount: [{
-        amount: amountInAtomics,
-        denom: process.env.NEXT_PUBLIC_DENOM
-      }],
+      amount: [
+        {
+          amount: amountInAtomics,
+          denom: process.env.NEXT_PUBLIC_DENOM,
+        },
+      ],
     };
     const msg = {
       typeUrl: "/cosmos.bank.v1beta1.MsgSend",
@@ -53,12 +58,14 @@ class TransactionForm extends React.Component {
       fee: fee,
       memo: this.state.memo,
     };
-  };
+  }
 
-  handleCreate = async () => {
+  async handleCreate() {
     const addressError = checkAddress(this.state.toAddress);
     if (addressError) {
-      this.setState({ addressError: `Invalid address for network ${process.env.NEXT_PUBLIC_CHAIN_ID}: ${addressError}` });
+      this.setState({
+        addressError: `Invalid address for network ${process.env.NEXT_PUBLIC_CHAIN_ID}: ${addressError}`,
+      });
       return;
     }
 
@@ -75,7 +82,7 @@ class TransactionForm extends React.Component {
     this.props.router.push(
       `${this.props.address}/transaction/${transactionID}`
     );
-  };
+  }
 
   render() {
     return (

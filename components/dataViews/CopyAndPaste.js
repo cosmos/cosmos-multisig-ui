@@ -1,6 +1,7 @@
+import React from "react";
 import copy from "copy-to-clipboard";
 
-export default (props) => (
+const CopyAndPaste = (props) => (
   <div className="icon" onClick={() => copy(props.copyText)}>
     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M13 32H41C53.1503 32 63 41.8497 63 54V94H13V32Z" />
@@ -29,3 +30,5 @@ export default (props) => (
     `}</style>
   </div>
 );
+
+export default CopyAndPaste;

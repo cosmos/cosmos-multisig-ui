@@ -1,7 +1,9 @@
+import React from "react";
+
 import StackableContainer from "../layout/StackableContainer";
 import Button from "../inputs/Button";
 
-export default ({ transactionHash }) => (
+const CompletedTransaction = ({ transactionHash }) => (
   <StackableContainer lessPadding lessMargin>
     <StackableContainer lessPadding lessMargin lessRadius>
       <div className="confirmation">
@@ -27,3 +29,5 @@ export default ({ transactionHash }) => (
     `}</style>
   </StackableContainer>
 );
+
+export default CompletedTransaction;

@@ -1,10 +1,10 @@
+import React from "react";
 import NextHead from "next/head";
 import { string } from "prop-types";
 
 const defaultDescription =
   "*:;;;:*:;;;:**:;;;:*:;;;:*COSMOS MULTISIGN*:;;;:*:;;;:**:;;;:*:;;;:*";
 const defaultOGURL = "";
-const defaultOGImage = "";
 
 const Head = (props) => (
   <NextHead>

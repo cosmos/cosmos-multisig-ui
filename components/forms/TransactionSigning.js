@@ -1,8 +1,7 @@
+import React from "react";
 import axios from "axios";
 import { toBase64 } from "@cosmjs/encoding";
-import React from "react";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { registry } from "@cosmjs/proto-signing";
 
 import Button from "../inputs/Button";
 import HashView from "../dataViews/HashView";
@@ -25,14 +24,14 @@ export default class TransactionSigning extends React.Component {
     this.connectWallet();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (!prevProps.transaction && this.props.transaction) {
       this.setState({ transaction: this.props.transaction });
       console.log(JSON.parse(this.props.transaction.signatures));
     }
   }
 
-  handleBroadcast = async () => {
+  async handleBroadcast() {
     this.setState({ processing: true });
     const res = await axios.get(
       `/api/transaction/${this.state.transaction.uuid}/broadcast`
@@ -42,13 +41,13 @@ export default class TransactionSigning extends React.Component {
       transaction: res.data,
       processing: false,
     });
-  };
+  }
 
-  clickFileUpload = () => {
+  clickFileUpload() {
     this.fileInput.current.click();
-  };
+  }
 
-  connectWallet = async () => {
+  async connectWallet() {
     try {
       await window.keplr.enable(process.env.NEXT_PUBLIC_CHAIN_ID);
       const walletAccount = await window.keplr.getKey(
@@ -61,9 +60,9 @@ export default class TransactionSigning extends React.Component {
     } catch (e) {
       console.log("enable err: ", e);
     }
-  };
+  }
 
-  signTransaction = async () => {
+  async signTransaction() {
     try {
       window.keplr.defaultOptions = {
         sign: {
@@ -75,7 +74,6 @@ export default class TransactionSigning extends React.Component {
       const offlineSigner = window.getOfflineSignerOnlyAmino(
         process.env.NEXT_PUBLIC_CHAIN_ID
       );
-      const accounts = await offlineSigner.getAccounts();
       const signingClient = await SigningStargateClient.offline(offlineSigner);
       const signerData = {
         accountNumber: this.props.tx.accountNumber,
@@ -104,7 +102,7 @@ export default class TransactionSigning extends React.Component {
           signature: bases64EncodedSignature,
           address: this.state.walletAccount.bech32Address,
         };
-        const res = await axios.post(
+        const _res = await axios.post(
           `/api/transaction/${this.props.transactionID}/signature`,
           signature
         );
@@ -114,7 +112,7 @@ export default class TransactionSigning extends React.Component {
     } catch (error) {
       console.log("Error creating signature:", error);
     }
-  };
+  }
 
   render() {
     return (

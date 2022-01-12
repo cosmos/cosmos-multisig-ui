@@ -1,3 +1,5 @@
+import React from "react";
+
 import StackableContainer from "../layout/StackableContainer";
 
 const ThresholdInfo = ({ signatures, account }) => (
@@ -39,4 +41,5 @@ const ThresholdInfo = ({ signatures, account }) => (
     `}</style>
   </StackableContainer>
 );
+
 export default ThresholdInfo;

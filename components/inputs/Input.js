@@ -1,3 +1,5 @@
+import React from "react";
+
 const Input = (props) => (
   <div className="text-input">
     <label>{props.label || ""}</label>

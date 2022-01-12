@@ -1,3 +1,5 @@
+import React from "react";
+
 import StackableContainer from "../layout/StackableContainer";
 import { abbreviateLongString } from "../../lib/displayHelpers";
 
@@ -18,12 +20,12 @@ const dummyMembers = [
     address: "cosmos1t5u0jfg3ljsjrh2m9e47d4ny2hea7eehxrzdgd",
   },
 ];
-const MultisigMembers = (props) => (
+const MultisigMembers = (_props) => (
   <StackableContainer lessPadding>
     <h2>Members</h2>
     <ul className="meta-data">
       {dummyMembers.map((member) => (
-        <li>
+        <li key={member.address}>
           <div className="nickname">
             <label>Nickname:</label>
             <div className="info">{member.nickname}</div>

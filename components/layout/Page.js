@@ -1,3 +1,5 @@
+import React from "react";
+
 import Head from "../head";
 import StackableContainer from "./StackableContainer";
 

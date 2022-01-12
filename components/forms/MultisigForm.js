@@ -1,4 +1,3 @@
-import axios from "axios";
 import React from "react";
 import { withRouter } from "next/router";
 import { StargateClient } from "@cosmjs/stargate";
@@ -10,7 +9,7 @@ import StackableContainer from "../layout/StackableContainer";
 import ThresholdInput from "../inputs/ThresholdInput";
 import { exampleAddress, examplePubkey } from "../../lib/displayHelpers";
 
-let emptyPubKeyGroup = () => {
+const emptyPubKeyGroup = () => {
   return { address: "", compressedPubkey: "", keyError: "", isPubkey: false };
 };
 
@@ -25,25 +24,25 @@ class MultiSigForm extends React.Component {
     };
   }
 
-  handleChangeThreshold = (e) => {
+  handleChangeThreshold(e) {
     const threshold =
       e.target.value <= this.state.pubkeys.length
         ? e.target.value
         : this.state.pubkeys.length;
     this.setState({ threshold });
-  };
+  }
 
-  handleKeyGroupChange = (index, e) => {
+  handleKeyGroupChange(index, e) {
     const { pubkeys } = this.state;
     pubkeys[index][e.target.name] = e.target.value;
     this.setState({ pubkeys });
-  };
+  }
 
-  handleAddKey = () => {
+  handleAddKey() {
     this.setState({ pubkeys: this.state.pubkeys.concat(emptyPubKeyGroup()) });
-  };
+  }
 
-  handleRemove = (index) => {
+  handleRemove(index) {
     this.setState((prevState) => {
       const pubkeys = Array.from(prevState.pubkeys);
       pubkeys.splice(index, 1);
@@ -55,9 +54,9 @@ class MultiSigForm extends React.Component {
 
       return { pubkeys, threshold };
     });
-  };
+  }
 
-  getPubkeyFromNode = async (address) => {
+  async getPubkeyFromNode(address) {
     const nodeAddress = process.env.NEXT_PUBLIC_NODE_ADDRESS;
     const client = await StargateClient.connect(nodeAddress);
     const accountOnChain = await client.getAccount(address);
@@ -68,9 +67,9 @@ class MultiSigForm extends React.Component {
       );
     }
     return accountOnChain.pubkey.value;
-  };
+  }
 
-  handleKeyBlur = async (index, e) => {
+  async handleKeyBlur(index, e) {
     try {
       const { pubkeys } = this.state;
       let pubkey;
@@ -83,7 +82,7 @@ class MultiSigForm extends React.Component {
         }
       } else {
         // use address to fetch pubkey
-        let address = e.target.value;
+        const address = e.target.value;
         if (address.length > 0) {
           pubkey = await this.getPubkeyFromNode(address);
         }
@@ -98,9 +97,9 @@ class MultiSigForm extends React.Component {
       pubkeys[index].keyError = error.message;
       this.setState({ pubkeys });
     }
-  };
+  }
 
-  handleCreate = async () => {
+  async handleCreate() {
     this.setState({ processing: true });
     const compressedPubkeys = this.state.pubkeys.map(
       (item) => item.compressedPubkey
@@ -115,13 +114,13 @@ class MultiSigForm extends React.Component {
     } catch (error) {
       console.log("Failed to creat multisig: ", error);
     }
-  };
+  }
 
-  togglePubkey = (index) => {
+  togglePubkey(index) {
     const { pubkeys } = this.state;
     pubkeys[index].isPubkey = !pubkeys[index].isPubkey;
     this.setState({ pubkeys });
-  };
+  }
 
   render() {
     return (

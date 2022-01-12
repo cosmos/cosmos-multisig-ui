@@ -1,4 +1,6 @@
-const DevHelper = (props) => (
+import React from "react";
+
+const DevHelper = (_props) => (
   <div className="dev-helper">
     <h3>Dev Helper</h3>
     <h4>Pages</h4>

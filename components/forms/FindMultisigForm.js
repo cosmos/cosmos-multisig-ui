@@ -1,4 +1,3 @@
-import axios from "axios";
 import React from "react";
 import { withRouter } from "next/router";
 
@@ -18,17 +17,17 @@ class FindMultisigForm extends React.Component {
     };
   }
 
-  handleChange = (e) => {
+  handleChange(e) {
     this.setState({
       [e.target.name]: e.target.value,
     });
-  };
+  }
 
-  handleSearch = async () => {
+  async handleSearch() {
     this.setState({ processing: true });
 
     this.props.router.push(`/multi/${this.state.address}`);
-  };
+  }
 
   render() {
     return (
