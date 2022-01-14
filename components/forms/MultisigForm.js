@@ -162,12 +162,12 @@ class MultiSigForm extends React.Component {
             </StackableContainer>
           ))}
 
-          <Button label="Add another address" onClick={this.handleAddKey} />
+          <Button label="Add another address" onClick={() => this.handleAddKey()} />
         </StackableContainer>
         <StackableContainer>
           <StackableContainer lessPadding>
             <ThresholdInput
-              onChange={this.handleChangeThreshold}
+              onChange={(e) => this.handleChangeThreshold(e)}
               value={this.state.threshold}
               total={this.state.pubkeys.length}
             />
@@ -181,7 +181,7 @@ class MultiSigForm extends React.Component {
             </p>
           </StackableContainer>
         </StackableContainer>
-        <Button primary onClick={this.handleCreate} label="Create Multisig" />
+        <Button primary onClick={() => this.handleCreate()} label="Create Multisig" />
         <style jsx>{`
           .key-inputs {
             display: flex;

@@ -124,9 +124,9 @@ export default class TransactionSigning extends React.Component {
           <>
             <h2>Sign this transaction</h2>
             {this.state.walletAccount ? (
-              <Button label="Sign transaction" onClick={this.signTransaction} />
+              <Button label="Sign transaction" onClick={() => this.signTransaction()} />
             ) : (
-              <Button label="Connect Wallet" onClick={this.connectWallet} />
+              <Button label="Connect Wallet" onClick={() => this.connectWallet()} />
             )}
           </>
         )}

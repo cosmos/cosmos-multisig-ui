@@ -81,7 +81,7 @@ class TransactionForm extends React.Component {
   render() {
     return (
       <StackableContainer lessPadding>
-        <button className="remove" onClick={this.props.closeForm}>
+        <button className="remove" onClick={() => this.props.closeForm()}>
           ✕
         </button>
         <h2>Create New transaction</h2>
@@ -90,7 +90,7 @@ class TransactionForm extends React.Component {
             label="To Address"
             name="toAddress"
             value={this.state.toAddress}
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
             error={this.state.addressError}
             placeholder={exampleAddress()}
           />
@@ -101,7 +101,7 @@ class TransactionForm extends React.Component {
             name="amount"
             type="number"
             value={this.state.amount}
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
           />
         </div>
         <div className="form-item">
@@ -110,7 +110,7 @@ class TransactionForm extends React.Component {
             name="gas"
             type="number"
             value={this.state.gas}
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
           />
         </div>
         <div className="form-item">
@@ -128,10 +128,10 @@ class TransactionForm extends React.Component {
             name="memo"
             type="text"
             value={this.state.memo}
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
           />
         </div>
-        <Button label="Create Transaction" onClick={this.handleCreate} />
+        <Button label="Create Transaction" onClick={() => this.handleCreate()} />
         <style jsx>{`
           p {
             margin-top: 15px;
