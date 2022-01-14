@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { pubkeyToAddress } from "@cosmjs/amino";
 import { StargateClient } from "@cosmjs/stargate";
 import { useRouter } from "next/router";
 
@@ -27,6 +28,16 @@ export async function getServerSideProps(context) {
   }
 }
 
+function participantPubkeysFromMultisig(multisigPubkey) {
+  return multisigPubkey.value.pubkeys;
+}
+
+function participantAddressesFromMultisig(multisigPubkey, addressPrefix) {
+  return participantPubkeysFromMultisig(multisigPubkey).map((p) =>
+    pubkeyToAddress(p, addressPrefix),
+  );
+}
+
 const multipage = (props) => {
   const [showTxForm, setShowTxForm] = useState(false);
   const router = useRouter();
@@ -40,6 +51,20 @@ const multipage = (props) => {
             <HashView hash={address} />
           </h1>
         </StackableContainer>
+        {props.accountOnChain?.pubkey && (
+          <StackableContainer>
+            <h2>Participants</h2>
+            <ul>
+              {participantAddressesFromMultisig(
+                props.accountOnChain?.pubkey,
+                process.env.NEXT_PUBLIC_ADDRESS_PREFIX,
+              ).map((participantAddress) => (
+                <li key={participantAddress}>{participantAddress}</li>
+              ))}
+            </ul>
+            <div>Threshold: {props.accountOnChain?.pubkey.value.threshold}</div>
+          </StackableContainer>
+        )}
         {props.error && (
           <StackableContainer>
             <div className="multisig-error">
