@@ -9,8 +9,7 @@ const CopyAndPaste = (props) => (
     </svg>
     <style jsx>{`
       svg {
-        height: 100%;
-        width: auto;
+        height: 1em;
       }
 
       path {
@@ -20,7 +19,6 @@ const CopyAndPaste = (props) => (
       }
 
       .icon {
-        padding: 0 0.5em;
         cursor: pointer;
       }
 

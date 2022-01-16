@@ -10,6 +10,8 @@ const HashView = ({ hash, abbreviate }) => (
     <style jsx>{`
       .hash-view {
         display: flex;
+        font-family: monospace;
+        column-gap: 0.5em;
       }
     `}</style>
   </div>
