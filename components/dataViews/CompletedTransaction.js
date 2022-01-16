@@ -18,10 +18,12 @@ const CompletedTransaction = ({ transactionHash }) => (
       <label>Transaction Hash</label>
       <HashView hash={transactionHash} />
     </StackableContainer>
-    <Button
-      href={`https://www.mintscan.io/cosmos/txs/${transactionHash}`}
-      label=" View on Mintscan"
-    ></Button>
+    {process.env.NEXT_PUBLIC_CHAIN_ID === "cosmoshub-4" && (
+      <Button
+        href={`https://www.mintscan.io/cosmos/txs/${transactionHash}`}
+        label=" View on Mintscan"
+      ></Button>
+    )}
     <style jsx>{`
       .confirmation {
         display: flex;
