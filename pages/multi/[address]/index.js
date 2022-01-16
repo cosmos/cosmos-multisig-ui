@@ -7,6 +7,7 @@ import Button from "../../../components/inputs/Button";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
 import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
+import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import TransactionForm from "../../../components/forms/TransactionForm";
@@ -52,18 +53,13 @@ const multipage = (props) => {
           </h1>
         </StackableContainer>
         {props.accountOnChain?.pubkey && (
-          <StackableContainer>
-            <h2>Participants</h2>
-            <ul>
-              {participantAddressesFromMultisig(
-                props.accountOnChain?.pubkey,
-                process.env.NEXT_PUBLIC_ADDRESS_PREFIX,
-              ).map((participantAddress) => (
-                <li key={participantAddress}>{participantAddress}</li>
-              ))}
-            </ul>
-            <div>Threshold: {props.accountOnChain?.pubkey.value.threshold}</div>
-          </StackableContainer>
+          <MultisigMembers
+            members={participantAddressesFromMultisig(
+              props.accountOnChain?.pubkey,
+              process.env.NEXT_PUBLIC_ADDRESS_PREFIX,
+            )}
+            threshold={props.accountOnChain?.pubkey.value.threshold}
+          />
         )}
         {props.error && (
           <StackableContainer>

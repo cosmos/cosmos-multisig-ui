@@ -1,70 +1,54 @@
 import React from "react";
 
+import HashView from "./HashView";
 import StackableContainer from "../layout/StackableContainer";
-import { abbreviateLongString } from "../../lib/displayHelpers";
 
-const dummyMembers = [
-  {
-    nickname: "Tolla",
-    pubkey: "AqsujWsohxvLS8B6ANf54D9qtIhAtQ2ISptBmXGUZVIN",
-    address: "cosmos1j8z4cfgpza4qa33pl02y84n0mdm8n7xzqdwlse",
-  },
-  {
-    nickname: "Yamman",
-    pubkey: "AqsujWsohxvLS8B6ANf54D9qtIhAtQ2ISptBmXGUZVIN",
-    address: "cosmos145mr4l98w2x96utkcayvtqaag79u7mpyane7q7",
-  },
-  {
-    nickname: "Wallace",
-    pubkey: "AqsujWsohxvLS8B6ANf54D9qtIhAtQ2ISptBmXGUZVIN",
-    address: "cosmos1t5u0jfg3ljsjrh2m9e47d4ny2hea7eehxrzdgd",
-  },
-];
-const MultisigMembers = (_props) => (
+const MultisigMembers = (props) => (
   <StackableContainer lessPadding>
-    <h2>Members</h2>
-    <ul className="meta-data">
-      {dummyMembers.map((member) => (
-        <li key={member.address}>
-          <div className="nickname">
-            <label>Nickname:</label>
-            <div className="info">{member.nickname}</div>
-          </div>
-          <div className="address">
-            <label>Address:</label>
-            <div className="info">{abbreviateLongString(member.address)}</div>
-          </div>
-        </li>
-      ))}
-    </ul>
+    <div className="meta-data">
+      <div>
+        <h2>Threshold</h2>
+        <div className="info threshold">{props.threshold}</div>
+      </div>
+      <div>
+        <h2>Members</h2>
+        <ul>
+          {props.members.map((address) => (
+            <li key={address} className="info">
+              <HashView hash={address} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
     <style jsx>{`
       ul {
         list-style: none;
         padding: 0;
         margin: 0;
       }
-      .meta-data li {
+      .info {
         margin: 10px 0;
         background: rgba(255, 255, 255, 0.03);
         padding: 10px;
         border-radius: 8px;
       }
-      .meta-data li:last-child {
-        margin-bottom: 0;
+      .threshold {
+        font-size: 3.71em;
+        text-align: center;
       }
-      .meta-data label {
-        font-size: 12px;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 3px 6px;
-        border-radius: 5px;
-        display: inline-block;
-        margin-right: 10px;
+      .meta-data li {
+        display: block;
       }
-      li div:first-child {
-        margin-bottom: 10px;
+      .meta-data {
+        display: flex;
+        column-gap: 1rem;
       }
-      .info {
-        display: inline-block;
+      .meta-data > div {
+        width: 26%;
+      }
+      .meta-data > div:last-child {
+        width: auto;
       }
     `}</style>
   </StackableContainer>
