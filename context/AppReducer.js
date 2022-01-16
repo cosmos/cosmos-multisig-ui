@@ -1,11 +1,3 @@
-// NEXT_PUBLIC_NODE_ADDRESS=https://cosmoshub.validator.network:443
-// NEXT_PUBLIC_DENOM=uatom
-// NEXT_PUBLIC_DISPLAY_DENOM=ATOM
-// NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT=6
-// NEXT_PUBLIC_GAS_PRICE=0.03uatom
-// NEXT_PUBLIC_CHAIN_ID=cosmoshub-4
-// NEXT_PUBLIC_ADDRESS_PREFIX=cosmos
-
 export const initialState = {
   chain: {
     nodeAddress: process.env.NEXT_PUBLIC_NODE_ADDRESS,
