@@ -1,6 +1,7 @@
 import React from "react";
 
 import StackableContainer from "../layout/StackableContainer";
+import HashView from "./HashView";
 import Button from "../inputs/Button";
 
 const CompletedTransaction = ({ transactionHash }) => (
@@ -13,14 +14,25 @@ const CompletedTransaction = ({ transactionHash }) => (
         <p>This transaction has been broadcast.</p>
       </div>
     </StackableContainer>
-    <Button
-      href={`https://www.mintscan.io/cosmos/txs/${transactionHash}`}
-      label=" View on Mintscan"
-    ></Button>
+    <StackableContainer lessPadding lessMargin lessRadius>
+      <label>Transaction Hash</label>
+      <HashView hash={transactionHash} />
+    </StackableContainer>
+    {process.env.NEXT_PUBLIC_CHAIN_ID === "cosmoshub-4" && (
+      <Button
+        href={`https://www.mintscan.io/cosmos/txs/${transactionHash}`}
+        label=" View on Mintscan"
+      ></Button>
+    )}
     <style jsx>{`
       .confirmation {
         display: flex;
         justify-content: center;
+      }
+      label {
+        font-size: 12px;
+        font-style: italic;
+        margin-bottom: 0.5em;
       }
       .confirmation svg {
         height: 0.8em;
