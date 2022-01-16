@@ -1,14 +1,12 @@
-import React, { useEffect, createContext, useContext, useMemo, useReducer } from "react";
+import React, { useEffect, createContext, useContext, useReducer } from "react";
 
 import { AppReducer, initialState } from "./AppReducer";
 
 const AppContext = createContext();
 export function AppWrapper({ children }) {
-  const { state, dispatch } = useReducer(AppReducer, initialState);
+  const [state, dispatch] = useReducer(AppReducer, initialState);
 
-  const contextValue = useMemo(() => {
-    return [state, dispatch];
-  }, [state, dispatch]);
+  const contextValue = { state, dispatch };
 
   useEffect(() => {
     // checking if there already is a state in localstorage
@@ -23,7 +21,7 @@ export function AppWrapper({ children }) {
 
   useEffect(() => {
     // create and/or set a new localstorage variable called "state"
-    if (state !== initialState) {
+    if (state && state !== initialState) {
       localStorage.setItem("state", JSON.stringify(state));
     }
   }, [state]);

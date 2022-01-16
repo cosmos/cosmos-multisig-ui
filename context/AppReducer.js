@@ -6,12 +6,12 @@
 // NEXT_PUBLIC_CHAIN_ID=cosmoshub-4
 // NEXT_PUBLIC_ADDRESS_PREFIX=cosmos
 
-export const initialAppState = {
+export const initialState = {
   chain: {
     nodeAddress: process.env.NEXT_PUBLIC_NODE_ADDRESS,
     denom: process.env.NEXT_PUBLIC_DENOM,
     displayDenom: process.env.NEXT_PUBLIC_DISPLAY_DENOM,
-    displayDenomExponent: process.env.NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT,
+    displayDenomExponent: parseInt(process.env.NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT, 10),
     gasPrice: process.env.NEXT_PUBLIC_GAS_PRICE,
     chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
     addressPrefix: process.env.NEXT_PUBLIC_ADDRESS_PREFIX,
