@@ -1,4 +1,6 @@
-const DevHelper = (props) => (
+import React from "react";
+
+const DevHelper = (_props) => (
   <div className="dev-helper">
     <h3>Dev Helper</h3>
     <h4>Pages</h4>
@@ -10,9 +12,7 @@ const DevHelper = (props) => (
         <a href="/create">Create Multisig</a>
       </li>
       <li>
-        <a href="/multi/cosmos10nmdf6nt2qzvgn9q2nuwmmfc359yfesmu3gw22">
-          View Multisig
-        </a>
+        <a href="/multi/cosmos10nmdf6nt2qzvgn9q2nuwmmfc359yfesmu3gw22">View Multisig</a>
       </li>
       <li>
         <a href="/multi/cosmos10nmdf6nt2qzvgn9q2nuwmmfc359yfesmu3gw22/transaction/295630000375202310">
@@ -20,9 +20,7 @@ const DevHelper = (props) => (
         </a>
       </li>
     </ul>
-    <a href="https://github.com/samepant/cosmoshub-legacy-multisig">
-      View on Github
-    </a>
+    <a href="https://github.com/samepant/cosmoshub-legacy-multisig">View on Github</a>
 
     <style jsx>{`
       .dev-helper {

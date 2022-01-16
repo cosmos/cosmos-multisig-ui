@@ -1,3 +1,5 @@
+import React from "react";
+
 const StackableContainer = (props) => (
   <div className={`container ${props.base ? "base" : ""}`}>
     {props.children}

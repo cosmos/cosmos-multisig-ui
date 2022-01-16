@@ -24,21 +24,26 @@ class TransactionForm extends React.Component {
     };
   }
 
-  handleChange = (e) => {
+  handleChange(e) {
     this.setState({
       [e.target.name]: e.target.value,
     });
-  };
+  }
 
-  createTransaction = (toAddress, amount, gas) => {
-    const amountInAtomics = Decimal.fromUserInput(amount, Number(process.env.NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT)).atomics;
+  createTransaction(toAddress, amount, gas) {
+    const amountInAtomics = Decimal.fromUserInput(
+      amount,
+      Number(process.env.NEXT_PUBLIC_DISPLAY_DENOM_EXPONENT),
+    ).atomics;
     const msgSend = {
       fromAddress: this.props.address,
       toAddress: toAddress,
-      amount: [{
-        amount: amountInAtomics,
-        denom: process.env.NEXT_PUBLIC_DENOM
-      }],
+      amount: [
+        {
+          amount: amountInAtomics,
+          denom: process.env.NEXT_PUBLIC_DENOM,
+        },
+      ],
     };
     const msg = {
       typeUrl: "/cosmos.bank.v1beta1.MsgSend",
@@ -53,34 +58,30 @@ class TransactionForm extends React.Component {
       fee: fee,
       memo: this.state.memo,
     };
-  };
+  }
 
-  handleCreate = async () => {
+  async handleCreate() {
     const addressError = checkAddress(this.state.toAddress);
     if (addressError) {
-      this.setState({ addressError: `Invalid address for network ${process.env.NEXT_PUBLIC_CHAIN_ID}: ${addressError}` });
+      this.setState({
+        addressError: `Invalid address for network ${process.env.NEXT_PUBLIC_CHAIN_ID}: ${addressError}`,
+      });
       return;
     }
 
     this.setState({ processing: true });
-    const tx = this.createTransaction(
-      this.state.toAddress,
-      this.state.amount,
-      this.state.gas
-    );
+    const tx = this.createTransaction(this.state.toAddress, this.state.amount, this.state.gas);
     console.log(tx);
     const dataJSON = JSON.stringify(tx);
     const res = await axios.post("/api/transaction", { dataJSON });
     const { transactionID } = res.data;
-    this.props.router.push(
-      `${this.props.address}/transaction/${transactionID}`
-    );
-  };
+    this.props.router.push(`${this.props.address}/transaction/${transactionID}`);
+  }
 
   render() {
     return (
       <StackableContainer lessPadding>
-        <button className="remove" onClick={this.props.closeForm}>
+        <button className="remove" onClick={() => this.props.closeForm()}>
           ✕
         </button>
         <h2>Create New transaction</h2>
@@ -89,7 +90,7 @@ class TransactionForm extends React.Component {
             label="To Address"
             name="toAddress"
             value={this.state.toAddress}
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
             error={this.state.addressError}
             placeholder={exampleAddress()}
           />
@@ -100,7 +101,7 @@ class TransactionForm extends React.Component {
             name="amount"
             type="number"
             value={this.state.amount}
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
           />
         </div>
         <div className="form-item">
@@ -109,7 +110,7 @@ class TransactionForm extends React.Component {
             name="gas"
             type="number"
             value={this.state.gas}
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
           />
         </div>
         <div className="form-item">
@@ -127,10 +128,10 @@ class TransactionForm extends React.Component {
             name="memo"
             type="text"
             value={this.state.memo}
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
           />
         </div>
-        <Button label="Create Transaction" onClick={this.handleCreate} />
+        <Button label="Create Transaction" onClick={() => this.handleCreate()} />
         <style jsx>{`
           p {
             margin-top: 15px;

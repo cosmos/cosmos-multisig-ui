@@ -1,6 +1,7 @@
+import React from "react";
+
 import { printableCoin } from "../../lib/displayHelpers";
 import StackableContainer from "../layout/StackableContainer";
-
 
 const MultisigHoldings = (props) => {
   return (
@@ -17,4 +18,5 @@ const MultisigHoldings = (props) => {
     </StackableContainer>
   );
 };
+
 export default MultisigHoldings;

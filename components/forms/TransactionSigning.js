@@ -1,8 +1,7 @@
+import React from "react";
 import axios from "axios";
 import { toBase64 } from "@cosmjs/encoding";
-import React from "react";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { registry } from "@cosmjs/proto-signing";
 
 import Button from "../inputs/Button";
 import HashView from "../dataViews/HashView";
@@ -25,45 +24,41 @@ export default class TransactionSigning extends React.Component {
     this.connectWallet();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (!prevProps.transaction && this.props.transaction) {
       this.setState({ transaction: this.props.transaction });
       console.log(JSON.parse(this.props.transaction.signatures));
     }
   }
 
-  handleBroadcast = async () => {
+  async handleBroadcast() {
     this.setState({ processing: true });
-    const res = await axios.get(
-      `/api/transaction/${this.state.transaction.uuid}/broadcast`
-    );
+    const res = await axios.get(`/api/transaction/${this.state.transaction.uuid}/broadcast`);
 
     this.setState({
       transaction: res.data,
       processing: false,
     });
-  };
+  }
 
-  clickFileUpload = () => {
+  clickFileUpload() {
     this.fileInput.current.click();
-  };
+  }
 
-  connectWallet = async () => {
+  async connectWallet() {
     try {
       await window.keplr.enable(process.env.NEXT_PUBLIC_CHAIN_ID);
-      const walletAccount = await window.keplr.getKey(
-        process.env.NEXT_PUBLIC_CHAIN_ID
-      );
+      const walletAccount = await window.keplr.getKey(process.env.NEXT_PUBLIC_CHAIN_ID);
       const hasSigned = this.props.signatures.some(
-        (sig) => sig.address === walletAccount.bech32Address
+        (sig) => sig.address === walletAccount.bech32Address,
       );
       this.setState({ walletAccount, hasSigned });
     } catch (e) {
       console.log("enable err: ", e);
     }
-  };
+  }
 
-  signTransaction = async () => {
+  async signTransaction() {
     try {
       window.keplr.defaultOptions = {
         sign: {
@@ -72,10 +67,7 @@ export default class TransactionSigning extends React.Component {
           disableBalanceCheck: true,
         },
       };
-      const offlineSigner = window.getOfflineSignerOnlyAmino(
-        process.env.NEXT_PUBLIC_CHAIN_ID
-      );
-      const accounts = await offlineSigner.getAccounts();
+      const offlineSigner = window.getOfflineSignerOnlyAmino(process.env.NEXT_PUBLIC_CHAIN_ID);
       const signingClient = await SigningStargateClient.offline(offlineSigner);
       const signerData = {
         accountNumber: this.props.tx.accountNumber,
@@ -87,13 +79,13 @@ export default class TransactionSigning extends React.Component {
         this.props.tx.msgs,
         this.props.tx.fee,
         this.props.tx.memo,
-        signerData
+        signerData,
       );
       // check existing signatures
       const bases64EncodedSignature = toBase64(signatures[0]);
       const bases64EncodedBodyBytes = toBase64(bodyBytes);
       const prevSigMatch = this.props.signatures.findIndex(
-        (signature) => signature.signature === bases64EncodedSignature
+        (signature) => signature.signature === bases64EncodedSignature,
       );
 
       if (prevSigMatch > -1) {
@@ -104,9 +96,9 @@ export default class TransactionSigning extends React.Component {
           signature: bases64EncodedSignature,
           address: this.state.walletAccount.bech32Address,
         };
-        const res = await axios.post(
+        const _res = await axios.post(
           `/api/transaction/${this.props.transactionID}/signature`,
-          signature
+          signature,
         );
         this.props.addSignature(signature);
         this.setState({ hasSigned: true });
@@ -114,7 +106,7 @@ export default class TransactionSigning extends React.Component {
     } catch (error) {
       console.log("Error creating signature:", error);
     }
-  };
+  }
 
   render() {
     return (
@@ -122,11 +114,7 @@ export default class TransactionSigning extends React.Component {
         {this.state.hasSigned ? (
           <StackableContainer lessPadding lessMargin lessRadius>
             <div className="confirmation">
-              <svg
-                viewBox="0 0 77 60"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg viewBox="0 0 77 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 30L26 51L72 5" stroke="white" strokeWidth="12" />
               </svg>
               <p>You've signed this transaction.</p>
@@ -136,9 +124,9 @@ export default class TransactionSigning extends React.Component {
           <>
             <h2>Sign this transaction</h2>
             {this.state.walletAccount ? (
-              <Button label="Sign transaction" onClick={this.signTransaction} />
+              <Button label="Sign transaction" onClick={() => this.signTransaction()} />
             ) : (
-              <Button label="Connect Wallet" onClick={this.connectWallet} />
+              <Button label="Connect Wallet" onClick={() => this.connectWallet()} />
             )}
           </>
         )}
@@ -152,12 +140,7 @@ export default class TransactionSigning extends React.Component {
         <h2>Current Signers</h2>
         <StackableContainer lessPadding lessMargin lessRadius>
           {this.props.signatures.map((signature, i) => (
-            <StackableContainer
-              lessPadding
-              lessRadius
-              lessMargin
-              key={`${signature.address}_${i}`}
-            >
+            <StackableContainer lessPadding lessRadius lessMargin key={`${signature.address}_${i}`}>
               <HashView hash={signature.address} />
             </StackableContainer>
           ))}

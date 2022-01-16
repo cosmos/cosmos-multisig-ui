@@ -1,4 +1,3 @@
-import axios from "axios";
 import React from "react";
 import { withRouter } from "next/router";
 import { StargateClient } from "@cosmjs/stargate";
@@ -10,7 +9,7 @@ import StackableContainer from "../layout/StackableContainer";
 import ThresholdInput from "../inputs/ThresholdInput";
 import { exampleAddress, examplePubkey } from "../../lib/displayHelpers";
 
-let emptyPubKeyGroup = () => {
+const emptyPubKeyGroup = () => {
   return { address: "", compressedPubkey: "", keyError: "", isPubkey: false };
 };
 
@@ -25,52 +24,47 @@ class MultiSigForm extends React.Component {
     };
   }
 
-  handleChangeThreshold = (e) => {
+  handleChangeThreshold(e) {
     const threshold =
-      e.target.value <= this.state.pubkeys.length
-        ? e.target.value
-        : this.state.pubkeys.length;
+      e.target.value <= this.state.pubkeys.length ? e.target.value : this.state.pubkeys.length;
     this.setState({ threshold });
-  };
+  }
 
-  handleKeyGroupChange = (index, e) => {
+  handleKeyGroupChange(index, e) {
     const { pubkeys } = this.state;
     pubkeys[index][e.target.name] = e.target.value;
     this.setState({ pubkeys });
-  };
+  }
 
-  handleAddKey = () => {
+  handleAddKey() {
     this.setState({ pubkeys: this.state.pubkeys.concat(emptyPubKeyGroup()) });
-  };
+  }
 
-  handleRemove = (index) => {
+  handleRemove(index) {
     this.setState((prevState) => {
       const pubkeys = Array.from(prevState.pubkeys);
       pubkeys.splice(index, 1);
 
-      const threshold =
-        prevState.threshold > pubkeys.length
-          ? pubkeys.length
-          : prevState.threshold;
+      const threshold = prevState.threshold > pubkeys.length ? pubkeys.length : prevState.threshold;
 
       return { pubkeys, threshold };
     });
-  };
+  }
 
-  getPubkeyFromNode = async (address) => {
+  async getPubkeyFromNode(address) {
     const nodeAddress = process.env.NEXT_PUBLIC_NODE_ADDRESS;
     const client = await StargateClient.connect(nodeAddress);
     const accountOnChain = await client.getAccount(address);
     console.log(accountOnChain);
     if (!accountOnChain || !accountOnChain.pubkey) {
       throw new Error(
-        "Account has no pubkey on chain, this address will need to send a transaction to appear on chain."
+        "Account has no pubkey on chain, this address will need to send a transaction to appear on chain.",
       );
     }
     return accountOnChain.pubkey.value;
-  };
+  }
 
-  handleKeyBlur = async (index, e) => {
+  async handleKeyBlur(index, e) {
     try {
       const { pubkeys } = this.state;
       let pubkey;
@@ -83,7 +77,7 @@ class MultiSigForm extends React.Component {
         }
       } else {
         // use address to fetch pubkey
-        let address = e.target.value;
+        const address = e.target.value;
         if (address.length > 0) {
           pubkey = await this.getPubkeyFromNode(address);
         }
@@ -98,30 +92,28 @@ class MultiSigForm extends React.Component {
       pubkeys[index].keyError = error.message;
       this.setState({ pubkeys });
     }
-  };
+  }
 
-  handleCreate = async () => {
+  async handleCreate() {
     this.setState({ processing: true });
-    const compressedPubkeys = this.state.pubkeys.map(
-      (item) => item.compressedPubkey
-    );
+    const compressedPubkeys = this.state.pubkeys.map((item) => item.compressedPubkey);
     let multisigAddress;
     try {
       multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
         compressedPubkeys,
-        parseInt(this.state.threshold, 10)
+        parseInt(this.state.threshold, 10),
       );
       this.props.router.push(`/multi/${multisigAddress}`);
     } catch (error) {
       console.log("Failed to creat multisig: ", error);
     }
-  };
+  }
 
-  togglePubkey = (index) => {
+  togglePubkey(index) {
     const { pubkeys } = this.state;
     pubkeys[index].isPubkey = !pubkeys[index].isPubkey;
     this.setState({ pubkeys });
-  };
+  }
 
   render() {
     return (
@@ -149,31 +141,20 @@ class MultiSigForm extends React.Component {
                       this.handleKeyGroupChange(index, e);
                     }}
                     value={
-                      pubkeyGroup.isPubkey
-                        ? pubkeyGroup.compressedPubkey
-                        : pubkeyGroup.address
+                      pubkeyGroup.isPubkey ? pubkeyGroup.compressedPubkey : pubkeyGroup.address
                     }
-                    label={
-                      pubkeyGroup.isPubkey
-                        ? "Public Key (Secp256k1)"
-                        : "Address"
-                    }
+                    label={pubkeyGroup.isPubkey ? "Public Key (Secp256k1)" : "Address"}
                     name={pubkeyGroup.isPubkey ? "compressedPubkey" : "address"}
                     width="100%"
                     placeholder={
-                      pubkeyGroup.isPubkey
-                        ? examplePubkey(index)
-                        : exampleAddress(index)
+                      pubkeyGroup.isPubkey ? examplePubkey(index) : exampleAddress(index)
                     }
                     error={pubkeyGroup.keyError}
                     onBlur={(e) => {
                       this.handleKeyBlur(index, e);
                     }}
                   />
-                  <button
-                    className="toggle-type"
-                    onClick={() => this.togglePubkey(index)}
-                  >
+                  <button className="toggle-type" onClick={() => this.togglePubkey(index)}>
                     Use {pubkeyGroup.isPubkey ? "Address" : "Public Key"}
                   </button>
                 </div>
@@ -181,12 +162,12 @@ class MultiSigForm extends React.Component {
             </StackableContainer>
           ))}
 
-          <Button label="Add another address" onClick={this.handleAddKey} />
+          <Button label="Add another address" onClick={() => this.handleAddKey()} />
         </StackableContainer>
         <StackableContainer>
           <StackableContainer lessPadding>
             <ThresholdInput
-              onChange={this.handleChangeThreshold}
+              onChange={(e) => this.handleChangeThreshold(e)}
               value={this.state.threshold}
               total={this.state.pubkeys.length}
             />
@@ -195,12 +176,12 @@ class MultiSigForm extends React.Component {
           <StackableContainer lessPadding lessMargin>
             <p>
               This means that each transaction this multisig makes will require{" "}
-              {this.state.threshold} of the members to sign it for it to be
-              accepted by the validators.
+              {this.state.threshold} of the members to sign it for it to be accepted by the
+              validators.
             </p>
           </StackableContainer>
         </StackableContainer>
-        <Button primary onClick={this.handleCreate} label="Create Multisig" />
+        <Button primary onClick={() => this.handleCreate()} label="Create Multisig" />
         <style jsx>{`
           .key-inputs {
             display: flex;

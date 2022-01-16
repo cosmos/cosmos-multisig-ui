@@ -1,4 +1,6 @@
-export default (props) => (
+import React from "react";
+
+const ThresholdInput = (props) => (
   <>
     <p>Signatures required to send a transaction</p>
     <div className="threshold-group">
@@ -51,3 +53,4 @@ export default (props) => (
     `}</style>
   </>
 );
+export default ThresholdInput;

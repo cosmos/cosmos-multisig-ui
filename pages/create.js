@@ -1,8 +1,10 @@
+import React from "react";
+
 import MultisigForm from "../components/forms/MultisigForm";
 import Page from "../components/layout/Page";
 import StackableContainer from "../components/layout/StackableContainer";
 
-export default () => (
+const CreatePage = () => (
   <Page>
     <StackableContainer base>
       <StackableContainer lessPadding>
@@ -12,3 +14,5 @@ export default () => (
     </StackableContainer>
   </Page>
 );
+
+export default CreatePage;

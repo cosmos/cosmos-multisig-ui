@@ -1,7 +1,9 @@
+import React from "react";
+
 import { abbreviateLongString } from "../../lib/displayHelpers";
 import CopyAndPaste from "./CopyAndPaste";
 
-export default ({ hash, abbreviate }) => (
+const HashView = ({ hash, abbreviate }) => (
   <div className="hash-view">
     <div>{abbreviate ? abbreviateLongString(hash) : hash}</div>
     <CopyAndPaste copyText={hash} />
@@ -12,3 +14,5 @@ export default ({ hash, abbreviate }) => (
     `}</style>
   </div>
 );
+
+export default HashView;

@@ -6,22 +6,15 @@ import Button from "../../../components/inputs/Button";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
 import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
-import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import TransactionForm from "../../../components/forms/TransactionForm";
-import TransactionList from "../../../components/dataViews/TransactionList";
 
 export async function getServerSideProps(context) {
   try {
-    const client = await StargateClient.connect(
-      process.env.NEXT_PUBLIC_NODE_ADDRESS
-    );
+    const client = await StargateClient.connect(process.env.NEXT_PUBLIC_NODE_ADDRESS);
     const multisigAddress = context.params.address;
-    const holdings = await client.getBalance(
-      multisigAddress,
-      process.env.NEXT_PUBLIC_DENOM
-    );
+    const holdings = await client.getBalance(multisigAddress, process.env.NEXT_PUBLIC_DENOM);
     const accountOnChain = await getMultisigAccount(multisigAddress, client);
     return {
       props: { accountOnChain, holdings },
@@ -51,14 +44,13 @@ const multipage = (props) => {
           <StackableContainer>
             <div className="multisig-error">
               <p>
-                This multisig address's pubkeys are not available, and so it
-                cannot be used with this tool.
+                This multisig address's pubkeys are not available, and so it cannot be used with
+                this tool.
               </p>
               <p>
-                You can recreate it with this tool here, or sign and broadcast a
-                transaction with the tool you used to create it. Either option
-                will make the pubkeys accessible and will allow this tool to use
-                this multisig fully.
+                You can recreate it with this tool here, or sign and broadcast a transaction with
+                the tool you used to create it. Either option will make the pubkeys accessible and
+                will allow this tool to use this multisig fully.
               </p>
             </div>
           </StackableContainer>
@@ -80,8 +72,8 @@ const multipage = (props) => {
               <StackableContainer lessPadding>
                 <h2>New transaction</h2>
                 <p>
-                  Once a transaction is created, it can be signed by the
-                  multisig members, and then broadcast.
+                  Once a transaction is created, it can be signed by the multisig members, and then
+                  broadcast.
                 </p>
                 <Button
                   label="Create Transaction"

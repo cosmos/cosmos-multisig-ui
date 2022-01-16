@@ -1,10 +1,9 @@
+import React from "react";
 import axios from "axios";
 import { StargateClient, makeMultisignedTx } from "@cosmjs/stargate";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { useState } from "react";
 import { fromBase64 } from "@cosmjs/encoding";
-import { createMultisigThresholdPubkey, pubkeyToAddress } from "@cosmjs/amino";
-import { registry } from "@cosmjs/proto-signing";
 
 import Button from "../../../../components/inputs/Button";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
@@ -67,19 +66,12 @@ const transactionPage = ({
   const [transactionHash, setTransactionHash] = useState(txHash);
   const txInfo = (transactionJSON && JSON.parse(transactionJSON)) || null;
   const addSignature = (signature) => {
-    setCurrentSignatures((currentSignatures) => [
-      ...currentSignatures,
-      signature,
-    ]);
+    setCurrentSignatures((prevState) => [...prevState, signature]);
   };
   const broadcastTx = async () => {
     try {
       setIsBroadcasting(true);
       setBroadcastError("");
-      const signatures = new Map();
-      currentSignatures.forEach((signature) => {
-        signatures.set(signature.address, fromBase64(signature.signature));
-      });
 
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTx = makeMultisignedTx(
@@ -87,14 +79,14 @@ const transactionPage = ({
         txInfo.sequence,
         txInfo.fee,
         bodyBytes,
-        signatures
+        new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
       );
       const broadcaster = await StargateClient.connect(nodeAddress);
       const result = await broadcaster.broadcastTx(
-        Uint8Array.from(TxRaw.encode(signedTx).finish())
+        Uint8Array.from(TxRaw.encode(signedTx).finish()),
       );
       console.log(result);
-      const res = await axios.post(`/api/transaction/${transactionID}`, {
+      const _res = await axios.post(`/api/transaction/${transactionID}`, {
         txHash: result.transactionHash,
       });
       setTransactionHash(result.transactionHash);
@@ -108,38 +100,24 @@ const transactionPage = ({
     <Page rootMultisig={multisigAddress}>
       <StackableContainer base>
         <StackableContainer>
-          <h1>
-            {transactionHash
-              ? "Completed Transaction"
-              : "In Progress Transaction"}
-          </h1>
+          <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>
         </StackableContainer>
 
-        {transactionHash && (
-          <CompletedTransaction transactionHash={transactionHash} />
-        )}
+        {transactionHash && <CompletedTransaction transactionHash={transactionHash} />}
         <TransactionInfo tx={txInfo} />
         {!transactionHash && (
-          <ThresholdInfo
-            signatures={currentSignatures}
-            account={accountOnChain}
-          />
+          <ThresholdInfo signatures={currentSignatures} account={accountOnChain} />
         )}
-        {currentSignatures.length >=
-          parseInt(accountOnChain.pubkey.value.threshold) &&
+        {currentSignatures.length >= parseInt(accountOnChain.pubkey.value.threshold, 10) &&
           !transactionHash && (
             <>
               <Button
-                label={
-                  isBroadcasting ? "Broadcasting..." : "Broadcast Transaction"
-                }
+                label={isBroadcasting ? "Broadcasting..." : "Broadcast Transaction"}
                 onClick={broadcastTx}
                 primary
                 disabled={isBroadcasting}
               />
-              {broadcastError && (
-                <div className="broadcast-error">{broadcastError}</div>
-              )}
+              {broadcastError && <div className="broadcast-error">{broadcastError}</div>}
             </>
           )}
         {!transactionHash && (
