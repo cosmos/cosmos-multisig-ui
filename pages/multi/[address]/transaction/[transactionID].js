@@ -20,7 +20,6 @@ export async function getServerSideProps(context) {
   const nodeAddress = process.env.NEXT_PUBLIC_NODE_ADDRESS;
   const client = await StargateClient.connect(nodeAddress);
   const multisigAddress = context.params.address;
-  const holdings = await client.getBalance(multisigAddress, "uatom");
   const transactionID = context.params.transactionID;
   let transactionJSON;
   let txHash;
@@ -43,7 +42,6 @@ export async function getServerSideProps(context) {
       transactionJSON,
       txHash,
       accountOnChain,
-      holdings,
       transactionID,
       signatures,
       nodeAddress,
