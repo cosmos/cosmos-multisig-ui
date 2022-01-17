@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { pubkeyToAddress } from "@cosmjs/amino";
 import { StargateClient } from "@cosmjs/stargate";
 import { useRouter } from "next/router";
 
+import { useAppContext } from "../../../context/AppContext";
 import Button from "../../../components/inputs/Button";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
 import HashView from "../../../components/dataViews/HashView";
@@ -11,23 +12,6 @@ import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import TransactionForm from "../../../components/forms/TransactionForm";
-
-export async function getServerSideProps(context) {
-  try {
-    const client = await StargateClient.connect(process.env.NEXT_PUBLIC_NODE_ADDRESS);
-    const multisigAddress = context.params.address;
-    const holdings = await client.getBalance(multisigAddress, process.env.NEXT_PUBLIC_DENOM);
-    const accountOnChain = await getMultisigAccount(multisigAddress, client);
-    return {
-      props: { accountOnChain, holdings },
-    };
-  } catch (error) {
-    console.log(error);
-    return {
-      props: { error: error.message },
-    };
-  }
-}
 
 function participantPubkeysFromMultisig(multisigPubkey) {
   return multisigPubkey.value.pubkeys;
@@ -40,28 +24,51 @@ function participantAddressesFromMultisig(multisigPubkey, addressPrefix) {
 }
 
 const multipage = (props) => {
+  const { state } = useAppContext();
   const [showTxForm, setShowTxForm] = useState(false);
+  const [holdings, setHoldings] = useState("");
+  const [accountOnChain, setAccountOnChain] = useState(null);
+  const [accountError, setAccountError] = useState(null);
   const router = useRouter();
-  const { address } = router.query;
+
+  useEffect(() => {
+    if (router.query.address) {
+      fetchMultisig(router.query.address);
+    }
+  }, [router.query.address]);
+
+  const fetchMultisig = async (address) => {
+    try {
+      const client = await StargateClient.connect(state.chain.nodeAddress);
+      const tempHoldings = await client.getBalance(address, state.chain.denom);
+      const tempAccountOnChain = await getMultisigAccount(address, client);
+      setHoldings(tempHoldings);
+      setAccountOnChain(tempAccountOnChain);
+    } catch (error) {
+      setAccountError(error.message);
+      console.log("Account error:", error);
+    }
+  };
+
   return (
     <Page>
       <StackableContainer base>
         <StackableContainer>
           <label>Multisig Address</label>
           <h1>
-            <HashView hash={address} />
+            <HashView hash={router.query.address} />
           </h1>
         </StackableContainer>
         {props.accountOnChain?.pubkey && (
           <MultisigMembers
             members={participantAddressesFromMultisig(
-              props.accountOnChain?.pubkey,
-              process.env.NEXT_PUBLIC_ADDRESS_PREFIX,
+              accountOnChain?.pubkey,
+              state.chain.addressPrefix,
             )}
             threshold={props.accountOnChain?.pubkey.value.threshold}
           />
         )}
-        {props.error && (
+        {accountError && (
           <StackableContainer>
             <div className="multisig-error">
               <p>
@@ -78,7 +85,7 @@ const multipage = (props) => {
         )}
         {showTxForm ? (
           <TransactionForm
-            address={address}
+            address={router.query.address}
             accountOnChain={props.accountOnChain}
             closeForm={() => {
               setShowTxForm(false);
@@ -87,7 +94,7 @@ const multipage = (props) => {
         ) : (
           <div className="interfaces">
             <div className="col-1">
-              <MultisigHoldings holdings={props.holdings} />
+              <MultisigHoldings holdings={holdings} />
             </div>
             <div className="col-2">
               <StackableContainer lessPadding>
