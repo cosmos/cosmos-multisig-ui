@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { withRouter } from "next/router";
 
+import { useAppContext } from "../../context/AppContext";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 import Input from "../inputs/Input";
 import { exampleAddress } from "../../lib/displayHelpers";
 
 const FindMultisigForm = (props) => {
+  const { state } = useAppContext();
   const [address, setAddress] = useState("");
   const [_processing, setProcessing] = useState(false);
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     setProcessing(true);
 
     this.props.router.push(`/multi/${this.state.address}`);
@@ -30,7 +32,7 @@ const FindMultisigForm = (props) => {
           value={address}
           label="Multisig Address"
           name="address"
-          placeholder={`E.g. ${exampleAddress()}`}
+          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
         />
         <Button label="Use this Multisig" onClick={handleSearch} primary />
       </StackableContainer>
