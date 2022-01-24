@@ -4,9 +4,11 @@ import StackableContainer from "../layout/StackableContainer";
 import HashView from "./HashView";
 import Button from "../inputs/Button";
 import { explorerLinkTx } from "../../lib/displayHelpers";
+import { useAppContext } from "../../context/AppContext";
 
 const CompletedTransaction = ({ transactionHash }) => {
-  const explorerLink = explorerLinkTx(transactionHash);
+  const { state } = useAppContext();
+  const explorerLink = explorerLinkTx(state.chain.explorerLink, transactionHash);
   return (
     <StackableContainer lessPadding lessMargin>
       <StackableContainer lessPadding lessMargin lessRadius>

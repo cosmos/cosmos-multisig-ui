@@ -31,6 +31,7 @@ const ChainSelect = () => {
   );
   const [tempGasPrice, setGasPrice] = useState(state.chain.gasPrice);
   const [tempChainName, setChainName] = useState(state.chain.chainDisplayName);
+  const [tempExplorerLink, setExplorerLink] = useState(state.chain.explorerLink);
 
   let url = "https://api.github.com/repos/cosmos/chain-registry/contents";
 
@@ -48,6 +49,7 @@ const ChainSelect = () => {
     setDisplayDenomExponent(state.chain.displayDenomExponent);
     setGasPrice(state.chain.gasPrice);
     setChainName(state.chain.chainDisplayName);
+    setExplorerLink(state.chain.explorerLink);
   }, [state]);
 
   const getGhJson = async () => {
@@ -63,7 +65,7 @@ const ChainSelect = () => {
       });
       setChainOptions(options);
       console.log(state.chain);
-      setSelectValue(findExistingOption(options));
+      setSelectValue(findExistingOption(options, state.chain.chainDisplayName));
     } catch (error) {
       console.log(error);
       setShowSettings(true);
@@ -71,8 +73,8 @@ const ChainSelect = () => {
     }
   };
 
-  const findExistingOption = (options) => {
-    const index = options.findIndex((option) => option.label === state.chain.chainDisplayName);
+  const findExistingOption = (options, chainName) => {
+    const index = options.findIndex((option) => option.label === chainName);
     if (index >= 0) {
       return options[index];
     }
@@ -99,6 +101,7 @@ const ChainSelect = () => {
       const addressPrefix = chainData["bech32_prefix"];
       const chainId = chainData["chain_id"];
       const chainDisplayName = chainData["chain_name"];
+      const explorerLink = getExplorerFromArray(chainData.explorers);
       let asset = "";
       let denom = "";
       let displayDenom = "";
@@ -136,6 +139,7 @@ const ChainSelect = () => {
           chainId,
           chainDisplayName,
           addressPrefix,
+          explorerLink,
         },
       });
       setShowSettings(false);
@@ -144,6 +148,13 @@ const ChainSelect = () => {
       setShowSettings(true);
       setChainError(error.message);
     }
+  };
+
+  const getExplorerFromArray = (array) => {
+    if (array && array.length > 0) {
+      return array[0]["tx_page"];
+    }
+    return "";
   };
 
   const getNodeFromArray = (nodeArray) => {
@@ -174,14 +185,16 @@ const ChainSelect = () => {
           nodeAddress: tempNodeAddress,
           denom: tempDenom,
           displayDenom: tempDisplayDenom,
-          setDisplayDenomExponent: tempDisplayDenomExponent,
+          displayDenomExponent: tempDisplayDenomExponent,
           gasPrice: tempGasPrice,
           chainId: tempChainId,
           chainDisplayName: tempChainName,
           addressPrefix: tempAddressPrefix,
+          explorerLink: tempExplorerLink,
         },
       });
-
+      const selectedOption = findExistingOption(chainOptions, tempChainName);
+      setSelectValue(selectedOption);
       setShowSettings(false);
     } catch (error) {
       console.log(error);
@@ -273,6 +286,14 @@ const ChainSelect = () => {
                   value={tempGasPrice}
                   onChange={(e) => setGasPrice(e.target.value)}
                   label="Gas Price"
+                />
+              </div>
+              <div className="settings-group">
+                <Input
+                  width="48%"
+                  value={tempExplorerLink}
+                  onChange={(e) => setExplorerLink(e.target.value)}
+                  label="Explorer Link (with '${txHash}' included)"
                 />
               </div>
               <Button label="Set Chain" onClick={setChainFromForm} />

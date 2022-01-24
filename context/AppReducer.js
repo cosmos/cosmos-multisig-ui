@@ -8,6 +8,7 @@ export const initialState = {
     chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
     chainDisplayName: process.env.NEXT_PUBLIC_CHAIN_DISPLAY_NAME,
     addressPrefix: process.env.NEXT_PUBLIC_ADDRESS_PREFIX,
+    explorerLink: process.env.NEXT_PUBLIC_EXPLORER_LINK_TX,
   },
 };
 

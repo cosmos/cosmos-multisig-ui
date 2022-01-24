@@ -37,7 +37,12 @@ const multipage = (props) => {
     }
   }, [router.query.address]);
 
+  useEffect(() => {
+    fetchMultisig(router.query.address);
+  }, [state]);
+
   const fetchMultisig = async (address) => {
+    setAccountError(null);
     try {
       const client = await StargateClient.connect(state.chain.nodeAddress);
       const tempHoldings = await client.getBalance(address, state.chain.denom);
@@ -59,13 +64,13 @@ const multipage = (props) => {
             <HashView hash={router.query.address} />
           </h1>
         </StackableContainer>
-        {props.accountOnChain?.pubkey && (
+        {accountOnChain?.pubkey && (
           <MultisigMembers
             members={participantAddressesFromMultisig(
               accountOnChain?.pubkey,
               state.chain.addressPrefix,
             )}
-            threshold={props.accountOnChain?.pubkey.value.threshold}
+            threshold={accountOnChain?.pubkey.value.threshold}
           />
         )}
         {accountError && (
@@ -86,7 +91,7 @@ const multipage = (props) => {
         {showTxForm ? (
           <TransactionForm
             address={router.query.address}
-            accountOnChain={props.accountOnChain}
+            accountOnChain={accountOnChain}
             closeForm={() => {
               setShowTxForm(false);
             }}
