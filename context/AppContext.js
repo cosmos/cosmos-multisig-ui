@@ -4,20 +4,13 @@ import { AppReducer, initialState } from "./AppReducer";
 
 const AppContext = createContext();
 export function AppWrapper({ children }) {
-  const [state, dispatch] = useReducer(AppReducer, initialState);
+  let existingState;
+  if (typeof window !== "undefined") {
+    existingState = JSON.parse(localStorage.getItem("state"));
+  }
+  const [state, dispatch] = useReducer(AppReducer, existingState ? existingState : initialState);
 
   const contextValue = { state, dispatch };
-
-  useEffect(() => {
-    // checking if there already is a state in localstorage
-    // if yes, update the current state with the stored one
-    if (JSON.parse(localStorage.getItem("state"))) {
-      dispatch({
-        type: "init_stored",
-        value: JSON.parse(localStorage.getItem("state")),
-      });
-    }
-  }, []);
 
   useEffect(() => {
     // create and/or set a new localstorage variable called "state"

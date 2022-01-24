@@ -3,18 +3,27 @@ import React from "react";
 import FindMultisigForm from "../components/forms/FindMultisigForm";
 import Page from "../components/layout/Page";
 import StackableContainer from "../components/layout/StackableContainer";
+import { useAppContext } from "../context/AppContext";
 
-const chainDisplayName = process.env.NEXT_PUBLIC_CHAIN_DISPLAY_NAME;
-
-const MultiPage = () => (
-  <Page>
-    <StackableContainer base>
-      <StackableContainer lessPadding>
-        <h1 className="title">{chainDisplayName} Multisig Manager</h1>
+const MultiPage = () => {
+  const { state } = useAppContext();
+  return (
+    <Page>
+      <StackableContainer base>
+        <StackableContainer lessPadding>
+          <h1 className="title">
+            <span>{state.chain.chainDisplayName}</span> Multisig Manager
+          </h1>
+        </StackableContainer>
+        <FindMultisigForm />
       </StackableContainer>
-      <FindMultisigForm />
-    </StackableContainer>
-  </Page>
-);
+      <style jsx>{`
+        span {
+          text-transform: capitalize;
+        }
+      `}</style>
+    </Page>
+  );
+};
 
 export default MultiPage;
