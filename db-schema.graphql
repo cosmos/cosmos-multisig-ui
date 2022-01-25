@@ -1,6 +1,7 @@
 type Multisig {
   pubkeyJSON: String!
   address: String!
+  chainId: String!
 }
 
 type SourceAddress {

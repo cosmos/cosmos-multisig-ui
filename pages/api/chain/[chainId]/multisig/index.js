@@ -1,4 +1,4 @@
-import { createMultisig } from "../../../lib/graphqlHelpers";
+import { createMultisig } from "../../../../../lib/graphqlHelpers";
 
 export default async function (req, res) {
   switch (req.method) {
