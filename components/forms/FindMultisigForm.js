@@ -15,7 +15,7 @@ const FindMultisigForm = (props) => {
   const handleSearch = () => {
     setProcessing(true);
 
-    this.props.router.push(`/multi/${this.state.address}`);
+    props.router.push(`/multi/${address}`);
   };
 
   return (

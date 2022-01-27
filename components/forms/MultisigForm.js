@@ -99,6 +99,7 @@ const MultiSigForm = (props) => {
         compressedPubkeys,
         parseInt(threshold, 10),
         state.chain.addressPrefix,
+        state.chain.chainId,
       );
       props.router.push(`/multi/${multisigAddress}`);
     } catch (error) {
