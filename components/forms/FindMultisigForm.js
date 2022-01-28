@@ -44,7 +44,7 @@ class FindMultisigForm extends React.Component {
             value={this.state.address}
             label="Multisig Address"
             name="address"
-            placeholder={exampleAddress()}
+            placeholder={`E.g. ${exampleAddress()}`}
           />
           <Button label="Use this Multisig" onClick={() => this.handleSearch()} primary />
         </StackableContainer>
