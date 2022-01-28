@@ -146,9 +146,9 @@ class MultiSigForm extends React.Component {
                     label={pubkeyGroup.isPubkey ? "Public Key (Secp256k1)" : "Address"}
                     name={pubkeyGroup.isPubkey ? "compressedPubkey" : "address"}
                     width="100%"
-                    placeholder={
+                    placeholder={`E.g. ${
                       pubkeyGroup.isPubkey ? examplePubkey(index) : exampleAddress(index)
-                    }
+                    }`}
                     error={pubkeyGroup.keyError}
                     onBlur={(e) => {
                       this.handleKeyBlur(index, e);

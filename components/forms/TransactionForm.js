@@ -92,7 +92,7 @@ class TransactionForm extends React.Component {
             value={this.state.toAddress}
             onChange={(e) => this.handleChange(e)}
             error={this.state.addressError}
-            placeholder={exampleAddress()}
+            placeholder={`E.g. ${exampleAddress()}`}
           />
         </div>
         <div className="form-item">
