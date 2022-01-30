@@ -43,6 +43,13 @@ const StyledSelect = (props) => {
       ...provided,
       color: "rgba(255,255,255, 0.6)",
     }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: "rgba(255, 255, 255, 0.6)",
+      "&:hover": {
+        color: "rgba(255, 255, 255, 1)",
+      },
+    }),
   };
 
   return <Select {...props} styles={customStyles} />;
