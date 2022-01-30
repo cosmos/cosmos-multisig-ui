@@ -64,7 +64,6 @@ const ChainSelect = () => {
         return { label: name, value: index };
       });
       setChainOptions(options);
-      console.log(state.chain);
       setSelectValue(findExistingOption(options, state.chain.chainDisplayName));
     } catch (error) {
       console.log(error);
@@ -95,7 +94,6 @@ const ChainSelect = () => {
 
       const { data: chainData } = await axios.get(chainInfoUrl);
       const { data: assetData } = await axios.get(chainAssetUrl);
-      console.log(chainData, assetData);
 
       const nodeAddress = getNodeFromArray(chainData.apis.rpc);
       const addressPrefix = chainData["bech32_prefix"];
@@ -125,8 +123,9 @@ const ChainSelect = () => {
       }
 
       // test client connection
-      const client = await StargateClient.connect(state.chain.nodeAddress);
-      console.log("success?", client);
+      const client = await StargateClient.connect(nodeAddress);
+      await client.getHeight();
+
       // change app state
       dispatch({
         type: "changeChain",
@@ -176,8 +175,9 @@ const ChainSelect = () => {
     setChainError(null);
     try {
       // test client connection
-      const client = await StargateClient.connect(state.chain.nodeAddress);
-      console.log("success?", client);
+      const client = await StargateClient.connect(tempNodeAddress);
+      await client.getHeight();
+
       // change app state
       dispatch({
         type: "changeChain",
