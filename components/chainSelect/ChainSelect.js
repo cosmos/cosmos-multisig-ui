@@ -98,7 +98,7 @@ const ChainSelect = () => {
       const nodeAddress = getNodeFromArray(chainData.apis.rpc);
       const addressPrefix = chainData["bech32_prefix"];
       const chainId = chainData["chain_id"];
-      const chainDisplayName = chainData["chain_name"];
+      const chainDisplayName = chainData["pretty_name"];
       const explorerLink = getExplorerFromArray(chainData.explorers);
       let asset = "";
       let denom = "";
