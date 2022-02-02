@@ -17,11 +17,6 @@ const MultiPage = () => {
         </StackableContainer>
         <FindMultisigForm />
       </StackableContainer>
-      <style jsx>{`
-        span {
-          text-transform: capitalize;
-        }
-      `}</style>
     </Page>
   );
 };
