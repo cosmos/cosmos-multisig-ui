@@ -30,6 +30,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.28.0",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "webpack-node-externals": "^3.0.0"
   }
 }
