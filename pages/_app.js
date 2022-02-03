@@ -5,7 +5,7 @@ import ChainSelect from "../components/chainSelect/ChainSelect";
 function MultisigApp({ Component, pageProps }) {
   return (
     <AppWrapper>
-      <ChainSelect />
+      {process.env.NEXT_PUBLIC_MULTICHAIN && <ChainSelect />}
       <Component {...pageProps} />
     </AppWrapper>
   );
