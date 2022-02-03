@@ -35,11 +35,7 @@ const multipage = (props) => {
     if (router.query.address) {
       fetchMultisig(router.query.address);
     }
-  }, [router.query.address]);
-
-  useEffect(() => {
-    fetchMultisig(router.query.address);
-  }, [state]);
+  }, [state, router.query.address]);
 
   const fetchMultisig = async (address) => {
     setAccountError(null);
