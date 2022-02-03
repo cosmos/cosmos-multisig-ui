@@ -25,5 +25,5 @@ type Signature {
 }
 
 type Query {
-  getMultisig(address: String!): Multisig
+  getMultisig(address: String!, chainId: String!): Multisig
 }
