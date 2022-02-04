@@ -17,7 +17,6 @@ const ChainSelect = () => {
   const [chainOptions, setChainOptions] = useState();
   const [chainError, setChainError] = useState();
   const [showSettings, setShowSettings] = useState(false);
-  const [denomOptions, setDenomOptions] = useState([]);
   const [selectValue, setSelectValue] = useState({ label: "Loading...", value: -1 });
 
   // Chain State
@@ -107,8 +106,6 @@ const ChainSelect = () => {
       let gasPrice = "";
 
       if (assetData.assets.length > 1) {
-        setDenomOptions(assetData.assets);
-        asset = "";
         denom = "";
         displayDenom = "";
         gasPrice = "";
