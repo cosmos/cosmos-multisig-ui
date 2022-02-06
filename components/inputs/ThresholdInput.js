@@ -35,11 +35,11 @@ const ThresholdInput = (props) => (
         padding: 10px 5px 10px 20px;
       }
       .threshold-group .between {
-        width: 15%
+        width: 15%;
       }
       .threshold-group .total {
         background: rgba(255, 255, 255, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.1)
+        border: 2px solid rgba(255, 255, 255, 0.1);
         box-sizing: border-box;
         border-radius: 9px;
 
