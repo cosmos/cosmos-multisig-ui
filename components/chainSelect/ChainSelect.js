@@ -61,7 +61,6 @@ const ChainSelect = () => {
         return item.type == "dir" && item.name != ".github";
       });
       setChainArray(chains);
-      console.log(chains);
       const options = chains.map(({ name }, index) => {
         return { label: name, value: index };
       });
@@ -101,6 +100,7 @@ const ChainSelect = () => {
       const addressPrefix = chainData["bech32_prefix"];
       const chainId = chainData["chain_id"];
       const chainDisplayName = chainData["pretty_name"];
+      const registryName = chainOption.name;
       const explorerLink = getExplorerFromArray(chainData.explorers);
       let asset = "";
       let denom = "";
@@ -137,6 +137,7 @@ const ChainSelect = () => {
           gasPrice,
           chainId,
           chainDisplayName,
+          registryName,
           addressPrefix,
           explorerLink,
         },
@@ -189,11 +190,12 @@ const ChainSelect = () => {
           gasPrice: tempGasPrice,
           chainId: tempChainId,
           chainDisplayName: tempChainName,
+          registryName: tempRegistryName,
           addressPrefix: tempAddressPrefix,
           explorerLink: tempExplorerLink,
         },
       });
-      const selectedOption = findExistingOption(chainOptions, tempChainName);
+      const selectedOption = findExistingOption(chainOptions, tempRegistryName);
       setSelectValue(selectedOption);
       setShowSettings(false);
     } catch (error) {
