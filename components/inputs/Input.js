@@ -18,7 +18,7 @@ const Input = (props) => (
       .text-input {
         display: flex;
         flex-direction: column;
-        width: ${props.width ? props.width : ""};
+        width: ${props.width ? props.width : "auto"};
       }
 
       label {
@@ -29,12 +29,17 @@ const Input = (props) => (
 
       input {
         background: #722d6f;
-        border: 2px solid #ffffff;
+        border: 2px solid rgba(255, 255, 255, 0.5);
         box-sizing: border-box;
         border-radius: 9px;
 
         color: white;
         padding: 10px 5px;
+      }
+
+      input:hover,
+      input:focus {
+        border-color: rgba(255, 255, 255, 1);
       }
 
       input::placeholder {
