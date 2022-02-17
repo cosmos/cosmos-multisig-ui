@@ -15,6 +15,7 @@ function getChainInfoFromUrl() {
     gasPrice: params.get("gasPrice"),
     chainId: params.get("chainId"),
     chainDisplayName: decodeURIComponent(params.get("chainDisplayName")),
+    registryName: params.get("registryName"),
     addressPrefix: params.get("addressPrefix"),
     explorerLink: decodeURIComponent(params.get("explorerLink")),
   };

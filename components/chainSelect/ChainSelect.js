@@ -30,6 +30,7 @@ const ChainSelect = () => {
   );
   const [tempGasPrice, setGasPrice] = useState(state.chain.gasPrice);
   const [tempChainName, setChainName] = useState(state.chain.chainDisplayName);
+  const [tempRegistryName, setRegistryName] = useState(state.chain.registryName);
   const [tempExplorerLink, setExplorerLink] = useState(state.chain.explorerLink);
 
   let url = "https://api.github.com/repos/cosmos/chain-registry/contents";
@@ -49,6 +50,7 @@ const ChainSelect = () => {
     setGasPrice(state.chain.gasPrice);
     setChainName(state.chain.chainDisplayName);
     setExplorerLink(state.chain.explorerLink);
+    setRegistryName(state.chain.registryName);
   }, [state]);
 
   const getGhJson = async () => {
@@ -59,11 +61,12 @@ const ChainSelect = () => {
         return item.type == "dir" && item.name != ".github";
       });
       setChainArray(chains);
+      console.log(chains);
       const options = chains.map(({ name }, index) => {
         return { label: name, value: index };
       });
       setChainOptions(options);
-      setSelectValue(findExistingOption(options, state.chain.chainDisplayName));
+      setSelectValue(findExistingOption(options, state.chain.registryName));
     } catch (error) {
       console.log(error);
       setShowSettings(true);
@@ -71,8 +74,8 @@ const ChainSelect = () => {
     }
   };
 
-  const findExistingOption = (options, chainName) => {
-    const index = options.findIndex((option) => option.label === chainName);
+  const findExistingOption = (options, registryName) => {
+    const index = options.findIndex((option) => option.label === registryName);
     if (index >= 0) {
       return options[index];
     }
