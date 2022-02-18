@@ -58,7 +58,7 @@ const ChainSelect = () => {
     try {
       const res = await axios.get(url);
       const chains = res.data.filter((item) => {
-        return item.type == "dir" && item.name != ".github" && item.name != "testnets";
+        return item.type == "dir" && !item.name.startsWith(".") && item.name != "testnets";
       });
       setChainArray(chains);
       const options = chains.map(({ name }, index) => {
