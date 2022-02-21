@@ -7,6 +7,7 @@ export const initialState = {
     gasPrice: process.env.NEXT_PUBLIC_GAS_PRICE,
     chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
     chainDisplayName: process.env.NEXT_PUBLIC_CHAIN_DISPLAY_NAME,
+    registryName: process.env.NEXT_PUBLIC_REGISTRY_NAME,
     addressPrefix: process.env.NEXT_PUBLIC_ADDRESS_PREFIX,
     explorerLink: process.env.NEXT_PUBLIC_EXPLORER_LINK_TX,
   },

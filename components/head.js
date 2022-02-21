@@ -2,7 +2,7 @@ import React from "react";
 import NextHead from "next/head";
 import { string } from "prop-types";
 
-const defaultDescription = "*:;;;:*:;;;:**:;;;:*:;;;:*COSMOS MULTISIGN*:;;;:*:;;;:**:;;;:*:;;;:*";
+const defaultDescription = "Create multisigs and send tokens on any cosmos based chain";
 const defaultOGURL = "";
 
 const Head = (props) => (

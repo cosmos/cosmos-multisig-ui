@@ -30,6 +30,7 @@ const ChainSelect = () => {
   );
   const [tempGasPrice, setGasPrice] = useState(state.chain.gasPrice);
   const [tempChainName, setChainName] = useState(state.chain.chainDisplayName);
+  const [tempRegistryName, setRegistryName] = useState(state.chain.registryName);
   const [tempExplorerLink, setExplorerLink] = useState(state.chain.explorerLink);
 
   let url = "https://api.github.com/repos/cosmos/chain-registry/contents";
@@ -49,6 +50,7 @@ const ChainSelect = () => {
     setGasPrice(state.chain.gasPrice);
     setChainName(state.chain.chainDisplayName);
     setExplorerLink(state.chain.explorerLink);
+    setRegistryName(state.chain.registryName);
   }, [state]);
 
   const getGhJson = async () => {
@@ -63,7 +65,7 @@ const ChainSelect = () => {
         return { label: name, value: index };
       });
       setChainOptions(options);
-      setSelectValue(findExistingOption(options, state.chain.chainDisplayName));
+      setSelectValue(findExistingOption(options, state.chain.registryName));
     } catch (error) {
       console.log(error);
       setShowSettings(true);
@@ -71,8 +73,8 @@ const ChainSelect = () => {
     }
   };
 
-  const findExistingOption = (options, chainName) => {
-    const index = options.findIndex((option) => option.label === chainName);
+  const findExistingOption = (options, registryName) => {
+    const index = options.findIndex((option) => option.label === registryName);
     if (index >= 0) {
       return options[index];
     }
@@ -98,6 +100,7 @@ const ChainSelect = () => {
       const addressPrefix = chainData["bech32_prefix"];
       const chainId = chainData["chain_id"];
       const chainDisplayName = chainData["pretty_name"];
+      const registryName = chainOption.name;
       const explorerLink = getExplorerFromArray(chainData.explorers);
       let asset = "";
       let denom = "";
@@ -134,6 +137,7 @@ const ChainSelect = () => {
           gasPrice,
           chainId,
           chainDisplayName,
+          registryName,
           addressPrefix,
           explorerLink,
         },
@@ -186,11 +190,12 @@ const ChainSelect = () => {
           gasPrice: tempGasPrice,
           chainId: tempChainId,
           chainDisplayName: tempChainName,
+          registryName: tempRegistryName,
           addressPrefix: tempAddressPrefix,
           explorerLink: tempExplorerLink,
         },
       });
-      const selectedOption = findExistingOption(chainOptions, tempChainName);
+      const selectedOption = findExistingOption(chainOptions, tempRegistryName);
       setSelectValue(selectedOption);
       setShowSettings(false);
     } catch (error) {
