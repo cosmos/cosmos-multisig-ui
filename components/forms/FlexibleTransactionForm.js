@@ -8,23 +8,54 @@ import Button from "../../components/inputs/Button";
 import Input from "../../components/inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
 import { json } from "@codemirror/lang-json";
+import * as dark from "@codemirror/theme-one-dark";
 import CodeMirror from "@uiw/react-codemirror";
+
+const placeholderMessagesJSON = `[
+  {
+    "typeUrl": "/cosmos.staking.v1beta1.MsgDelegate",
+    "value": {
+      "delegatorAddress": "",
+      "validatorAddress": "",
+      "amount": {
+        "amount": "",
+        "denom": "uumee"
+      }
+    }
+  }
+]`;
 
 const FlexibleTransactionForm = (props) => {
   const { state } = useAppContext();
-  const [msgs, setMsgs] = useState([]);
+
+  const [msgs, setMsgs] = useState([
+    {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: {
+        fromAddress: "",
+        toAddress: "",
+        amount: [
+          {
+            amount: "",
+            denom: "uumee",
+          },
+        ],
+      },
+    },
+  ]);
+
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(200000);
   const [gasPrice, _setGasPrice] = useState(state.chain.gasPrice);
   const [_processing, setProcessing] = useState(false);
 
-  const createTransaction = (txGas) => {
+  const createTransaction = (txGas, txMsgs) => {
     const fee = calculateFee(Number(txGas), gasPrice);
     return {
       accountNumber: props.accountOnChain.accountNumber,
       sequence: props.accountOnChain.sequence,
       chainId: state.chain.chainId,
-      msgs,
+      msgs: txMsgs,
       fee: fee,
       memo: memo,
     };
@@ -32,7 +63,7 @@ const FlexibleTransactionForm = (props) => {
 
   const handleCreate = async () => {
     setProcessing(true);
-    const tx = createTransaction(gas);
+    const tx = createTransaction(gas, msgs);
     console.log(tx);
     const dataJSON = JSON.stringify(tx);
     const res = await axios.post("/api/transaction", { dataJSON });
@@ -67,12 +98,27 @@ const FlexibleTransactionForm = (props) => {
           onChange={(e) => setMemo(e.target.value)}
         />
       </div>
+      <label
+        style={{
+          fontStyle: "italic",
+          fontSize: "12px",
+          marginBottom: "1em",
+          marginTop: "1em",
+        }}
+      >
+        Msgs
+      </label>
       <CodeMirror
-        value="[]"
+        value={JSON.stringify(msgs, null, 2)}
         height="200px"
-        extensions={[json()]}
-        onChange={(value, viewUpdate) => {
-          console.log("value:", value);
+        extensions={[json(), dark.oneDark]}
+        theme="dark"
+        onChange={(msgsJSON, viewUpdate) => {
+          // will throw if unparseable
+          // TODO, turn into ui error
+          const parsed = JSON.parse(msgsJSON);
+
+          setMsgs(parsed);
         }}
       />
       <Button label="Create Transaction" onClick={handleCreate} />
