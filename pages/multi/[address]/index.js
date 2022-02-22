@@ -12,6 +12,7 @@ import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import TransactionForm from "../../../components/forms/TransactionForm";
+import DelegateForm from "../../../components/forms/DelegateForm";
 
 function participantPubkeysFromMultisig(multisigPubkey) {
   return multisigPubkey.value.pubkeys;
@@ -23,9 +24,12 @@ function participantAddressesFromMultisig(multisigPubkey, addressPrefix) {
   );
 }
 
-const multipage = (props) => {
+const msgKinds = ["/cosmos.bank.v1beta1.MsgSend", "cosmos.staking.v1beta1.MsgDelegate"];
+
+const multipage = (_props) => {
   const { state } = useAppContext();
   const [showTxForm, setShowTxForm] = useState(false);
+  const [msgKind, setMsgKind] = useState("/cosmos.bank.v1beta1.MsgSend");
   const [holdings, setHoldings] = useState("");
   const [accountOnChain, setAccountOnChain] = useState(null);
   const [accountError, setAccountError] = useState(null);
@@ -85,13 +89,25 @@ const multipage = (props) => {
           </StackableContainer>
         )}
         {showTxForm ? (
-          <TransactionForm
-            address={router.query.address}
-            accountOnChain={accountOnChain}
-            closeForm={() => {
-              setShowTxForm(false);
-            }}
-          />
+          msgKind === "/cosmos.bank.v1beta1.MsgSend" ? (
+            <TransactionForm
+              address={router.query.address}
+              accountOnChain={accountOnChain}
+              closeForm={() => {
+                setShowTxForm(false);
+              }}
+            />
+          ) : msgKind === "cosmos.staking.v1beta1.MsgDelegate" ? (
+            <DelegateForm
+              address={router.query.address}
+              accountOnChain={accountOnChain}
+              closeForm={() => {
+                setShowTxForm(false);
+              }}
+            />
+          ) : (
+            console.error(new Error(`unsupported message kind ${msgKind}`))
+          )
         ) : (
           <div className="interfaces">
             <div className="col-1">
@@ -110,6 +126,12 @@ const multipage = (props) => {
                     setShowTxForm(true);
                   }}
                 />
+                <h4>Message Kind</h4>
+                <select value={msgKind} onChange={(e) => setMsgKind(e.target.value)}>
+                  {msgKinds.map((kind, i) => (
+                    <option key={i}>{kind}</option>
+                  ))}
+                </select>
               </StackableContainer>
             </div>
           </div>
