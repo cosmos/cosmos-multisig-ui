@@ -35,7 +35,7 @@ const Page = (props) => {
         .page {
           display: flex;
           justify-content: center;
-          padding: 120px 0;
+          padding: 80px 0;
         }
         .container {
           position: relative;
