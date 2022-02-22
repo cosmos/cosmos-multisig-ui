@@ -8,7 +8,11 @@ const Page = (props) => {
     <div className="page">
       <Head title={props.title || "Umee Multisig Manager"} />
       <div className="container">
-        <img style={{ display: "block", margin: "auto", width: "50%" }} src="/umee.svg" />
+        <img
+          alt="Umee"
+          style={{ display: "block", margin: "auto", width: "50%" }}
+          src="/umee.svg"
+        />
         {props.rootMultisig && (
           <div className="nav">
             <StackableContainer base lessPadding lessMargin>
