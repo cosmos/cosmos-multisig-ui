@@ -29,7 +29,7 @@ const StyledSelect = (props) => {
       ...provided,
       zIndex: 10,
       borderRadius: "10px",
-      background: "#561253",
+      backgroundColor: "#333",
     }),
     singleValue: (provided) => ({
       ...provided,

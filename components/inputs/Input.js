@@ -28,7 +28,7 @@ const Input = (props) => (
       }
 
       input {
-        background: #722d6f;
+        background: #333;
         border: 2px solid rgba(255, 255, 255, 0.5);
         box-sizing: border-box;
         border-radius: 9px;

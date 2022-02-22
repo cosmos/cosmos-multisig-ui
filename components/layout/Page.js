@@ -6,8 +6,9 @@ import StackableContainer from "./StackableContainer";
 const Page = (props) => {
   return (
     <div className="page">
-      <Head title={props.title || "Cosmos Multisig Manager"} />
+      <Head title={props.title || "Umee Multisig Manager"} />
       <div className="container">
+        <img style={{ display: "block", margin: "auto", width: "50%" }} src="/umee.svg" />
         {props.rootMultisig && (
           <div className="nav">
             <StackableContainer base lessPadding lessMargin>
@@ -52,12 +53,16 @@ const Page = (props) => {
         }
       `}</style>
       <style global jsx>{`
+        html {
+          font-family: SuisseInternational;
+          line-height: 1.5;
+        }
         body {
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
             Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
           color: white;
           min-height: 100vh;
-          background: linear-gradient(240.16deg, #3f023c 10.46%, #561253 54.88%, #580a55 94.89%);
+          background-color: #ccc;
           font-size: 16px;
           margin: 0;
         }
@@ -76,17 +81,20 @@ const Page = (props) => {
           line-height: 1.15;
           font-size: 1.4em;
           text-align: center;
+          font-family: Moret;
         }
         h2 {
           font-size: 1.25em;
           font-weight: 400;
           margin: 0;
+          font-family: Moret;
         }
         h3 {
           font-size: 1em;
           font-style: italic;
           font-weight: bold;
           margin: 0;
+          font-family: Moret;
         }
         p {
           max-width: 350px;
