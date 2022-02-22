@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useAppContext } from "../../context/AppContext";
-import HashView from "./HashView";
+// import HashView from "./HashView";
 import StackableContainer from "../layout/StackableContainer";
 import { printableCoins } from "../../lib/displayHelpers";
 

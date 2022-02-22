@@ -28,12 +28,10 @@ const DelegateForm = (props) => {
     const msgDelegate = {
       delegatorAddress: props.address,
       validatorAddress: txValidatorAddress,
-      amount: [
-        {
-          amount: amountInAtomics,
-          denom: state.chain.denom,
-        },
-      ],
+      amount: {
+        amount: amountInAtomics,
+        denom: state.chain.denom,
+      },
     };
     const msg = {
       typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
