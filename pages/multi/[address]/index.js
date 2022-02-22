@@ -11,8 +11,7 @@ import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
-import TransactionForm from "../../../components/forms/TransactionForm";
-import DelegateForm from "../../../components/forms/DelegateForm";
+import FlexibleTransactionForm from "../../../components/forms/FlexibleTransactionForm";
 
 function participantPubkeysFromMultisig(multisigPubkey) {
   return multisigPubkey.value.pubkeys;
@@ -89,25 +88,13 @@ const multipage = (_props) => {
           </StackableContainer>
         )}
         {showTxForm ? (
-          msgKind === "/cosmos.bank.v1beta1.MsgSend" ? (
-            <TransactionForm
-              address={router.query.address}
-              accountOnChain={accountOnChain}
-              closeForm={() => {
-                setShowTxForm(false);
-              }}
-            />
-          ) : msgKind === "cosmos.staking.v1beta1.MsgDelegate" ? (
-            <DelegateForm
-              address={router.query.address}
-              accountOnChain={accountOnChain}
-              closeForm={() => {
-                setShowTxForm(false);
-              }}
-            />
-          ) : (
-            console.error(new Error(`unsupported message kind ${msgKind}`))
-          )
+          <FlexibleTransactionForm
+            address={router.query.address}
+            accountOnChain={accountOnChain}
+            closeForm={() => {
+              setShowTxForm(false);
+            }}
+          />
         ) : (
           <div className="interfaces">
             <div className="col-1">
