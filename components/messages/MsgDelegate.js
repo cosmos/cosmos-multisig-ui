@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useAppContext } from "../../context/AppContext";
 import Input from "../../components/inputs/Input";
@@ -64,7 +64,9 @@ const MsgDelegate = (props) => {
     onCheck(checkMsg(newMsg, true));
   }
 
-  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
+  useEffect(() => {
+    onCheck(checkMsg(props.msg, false));
+  }, []);
 
   return (
     <div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useAppContext } from "../../context/AppContext";
 import Input from "../../components/inputs/Input";
@@ -63,7 +63,9 @@ const MsgRedelegate = (props) => {
     return true;
   }
 
-  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
+  useEffect(() => {
+    onCheck(checkMsg(props.msg, false));
+  }, []);
 
   function checkAndSetAmount(newAmount) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));

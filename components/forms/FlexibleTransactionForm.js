@@ -229,10 +229,11 @@ const FlexibleTransactionForm = (props) => {
                   [k]: _isValid,
                 };
                 setValidity(newValidity);
+                console.log(validity, newValidity);
                 setIsValid(
-                  Object.values(validity).length <= 0
+                  Object.values(newValidity).length <= 0
                     ? false
-                    : Object.values(validity).reduce((p, c) => p && c, true),
+                    : Object.values(newValidity).reduce((p, c) => p && c, true),
                 );
               },
             );
@@ -260,10 +261,11 @@ const FlexibleTransactionForm = (props) => {
                 }
                 setRawJsonMsgs(newRawJsonMsgs);
                 setValidity(newValidity);
+                console.log(validity, newValidity);
                 setIsValid(
-                  Object.values(validity).length <= 0
+                  Object.values(newValidity).length <= 0
                     ? false
-                    : Object.values(validity).reduce((p, c) => p && c, true),
+                    : Object.values(newValidity).reduce((p, c) => p && c, true),
                 );
               }}
             >

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useAppContext } from "../../context/AppContext";
 import Input from "../../components/inputs/Input";
@@ -19,14 +19,15 @@ const MsgVote = (props) => {
   const onCheck = props.onCheck || (() => {});
   const { state } = useAppContext();
   const [voterError, setVoterError] = useState("");
+
   // const [amountError, setAmountError] = useState("");
 
-  function checkMsg(msg, updateInternalErrors) {
-    if (!msg) return false;
-    if (!msg.typeUrl) return false;
-    if (!msg.value) return false;
+  function checkMsg(m, updateInternalErrors) {
+    if (!m) return false;
+    if (!m.typeUrl) return false;
+    if (!m.value) return false;
 
-    const v = msg.value;
+    const v = m.value;
     if (!v.proposalId) return false;
     if (!v.voter) return false;
 
@@ -43,7 +44,9 @@ const MsgVote = (props) => {
     return true;
   }
 
-  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
+  useEffect(() => {
+    onCheck(checkMsg(props.msg, false));
+  }, []);
 
   function checkAndSetDecision(decision) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
