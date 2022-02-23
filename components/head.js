@@ -14,6 +14,7 @@ const Head = (props) => (
     <meta property="og:url" content={props.url || defaultOGURL} />
     <meta property="og:title" content={props.title || ""} />
     <meta property="og:description" content={props.description || defaultDescription} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   </NextHead>
 );
 

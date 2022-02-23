@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useAppContext } from "../../context/AppContext";
-import HashView from "./HashView";
+// import HashView from "./HashView";
 import StackableContainer from "../layout/StackableContainer";
 import { printableCoins } from "../../lib/displayHelpers";
 
@@ -12,22 +12,14 @@ const TransactionInfo = (props) => {
       <ul className="meta-data">
         {props.tx.msgs && (
           <li>
-            <label>Amount:</label>
-            <div>{printableCoins(props.tx.msgs[0].value.amount, state.chain)}</div>
-          </li>
-        )}
-        {props.tx.msgs && (
-          <li>
-            <label>To:</label>
-            <div title={props.tx.msgs[0].value.toAddress}>
-              <HashView hash={props.tx.msgs[0].value.toAddress} />
-            </div>
+            <label>Msgs</label>
+            <pre style={{ fontSize: "1em" }}>{JSON.stringify(props.tx.msgs, null, 2)}</pre>
           </li>
         )}
         {props.tx.fee && (
           <>
             <li>
-              <label>Gas:</label>
+              <label>Gas</label>
               <div>{props.tx.fee.gas}</div>
             </li>
             <li>
@@ -38,7 +30,7 @@ const TransactionInfo = (props) => {
         )}
         {props.tx.memo && (
           <li>
-            <label>Memo:</label>
+            <label>Memo</label>
             <div>{props.tx.memo}</div>
           </li>
         )}
