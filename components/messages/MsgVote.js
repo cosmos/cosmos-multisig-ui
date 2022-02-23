@@ -51,6 +51,7 @@ const MsgVote = (props) => {
   function checkAndSetDecision(decision) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.option = decision;
+    console.log("NEW", newMsg);
     onMsgChange(newMsg);
     onCheck(checkMsg(newMsg, true));
   }

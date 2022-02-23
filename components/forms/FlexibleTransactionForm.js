@@ -20,17 +20,6 @@ const blankMessageJSON = `{
   }
 }`;
 
-const bankDelegateJSON = `{
-  "typeUrl": "/cosmos.staking.v1beta1.MsgDelegate",
-  "value": {
-    "validatorAddress": "",
-    "amount": {
-      "denom": "uumee",
-      "amount": "0"
-    }
-  }
-}`;
-
 function blankDelegateJSON(delegatorAddress) {
   return JSON.stringify(
     {
