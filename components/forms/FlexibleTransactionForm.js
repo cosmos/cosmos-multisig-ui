@@ -21,6 +21,24 @@ const blankMessageJSON = `{
   }
 }`;
 
+function blankSendJSON(fromAddress) {
+  return JSON.stringify(
+    {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: {
+        fromAddress,
+        toAddress: "",
+        amount: {
+          denom: "uumee",
+          amount: "0",
+        },
+      },
+    },
+    null,
+    2,
+  );
+}
+
 function blankDelegateJSON(delegatorAddress) {
   return JSON.stringify(
     {
@@ -100,10 +118,11 @@ const FlexibleTransactionForm = (props) => {
     (function () {
       if (!props.msgs) {
         return {
-          0: blankDelegateJSON(props.address),
-          1: blankUndelegateJSON(props.address),
-          2: blankRedelegateJSON(props.address),
-          3: blankVoteJSON(props.address, -1),
+          0: blankSendJSON(props.address),
+          1: blankDelegateJSON(props.address),
+          2: blankUndelegateJSON(props.address),
+          3: blankRedelegateJSON(props.address),
+          4: blankVoteJSON(props.address, -1),
         };
       }
 
