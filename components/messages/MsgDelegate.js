@@ -72,7 +72,7 @@ const MsgDelegate = (props) => {
         <Input
           label="Validator Address"
           name="validatorAddress"
-          value={validatorAddress}
+          value={msg.validatorAddress}
           onChange={(e) => checkAndSetValidatorAddress(e.target.value)}
           error={validatorAddressError}
           placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix + "valoper")}`}

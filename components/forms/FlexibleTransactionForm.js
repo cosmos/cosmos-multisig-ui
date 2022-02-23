@@ -18,49 +18,21 @@ const blankMessageJSON = `{
   }
 }`;
 
-const _placeholderMessagesJSON = `[
-  {
-    "typeUrl": "/cosmos.staking.v1beta1.MsgDelegate",
-    "value": {
-      "delegatorAddress": "",
-      "validatorAddress": "",
-      "amount": {
-        "amount": "",
-        "denom": "uumee"
-      }
-    }
-  }
-]`;
-
 const FlexibleTransactionForm = (props) => {
   const { state } = useAppContext();
 
-  const [msgs, setMsgs] = useState(
-    props.msgs || [
-      {
-        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-        value: {
-          fromAddress: "",
-          toAddress: "",
-          amount: [
-            {
-              amount: "",
-              denom: "uumee",
-            },
-          ],
-        },
-      },
-    ],
-  );
+  const [advanced, setAdvanced] = useState(props.advanced);
 
   const [rawJsonMsgs, setRawJsonMsgs] = useState(
     (function () {
-      const out = {};
+      if (!props.msgs) {
+        return { 0: blankMessageJSON };
+      }
 
-      msgs.forEach(function (msg, i) {
+      const out = {};
+      props.msgs.forEach(function (msg, i) {
         out[i.toString()] = JSON.stringify(msg, null, 2);
       });
-
       return out;
     })(),
   );
@@ -84,6 +56,11 @@ const FlexibleTransactionForm = (props) => {
 
   const handleCreate = async () => {
     setProcessing(true);
+    const msgs = [];
+    for (let i; i < rawJsonMsgs.length; ++i) {
+      msgs[i.toString] = JSON.parse(rawJsonMsgs[i.toString()]);
+    }
+
     const tx = createTransaction(gas, msgs);
     console.log(tx);
     const dataJSON = JSON.stringify(tx);
@@ -93,6 +70,7 @@ const FlexibleTransactionForm = (props) => {
   };
 
   function newCodeMirror(jsonBody, onChange) {
+    console.log("RAW", jsonBody);
     return (
       <CodeMirror
         value={jsonBody}
@@ -105,15 +83,9 @@ const FlexibleTransactionForm = (props) => {
   }
 
   function newMessage(newMsg) {
-    const newMsgs = [];
-
-    msgs.forEach((msg) => {
-      newMsgs.push(msg);
-    });
-
-    newMsgs.push(newMsg);
-
-    setMsgs(newMsgs);
+    const newRawJsonMsgs = JSON.parse(JSON.stringify(rawJsonMsgs));
+    newRawJsonMsgs[Object.keys(newRawJsonMsgs).length] = newMsg;
+    setRawJsonMsgs(newRawJsonMsgs);
   }
 
   function getMsgUI(msg) {
@@ -130,6 +102,7 @@ const FlexibleTransactionForm = (props) => {
         ✕
       </button>
       <h2>Create New transaction</h2>
+      <Button label="✏️ edit" onClick={() => setAdvanced(!advanced)} />
       <div className="form-item">
         <Input
           label="Gas Limit"
@@ -152,58 +125,51 @@ const FlexibleTransactionForm = (props) => {
         />
       </div>
 
-      {msgs.map((msg, i) => {
+      {Object.entries(rawJsonMsgs).map(([k, rawMsg]) => {
+        const msgUI = (function () {
+          if (advanced) {
+            return newCodeMirror(rawJsonMsgs[k.toString()], (newRawJsonMsg, _viewUpdate) => {
+              // will throw if unparseable
+              // TODO, turn into ui error
+              const newRawJsonMsgs = JSON.parse(JSON.stringify(rawJsonMsgs));
+              newRawJsonMsgs[k.toString()] = newRawJsonMsg;
+              setRawJsonMsgs(newRawJsonMsgs);
+            });
+          } else {
+            const msgGUI = getMsgUI(JSON.parse(rawMsg));
+            if (msgGUI === null) {
+              return <pre>{rawMsg}</pre>;
+            }
+            return msgGUI;
+          }
+        })();
+
         return (
-          <StackableContainer lessPadding key={i}>
+          <StackableContainer lessPadding key={k}>
             <button
               className="remove"
               onClick={() => {
-                const newMsgs = [];
-
-                msgs.forEach((innerMsg, j) => {
-                  // skip the deleted item
-                  if (i != j) {
-                    // deep copy
-                    newMsgs[i] = JSON.parse(JSON.stringify(innerMsg));
+                const newRawJsonMsgs = {};
+                let newIdx = 0;
+                for (let j; j < rawJsonMsgs.length; ++j) {
+                  if (parseInt(k, 10) != j) {
+                    newRawJsonMsgs[newIdx.toString()] = rawJsonMsgs[j.toString()];
+                    ++newIdx;
                   }
-                });
-
-                setMsgs(newMsgs);
+                }
+                setRawJsonMsgs(newRawJsonMsgs);
               }}
             >
               ✕
             </button>
-            <h2>Msg {i}</h2>
-            <pre>{msg.typeUrl}</pre>
-            {(function () {
-              /*
-              TODO: fixme
-              const msgUI = getMsgUI(msg);
-              if (msgUI !== null) {
-                return msgUI;
-              }
-              */
-
-              return newCodeMirror(rawJsonMsgs[i.toString()], (newRawJsonMsg, _viewUpdate) => {
-                // will throw if unparseable
-                // TODO, turn into ui error
-                const newMsg = JSON.parse(newRawJsonMsg);
-
-                const newMsgs = JSON.parse(JSON.stringify(msgs));
-                newMsgs[i] = newMsg;
-                setMsgs(newMsgs);
-
-                const newRawJsonMsgs = JSON.parse(JSON.stringify(rawJsonMsgs));
-                console.log("YEET", newRawJsonMsg);
-                newRawJsonMsgs[i.toString()] = newRawJsonMsg;
-                setRawJsonMsgs(newRawJsonMsgs);
-              });
-            })()}
+            <h2>Msg {k}</h2>
+            <pre>{rawMsg.typeUrl}</pre>
+            {msgUI}
           </StackableContainer>
         );
       })}
 
-      <Button label="New Message" onClick={() => newMessage(JSON.parse(blankMessageJSON))} />
+      <Button label="New Message" onClick={() => newMessage(blankMessageJSON)} />
       <Button label="Create Transaction" onClick={handleCreate} />
       <style jsx>{`
         p {
