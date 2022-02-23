@@ -136,7 +136,9 @@ const FlexibleTransactionForm = (props) => {
               setRawJsonMsgs(newRawJsonMsgs);
             });
           } else {
-            const msgGUI = getMsgUI(JSON.parse(rawMsg));
+            // const msgGUI = getMsgUI(JSON.parse(rawMsg));
+            // TODO: fix this, react doesnt like the component right now for some reason
+            const msgGUI = null
             if (msgGUI === null) {
               return <pre>{rawMsg}</pre>;
             }
