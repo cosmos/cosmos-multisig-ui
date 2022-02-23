@@ -9,15 +9,10 @@ import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
 const voteOptions = [
   { label: "Unspecified", value: 0 },
   { label: "Yes", value: 1 },
+  { label: "Abstain", value: 2 },
+  { label: "No", value: 3 },
+  { label: "No With Veto", value: 4 },
 ];
-/*
-  Unspecified: 0,
-  Yes: 0,
-  Abstain: 0,
-  No: 0,
-  "No With Veto": 0,
-};
-*/
 
 const MsgVote = (props) => {
   const onMsgChange = props.onMsgChange || (() => {});
@@ -78,9 +73,9 @@ const MsgVote = (props) => {
         <Input
           label="Proposal ID"
           name="proposalId"
-          type="text"
+          type="number"
           value={props.msg.value.proposalId}
-          onChange={(val) => checkAndSetProposalId(val)}
+          onChange={(e) => checkAndSetProposalId(e.target.value)}
         />
       </div>
       <div className="form-item">
@@ -88,7 +83,7 @@ const MsgVote = (props) => {
           label={`Decision`}
           name="option"
           options={voteOptions}
-          value={props.msg.value.option}
+          value={voteOptions[props.msg.value.option]}
           onChange={(opt) => checkAndSetDecision(opt.value)}
         />
       </div>

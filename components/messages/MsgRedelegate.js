@@ -120,7 +120,7 @@ const MsgRedelegate = (props) => {
         <Input
           label={`Amount (${props.msg.value.amount.denom})`}
           name="amount"
-          type="select"
+          type="number"
           value={props.msg.value.amount.amount}
           onChange={(e) => checkAndSetAmount(e.target.value)}
         />
