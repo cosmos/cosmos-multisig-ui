@@ -204,7 +204,7 @@ const FlexibleTransactionForm = (props) => {
                 const newRawJsonMsgs = {};
                 const newValidity = {};
                 let newIdx = 0;
-                for (let j; j < rawJsonMsgs.length; ++j) {
+                for (let j = 0; j < Object.keys(rawJsonMsgs).length; ++j) {
                   if (parseInt(k, 10) != j) {
                     newRawJsonMsgs[newIdx.toString()] = rawJsonMsgs[j.toString()];
                     newValidity[newIdx.toString()] = validity[j.toString()];
