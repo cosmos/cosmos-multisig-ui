@@ -11,6 +11,12 @@ import { json } from "@codemirror/lang-json";
 import * as dark from "@codemirror/theme-one-dark";
 import CodeMirror from "@uiw/react-codemirror";
 
+const blankMessageJSON = `{
+  "typeUrl": "",
+  "value": {
+  }
+}`;
+
 const placeholderMessagesJSON = `[
   {
     "typeUrl": "/cosmos.staking.v1beta1.MsgDelegate",
@@ -71,6 +77,30 @@ const FlexibleTransactionForm = (props) => {
     props.router.push(`${props.address}/transaction/${transactionID}`);
   };
 
+  function newCodeMirror(body, onChange) {
+    return (
+      <CodeMirror
+        value={JSON.stringify(body, null, 2)}
+        height="200px"
+        extensions={[json(), dark.oneDark]}
+        theme="dark"
+        onChange={onChange}
+      />
+    );
+  }
+
+  function newMessage(newMsg) {
+    const newMsgs = [];
+
+    msgs.forEach((msg) => {
+      newMsgs.push(msg);
+    });
+
+    newMsgs.push(newMsg);
+
+    setMsgs(newMsgs);
+  }
+
   return (
     <StackableContainer lessPadding>
       <button className="remove" onClick={() => props.closeForm()}>
@@ -98,29 +128,47 @@ const FlexibleTransactionForm = (props) => {
           onChange={(e) => setMemo(e.target.value)}
         />
       </div>
-      <label
-        style={{
-          fontStyle: "italic",
-          fontSize: "12px",
-          marginBottom: "1em",
-          marginTop: "1em",
-        }}
-      >
-        Msgs
-      </label>
-      <CodeMirror
-        value={JSON.stringify(msgs, null, 2)}
-        height="200px"
-        extensions={[json(), dark.oneDark]}
-        theme="dark"
-        onChange={(msgsJSON, viewUpdate) => {
-          // will throw if unparseable
-          // TODO, turn into ui error
-          const parsed = JSON.parse(msgsJSON);
 
-          setMsgs(parsed);
-        }}
-      />
+      {msgs.map((msg, i) => {
+        return (
+          <StackableContainer lessPadding key={i}>
+            <button
+              className="remove"
+              onClick={() => {
+                const newMsgs = [];
+
+                msgs.forEach((innerMsg, j) => {
+                  // skip the deleted item
+                  if (i != j) {
+                    // deep copy
+                    newMsgs[i] = JSON.parse(JSON.stringify(innerMsg));
+                  }
+                });
+
+                setMsgs(newMsgs);
+              }}
+            >
+              ✕
+            </button>
+            <h2>Msg {i}</h2>
+            <pre>{msg.typeUrl}</pre>
+            {newCodeMirror(msgs[i], (changedMsgJSON, viewUpdate) => {
+              // will throw if unparseable
+              // TODO, turn into ui error
+              const newMsg = JSON.parse(changedMsgJSON);
+
+              // deep copy
+              const newMsgs = JSON.parse(JSON.stringify(msgs));
+
+              newMsgs[i] = newMsg;
+
+              setMsgs(newMsgs);
+            })}
+          </StackableContainer>
+        );
+      })}
+
+      <Button label="New Message" onClick={() => newMessage(JSON.parse(blankMessageJSON))} />
       <Button label="Create Transaction" onClick={handleCreate} />
       <style jsx>{`
         p {
