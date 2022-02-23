@@ -13,7 +13,6 @@ import CodeMirror from "@uiw/react-codemirror";
 import MsgDelegate from "../messages/MsgDelegate";
 import MsgRedelegate from "../messages/MsgRedelegate";
 import MsgVote from "../messages/MsgVote";
-import { LightBlock } from "cosmjs-types/tendermint/types/types";
 
 const blankMessageJSON = `{
   "typeUrl": "",
@@ -183,16 +182,7 @@ const FlexibleTransactionForm = (props) => {
         ✕
       </button>
       <h2>Create New transaction</h2>
-      <Button
-        label="✏️ advanced json edit"
-        onClick={() => {
-          const advancedIsEnabled = !advanced;
-          setAdvanced(advancedIsEnabled);
-          if (advancedIsEnabled) {
-            setIsValid(true);
-          }
-        }}
-      />
+      <Button label="✏️ advanced json edit" onClick={() => setAdvanced(!advanced)} />
       <div className="form-item">
         <Input
           label="Gas Limit"
