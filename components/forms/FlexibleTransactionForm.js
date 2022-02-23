@@ -10,11 +10,22 @@ import StackableContainer from "../layout/StackableContainer";
 import { json } from "@codemirror/lang-json";
 import * as dark from "@codemirror/theme-one-dark";
 import CodeMirror from "@uiw/react-codemirror";
-import { MsgDelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
+import MsgDelegate from "../messages/MsgDelegate";
 
 const blankMessageJSON = `{
   "typeUrl": "",
   "value": {
+  }
+}`;
+
+const blankDelegateJSON = `{
+  "typeUrl": "/cosmos.staking.v1beta1.MsgDelegate",
+  "value": {
+    "validatorAddress": "",
+    "amount": {
+      "denom": "uumee",
+      "amount": "0"
+    }
   }
 }`;
 
@@ -26,7 +37,7 @@ const FlexibleTransactionForm = (props) => {
   const [rawJsonMsgs, setRawJsonMsgs] = useState(
     (function () {
       if (!props.msgs) {
-        return { 0: blankMessageJSON };
+        return { 0: blankDelegateJSON };
       }
 
       const out = {};
@@ -88,10 +99,10 @@ const FlexibleTransactionForm = (props) => {
     setRawJsonMsgs(newRawJsonMsgs);
   }
 
-  function getMsgUI(msg) {
+  function getMsgUI(msg, onMsgChange) {
     switch (msg.typeUrl) {
       case "/cosmos.staking.v1beta1.MsgDelegate":
-        return <MsgDelegate msg={msg} />;
+        return <MsgDelegate msg={msg} onMsgChange={onMsgChange} />;
     }
     return null;
   }
@@ -102,7 +113,7 @@ const FlexibleTransactionForm = (props) => {
         ✕
       </button>
       <h2>Create New transaction</h2>
-      <Button label="✏️ edit" onClick={() => setAdvanced(!advanced)} />
+      <Button label="✏️ advanced json edit" onClick={() => setAdvanced(!advanced)} />
       <div className="form-item">
         <Input
           label="Gas Limit"
@@ -136,9 +147,12 @@ const FlexibleTransactionForm = (props) => {
               setRawJsonMsgs(newRawJsonMsgs);
             });
           } else {
-            // const msgGUI = getMsgUI(JSON.parse(rawMsg));
-            // TODO: fix this, react doesnt like the component right now for some reason
-            const msgGUI = null
+            const msgGUI = getMsgUI(JSON.parse(rawMsg), (newMsg) => {
+              const newRawJsonMsgs = JSON.parse(JSON.stringify(rawJsonMsgs));
+              newRawJsonMsgs[k.toString()] = JSON.stringify(newMsg, null, 2);
+              console.log("NEW", JSON.parse(newRawJsonMsgs[k]));
+              setRawJsonMsgs(newRawJsonMsgs);
+            });
             if (msgGUI === null) {
               return <pre>{rawMsg}</pre>;
             }

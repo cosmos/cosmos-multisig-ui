@@ -6,63 +6,40 @@ import Input from "../../components/inputs/Input";
 import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
 
 const MsgDelegate = (props) => {
+  const onMsgChange = props.onMsgChange || (() => {});
   const { state } = useAppContext();
   const [validatorAddressError, setValidatorAddressError] = useState("");
-  const [msg, setMsg] = useState(props.msg);
 
-  /*
-  const createDelegationMsg = (txValidatorAddress, txAmount) => {
-    const amountInAtomics = Decimal.fromUserInput(
-      txAmount,
-      Number(state.chain.displayDenomExponent),
-    ).atomics;
-    const msgDelegate = {
-      delegatorAddress: props.address,
-      validatorAddress: txValidatorAddress,
-      amount: {
-        amount: amountInAtomics,
-        denom: state.chain.denom,
-      },
-    };
-    return {
-      typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
-      value: msgDelegate,
-    };
-  };
-  */
+  function checkAndSetAmount(newAmount) {
+    if (!props.msg) return;
+    if (!props.msg.value) return;
 
-  function checkAndSetAmount(msgAmount) {
-    if (!msg) return;
-    if (!msg.value) return;
-
+    /*
     const amountInAtomics = Decimal.fromUserInput(
       msgAmount,
       Number(state.chain.displayDenomExponent),
     ).atomics;
+    */
 
-    const newMsg = JSON.parse(JSON.stringify(msg));
-    newMsg.value.amount = {
-      amount: amountInAtomics,
-      denom: state.chain.denom,
-    };
-    setMsg(newMsg);
+    const newMsg = JSON.parse(JSON.stringify(props.msg));
+    newMsg.value.amount.amount = newAmount;
+    onMsgChange(newMsg);
   }
 
   function checkAndSetValidatorAddress(valaddr) {
-    if (!msg) return;
-    if (!msg.value) return;
+    if (!props.msg) return;
+    if (!props.msg.value) return;
 
     const toValidatorAddressError = checkAddress(valaddr, state.chain.addressPrefix + "valoper");
     if (toValidatorAddressError) {
       setValidatorAddressError(
         `Invalid validator address for network ${state.chain.chainId}: ${toValidatorAddressError}`,
       );
-      return;
     }
 
-    const newMsg = JSON.parse(JSON.stringify(msg));
+    const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.validatorAddress = valaddr;
-    setMsg(newMsg);
+    onMsgChange(newMsg);
   }
 
   return (
@@ -72,7 +49,7 @@ const MsgDelegate = (props) => {
         <Input
           label="Validator Address"
           name="validatorAddress"
-          value={msg.validatorAddress}
+          value={props.msg.value.validatorAddress}
           onChange={(e) => checkAndSetValidatorAddress(e.target.value)}
           error={validatorAddressError}
           placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix + "valoper")}`}
@@ -80,10 +57,10 @@ const MsgDelegate = (props) => {
       </div>
       <div className="form-item">
         <Input
-          label={`Amount (${state.chain.displayDenom})`}
+          label={`Amount (${props.msg.value.amount.denom})`}
           name="amount"
-          type="number"
-          value={msg.value.amount.amount * Math.pow(10, parseInt(msg.value.amount.denom, 10))}
+          type="select"
+          value={props.msg.value.amount.amount}
           onChange={(e) => checkAndSetAmount(e.target.value)}
         />
       </div>
