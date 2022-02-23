@@ -4,12 +4,13 @@ import { useAppContext } from "../../context/AppContext";
 import Input from "../../components/inputs/Input";
 import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
 
-const MsgDelegate = (props) => {
+const MsgRedelegate = (props) => {
   const onMsgChange = props.onMsgChange || (() => {});
   const onCheck = props.onCheck || (() => {});
   const { state } = useAppContext();
-  const [validatorAddressError, setValidatorAddressError] = useState("");
   const [delegatorAddressError, setDelegatorAddressError] = useState("");
+  const [validatorSrcAddressError, setValidatorSrcAddressError] = useState("");
+  const [validatorDstAddressError, setValidatorDstAddressError] = useState("");
   // const [amountError, setAmountError] = useState("");
 
   function checkMsg(updateInternalErrors) {
@@ -22,14 +23,24 @@ const MsgDelegate = (props) => {
     if (!v.amount.denom) return false;
     if (!v.amount.amount) return false;
 
-    const toValidatorAddressError = checkAddress(
-      v.validatorAddress,
+    const toValidatorSrcAddressError = checkAddress(
+      v.validatorSrcAddress,
       state.chain.addressPrefix + "valoper",
     );
-    if (toValidatorAddressError) {
+    if (toValidatorSrcAddressError) {
       if (updateInternalErrors) {
-        const errorMsg = `Invalid validator address for network ${state.chain.chainId}: ${toValidatorAddressError}`;
-        setValidatorAddressError(errorMsg);
+        const errorMsg = `Invalid validator source address for network ${state.chain.chainId}: ${toValidatorSrcAddressError}`;
+        setValidatorSrcAddressError(errorMsg);
+      }
+    }
+    const toValidatorDstAddressError = checkAddress(
+      v.validatorDstAddress,
+      state.chain.addressPrefix + "valoper",
+    );
+    if (toValidatorDstAddressError) {
+      if (updateInternalErrors) {
+        const errorMsg = `Invalid validator destination address for network ${state.chain.chainId}: ${toValidatorDstAddressError}`;
+        setValidatorDstAddressError(errorMsg);
       }
     }
     const toDelegatorAddressError = checkAddress(v.delegatorAddress, state.chain.addressPrefix);
@@ -39,7 +50,7 @@ const MsgDelegate = (props) => {
         setDelegatorAddressError(errorMsg);
       }
     }
-    if (toValidatorAddressError || toDelegatorAddressError) {
+    if (toValidatorSrcAddressError || toDelegatorAddressError) {
       return false;
     }
 
@@ -54,16 +65,23 @@ const MsgDelegate = (props) => {
     onCheck(checkMsg(true));
   }
 
-  function checkAndSetValidatorAddress(valaddr) {
+  function checkAndSetValidatorSrcAddress(valaddr) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
-    newMsg.value.validatorAddress = valaddr;
+    newMsg.value.validatorSrcAddress = valaddr;
+    onMsgChange(newMsg);
+    onCheck(checkMsg(true));
+  }
+
+  function checkAndSetValidatorDstAddress(valaddr) {
+    const newMsg = JSON.parse(JSON.stringify(props.msg));
+    newMsg.value.validatorDstAddress = valaddr;
     onMsgChange(newMsg);
     onCheck(checkMsg(true));
   }
 
   return (
     <div>
-      <h2>Delegate</h2>
+      <h2>Redelegate</h2>
       <div className="form-item">
         <Input
           label="Delegator Address"
@@ -75,11 +93,21 @@ const MsgDelegate = (props) => {
       </div>
       <div className="form-item">
         <Input
-          label="Validator Address"
-          name="validatorAddress"
-          value={props.msg.value.validatorAddress}
-          onChange={(e) => checkAndSetValidatorAddress(e.target.value)}
-          error={validatorAddressError}
+          label="Validator Source Address"
+          name="validatorSrcAddress"
+          value={props.msg.value.validatorSrcAddress}
+          onChange={(e) => checkAndSetValidatorSrcAddress(e.target.value)}
+          error={validatorSrcAddressError}
+          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix + "valoper")}`}
+        />
+      </div>
+      <div className="form-item">
+        <Input
+          label="Validator Destination Address"
+          name="validatorDstAddress"
+          value={props.msg.value.validatorDstAddress}
+          onChange={(e) => checkAndSetValidatorDstAddress(e.target.value)}
+          error={validatorDstAddressError}
           placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix + "valoper")}`}
         />
       </div>
@@ -104,4 +132,4 @@ const MsgDelegate = (props) => {
   );
 };
 
-export default MsgDelegate;
+export default MsgRedelegate;

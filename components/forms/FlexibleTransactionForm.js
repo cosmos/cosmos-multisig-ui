@@ -11,6 +11,7 @@ import { json } from "@codemirror/lang-json";
 import * as dark from "@codemirror/theme-one-dark";
 import CodeMirror from "@uiw/react-codemirror";
 import MsgDelegate from "../messages/MsgDelegate";
+import MsgRedelegate from "../messages/MsgRedelegate";
 import { lineBreak } from "acorn";
 
 const blankMessageJSON = `{
@@ -48,6 +49,25 @@ function blankDelegateJSON(delegatorAddress) {
   );
 }
 
+function blankRedelegateJSON(delegatorAddress) {
+  return JSON.stringify(
+    {
+      typeUrl: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
+      value: {
+        delegatorAddress,
+        validatorSrcAddress: "",
+        validatorDstAddress: "",
+        amount: {
+          denom: "uumee",
+          amount: "0",
+        },
+      },
+    },
+    null,
+    2,
+  );
+}
+
 const FlexibleTransactionForm = (props) => {
   const { state } = useAppContext();
 
@@ -56,7 +76,10 @@ const FlexibleTransactionForm = (props) => {
   const [rawJsonMsgs, setRawJsonMsgs] = useState(
     (function () {
       if (!props.msgs) {
-        return { 0: blankDelegateJSON(props.address) };
+        return {
+          0: blankDelegateJSON(props.address),
+          1: blankRedelegateJSON(props.address),
+        };
       }
 
       const out = {};
@@ -123,6 +146,8 @@ const FlexibleTransactionForm = (props) => {
     switch (msg.typeUrl) {
       case "/cosmos.staking.v1beta1.MsgDelegate":
         return <MsgDelegate msg={msg} onMsgChange={onMsgChange} onCheck={onCheck} />;
+      case "/cosmos.staking.v1beta1.MsgBeginRedelegate":
+        return <MsgRedelegate msg={msg} onMsgChange={onMsgChange} onCheck={onCheck} />;
     }
     return null;
   }
