@@ -14,9 +14,6 @@ const MsgRedelegate = (props) => {
   // const [amountError, setAmountError] = useState("");
 
   function checkMsg(msg, updateInternalErrors) {
-    setValidatorDstAddressError("");
-    setDelegatorAddressError("");
-
     if (!msg) return false;
     if (!msg.typeUrl) return false;
     if (!msg.value) return false;
@@ -65,7 +62,6 @@ const MsgRedelegate = (props) => {
 
     return true;
   }
-  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
 
   function checkAndSetAmount(newAmount) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));

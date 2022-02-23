@@ -94,6 +94,7 @@ const FlexibleTransactionForm = (props) => {
   const [gas, setGas] = useState(200000);
   const [gasPrice, _setGasPrice] = useState(state.chain.gasPrice);
   const [validity, setValidity] = useState({});
+  const [isValid, setIsValid] = useState(false);
   const [_processing, setProcessing] = useState(false);
 
   const createTransaction = (txGas, txMsgs) => {
@@ -205,13 +206,13 @@ const FlexibleTransactionForm = (props) => {
                 console.log("NEW", JSON.parse(newRawJsonMsgs[k]));
                 setRawJsonMsgs(newRawJsonMsgs);
               },
-              (isValid) => {
+              (_isValid) => {
                 const newValidity = {
                   ...validity,
-                  [k]: isValid,
+                  [k]: _isValid,
                 };
-                console.log(newValidity);
                 setValidity(newValidity);
+                setIsValid(Object.values(validity).reduce((p, c) => p && c, true));
               },
             );
             if (msgGUI === null) {
@@ -251,15 +252,7 @@ const FlexibleTransactionForm = (props) => {
 
       <Button label="New Message" onClick={() => newMessage(blankMessageJSON)} />
 
-      <Button
-        label="Create Transaction"
-        disabled={
-          Object.keys(validity).length > 0
-            ? !Object.values(validity).reduce((p, c) => p && c, true)
-            : false
-        }
-        onClick={handleCreate}
-      />
+      <Button label="Create Transaction" disabled={!isValid} onClick={handleCreate} />
       <style jsx>{`
         p {
           margin-top: 15px;

@@ -49,7 +49,6 @@ const MsgDelegate = (props) => {
 
     return true;
   }
-  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
 
   function checkAndSetAmount(newAmount) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
