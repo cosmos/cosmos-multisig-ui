@@ -13,6 +13,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import MsgDelegate from "../messages/MsgDelegate";
 import MsgUndelegate from "../messages/MsgUndelegate";
 import MsgRedelegate from "../messages/MsgRedelegate";
+import MsgSend from "../messages/MsgSend";
 import MsgVote from "../messages/MsgVote";
 
 const blankMessageJSON = `{
@@ -28,10 +29,12 @@ function blankSendJSON(fromAddress) {
       value: {
         fromAddress,
         toAddress: "",
-        amount: {
-          denom: "uumee",
-          amount: "0",
-        },
+        amount: [
+          {
+            denom: "uumee",
+            amount: "0",
+          },
+        ],
       },
     },
     null,
@@ -189,6 +192,8 @@ const FlexibleTransactionForm = (props) => {
 
   function getMsgUI(msg, onMsgChange, onCheck) {
     switch (msg.typeUrl) {
+      case "/cosmos.bank.v1beta1.MsgSend":
+        return <MsgSend msg={msg} onMsgChange={onMsgChange} onCheck={onCheck} />;
       case "/cosmos.staking.v1beta1.MsgDelegate":
         return <MsgDelegate msg={msg} onMsgChange={onMsgChange} onCheck={onCheck} />;
       case "/cosmos.staking.v1beta1.MsgUndelegate":

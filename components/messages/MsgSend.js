@@ -19,10 +19,11 @@ const MsgDelegate = (props) => {
 
     const v = msg.value;
     if (!v.amount) return false;
-    if (!v.amount.denom) return false;
-    if (!v.amount.amount) return false;
+    if (!v.amount[0]) return false;
+    if (!v.amount[0].denom) return false;
+    if (!v.amount[0].amount) return false;
 
-    const _fromAddressError = checkAddress(v.delegatorAddress, state.chain.addressPrefix);
+    const _fromAddressError = checkAddress(v.fromAddress, state.chain.addressPrefix);
     if (updateInternalErrors) {
       if (_fromAddressError) {
         const errorMsg = `Invalid from address for network ${state.chain.chainId}: ${_fromAddressError}`;
@@ -31,7 +32,7 @@ const MsgDelegate = (props) => {
         setFromAddressError("");
       }
     }
-    const _toAddressError = checkAddress(v.validatorAddress, state.chain.addressPrefix);
+    const _toAddressError = checkAddress(v.toAddress, state.chain.addressPrefix);
     if (updateInternalErrors) {
       if (_toAddressError) {
         const errorMsg = `Invalid to address for network ${state.chain.chainId}: ${_toAddressError}`;
@@ -49,14 +50,14 @@ const MsgDelegate = (props) => {
 
   function checkAndSetAmount(newAmount) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
-    newMsg.value.amount.amount = newAmount;
+    newMsg.value.amount[0].amount = newAmount;
     onMsgChange(newMsg);
     onCheck(checkMsg(newMsg, true));
   }
 
-  function checkAndSetToAddress(valaddr) {
+  function checkAndSetToAddress(toaddr) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
-    newMsg.value.validatorAddress = valaddr;
+    newMsg.value.toAddress = toaddr;
     onMsgChange(newMsg);
     onCheck(checkMsg(newMsg, true));
   }
@@ -89,10 +90,10 @@ const MsgDelegate = (props) => {
       </div>
       <div className="form-item">
         <Input
-          label={`Amount (${props.msg.value.amount.denom})`}
+          label={`Amount (${props.msg.value.amount[0].denom})`}
           name="amount"
           type="number"
-          value={props.msg.value.amount.amount}
+          value={props.msg.value.amount[0].amount}
           onChange={(e) => checkAndSetAmount(e.target.value)}
         />
       </div>
