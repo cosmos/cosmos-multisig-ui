@@ -97,7 +97,7 @@ function blankRedelegateJSON(delegatorAddress) {
   );
 }
 
-function blankVoteJSON(voter, proposalId) {
+function blankVoteJSON(voter, proposalId = -1) {
   return JSON.stringify(
     {
       typeUrl: "/cosmos.gov.v1beta1.MsgVote",
@@ -120,13 +120,7 @@ const FlexibleTransactionForm = (props) => {
   const [rawJsonMsgs, setRawJsonMsgs] = useState(
     (function () {
       if (!props.msgs) {
-        return {
-          0: blankSendJSON(props.address),
-          1: blankDelegateJSON(props.address),
-          2: blankUndelegateJSON(props.address),
-          3: blankRedelegateJSON(props.address),
-          4: blankVoteJSON(props.address, -1),
-        };
+        return { 0: blankSendJSON(props.address) };
       }
 
       const out = {};
@@ -322,7 +316,12 @@ const FlexibleTransactionForm = (props) => {
         );
       })}
 
-      <Button label="New Message" onClick={() => newMessage(blankMessageJSON)} />
+      <h3>Add a message</h3>
+      <Button label="Send" onClick={() => newMessage(blankSendJSON(props.address))} />
+      <Button label="Delegate" onClick={() => newMessage(blankDelegateJSON(props.address))} />
+      <Button label="Undelegate" onClick={() => newMessage(blankUndelegateJSON(props.address))} />
+      <Button label="Redelegate" onClick={() => newMessage(blankRedelegateJSON(props.address))} />
+      <Button label="Vote" onClick={() => newMessage(blankVoteJSON(props.address))} />
 
       <Button label="Create Transaction" disabled={!isValid} onClick={handleCreate} />
       <style jsx>{`
