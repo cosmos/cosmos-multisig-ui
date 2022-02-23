@@ -12,7 +12,7 @@ import * as dark from "@codemirror/theme-one-dark";
 import CodeMirror from "@uiw/react-codemirror";
 import MsgDelegate from "../messages/MsgDelegate";
 import MsgRedelegate from "../messages/MsgRedelegate";
-import { lineBreak } from "acorn";
+import MsgVote from "../messages/MsgVote";
 
 const blankMessageJSON = `{
   "typeUrl": "",
@@ -68,6 +68,21 @@ function blankRedelegateJSON(delegatorAddress) {
   );
 }
 
+function blankVoteJSON(voter, proposalId) {
+  return JSON.stringify(
+    {
+      typeUrl: "/cosmos.gov.v1beta1.MsgVote",
+      value: {
+        voter,
+        proposalId,
+        option: 0,
+      },
+    },
+    null,
+    2,
+  );
+}
+
 const FlexibleTransactionForm = (props) => {
   const { state } = useAppContext();
 
@@ -79,6 +94,7 @@ const FlexibleTransactionForm = (props) => {
         return {
           0: blankDelegateJSON(props.address),
           1: blankRedelegateJSON(props.address),
+          2: blankVoteJSON(props.address, -1),
         };
       }
 
@@ -149,6 +165,8 @@ const FlexibleTransactionForm = (props) => {
         return <MsgDelegate msg={msg} onMsgChange={onMsgChange} onCheck={onCheck} />;
       case "/cosmos.staking.v1beta1.MsgBeginRedelegate":
         return <MsgRedelegate msg={msg} onMsgChange={onMsgChange} onCheck={onCheck} />;
+      case "/cosmos.gov.v1beta1.MsgVote":
+        return <MsgVote msg={msg} onMsgChange={onMsgChange} onCheck={onCheck} />;
     }
     return null;
   }
@@ -203,7 +221,6 @@ const FlexibleTransactionForm = (props) => {
               (newMsg) => {
                 const newRawJsonMsgs = JSON.parse(JSON.stringify(rawJsonMsgs));
                 newRawJsonMsgs[k.toString()] = JSON.stringify(newMsg, null, 2);
-                console.log("NEW", JSON.parse(newRawJsonMsgs[k]));
                 setRawJsonMsgs(newRawJsonMsgs);
               },
               (_isValid) => {
