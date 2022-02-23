@@ -55,22 +55,22 @@ const FlexibleTransactionForm = (props) => {
   };
 
   const handleCreate = async () => {
-    setProcessing(true);
     const msgs = [];
-    for (let i; i < rawJsonMsgs.length; ++i) {
-      msgs[i.toString] = JSON.parse(rawJsonMsgs[i.toString()]);
+    for (let i = 0; i < Object.keys(rawJsonMsgs).length; ++i) {
+      msgs.push(JSON.parse(rawJsonMsgs[i.toString()]));
     }
 
     const tx = createTransaction(gas, msgs);
     console.log(tx);
     const dataJSON = JSON.stringify(tx);
+
+    setProcessing(true);
     const res = await axios.post("/api/transaction", { dataJSON });
     const { transactionID } = res.data;
     props.router.push(`${props.address}/transaction/${transactionID}`);
   };
 
   function newCodeMirror(jsonBody, onChange) {
-    console.log("RAW", jsonBody);
     return (
       <CodeMirror
         value={jsonBody}
