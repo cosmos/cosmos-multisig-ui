@@ -113,12 +113,14 @@ const multipage = (_props) => {
                     setShowTxForm(true);
                   }}
                 />
+                {/*
                 <h4>Message Kind</h4>
                 <select value={msgKind} onChange={(e) => setMsgKind(e.target.value)}>
                   {msgKinds.map((kind, i) => (
                     <option key={i}>{kind}</option>
                   ))}
                 </select>
+                */}
               </StackableContainer>
             </div>
           </div>
