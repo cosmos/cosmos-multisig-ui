@@ -13,12 +13,12 @@ const MsgRedelegate = (props) => {
   const [validatorDstAddressError, setValidatorDstAddressError] = useState("");
   // const [amountError, setAmountError] = useState("");
 
-  function checkMsg(updateInternalErrors) {
-    if (!props.msg) return false;
-    if (!props.msg.typeUrl) return false;
-    if (!props.msg.value) return false;
+  function checkMsg(msg, updateInternalErrors) {
+    if (!msg) return false;
+    if (!msg.typeUrl) return false;
+    if (!msg.value) return false;
 
-    const v = props.msg.value;
+    const v = msg.value;
     if (!v.amount) return false;
     if (!v.amount.denom) return false;
     if (!v.amount.amount) return false;
@@ -67,21 +67,21 @@ const MsgRedelegate = (props) => {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.amount.amount = newAmount;
     onMsgChange(newMsg);
-    onCheck(checkMsg(true));
+    onCheck(checkMsg(props.msg, true));
   }
 
   function checkAndSetValidatorSrcAddress(valaddr) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.validatorSrcAddress = valaddr;
     onMsgChange(newMsg);
-    onCheck(checkMsg(true));
+    onCheck(checkMsg(props.msg, true));
   }
 
   function checkAndSetValidatorDstAddress(valaddr) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.validatorDstAddress = valaddr;
     onMsgChange(newMsg);
-    onCheck(checkMsg(true));
+    onCheck(checkMsg(props.msg, true));
   }
 
   return (
