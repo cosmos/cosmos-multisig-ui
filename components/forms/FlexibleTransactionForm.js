@@ -183,7 +183,16 @@ const FlexibleTransactionForm = (props) => {
         ✕
       </button>
       <h2>Create New transaction</h2>
-      <Button label="✏️ advanced json edit" onClick={() => setAdvanced(!advanced)} />
+      <Button
+        label="✏️ advanced json edit"
+        onClick={() => {
+          const isAdvanced = !advanced;
+          setAdvanced(!advanced);
+          if (isAdvanced) {
+            setIsValid(true);
+          }
+        }}
+      />
       <div className="form-item">
         <Input
           label="Gas Limit"
