@@ -14,6 +14,9 @@ const MsgRedelegate = (props) => {
   // const [amountError, setAmountError] = useState("");
 
   function checkMsg(msg, updateInternalErrors) {
+    setValidatorDstAddressError("");
+    setDelegatorAddressError("");
+
     if (!msg) return false;
     if (!msg.typeUrl) return false;
     if (!msg.value) return false;
@@ -27,61 +30,62 @@ const MsgRedelegate = (props) => {
       v.validatorSrcAddress,
       state.chain.addressPrefix + "valoper",
     );
-    if (toValidatorSrcAddressError) {
-      if (updateInternalErrors) {
+    if (updateInternalErrors) {
+      if (toValidatorSrcAddressError) {
         const errorMsg = `Invalid validator source address for network ${state.chain.chainId}: ${toValidatorSrcAddressError}`;
         setValidatorSrcAddressError(errorMsg);
+      } else {
+        setValidatorSrcAddressError("");
       }
-    } else {
-      setValidatorSrcAddressError("");
     }
     const toValidatorDstAddressError = checkAddress(
       v.validatorDstAddress,
       state.chain.addressPrefix + "valoper",
     );
-    if (toValidatorDstAddressError) {
-      if (updateInternalErrors) {
+    if (updateInternalErrors) {
+      if (toValidatorDstAddressError) {
         const errorMsg = `Invalid validator destination address for network ${state.chain.chainId}: ${toValidatorDstAddressError}`;
         setValidatorDstAddressError(errorMsg);
+      } else {
+        setValidatorDstAddressError("");
       }
-    } else {
-      setValidatorDstAddressError("");
     }
     const toDelegatorAddressError = checkAddress(v.delegatorAddress, state.chain.addressPrefix);
-    if (toDelegatorAddressError) {
-      if (updateInternalErrors) {
+    if (updateInternalErrors) {
+      if (toDelegatorAddressError) {
         const errorMsg = `Invalid delegator address for network ${state.chain.chainId}: ${toDelegatorAddressError}`;
         setDelegatorAddressError(errorMsg);
+      } else {
+        setDelegatorAddressError("");
       }
-    } else {
-      setDelegatorAddressError("");
     }
-    if (toValidatorSrcAddressError || toDelegatorAddressError) {
+    if (toValidatorSrcAddressError || toValidatorDstAddressError || toDelegatorAddressError) {
       return false;
     }
 
     return true;
   }
+  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
 
   function checkAndSetAmount(newAmount) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.amount.amount = newAmount;
     onMsgChange(newMsg);
-    onCheck(checkMsg(props.msg, true));
+    onCheck(checkMsg(newMsg, true));
   }
 
   function checkAndSetValidatorSrcAddress(valaddr) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.validatorSrcAddress = valaddr;
     onMsgChange(newMsg);
-    onCheck(checkMsg(props.msg, true));
+    onCheck(checkMsg(newMsg, true));
   }
 
   function checkAndSetValidatorDstAddress(valaddr) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.validatorDstAddress = valaddr;
     onMsgChange(newMsg);
-    onCheck(checkMsg(props.msg, true));
+    onCheck(checkMsg(newMsg, true));
   }
 
   return (

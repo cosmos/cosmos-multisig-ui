@@ -26,22 +26,22 @@ const MsgDelegate = (props) => {
       v.validatorAddress,
       state.chain.addressPrefix + "valoper",
     );
-    if (toValidatorAddressError) {
-      if (updateInternalErrors) {
+    if (updateInternalErrors) {
+      if (toValidatorAddressError) {
         const errorMsg = `Invalid validator address for network ${state.chain.chainId}: ${toValidatorAddressError}`;
         setValidatorAddressError(errorMsg);
+      } else {
+        setValidatorAddressError("");
       }
-    } else {
-      setValidatorAddressError("");
     }
     const toDelegatorAddressError = checkAddress(v.delegatorAddress, state.chain.addressPrefix);
-    if (toDelegatorAddressError) {
-      if (updateInternalErrors) {
+    if (updateInternalErrors) {
+      if (toDelegatorAddressError) {
         const errorMsg = `Invalid delegator address for network ${state.chain.chainId}: ${toDelegatorAddressError}`;
         setDelegatorAddressError(errorMsg);
+      } else {
+        setDelegatorAddressError("");
       }
-    } else {
-      setDelegatorAddressError("");
     }
     if (toValidatorAddressError || toDelegatorAddressError) {
       return false;
@@ -49,19 +49,20 @@ const MsgDelegate = (props) => {
 
     return true;
   }
+  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
 
   function checkAndSetAmount(newAmount) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.amount.amount = newAmount;
     onMsgChange(newMsg);
-    onCheck(checkMsg(props.msg, true));
+    onCheck(checkMsg(newMsg, true));
   }
 
   function checkAndSetValidatorAddress(valaddr) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.validatorAddress = valaddr;
     onMsgChange(newMsg);
-    onCheck(checkMsg(props.msg, true));
+    onCheck(checkMsg(newMsg, true));
   }
 
   return (
