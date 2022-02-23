@@ -10,6 +10,7 @@ import StackableContainer from "../layout/StackableContainer";
 import { json } from "@codemirror/lang-json";
 import * as dark from "@codemirror/theme-one-dark";
 import CodeMirror from "@uiw/react-codemirror";
+import { MsgDelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 
 const blankMessageJSON = `{
   "typeUrl": "",
@@ -17,7 +18,7 @@ const blankMessageJSON = `{
   }
 }`;
 
-const placeholderMessagesJSON = `[
+const _placeholderMessagesJSON = `[
   {
     "typeUrl": "/cosmos.staking.v1beta1.MsgDelegate",
     "value": {
@@ -34,21 +35,35 @@ const placeholderMessagesJSON = `[
 const FlexibleTransactionForm = (props) => {
   const { state } = useAppContext();
 
-  const [msgs, setMsgs] = useState([
-    {
-      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-      value: {
-        fromAddress: "",
-        toAddress: "",
-        amount: [
-          {
-            amount: "",
-            denom: "uumee",
-          },
-        ],
+  const [msgs, setMsgs] = useState(
+    props.msgs || [
+      {
+        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+        value: {
+          fromAddress: "",
+          toAddress: "",
+          amount: [
+            {
+              amount: "",
+              denom: "uumee",
+            },
+          ],
+        },
       },
-    },
-  ]);
+    ],
+  );
+
+  const [rawJsonMsgs, setRawJsonMsgs] = useState(
+    (function () {
+      const out = {};
+
+      msgs.forEach(function (msg, i) {
+        out[i.toString()] = JSON.stringify(msg, null, 2);
+      });
+
+      return out;
+    })(),
+  );
 
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(200000);
@@ -77,10 +92,10 @@ const FlexibleTransactionForm = (props) => {
     props.router.push(`${props.address}/transaction/${transactionID}`);
   };
 
-  function newCodeMirror(body, onChange) {
+  function newCodeMirror(jsonBody, onChange) {
     return (
       <CodeMirror
-        value={JSON.stringify(body, null, 2)}
+        value={jsonBody}
         height="200px"
         extensions={[json(), dark.oneDark]}
         theme="dark"
@@ -99,6 +114,14 @@ const FlexibleTransactionForm = (props) => {
     newMsgs.push(newMsg);
 
     setMsgs(newMsgs);
+  }
+
+  function getMsgUI(msg) {
+    switch (msg.typeUrl) {
+      case "/cosmos.staking.v1beta1.MsgDelegate":
+        return <MsgDelegate msg={msg} />;
+    }
+    return null;
   }
 
   return (
@@ -152,18 +175,30 @@ const FlexibleTransactionForm = (props) => {
             </button>
             <h2>Msg {i}</h2>
             <pre>{msg.typeUrl}</pre>
-            {newCodeMirror(msgs[i], (changedMsgJSON, viewUpdate) => {
-              // will throw if unparseable
-              // TODO, turn into ui error
-              const newMsg = JSON.parse(changedMsgJSON);
+            {(function () {
+              /*
+              TODO: fixme
+              const msgUI = getMsgUI(msg);
+              if (msgUI !== null) {
+                return msgUI;
+              }
+              */
 
-              // deep copy
-              const newMsgs = JSON.parse(JSON.stringify(msgs));
+              return newCodeMirror(rawJsonMsgs[i.toString()], (newRawJsonMsg, _viewUpdate) => {
+                // will throw if unparseable
+                // TODO, turn into ui error
+                const newMsg = JSON.parse(newRawJsonMsg);
 
-              newMsgs[i] = newMsg;
+                const newMsgs = JSON.parse(JSON.stringify(msgs));
+                newMsgs[i] = newMsg;
+                setMsgs(newMsgs);
 
-              setMsgs(newMsgs);
-            })}
+                const newRawJsonMsgs = JSON.parse(JSON.stringify(rawJsonMsgs));
+                console.log("YEET", newRawJsonMsg);
+                newRawJsonMsgs[i.toString()] = newRawJsonMsg;
+                setRawJsonMsgs(newRawJsonMsgs);
+              });
+            })()}
           </StackableContainer>
         );
       })}

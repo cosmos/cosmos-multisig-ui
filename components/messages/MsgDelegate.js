@@ -2,17 +2,15 @@ import { Decimal } from "@cosmjs/math";
 import React, { useState } from "react";
 
 import { useAppContext } from "../../context/AppContext";
-import Button from "../../components/inputs/Button";
 import Input from "../../components/inputs/Input";
-import StackableContainer from "../layout/StackableContainer";
 import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
 
 const MsgDelegate = (props) => {
   const { state } = useAppContext();
-  const [validatorAddress, setValidatorAddress] = useState("");
   const [validatorAddressError, setValidatorAddressError] = useState("");
-  const [amount, setAmount] = useState("0");
+  const [msg, setMsg] = useState(props.msg);
 
+  /*
   const createDelegationMsg = (txValidatorAddress, txAmount) => {
     const amountInAtomics = Decimal.fromUserInput(
       txAmount,
@@ -31,12 +29,30 @@ const MsgDelegate = (props) => {
       value: msgDelegate,
     };
   };
+  */
 
-  const handleCreate = async () => {
-    const toValidatorAddressError = checkAddress(
-      validatorAddress,
-      state.chain.addressPrefix + "valoper",
-    );
+  function checkAndSetAmount(msgAmount) {
+    if (!msg) return;
+    if (!msg.value) return;
+
+    const amountInAtomics = Decimal.fromUserInput(
+      msgAmount,
+      Number(state.chain.displayDenomExponent),
+    ).atomics;
+
+    const newMsg = JSON.parse(JSON.stringify(msg));
+    newMsg.value.amount = {
+      amount: amountInAtomics,
+      denom: state.chain.denom,
+    };
+    setMsg(newMsg);
+  }
+
+  function checkAndSetValidatorAddress(valaddr) {
+    if (!msg) return;
+    if (!msg.value) return;
+
+    const toValidatorAddressError = checkAddress(valaddr, state.chain.addressPrefix + "valoper");
     if (toValidatorAddressError) {
       setValidatorAddressError(
         `Invalid validator address for network ${state.chain.chainId}: ${toValidatorAddressError}`,
@@ -44,24 +60,20 @@ const MsgDelegate = (props) => {
       return;
     }
 
-    const msg = createDelegationMsg(validatorAddress, amount);
-
-    props.onCreate(msg);
-    props.closeForm();
-  };
+    const newMsg = JSON.parse(JSON.stringify(msg));
+    newMsg.value.validatorAddress = valaddr;
+    setMsg(newMsg);
+  }
 
   return (
-    <StackableContainer lessPadding>
-      <button className="remove" onClick={() => props.closeForm()}>
-        ✕
-      </button>
+    <div>
       <h2>Create New Delegation</h2>
       <div className="form-item">
         <Input
           label="Validator Address"
           name="validatorAddress"
           value={validatorAddress}
-          onChange={(e) => setValidatorAddress(e.target.value)}
+          onChange={(e) => checkAndSetValidatorAddress(e.target.value)}
           error={validatorAddressError}
           placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix + "valoper")}`}
         />
@@ -71,11 +83,10 @@ const MsgDelegate = (props) => {
           label={`Amount (${state.chain.displayDenom})`}
           name="amount"
           type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          value={msg.value.amount.amount * Math.pow(10, parseInt(msg.value.amount.denom, 10))}
+          onChange={(e) => checkAndSetAmount(e.target.value)}
         />
       </div>
-      <Button label="Delegate" onClick={handleCreate} />
       <style jsx>{`
         p {
           margin-top: 15px;
@@ -83,19 +94,8 @@ const MsgDelegate = (props) => {
         .form-item {
           margin-top: 1.5em;
         }
-        button.remove {
-          background: rgba(255, 255, 255, 0.2);
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          border: none;
-          color: white;
-          position: absolute;
-          right: 10px;
-          top: 10px;
-        }
       `}</style>
-    </StackableContainer>
+    </div>
   );
 };
 
