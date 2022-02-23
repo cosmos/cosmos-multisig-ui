@@ -31,6 +31,8 @@ const MsgDelegate = (props) => {
         const errorMsg = `Invalid validator address for network ${state.chain.chainId}: ${toValidatorAddressError}`;
         setValidatorAddressError(errorMsg);
       }
+    } else {
+      setValidatorAddressError("");
     }
     const toDelegatorAddressError = checkAddress(v.delegatorAddress, state.chain.addressPrefix);
     if (toDelegatorAddressError) {
@@ -38,6 +40,8 @@ const MsgDelegate = (props) => {
         const errorMsg = `Invalid delegator address for network ${state.chain.chainId}: ${toDelegatorAddressError}`;
         setDelegatorAddressError(errorMsg);
       }
+    } else {
+      setDelegatorAddressError("");
     }
     if (toValidatorAddressError || toDelegatorAddressError) {
       return false;
@@ -45,7 +49,6 @@ const MsgDelegate = (props) => {
 
     return true;
   }
-  setTimeout(() => onCheck(checkMsg(false)), 1);
 
   function checkAndSetAmount(newAmount) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
