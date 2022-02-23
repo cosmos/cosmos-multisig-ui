@@ -323,7 +323,7 @@ const FlexibleTransactionForm = (props) => {
       <Button label="Redelegate" onClick={() => newMessage(blankRedelegateJSON(props.address))} />
       <Button label="Vote" onClick={() => newMessage(blankVoteJSON(props.address))} />
 
-      <Button label="Create Transaction" disabled={!isValid} onClick={handleCreate} />
+      <Button label="Prepare Multisig Tx" disabled={!isValid} onClick={handleCreate} />
       <style jsx>{`
         p {
           margin-top: 15px;
