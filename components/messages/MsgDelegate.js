@@ -64,6 +64,8 @@ const MsgDelegate = (props) => {
     onCheck(checkMsg(newMsg, true));
   }
 
+  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
+
   return (
     <div>
       <h2>Delegate</h2>

@@ -43,6 +43,8 @@ const MsgVote = (props) => {
     return true;
   }
 
+  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
+
   function checkAndSetDecision(decision) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.option = decision;

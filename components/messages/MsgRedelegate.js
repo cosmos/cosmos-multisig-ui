@@ -63,6 +63,8 @@ const MsgRedelegate = (props) => {
     return true;
   }
 
+  setTimeout(() => onCheck(checkMsg(props.msg, false)), 1);
+
   function checkAndSetAmount(newAmount) {
     const newMsg = JSON.parse(JSON.stringify(props.msg));
     newMsg.value.amount.amount = newAmount;

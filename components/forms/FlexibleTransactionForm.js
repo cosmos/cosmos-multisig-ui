@@ -13,6 +13,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import MsgDelegate from "../messages/MsgDelegate";
 import MsgRedelegate from "../messages/MsgRedelegate";
 import MsgVote from "../messages/MsgVote";
+import { LightBlock } from "cosmjs-types/tendermint/types/types";
 
 const blankMessageJSON = `{
   "typeUrl": "",
@@ -182,7 +183,16 @@ const FlexibleTransactionForm = (props) => {
         ✕
       </button>
       <h2>Create New transaction</h2>
-      <Button label="✏️ advanced json edit" onClick={() => setAdvanced(!advanced)} />
+      <Button
+        label="✏️ advanced json edit"
+        onClick={() => {
+          const advancedIsEnabled = !advanced;
+          setAdvanced(advancedIsEnabled);
+          if (advancedIsEnabled) {
+            setIsValid(true);
+          }
+        }}
+      />
       <div className="form-item">
         <Input
           label="Gas Limit"
@@ -229,7 +239,11 @@ const FlexibleTransactionForm = (props) => {
                   [k]: _isValid,
                 };
                 setValidity(newValidity);
-                setIsValid(Object.values(validity).reduce((p, c) => p && c, true));
+                setIsValid(
+                  Object.values(validity).length <= 0
+                    ? false
+                    : Object.values(validity).reduce((p, c) => p && c, true),
+                );
               },
             );
             if (msgGUI === null) {
@@ -256,6 +270,11 @@ const FlexibleTransactionForm = (props) => {
                 }
                 setRawJsonMsgs(newRawJsonMsgs);
                 setValidity(newValidity);
+                setIsValid(
+                  Object.values(validity).length <= 0
+                    ? false
+                    : Object.values(validity).reduce((p, c) => p && c, true),
+                );
               }}
             >
               ✕
