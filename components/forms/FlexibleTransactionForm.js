@@ -171,6 +171,7 @@ const FlexibleTransactionForm = (props) => {
     return null;
   }
 
+  const initialValidity = Object.fromEntries(Object.keys(rawJsonMsgs).map((key) => [key, false]));
   return (
     <StackableContainer lessPadding>
       <button
@@ -225,11 +226,11 @@ const FlexibleTransactionForm = (props) => {
               },
               (_isValid) => {
                 const newValidity = {
+                  ...initialValidity,
                   ...validity,
                   [k]: _isValid,
                 };
                 setValidity(newValidity);
-                console.log(validity, newValidity);
                 setIsValid(
                   Object.values(newValidity).length <= 0
                     ? false
@@ -261,7 +262,6 @@ const FlexibleTransactionForm = (props) => {
                 }
                 setRawJsonMsgs(newRawJsonMsgs);
                 setValidity(newValidity);
-                console.log(validity, newValidity);
                 setIsValid(
                   Object.values(newValidity).length <= 0
                     ? false
