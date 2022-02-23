@@ -11,6 +11,7 @@ import { json } from "@codemirror/lang-json";
 import * as dark from "@codemirror/theme-one-dark";
 import CodeMirror from "@uiw/react-codemirror";
 import MsgDelegate from "../messages/MsgDelegate";
+import { lineBreak } from "acorn";
 
 const blankMessageJSON = `{
   "typeUrl": "",
@@ -18,7 +19,7 @@ const blankMessageJSON = `{
   }
 }`;
 
-const blankDelegateJSON = `{
+const bankDelegateJSON = `{
   "typeUrl": "/cosmos.staking.v1beta1.MsgDelegate",
   "value": {
     "validatorAddress": "",
@@ -29,6 +30,24 @@ const blankDelegateJSON = `{
   }
 }`;
 
+function blankDelegateJSON(delegatorAddress) {
+  return JSON.stringify(
+    {
+      typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
+      value: {
+        delegatorAddress,
+        validatorAddress: "",
+        amount: {
+          denom: "uumee",
+          amount: "0",
+        },
+      },
+    },
+    null,
+    2,
+  );
+}
+
 const FlexibleTransactionForm = (props) => {
   const { state } = useAppContext();
 
@@ -37,7 +56,7 @@ const FlexibleTransactionForm = (props) => {
   const [rawJsonMsgs, setRawJsonMsgs] = useState(
     (function () {
       if (!props.msgs) {
-        return { 0: blankDelegateJSON };
+        return { 0: blankDelegateJSON(props.address) };
       }
 
       const out = {};
@@ -51,6 +70,7 @@ const FlexibleTransactionForm = (props) => {
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(200000);
   const [gasPrice, _setGasPrice] = useState(state.chain.gasPrice);
+  const [validity, setValidity] = useState({});
   const [_processing, setProcessing] = useState(false);
 
   const createTransaction = (txGas, txMsgs) => {
@@ -99,17 +119,22 @@ const FlexibleTransactionForm = (props) => {
     setRawJsonMsgs(newRawJsonMsgs);
   }
 
-  function getMsgUI(msg, onMsgChange) {
+  function getMsgUI(msg, onMsgChange, onCheck) {
     switch (msg.typeUrl) {
       case "/cosmos.staking.v1beta1.MsgDelegate":
-        return <MsgDelegate msg={msg} onMsgChange={onMsgChange} />;
+        return <MsgDelegate msg={msg} onMsgChange={onMsgChange} onCheck={onCheck} />;
     }
     return null;
   }
 
   return (
     <StackableContainer lessPadding>
-      <button className="remove" onClick={() => props.closeForm()}>
+      <button
+        className="remove"
+        onClick={() => {
+          props.closeForm();
+        }}
+      >
         ✕
       </button>
       <h2>Create New transaction</h2>
@@ -147,12 +172,23 @@ const FlexibleTransactionForm = (props) => {
               setRawJsonMsgs(newRawJsonMsgs);
             });
           } else {
-            const msgGUI = getMsgUI(JSON.parse(rawMsg), (newMsg) => {
-              const newRawJsonMsgs = JSON.parse(JSON.stringify(rawJsonMsgs));
-              newRawJsonMsgs[k.toString()] = JSON.stringify(newMsg, null, 2);
-              console.log("NEW", JSON.parse(newRawJsonMsgs[k]));
-              setRawJsonMsgs(newRawJsonMsgs);
-            });
+            const msgGUI = getMsgUI(
+              JSON.parse(rawMsg),
+              (newMsg) => {
+                const newRawJsonMsgs = JSON.parse(JSON.stringify(rawJsonMsgs));
+                newRawJsonMsgs[k.toString()] = JSON.stringify(newMsg, null, 2);
+                console.log("NEW", JSON.parse(newRawJsonMsgs[k]));
+                setRawJsonMsgs(newRawJsonMsgs);
+              },
+              (isValid) => {
+                const newValidity = {
+                  ...validity,
+                  [k]: isValid,
+                };
+                console.log(newValidity);
+                setValidity(newValidity);
+              },
+            );
             if (msgGUI === null) {
               return <pre>{rawMsg}</pre>;
             }
@@ -166,14 +202,17 @@ const FlexibleTransactionForm = (props) => {
               className="remove"
               onClick={() => {
                 const newRawJsonMsgs = {};
+                const newValidity = {};
                 let newIdx = 0;
                 for (let j; j < rawJsonMsgs.length; ++j) {
                   if (parseInt(k, 10) != j) {
                     newRawJsonMsgs[newIdx.toString()] = rawJsonMsgs[j.toString()];
+                    newValidity[newIdx.toString()] = validity[j.toString()];
                     ++newIdx;
                   }
                 }
                 setRawJsonMsgs(newRawJsonMsgs);
+                setValidity(newValidity);
               }}
             >
               ✕
@@ -186,7 +225,16 @@ const FlexibleTransactionForm = (props) => {
       })}
 
       <Button label="New Message" onClick={() => newMessage(blankMessageJSON)} />
-      <Button label="Create Transaction" onClick={handleCreate} />
+
+      <Button
+        label="Create Transaction"
+        disabled={
+          Object.keys(validity).length > 0
+            ? !Object.values(validity).reduce((p, c) => p && c, true)
+            : false
+        }
+        onClick={handleCreate}
+      />
       <style jsx>{`
         p {
           margin-top: 15px;

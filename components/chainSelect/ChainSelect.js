@@ -33,7 +33,7 @@ const ChainSelect = () => {
   const [tempRegistryName, setRegistryName] = useState(state.chain.registryName);
   const [tempExplorerLink, setExplorerLink] = useState(state.chain.explorerLink);
 
-  let url = "https://api.github.com/repos/cosmos/chain-registry/contents";
+  const url = "https://api.github.com/repos/cosmos/chain-registry/contents";
 
   useEffect(() => {
     getGhJson();
