@@ -104,7 +104,7 @@ function blankVoteJSON(voter, proposalId = -1) {
       value: {
         voter,
         proposalId,
-        option: 1,
+        option: 0,
       },
     },
     null,

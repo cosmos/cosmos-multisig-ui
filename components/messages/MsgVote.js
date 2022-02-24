@@ -7,6 +7,7 @@ import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
 
 // https://docs.cosmos.network/v0.44/core/proto-docs.html#cosmos.gov.v1beta1.VoteOption
 const voteOptions = [
+  { label: "Unspecified", value: 0 },
   { label: "Yes", value: 1 },
   { label: "Abstain", value: 2 },
   { label: "No", value: 3 },

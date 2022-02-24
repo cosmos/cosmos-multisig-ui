@@ -16,20 +16,19 @@ const TransactionSigning = (props) => {
 
   useEffect(() => {
     connectWallet();
+    window.addEventListener("keplr_keystorechange", connectWallet);
   }, []);
 
   const connectWallet = async () => {
-    try {
-      await window.keplr.enable(state.chain.chainId);
-      const tempWalletAccount = await window.keplr.getKey(state.chain.chainId);
-      const tempHasSigned = props.signatures.some(
-        (sig) => sig.address === tempWalletAccount.bech32Address,
-      );
-      setWalletAccount(tempWalletAccount);
-      setHasSigned(tempHasSigned);
-    } catch (e) {
-      console.log("enable err: ", e);
-    }
+    await window.keplr.enable(state.chain.chainId);
+    const tempWalletAccount = await window.keplr.getKey(state.chain.chainId);
+    const tempHasSigned = props.signatures.some(
+      (sig) => sig.address === tempWalletAccount.bech32Address,
+    );
+    setWalletAccount(tempWalletAccount);
+    setHasSigned(tempHasSigned);
+    console.log("wallet changed", tempWalletAccount);
+    window.keplr_wallet = tempWalletAccount;
   };
 
   const signTransaction = async () => {
