@@ -23,7 +23,6 @@ function participantAddressesFromMultisig(multisigPubkey, addressPrefix) {
   );
 }
 
-
 const multipage = (_props) => {
   const { state } = useAppContext();
   const [showTxForm, setShowTxForm] = useState(false);
