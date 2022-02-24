@@ -27,7 +27,7 @@ const TransactionSigning = (props) => {
     );
     setWalletAccount(tempWalletAccount);
     setHasSigned(tempHasSigned);
-    console.log("wallet changed", tempWalletAccount);
+    console.log("wallet connected:", tempWalletAccount);
     window.keplr_wallet = tempWalletAccount;
   };
 
