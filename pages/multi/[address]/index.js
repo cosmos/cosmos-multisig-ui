@@ -23,12 +23,9 @@ function participantAddressesFromMultisig(multisigPubkey, addressPrefix) {
   );
 }
 
-const msgKinds = ["/cosmos.bank.v1beta1.MsgSend", "/cosmos.staking.v1beta1.MsgDelegate"];
-
 const multipage = (_props) => {
   const { state } = useAppContext();
   const [showTxForm, setShowTxForm] = useState(false);
-  const [msgKind, setMsgKind] = useState("/cosmos.bank.v1beta1.MsgSend");
   const [holdings, setHoldings] = useState("");
   const [accountOnChain, setAccountOnChain] = useState(null);
   const [accountError, setAccountError] = useState(null);

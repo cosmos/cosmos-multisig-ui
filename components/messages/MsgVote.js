@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useAppContext } from "../../context/AppContext";
 import Input from "../../components/inputs/Input";
 import Select from "../../components/inputs/Select";
-import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
+import { checkAddress, checkProposalId } from "../../lib/displayHelpers";
 
 // https://docs.cosmos.network/v0.44/core/proto-docs.html#cosmos.gov.v1beta1.VoteOption
 const voteOptions = [
@@ -19,6 +19,7 @@ const MsgVote = (props) => {
   const onCheck = props.onCheck || (() => {});
   const { state } = useAppContext();
   const [voterError, setVoterError] = useState("");
+  const [proposalIdError, setProposalIdError] = useState("");
 
   // const [amountError, setAmountError] = useState("");
 
@@ -39,6 +40,20 @@ const MsgVote = (props) => {
       } else {
         setVoterError("");
       }
+    }
+
+    const toProposalIdError = checkProposalId(v.proposalId);
+    if (updateInternalErrors) {
+      if (toProposalIdError) {
+        const errorMsg = `Invalid proposal_id for network ${state.chain.chainId}: ${toProposalIdError}`;
+        setProposalIdError(errorMsg);
+      } else {
+        setProposalIdError("");
+      }
+    }
+
+    if (toVoterError || toProposalIdError) {
+      return false;
     }
 
     return true;
@@ -82,6 +97,7 @@ const MsgVote = (props) => {
           type="number"
           value={props.msg.value.proposalId}
           onChange={(e) => checkAndSetProposalId(e.target.value)}
+          error={proposalIdError}
         />
       </div>
       <div className="form-item">

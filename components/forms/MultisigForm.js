@@ -93,18 +93,13 @@ const MultiSigForm = (props) => {
   const handleCreate = async () => {
     setProcessing(true);
     const compressedPubkeys = pubkeys.map((item) => item.compressedPubkey);
-    let multisigAddress;
-    try {
-      multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
-        compressedPubkeys,
-        parseInt(threshold, 10),
-        state.chain.addressPrefix,
-        state.chain.chainId,
-      );
-      props.router.push(`/multi/${multisigAddress}`);
-    } catch (error) {
-      console.log("Failed to creat multisig: ", error);
-    }
+    const multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
+      compressedPubkeys,
+      parseInt(threshold, 10),
+      state.chain.addressPrefix,
+      state.chain.chainId,
+    );
+    props.router.push(`/multi/${multisigAddress}`);
   };
 
   const togglePubkey = (index) => {
