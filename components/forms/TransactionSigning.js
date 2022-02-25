@@ -7,6 +7,7 @@ import { useAppContext } from "../../context/AppContext";
 import Button from "../inputs/Button";
 import HashView from "../dataViews/HashView";
 import StackableContainer from "../layout/StackableContainer";
+import { AminoTypes } from "@cosmjs/stargate";
 
 const TransactionSigning = (props) => {
   const { state } = useAppContext();
