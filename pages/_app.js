@@ -5,7 +5,7 @@ import ChainSelect from "../components/chainSelect/ChainSelect";
 function MultisigApp({ Component, pageProps }) {
   return (
     <AppWrapper>
-      {process.env.NEXT_PUBLIC_MULTICHAIN && <ChainSelect />}
+      {process.env.NEXT_PUBLIC_MULTICHAIN.toLowerCase() === "true" && <ChainSelect />}
       <Component {...pageProps} />
     </AppWrapper>
   );
