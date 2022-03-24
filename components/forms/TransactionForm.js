@@ -40,6 +40,7 @@ const TransactionForm = (props) => {
       value: msgSend,
     };
     const fee = calculateFee(Number(txGas), gasPrice);
+    console.log(props.accountOnChain.accountNumber);
     return {
       accountNumber: props.accountOnChain.accountNumber,
       sequence: props.accountOnChain.sequence,
