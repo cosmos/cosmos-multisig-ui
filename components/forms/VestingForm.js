@@ -22,7 +22,7 @@ const VestingForm = (props) => {
   const [_processing, setProcessing] = useState(false);
   const [addressError, setAddressError] = useState("");
 
-  const createTransaction = (txToAddress, txAmount, txGas, txTime, delayed) => {
+  const createTransaction = (txToAddress, txAmount, txGas, txTime) => {
     const amountInAtomics = Decimal.fromUserInput(
       txAmount,
       Number(state.chain.displayDenomExponent),
@@ -62,7 +62,7 @@ const VestingForm = (props) => {
     }
 
     setProcessing(true);
-    const tx = createTransaction(toAddress, amount, gas, unixEpochTime, delayed);
+    const tx = createTransaction(toAddress, amount, gas, unixEpochTime);
     console.log(tx);
     const dataJSON = JSON.stringify(tx);
     const res = await axios.post("/api/transaction", { dataJSON });

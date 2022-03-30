@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toBase64 } from "@cosmjs/encoding";
-import { SigningStargateClient } from "@cosmjs/stargate";
-
+import { AminoTypes, SigningStargateClient } from "@cosmjs/stargate";
 import { useAppContext } from "../../context/AppContext";
 import Button from "../inputs/Button";
 import HashView from "../dataViews/HashView";
@@ -41,8 +40,29 @@ const TransactionSigning = (props) => {
           disableBalanceCheck: true,
         },
       };
+      const options = {
+        aminoTypes: new AminoTypes({
+          "/cosmos.vesting.v1beta1.MsgCreateVestingAccount": {
+            aminoType: "cosmos-sdk/MsgCreateVestingAccount",
+            toAmino: ({ fromAddress, toAddress, amount, endTime, delayed }) => ({
+              from_address: fromAddress,
+              to_address: toAddress,
+              amount: [...amount],
+              end_time: endTime,
+              delayed: delayed,
+            }),
+            fromAmino: ({ from_address, to_address, amount, end_time, delayed }) => ({
+              fromAddress: from_address,
+              toAddress: to_address,
+              amount: [...amount],
+              endTime: end_time,
+              delayed: delayed,
+            }),
+          },
+        }),
+      };
       const offlineSigner = window.getOfflineSignerOnlyAmino(state.chain.chainId);
-      const signingClient = await SigningStargateClient.offline(offlineSigner);
+      const signingClient = await SigningStargateClient.offline(offlineSigner, options);
       const signerData = {
         accountNumber: props.tx.accountNumber,
         sequence: props.tx.sequence,
