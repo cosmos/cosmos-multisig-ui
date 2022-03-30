@@ -12,6 +12,7 @@ import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import TransactionForm from "../../../components/forms/TransactionForm";
+import VestingForm from "../../../components/forms/VestingForm";
 
 function participantPubkeysFromMultisig(multisigPubkey) {
   return multisigPubkey.value.pubkeys;
@@ -26,6 +27,7 @@ function participantAddressesFromMultisig(multisigPubkey, addressPrefix) {
 const multipage = (props) => {
   const { state } = useAppContext();
   const [showTxForm, setShowTxForm] = useState(false);
+  const [showVestingForm, setShowVestingForm] = useState(false);
   const [holdings, setHoldings] = useState("");
   const [accountOnChain, setAccountOnChain] = useState(null);
   const [accountError, setAccountError] = useState(null);
@@ -84,7 +86,7 @@ const multipage = (props) => {
             </div>
           </StackableContainer>
         )}
-        {showTxForm ? (
+        {showTxForm && (
           <TransactionForm
             address={router.query.address}
             accountOnChain={accountOnChain}
@@ -92,27 +94,47 @@ const multipage = (props) => {
               setShowTxForm(false);
             }}
           />
-        ) : (
-          <div className="interfaces">
-            <div className="col-1">
-              <MultisigHoldings holdings={holdings} />
+        )}
+        {showVestingForm && (
+          <VestingForm
+            address={router.query.address}
+            accountOnChain={accountOnChain}
+            closeForm={() => {
+              setShowVestingForm(false);
+            }}
+          />
+        )}
+        {!showTxForm && !showVestingForm && (
+          <>
+            <div className="interfaces">
+              <div className="col-2">
+                <MultisigHoldings holdings={holdings} />
+              </div>
             </div>
-            <div className="col-2">
-              <StackableContainer lessPadding>
-                <h2>New transaction</h2>
-                <p>
-                  Once a transaction is created, it can be signed by the multisig members, and then
-                  broadcast.
-                </p>
-                <Button
-                  label="Create Transaction"
-                  onClick={() => {
-                    setShowTxForm(true);
-                  }}
-                />
-              </StackableContainer>
+            <div className="interfaces">
+              <div className="col-2">
+                <StackableContainer lessPadding>
+                  <h2>Actions</h2>
+                  <p>
+                    Once a transaction is created, it can be signed by the multisig members, and
+                    then broadcast.
+                  </p>
+                  <Button
+                    label="Create Transaction"
+                    onClick={() => {
+                      setShowTxForm(true);
+                    }}
+                  />
+                  <Button
+                    label="Create Vesting Account"
+                    onClick={() => {
+                      setShowVestingForm(true);
+                    }}
+                  />
+                </StackableContainer>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </StackableContainer>
       <style jsx>{`
