@@ -59,6 +59,19 @@ const TransactionSigning = (props) => {
               delayed: delayed,
             }),
           },
+          "/cosmos.bank.v1beta1.MsgSend": {
+            aminoType: "cosmos-sdk/MsgSend",
+            toAmino: ({ fromAddress, toAddress, amount }: MsgSend): AminoMsgSend["value"] => ({
+              from_address: fromAddress,
+              to_address: toAddress,
+              amount: [...amount],
+            }),
+            fromAmino: ({ from_address, to_address, amount }: AminoMsgSend["value"]): MsgSend => ({
+              fromAddress: from_address,
+              toAddress: to_address,
+              amount: [...amount],
+            }),
+          },
         }),
       };
       const offlineSigner = window.getOfflineSignerOnlyAmino(state.chain.chainId);
