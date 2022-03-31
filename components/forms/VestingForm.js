@@ -22,7 +22,7 @@ const VestingForm = (props) => {
   const [_processing, setProcessing] = useState(false);
   const [addressError, setAddressError] = useState("");
 
-  const createTransaction = (txToAddress, txAmount, txGas, txTime) => {
+  const createTransaction = (txToAddress, txAmount, txGas, txEndTime) => {
     const amountInAtomics = Decimal.fromUserInput(
       txAmount,
       Number(state.chain.displayDenomExponent),
@@ -30,7 +30,7 @@ const VestingForm = (props) => {
     const msgCreateVestingAccount = {
       fromAddress: props.address,
       toAddress: txToAddress,
-      endTime: txTime,
+      endTime: txEndTime,
       amount: [
         {
           amount: amountInAtomics,
