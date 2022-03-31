@@ -26,7 +26,7 @@ function participantAddressesFromMultisig(multisigPubkey, addressPrefix) {
 
 const multipage = (props) => {
   const { state } = useAppContext();
-  const [showTxForm, setShowTxForm] = useState(false);
+  const [showSendForm, setShowSendForm] = useState(false);
   const [showVestingForm, setShowVestingForm] = useState(false);
   const [holdings, setHoldings] = useState("");
   const [accountOnChain, setAccountOnChain] = useState(null);
@@ -86,12 +86,12 @@ const multipage = (props) => {
             </div>
           </StackableContainer>
         )}
-        {showTxForm && (
+        {showSendForm && (
           <TransactionForm
             address={router.query.address}
             accountOnChain={accountOnChain}
             closeForm={() => {
-              setShowTxForm(false);
+              setShowSendForm(false);
             }}
           />
         )}
@@ -104,7 +104,7 @@ const multipage = (props) => {
             }}
           />
         )}
-        {!showTxForm && !showVestingForm && (
+        {!showSendForm && !showVestingForm && (
           <>
             <div className="interfaces">
               <div className="col-2">
@@ -120,9 +120,9 @@ const multipage = (props) => {
                     then broadcast.
                   </p>
                   <Button
-                    label="Create Transaction"
+                    label="Create Send Transaction"
                     onClick={() => {
-                      setShowTxForm(true);
+                      setShowSendForm(true);
                     }}
                   />
                   <Button

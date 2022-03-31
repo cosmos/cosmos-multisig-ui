@@ -97,7 +97,7 @@ const VestingForm = (props) => {
       </div>
       <div className="form-item">
         <Input
-          label="Unix Epoch Time"
+          label="Vesting end time (UNIX timestamp)"
           name="unixEpochTime"
           type="number"
           value={unixEpochTime}
