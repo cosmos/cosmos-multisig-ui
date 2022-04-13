@@ -61,7 +61,7 @@ const TransactionSigning = (props) => {
     const offlineSigner =
       walletType === "keplr" ? window.getOfflineSignerOnlyAmino(state.chain.chainId) : ledgerSigner;
     
-    const address = walletType === "keplr" ? walletAccount.bech32Address : ledgerSigner.accounts[0]?.address;
+    const address = walletType === "keplr" ? walletAccount.bech32Address : (await ledgerSigner.getAccounts())[0]?.address;
     const signingClient = await SigningStargateClient.offline(offlineSigner);
 
     const signerData = {
