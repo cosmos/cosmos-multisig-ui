@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toBase64 } from "@cosmjs/encoding";
-import { SigningStargateClient } from "@cosmjs/stargate";
+import { assertIsDeliverTxFailure, SigningStargateClient } from "@cosmjs/stargate";
+import { assert } from "@cosmjs/utils";
 
 import { useAppContext } from "../../context/AppContext";
 import Button from "../inputs/Button";
@@ -61,7 +62,10 @@ const TransactionSigning = (props) => {
     const offlineSigner =
       walletType === "keplr" ? window.getOfflineSignerOnlyAmino(state.chain.chainId) : ledgerSigner;
     
-    const address = walletType === "keplr" ? walletAccount.bech32Address : (await ledgerSigner.getAccounts())[0]?.address;
+    const signerAddress = walletType === "keplr"
+      ? walletAccount.bech32Address
+      : (await ledgerSigner.getAccounts())[0]?.address;
+    assert(signerAddress, "Missing signer address");
     const signingClient = await SigningStargateClient.offline(offlineSigner);
 
     const signerData = {
@@ -71,7 +75,7 @@ const TransactionSigning = (props) => {
     };
 
     const { bodyBytes, signatures } = await signingClient.sign(
-      address,
+      signerAddress,
       props.tx.msgs,
       props.tx.fee,
       props.tx.memo,
@@ -91,7 +95,7 @@ const TransactionSigning = (props) => {
       const signature = {
         bodyBytes: bases64EncodedBodyBytes,
         signature: bases64EncodedSignature,
-        address: walletAccount.bech32Address,
+        address: signerAddress,
       };
       const _res = await axios.post(`/api/transaction/${props.transactionID}/signature`, signature);
       props.addSignature(signature);
