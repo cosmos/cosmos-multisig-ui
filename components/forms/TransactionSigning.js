@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toBase64 } from "@cosmjs/encoding";
-import { assertIsDeliverTxFailure, SigningStargateClient } from "@cosmjs/stargate";
+import { SigningStargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 
 import { useAppContext } from "../../context/AppContext";
@@ -38,7 +38,7 @@ const TransactionSigning = (props) => {
 
   const connectLedger = async () => {
     // Prepare ledger
-    const ledgerTransport = await TransportWebUSB.create(120_000, 120_000);
+    const ledgerTransport = await TransportWebUSB.create(120000, 120000);
 
     // Setup signer
     const offlineSigner = new LedgerSigner(ledgerTransport, {
@@ -61,10 +61,11 @@ const TransactionSigning = (props) => {
   const signTransaction = async () => {
     const offlineSigner =
       walletType === "keplr" ? window.getOfflineSignerOnlyAmino(state.chain.chainId) : ledgerSigner;
-    
-    const signerAddress = walletType === "keplr"
-      ? walletAccount.bech32Address
-      : (await ledgerSigner.getAccounts())[0]?.address;
+
+    const signerAddress =
+      walletType === "keplr"
+        ? walletAccount.bech32Address
+        : (await ledgerSigner.getAccounts())[0]?.address;
     assert(signerAddress, "Missing signer address");
     const signingClient = await SigningStargateClient.offline(offlineSigner);
 
