@@ -8,6 +8,7 @@ import Input from "../inputs/Input";
 import { useAppContext } from "../../context/AppContext";
 import Select from "../inputs/Select";
 import StackableContainer from "../layout/StackableContainer";
+import { assert } from "@cosmjs/utils";
 
 interface ChainOption {
   label: string;
@@ -87,7 +88,9 @@ const ChainSelect = () => {
         return { label: name, value: index };
       });
       setChainOptions(options);
-      setSelectValue(findExistingOption(options, state!.chain.registryName!));
+      assert(state.chain.registryName, "registryName missing");
+      setSelectValue(findExistingOption(options, state.chain.registryName));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error);
       setShowSettings(true);
@@ -165,10 +168,11 @@ const ChainSelect = () => {
         },
       });
       setShowSettings(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error);
       setShowSettings(true);
-      setChainError(error.message);
+      setChainError(error.toString());
     }
   };
 
@@ -198,7 +202,8 @@ const ChainSelect = () => {
     setChainError(null);
     try {
       // test client connection
-      const client = await StargateClient.connect(tempNodeAddress!);
+      assert(tempNodeAddress, "tempNodeAddress missing");
+      const client = await StargateClient.connect(tempNodeAddress);
       await client.getHeight();
 
       // change app state
@@ -217,9 +222,11 @@ const ChainSelect = () => {
           explorerLink: tempExplorerLink,
         },
       });
-      const selectedOption = findExistingOption(chainOptions, tempRegistryName!);
+      assert(tempRegistryName, "tempRegistryName missing");
+      const selectedOption = findExistingOption(chainOptions, tempRegistryName);
       setSelectValue(selectedOption);
       setShowSettings(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error);
       setShowSettings(true);
@@ -311,7 +318,7 @@ const ChainSelect = () => {
                   width="48%"
                   value={tempDisplayDenomExponent}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setDisplayDenomExponent(parseInt(e.target.value))
+                    setDisplayDenomExponent(parseInt(e.target.value, 10))
                   }
                   label="Denom Exponent"
                 />

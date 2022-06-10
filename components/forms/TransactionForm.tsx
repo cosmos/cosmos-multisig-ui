@@ -1,6 +1,7 @@
 import axios from "axios";
-import { calculateFee, Account } from "@cosmjs/stargate";
+import { calculateFee } from "@cosmjs/stargate";
 import { Decimal } from "@cosmjs/math";
+import { assert } from "@cosmjs/utils";
 import React, { useState } from "react";
 import { withRouter, NextRouter } from "next/router";
 
@@ -9,10 +10,11 @@ import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
 import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
+import { AccountWithPubkey } from "../../lib/multisigHelpers";
 
 interface Props {
   address: string | null;
-  accountOnChain: Account | null;
+  accountOnChain: AccountWithPubkey | null;
   router: NextRouter;
   closeForm: () => void;
 }
@@ -23,14 +25,14 @@ const TransactionForm = (props: Props) => {
   const [amount, setAmount] = useState("0");
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(200000);
-  const [gasPrice, _setGasPrice] = useState(state!.chain.gasPrice);
+  const [gasPrice, _setGasPrice] = useState(state.chain.gasPrice);
   const [_processing, setProcessing] = useState(false);
   const [addressError, setAddressError] = useState("");
 
   const createTransaction = (txToAddress: string, txAmount: string, txGas: number) => {
     const amountInAtomics = Decimal.fromUserInput(
       txAmount,
-      Number(state!.chain.displayDenomExponent),
+      Number(state.chain.displayDenomExponent),
     ).atomics;
     const msgSend = {
       fromAddress: props.address,
@@ -38,7 +40,7 @@ const TransactionForm = (props: Props) => {
       amount: [
         {
           amount: amountInAtomics,
-          denom: state!.chain.denom,
+          denom: state.chain.denom,
         },
       ],
     };
@@ -46,11 +48,14 @@ const TransactionForm = (props: Props) => {
       typeUrl: "/cosmos.bank.v1beta1.MsgSend",
       value: msgSend,
     };
-    const fee = calculateFee(Number(txGas), gasPrice!);
+    assert(gasPrice, "gasPrice missing");
+    const fee = calculateFee(Number(txGas), gasPrice);
+    const { accountOnChain } = props;
+    assert(accountOnChain, "accountOnChain missing");
     return {
-      accountNumber: props.accountOnChain!.accountNumber,
-      sequence: props.accountOnChain!.sequence,
-      chainId: state!.chain.chainId,
+      accountNumber: accountOnChain.accountNumber,
+      sequence: accountOnChain.sequence,
+      chainId: state.chain.chainId,
       msgs: [msg],
       fee: fee,
       memo: memo,
@@ -58,9 +63,10 @@ const TransactionForm = (props: Props) => {
   };
 
   const handleCreate = async () => {
-    const toAddressError = checkAddress(toAddress, state!.chain.addressPrefix!);
+    assert(state.chain.addressPrefix, "addressPrefix missing");
+    const toAddressError = checkAddress(toAddress, state.chain.addressPrefix);
     if (toAddressError) {
-      setAddressError(`Invalid address for network ${state!.chain.chainId}: ${toAddressError}`);
+      setAddressError(`Invalid address for network ${state.chain.chainId}: ${toAddressError}`);
       return;
     }
 
@@ -72,6 +78,8 @@ const TransactionForm = (props: Props) => {
     const { transactionID } = res.data;
     props.router.push(`${props.address}/transaction/${transactionID}`);
   };
+
+  assert(state.chain.addressPrefix, "addressPrefix missing");
 
   return (
     <StackableContainer lessPadding>
@@ -86,12 +94,12 @@ const TransactionForm = (props: Props) => {
           value={toAddress}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setToAddress(e.target.value)}
           error={addressError}
-          placeholder={`E.g. ${exampleAddress(0, state!.chain.addressPrefix!)}`}
+          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">
         <Input
-          label={`Amount (${state!.chain.displayDenom})`}
+          label={`Amount (${state.chain.displayDenom})`}
           name="amount"
           type="number"
           value={amount}
@@ -104,7 +112,9 @@ const TransactionForm = (props: Props) => {
           name="gas"
           type="number"
           value={gas}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGas(parseInt(e.target.value))}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setGas(parseInt(e.target.value, 10))
+          }
         />
       </div>
       <div className="form-item">

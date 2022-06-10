@@ -4,9 +4,10 @@ import ChainSelect from "../components/chainSelect/ChainSelect";
 import type { AppProps } from "next/app";
 
 function MultisigApp({ Component, pageProps }: AppProps) {
+  const showChainSelect = process.env.NEXT_PUBLIC_MULTICHAIN?.toLowerCase() === "true";
   return (
     <AppWrapper>
-      {process.env.NEXT_PUBLIC_MULTICHAIN!.toLowerCase() === "true" && <ChainSelect />}
+      {showChainSelect && <ChainSelect />}
       <Component {...pageProps} />
     </AppWrapper>
   );

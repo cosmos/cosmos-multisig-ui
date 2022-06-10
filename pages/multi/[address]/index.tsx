@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { pubkeyToAddress, Pubkey } from "@cosmjs/amino";
-import { Account } from "@cosmjs/stargate";
 import { StargateClient } from "@cosmjs/stargate";
+import { assert } from "@cosmjs/utils";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { useRouter } from "next/router";
 
 import { useAppContext } from "../../../context/AppContext";
 import Button from "../../../components/inputs/Button";
-import { getMultisigAccount } from "../../../lib/multisigHelpers";
+import { AccountWithPubkey, getMultisigAccount } from "../../../lib/multisigHelpers";
 import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
@@ -25,14 +25,12 @@ function participantAddressesFromMultisig(multisigPubkey: Pubkey, addressPrefix:
   );
 }
 
-interface Props {}
-
-const multipage = (_props: Props) => {
+const multipage = () => {
   const { state } = useAppContext();
   const [showTxForm, setShowTxForm] = useState(false);
   const [holdings, setHoldings] = useState<Coin | null>(null);
   const [multisigAddress, setMultisigAddress] = useState("");
-  const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
+  const [accountOnChain, setAccountOnChain] = useState<AccountWithPubkey | null>(null);
   const [accountError, setAccountError] = useState(null);
   const router = useRouter();
 
@@ -47,16 +45,21 @@ const multipage = (_props: Props) => {
   const fetchMultisig = async (address: string) => {
     setAccountError(null);
     try {
-      const client = await StargateClient.connect(state!.chain.nodeAddress!);
-      const tempHoldings = await client.getBalance(address, state!.chain.denom!);
+      assert(state.chain.nodeAddress, "Node address missing");
+      const client = await StargateClient.connect(state.chain.nodeAddress);
+      assert(state.chain.denom, "denom missing");
+      const tempHoldings = await client.getBalance(address, state.chain.denom);
       const tempAccountOnChain = await getMultisigAccount(address, client);
       setHoldings(tempHoldings);
       setAccountOnChain(tempAccountOnChain);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setAccountError(error.message);
       console.log("Account error:", error);
     }
   };
+
+  assert(state.chain.addressPrefix, "address prefix missing");
 
   return (
     <Page>
@@ -71,13 +74,13 @@ const multipage = (_props: Props) => {
             )}
           </h1>
         </StackableContainer>
-        {accountOnChain?.pubkey && (
+        {accountOnChain && (
           <MultisigMembers
             members={participantAddressesFromMultisig(
-              accountOnChain?.pubkey,
-              state!.chain.addressPrefix!,
+              accountOnChain.pubkey,
+              state.chain.addressPrefix,
             )}
-            threshold={accountOnChain?.pubkey.value.threshold}
+            threshold={accountOnChain.pubkey.value.threshold}
           />
         )}
         {accountError && (

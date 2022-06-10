@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createMultisigThresholdPubkey, pubkeyToAddress } from "@cosmjs/amino";
+import { createMultisigThresholdPubkey, Pubkey, pubkeyToAddress } from "@cosmjs/amino";
 import { Account } from "@cosmjs/stargate";
 import { StargateClient } from "@cosmjs/stargate";
 
@@ -40,6 +40,9 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   return res.data.address;
 };
 
+/** Like Account but with non-optional pubkey */
+export type AccountWithPubkey = Account & { readonly pubkey: Pubkey };
+
 /**
  * This gets a multisigs account (pubkey, sequence, account number, etc) from
  * a node and/or the api if the multisig was made on this app
@@ -51,33 +54,32 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
 const getMultisigAccount = async (
   address: string,
   client: StargateClient,
-): Promise<Account | null> => {
+): Promise<AccountWithPubkey | null> => {
   // we need the multisig pubkeys to create transactions, if the multisig
   // is new, and has never submitted a transaction its pubkeys will not be
   // available from a node. If the multisig was created with this instance
   // of this tool its pubkey will be available in the fauna datastore
-  let accountOnChain: Mutable<Account> | null = await client.getAccount(address);
+  const accountOnChain = await client.getAccount(address);
   const chainId = await client.getChainId();
+  if (!accountOnChain) return null;
 
-  if (!accountOnChain || !accountOnChain.pubkey) {
+  let pubkey: Pubkey;
+  if (accountOnChain.pubkey) {
+    pubkey = accountOnChain.pubkey;
+  } else {
     console.log("No pubkey on chain for: ", address);
     const res = await axios.get(`/api/chain/${chainId}/multisig/${address}`);
 
     if (res.status !== 200) {
       throw new Error("Multisig has no pubkey on node, and was not created using this tool.");
     }
-    const pubkey = JSON.parse(res.data.pubkeyJSON);
-
-    if (!accountOnChain) {
-      accountOnChain = null;
-    }
-    accountOnChain!.pubkey = pubkey;
+    pubkey = JSON.parse(res.data.pubkeyJSON);
   }
-  return accountOnChain;
-};
 
-type Mutable<Type> = {
-  -readonly [Key in keyof Type]: Type[Key];
+  return {
+    ...accountOnChain,
+    pubkey: pubkey,
+  };
 };
 
 export { createMultisigFromCompressedSecp256k1Pubkeys, getMultisigAccount };

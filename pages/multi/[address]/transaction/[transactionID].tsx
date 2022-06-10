@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { GetServerSideProps } from "next";
-import { StargateClient, makeMultisignedTx, Account } from "@cosmjs/stargate";
+import { StargateClient, makeMultisignedTx } from "@cosmjs/stargate";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { useState, useEffect } from "react";
@@ -13,13 +13,14 @@ import { DbSignature, DbTransaction } from "../../../../types";
 import { useAppContext } from "../../../../context/AppContext";
 import Button from "../../../../components/inputs/Button";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
-import { getMultisigAccount } from "../../../../lib/multisigHelpers";
+import { AccountWithPubkey, getMultisigAccount } from "../../../../lib/multisigHelpers";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import ThresholdInfo from "../../../../components/dataViews/ThresholdInfo";
 import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
 import TransactionSigning from "../../../../components/forms/TransactionSigning";
 import CompletedTransaction from "../../../../components/dataViews/CompletedTransaction";
+import { assert } from "@cosmjs/utils";
 
 interface Props {
   props: {
@@ -32,7 +33,8 @@ interface Props {
 
 export const getServerSideProps: GetServerSideProps = async (context): Promise<Props> => {
   // get transaction info
-  const transactionID = context.params!.transactionID!.toString();
+  const transactionID = context.params?.transactionID?.toString();
+  assert(transactionID, "Transaction ID missing");
   let transactionJSON;
   let txHash;
   let signatures;
@@ -43,7 +45,7 @@ export const getServerSideProps: GetServerSideProps = async (context): Promise<P
     txHash = getRes.data.data.findTransactionByID.txHash;
     transactionJSON = getRes.data.data.findTransactionByID.dataJSON;
     signatures = getRes.data.data.findTransactionByID.signatures.data || [];
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.log(err);
   }
   return {
@@ -75,7 +77,7 @@ const transactionPage = ({
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [transactionHash, setTransactionHash] = useState(txHash);
   const [_holdings, setHoldings] = useState<Coin | null>(null);
-  const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
+  const [accountOnChain, setAccountOnChain] = useState<AccountWithPubkey | null>(null);
   const [accountError, setAccountError] = useState(null);
   const txInfo: DbTransaction = (transactionJSON && JSON.parse(transactionJSON)) || null;
   const router = useRouter();
@@ -93,13 +95,16 @@ const transactionPage = ({
 
   const fetchMultisig = async (address: string) => {
     try {
-      const client = await StargateClient.connect(state!.chain.nodeAddress!);
-      const tempHoldings = await client.getBalance(address, state!.chain.denom!);
+      assert(state.chain.nodeAddress, "Node address missing");
+      const client = await StargateClient.connect(state.chain.nodeAddress);
+      assert(state.chain.denom, "denom missing");
+      const tempHoldings = await client.getBalance(address, state.chain.denom);
       const tempAccountOnChain = await getMultisigAccount(address, client);
       setHoldings(tempHoldings);
       setAccountOnChain(tempAccountOnChain);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      setAccountError(error.message);
+      setAccountError(error.toString());
       console.log("Account error:", error);
     }
   };
@@ -109,15 +114,18 @@ const transactionPage = ({
       setIsBroadcasting(true);
       setBroadcastError("");
 
+      if (!accountOnChain) throw new Error("Account on chain value missing.");
+
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTx = makeMultisignedTx(
-        accountOnChain!.pubkey as MultisigThresholdPubkey,
+        accountOnChain.pubkey as MultisigThresholdPubkey,
         txInfo.sequence,
         txInfo.fee,
         bodyBytes,
         new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
       );
-      const broadcaster = await StargateClient.connect(state!.chain.nodeAddress!);
+      assert(state.chain.nodeAddress, "Node address missing");
+      const broadcaster = await StargateClient.connect(state.chain.nodeAddress);
       const result = await broadcaster.broadcastTx(
         Uint8Array.from(TxRaw.encode(signedTx).finish()),
       );
@@ -126,9 +134,10 @@ const transactionPage = ({
         txHash: result.transactionHash,
       });
       setTransactionHash(result.transactionHash);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setIsBroadcasting(false);
-      setBroadcastError(e.message);
+      setBroadcastError(e.toString());
     }
   };
 
@@ -151,7 +160,7 @@ const transactionPage = ({
           <ThresholdInfo signatures={currentSignatures} account={accountOnChain} />
         )}
         {accountOnChain &&
-          currentSignatures.length >= parseInt(accountOnChain!.pubkey!.value.threshold, 10) &&
+          currentSignatures.length >= parseInt(accountOnChain.pubkey.value.threshold, 10) &&
           !transactionHash && (
             <>
               <Button
