@@ -17,14 +17,15 @@ jobs:
           node-version: '16'
       - run: npm install
       - run: npm run lint
-  # Fix and re-activate after https://github.com/cosmos/cosmos-multisig-ui/pull/61
-  # build:
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: '16'
-  #     - run: npm install
-  #     - run: npm run build
+
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: npm install
+      - run: cp .env.sample .env.local
+      - run: npm run build
