@@ -2,7 +2,6 @@ import axios from "axios";
 import React from "react";
 import { GetServerSideProps } from "next";
 import { StargateClient, makeMultisignedTx } from "@cosmjs/stargate";
-import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
@@ -76,7 +75,6 @@ const transactionPage = ({
   const [broadcastError, setBroadcastError] = useState("");
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [transactionHash, setTransactionHash] = useState(txHash);
-  const [_holdings, setHoldings] = useState<Coin | null>(null);
   const [accountOnChain, setAccountOnChain] = useState<AccountWithPubkey | null>(null);
   const [accountError, setAccountError] = useState(null);
   const txInfo: DbTransaction = (transactionJSON && JSON.parse(transactionJSON)) || null;
@@ -97,10 +95,7 @@ const transactionPage = ({
     try {
       assert(state.chain.nodeAddress, "Node address missing");
       const client = await StargateClient.connect(state.chain.nodeAddress);
-      assert(state.chain.denom, "denom missing");
-      const tempHoldings = await client.getBalance(address, state.chain.denom);
       const tempAccountOnChain = await getMultisigAccount(address, client);
-      setHoldings(tempHoldings);
       setAccountOnChain(tempAccountOnChain);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
