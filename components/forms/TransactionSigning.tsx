@@ -26,7 +26,7 @@ const TransactionSigning = (props: Props) => {
   const [walletAccount, setWalletAccount] = useState<WalletAccount>();
   const [sigError, setSigError] = useState("");
   const [hasSigned, setHasSigned] = useState(false);
-  const [walletType, setWalletType] = useState("");
+  const [walletType, setWalletType] = useState<"Keplr" | "Ledger">();
   const [ledgerSigner, setLedgerSigner] = useState({});
 
   const connectKeplr = async () => {
@@ -40,7 +40,7 @@ const TransactionSigning = (props: Props) => {
       );
       setWalletAccount(tempWalletAccount);
       setHasSigned(tempHasSigned);
-      setWalletType("keplr");
+      setWalletType("Keplr");
     } catch (e) {
       console.log("enable err: ", e);
     }
@@ -72,14 +72,14 @@ const TransactionSigning = (props: Props) => {
     setWalletAccount(tempWalletAccount);
     setHasSigned(tempHasSigned);
     setLedgerSigner(offlineSigner);
-    setWalletType("ledger");
+    setWalletType("Ledger");
   };
 
   const signTransaction = async () => {
     assert(state.chain.chainId, "chainId missing");
 
     const offlineSigner =
-      walletType === "keplr" ? window.getOfflineSignerOnlyAmino(state.chain.chainId) : ledgerSigner;
+      walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(state.chain.chainId) : ledgerSigner;
 
     const signerAddress = walletAccount?.bech32Address;
     assert(signerAddress, "Missing signer address");
@@ -135,7 +135,13 @@ const TransactionSigning = (props: Props) => {
         <>
           <h2>Sign this transaction</h2>
           {walletAccount ? (
-            <Button label="Sign transaction" onClick={signTransaction} />
+            <>
+              <p>
+                Connected signer {walletAccount.bech32Address} (
+                {walletType ?? "Unknown wallet type"}).
+              </p>
+              <Button label="Sign transaction" onClick={signTransaction} />
+            </>
           ) : (
             <>
               <Button label="Connect Keplr" onClick={connectKeplr} />
