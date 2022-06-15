@@ -134,20 +134,22 @@ const TransactionSigning = (props: Props) => {
       ) : (
         <>
           <h2>Sign this transaction</h2>
-          {walletAccount ? (
-            <>
-              <p>
-                Connected signer {walletAccount.bech32Address} (
-                {walletType ?? "Unknown wallet type"}).
-              </p>
-              <Button label="Sign transaction" onClick={signTransaction} />
-            </>
-          ) : (
-            <>
-              <Button label="Connect Keplr" onClick={connectKeplr} />
-              <Button label="Connect Ledger" onClick={connectLedger} />
-            </>
-          )}
+          <StackableContainer lessPadding lessMargin lessRadius>
+            {walletAccount ? (
+              <>
+                <p>
+                  Connected signer {walletAccount.bech32Address} (
+                  {walletType ?? "Unknown wallet type"}).
+                </p>
+                <Button label="Sign transaction" onClick={signTransaction} />
+              </>
+            ) : (
+              <>
+                <Button label="Connect Keplr" onClick={connectKeplr} />
+                <Button label="Connect Ledger (WebUSB)" onClick={connectLedger} />
+              </>
+            )}
+          </StackableContainer>
         </>
       )}
       {sigError && (
