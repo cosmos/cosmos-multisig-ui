@@ -114,8 +114,7 @@ const transactionPage = ({
       setIsBroadcasting(true);
       setBroadcastError("");
 
-      if (!accountOnChain) throw new Error("Account on chain value missing.");
-
+      assert(accountOnChain, "Account on chain value missing.");
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTx = makeMultisignedTx(
         accountOnChain.pubkey as MultisigThresholdPubkey,
