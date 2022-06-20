@@ -1,8 +1,6 @@
 import React from "react";
 
-interface Props {}
-
-const DevHelper = (_props: Props) => (
+const DevHelper = () => (
   <div className="dev-helper">
     <h3>Dev Helper</h3>
     <h4>Pages</h4>

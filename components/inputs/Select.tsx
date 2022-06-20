@@ -1,6 +1,7 @@
 import React, { CSSProperties } from "react";
 import Select, { ControlProps } from "react-select";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const StyledSelect = (props: any) => {
   const customStyles = {
     control: (provided: CSSProperties, state: ControlProps) => ({
@@ -16,6 +17,7 @@ const StyledSelect = (props: any) => {
         borderColor: "rgba(255, 255, 255, 1)",
       },
     }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     option: (provided: CSSProperties, state: any) => ({
       ...provided,
       background: state.isSelected ? "rgba(255, 255, 255, 0.2)" : "none",

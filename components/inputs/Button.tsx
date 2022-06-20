@@ -5,6 +5,7 @@ interface Props {
   disabled?: boolean;
   href?: string;
   label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick?: () => any;
 }
 const Button = (props: Props) => (

@@ -1,4 +1,4 @@
-import { Bech32, fromBase64, toBase64 } from "@cosmjs/encoding";
+import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
 import { sha512 } from "@cosmjs/crypto";
 import { Decimal } from "@cosmjs/math";
 import { Coin } from "@cosmjs/amino";
@@ -73,11 +73,11 @@ const printableCoins = (coins: Coin[], chainInfo: ChainInfo) => {
  */
 const exampleAddress = (index: number, chainAddressPrefix: string) => {
   const usedIndex = index || 0;
-  let data = Bech32.decode("cosmos1vqpjljwsynsn58dugz0w8ut7kun7t8ls2qkmsq").data;
+  let data = fromBech32("cosmos1vqpjljwsynsn58dugz0w8ut7kun7t8ls2qkmsq").data;
   for (let i = 0; i < usedIndex; ++i) {
     data = sha512(data).slice(0, data.length); // hash one time and trim to original length
   }
-  return Bech32.encode(chainAddressPrefix, data);
+  return toBech32(chainAddressPrefix, data);
 };
 
 /**
@@ -109,7 +109,8 @@ const checkAddress = (input: string, chainAddressPrefix: string) => {
   let data;
   let prefix;
   try {
-    ({ data, prefix } = Bech32.decode(input));
+    ({ data, prefix } = fromBech32(input));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return error.toString();
   }

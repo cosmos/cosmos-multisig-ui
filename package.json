@@ -4,8 +4,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --max-warnings 0 \"./**/*.js\"",
-    "lint:fix": "eslint --max-warnings 0 \"./**/*.js\" --fix"
+    "lint": "eslint --max-warnings 0 \"./**/*.{js,jsx,ts,tsx}\"",
+    "lint:fix": "eslint --max-warnings 0 \"./**/*.{js,jsx,ts,tsx}\" --fix"
   },
   "dependencies": {
     "@cosmjs/amino": "^0.28.4",
@@ -15,6 +15,7 @@
     "@cosmjs/math": "^0.28.4",
     "@cosmjs/proto-signing": "^0.28.4",
     "@cosmjs/stargate": "^0.28.4",
+    "@cosmjs/utils": "^0.28.4",
     "@keplr-wallet/types": "^0.9.0-alpha.4",
     "@ledgerhq/hw-transport-webusb": "^6.24.1",
     "axios": "^0.21.1",
@@ -31,6 +32,8 @@
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.5",
     "@types/react-select": "^5.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.27.1",
+    "@typescript-eslint/parser": "^5.27.1",
     "cosmjs-types": "^0.4.1",
     "eslint": "^8.6.0",
     "eslint-config-prettier": "^8.3.0",

@@ -11,6 +11,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         console.log("success", saveRes.data);
         res.status(200).send(saveRes.data.data.createMultisig);
         return;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.log(err);
         res.status(400).send(err.message);

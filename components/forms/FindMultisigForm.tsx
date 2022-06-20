@@ -6,6 +6,7 @@ import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 import Input from "../inputs/Input";
 import { exampleAddress } from "../../lib/displayHelpers";
+import { assert } from "@cosmjs/utils";
 
 interface Props {
   router: NextRouter;
@@ -22,6 +23,8 @@ const FindMultisigForm = (props: Props) => {
     props.router.push(`/multi/${address}`);
   };
 
+  assert(state.chain.addressPrefix, "addressPrefix missing");
+
   return (
     <StackableContainer>
       <StackableContainer lessPadding>
@@ -36,7 +39,7 @@ const FindMultisigForm = (props: Props) => {
           value={address}
           label="Multisig Address"
           name="address"
-          placeholder={`E.g. ${exampleAddress(0, state!.chain.addressPrefix!)}`}
+          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
         />
         <Button label="Use this Multisig" onClick={handleSearch} primary />
       </StackableContainer>

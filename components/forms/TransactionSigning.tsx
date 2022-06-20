@@ -31,8 +31,9 @@ const TransactionSigning = (props: Props) => {
 
   const connectKeplr = async () => {
     try {
-      await window.keplr.enable(state!.chain.chainId!);
-      const tempWalletAccount = await window.keplr.getKey(state!.chain.chainId!);
+      assert(state.chain.chainId, "chainId missing");
+      await window.keplr.enable(state.chain.chainId);
+      const tempWalletAccount = await window.keplr.getKey(state.chain.chainId);
       console.log(tempWalletAccount);
       const tempHasSigned = props.signatures.some(
         (sig) => sig.address === tempWalletAccount.bech32Address,
@@ -46,13 +47,15 @@ const TransactionSigning = (props: Props) => {
   };
 
   const connectLedger = async () => {
+    assert(state.chain.addressPrefix, "addressPrefix missing");
+
     // Prepare ledger
     const ledgerTransport = await TransportWebUSB.create(120000, 120000);
 
     // Setup signer
     const offlineSigner = new LedgerSigner(ledgerTransport, {
       hdPaths: [makeCosmoshubPath(0)],
-      prefix: state!.chain.addressPrefix,
+      prefix: state.chain.addressPrefix,
     });
     console.log(offlineSigner);
     const accounts = await offlineSigner.getAccounts();
@@ -73,10 +76,10 @@ const TransactionSigning = (props: Props) => {
   };
 
   const signTransaction = async () => {
+    assert(state.chain.chainId, "chainId missing");
+
     const offlineSigner =
-      walletType === "keplr"
-        ? window.getOfflineSignerOnlyAmino(state!.chain.chainId)
-        : ledgerSigner;
+      walletType === "keplr" ? window.getOfflineSignerOnlyAmino(state.chain.chainId) : ledgerSigner;
 
     const signerAddress = walletAccount?.bech32Address;
     assert(signerAddress, "Missing signer address");
@@ -85,7 +88,7 @@ const TransactionSigning = (props: Props) => {
     const signerData = {
       accountNumber: props.tx.accountNumber,
       sequence: props.tx.sequence,
-      chainId: state!.chain.chainId as string,
+      chainId: state.chain.chainId,
     };
 
     const { bodyBytes, signatures } = await signingClient.sign(
