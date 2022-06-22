@@ -6,7 +6,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     case "GET":
       try {
         const multisigAddress = req.query.multisigAddress.toString();
-        const chainId = req.query.multisigAddress.toString();
+        const chainId = req.query.chainId.toString();
         console.log("Function `getMultisig` invoked", multisigAddress, chainId);
         const getRes = await getMultisig(multisigAddress, chainId);
         if (!getRes.data.data.getMultisig) {
