@@ -6,7 +6,7 @@ import StackableContainer from "../layout/StackableContainer";
 interface Props {
   /** Addresses of the multisig members */
   members: string[];
-  threshold: number;
+  threshold: string;
 }
 
 const MultisigMembers = (props: Props) => (

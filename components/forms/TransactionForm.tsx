@@ -1,5 +1,5 @@
 import axios from "axios";
-import { calculateFee } from "@cosmjs/stargate";
+import { Account, calculateFee } from "@cosmjs/stargate";
 import { Decimal } from "@cosmjs/math";
 import { assert } from "@cosmjs/utils";
 import React, { useState } from "react";
@@ -10,11 +10,10 @@ import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
 import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
-import { AccountWithPubkey } from "../../lib/multisigHelpers";
 
 interface Props {
   address: string | null;
-  accountOnChain: AccountWithPubkey | null;
+  accountOnChain: Account | null;
   router: NextRouter;
   closeForm: () => void;
 }

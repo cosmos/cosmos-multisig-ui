@@ -1,14 +1,15 @@
 import React from "react";
+import { MultisigThresholdPubkey } from "@cosmjs/amino";
+
 import { DbSignature } from "../../types";
 import StackableContainer from "../layout/StackableContainer";
-import { AccountWithPubkey } from "../../lib/multisigHelpers";
 
 interface Props {
   signatures: DbSignature[];
-  account: AccountWithPubkey;
+  pubkey: MultisigThresholdPubkey;
 }
 
-const ThresholdInfo = ({ signatures, account }: Props) => (
+const ThresholdInfo = ({ signatures, pubkey }: Props) => (
   <StackableContainer lessPadding lessMargin>
     <h2>Signatures</h2>
     <StackableContainer lessPadding lessMargin lessRadius>
@@ -21,7 +22,7 @@ const ThresholdInfo = ({ signatures, account }: Props) => (
       <div className="threshold">
         <div className="current">{signatures.length}</div>
         <div className="label divider">of</div>
-        <div className="required">{account.pubkey.value.threshold}</div>
+        <div className="required">{pubkey.value.threshold}</div>
         <div className="label">signatures complete</div>
       </div>
     </StackableContainer>

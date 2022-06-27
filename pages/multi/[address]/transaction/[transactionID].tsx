@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { GetServerSideProps } from "next";
-import { StargateClient, makeMultisignedTx } from "@cosmjs/stargate";
+import { StargateClient, makeMultisignedTx, Account } from "@cosmjs/stargate";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
@@ -12,7 +12,7 @@ import { DbSignature, DbTransaction } from "../../../../types";
 import { useAppContext } from "../../../../context/AppContext";
 import Button from "../../../../components/inputs/Button";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
-import { AccountWithPubkey, getMultisigAccount } from "../../../../lib/multisigHelpers";
+import { getMultisigAccount } from "../../../../lib/multisigHelpers";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import ThresholdInfo from "../../../../components/dataViews/ThresholdInfo";
@@ -75,7 +75,8 @@ const transactionPage = ({
   const [broadcastError, setBroadcastError] = useState("");
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [transactionHash, setTransactionHash] = useState(txHash);
-  const [accountOnChain, setAccountOnChain] = useState<AccountWithPubkey | null>(null);
+  const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
+  const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
   const txInfo: DbTransaction = (transactionJSON && JSON.parse(transactionJSON)) || null;
   const router = useRouter();
@@ -95,8 +96,9 @@ const transactionPage = ({
     try {
       assert(state.chain.nodeAddress, "Node address missing");
       const client = await StargateClient.connect(state.chain.nodeAddress);
-      const tempAccountOnChain = await getMultisigAccount(address, client);
-      setAccountOnChain(tempAccountOnChain);
+      const result = await getMultisigAccount(address, client);
+      setPubkey(result[0]);
+      setAccountOnChain(result[1]);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setAccountError(error.toString());
@@ -150,11 +152,11 @@ const transactionPage = ({
         )}
         {transactionHash && <CompletedTransaction transactionHash={transactionHash} />}
         <TransactionInfo tx={txInfo} />
-        {!transactionHash && accountOnChain && (
-          <ThresholdInfo signatures={currentSignatures} account={accountOnChain} />
+        {!transactionHash && pubkey && (
+          <ThresholdInfo signatures={currentSignatures} pubkey={pubkey} />
         )}
-        {accountOnChain &&
-          currentSignatures.length >= parseInt(accountOnChain.pubkey.value.threshold, 10) &&
+        {pubkey &&
+          currentSignatures.length >= parseInt(pubkey.value.threshold, 10) &&
           !transactionHash && (
             <>
               <Button
