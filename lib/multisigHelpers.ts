@@ -53,10 +53,6 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
  * The public key should always be available, either on chain or in the app's database.
  * The account is only available when the there was any on-chain activity such as
  * receipt of tokens.
- *
- * @param {string} address The multisig address
- * @param client A connected stargate cosmoshub client
- * @return {object} The multisig account.
  */
 const getMultisigAccount = async (
   address: string,
