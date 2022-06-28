@@ -1,7 +1,13 @@
 import axios from "axios";
-import { createMultisigThresholdPubkey, Pubkey, pubkeyToAddress } from "@cosmjs/amino";
+import {
+  createMultisigThresholdPubkey,
+  isMultisigThresholdPubkey,
+  MultisigThresholdPubkey,
+  pubkeyToAddress,
+} from "@cosmjs/amino";
 import { Account } from "@cosmjs/stargate";
 import { StargateClient } from "@cosmjs/stargate";
+import { assert } from "@cosmjs/utils";
 
 /**
  * Turns array of compressed Secp256k1 pubkeys
@@ -40,31 +46,31 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   return res.data.address;
 };
 
-/** Like Account but with non-optional pubkey */
-export type AccountWithPubkey = Account & { readonly pubkey: Pubkey };
-
 /**
  * This gets a multisigs account (pubkey, sequence, account number, etc) from
- * a node and/or the api if the multisig was made on this app
+ * a node and/or the api if the multisig was made on this app.
  *
- * @param {string} address The multisig address
- * @param client A connected stargate cosmoshub client
- * @return {object} The multisig account.
+ * The public key should always be available, either on chain or in the app's database.
+ * The account is only available when the there was any on-chain activity such as
+ * receipt of tokens.
  */
 const getMultisigAccount = async (
   address: string,
   client: StargateClient,
-): Promise<AccountWithPubkey | null> => {
+): Promise<[MultisigThresholdPubkey, Account | null]> => {
   // we need the multisig pubkeys to create transactions, if the multisig
   // is new, and has never submitted a transaction its pubkeys will not be
   // available from a node. If the multisig was created with this instance
   // of this tool its pubkey will be available in the fauna datastore
   const accountOnChain = await client.getAccount(address);
   const chainId = await client.getChainId();
-  if (!accountOnChain) return null;
 
-  let pubkey: Pubkey;
-  if (accountOnChain.pubkey) {
+  let pubkey: MultisigThresholdPubkey;
+  if (accountOnChain?.pubkey) {
+    assert(
+      isMultisigThresholdPubkey(accountOnChain.pubkey),
+      "Pubkey on chain is not of type MultisigThreshold",
+    );
     pubkey = accountOnChain.pubkey;
   } else {
     console.log("No pubkey on chain for: ", address);
@@ -76,10 +82,7 @@ const getMultisigAccount = async (
     pubkey = JSON.parse(res.data.pubkeyJSON);
   }
 
-  return {
-    ...accountOnChain,
-    pubkey: pubkey,
-  };
+  return [pubkey, accountOnChain];
 };
 
 export { createMultisigFromCompressedSecp256k1Pubkeys, getMultisigAccount };

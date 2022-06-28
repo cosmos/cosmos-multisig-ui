@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { pubkeyToAddress, Pubkey } from "@cosmjs/amino";
-import { StargateClient } from "@cosmjs/stargate";
+import { pubkeyToAddress, Pubkey, MultisigThresholdPubkey } from "@cosmjs/amino";
+import { Account, StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { useRouter } from "next/router";
 
 import { useAppContext } from "../../../context/AppContext";
 import Button from "../../../components/inputs/Button";
-import { AccountWithPubkey, getMultisigAccount } from "../../../lib/multisigHelpers";
+import { getMultisigAccount } from "../../../lib/multisigHelpers";
 import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
@@ -30,7 +30,8 @@ const multipage = () => {
   const [showTxForm, setShowTxForm] = useState(false);
   const [holdings, setHoldings] = useState<Coin | null>(null);
   const [multisigAddress, setMultisigAddress] = useState("");
-  const [accountOnChain, setAccountOnChain] = useState<AccountWithPubkey | null>(null);
+  const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
+  const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
   const router = useRouter();
 
@@ -49,9 +50,10 @@ const multipage = () => {
       const client = await StargateClient.connect(state.chain.nodeAddress);
       assert(state.chain.denom, "denom missing");
       const tempHoldings = await client.getBalance(address, state.chain.denom);
-      const tempAccountOnChain = await getMultisigAccount(address, client);
       setHoldings(tempHoldings);
-      setAccountOnChain(tempAccountOnChain);
+      const result = await getMultisigAccount(address, client);
+      setPubkey(result[0]);
+      setAccountOnChain(result[1]);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setAccountError(error.message);
@@ -74,13 +76,10 @@ const multipage = () => {
             )}
           </h1>
         </StackableContainer>
-        {accountOnChain && (
+        {pubkey && (
           <MultisigMembers
-            members={participantAddressesFromMultisig(
-              accountOnChain.pubkey,
-              state.chain.addressPrefix,
-            )}
-            threshold={accountOnChain.pubkey.value.threshold}
+            members={participantAddressesFromMultisig(pubkey, state.chain.addressPrefix)}
+            threshold={pubkey.value.threshold}
           />
         )}
         {accountError && (
