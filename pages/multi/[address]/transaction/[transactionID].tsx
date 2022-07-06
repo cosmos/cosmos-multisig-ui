@@ -112,9 +112,10 @@ const transactionPage = ({
       setBroadcastError("");
 
       assert(accountOnChain, "Account on chain value missing.");
+      assert(pubkey, "Pubkey not found on chain or in database");
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTx = makeMultisignedTx(
-        accountOnChain.pubkey as MultisigThresholdPubkey,
+        pubkey as MultisigThresholdPubkey,
         txInfo.sequence,
         txInfo.fee,
         bodyBytes,
