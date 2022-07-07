@@ -115,7 +115,7 @@ const transactionPage = ({
       assert(pubkey, "Pubkey not found on chain or in database");
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTx = makeMultisignedTx(
-        pubkey as MultisigThresholdPubkey,
+        pubkey,
         txInfo.sequence,
         txInfo.fee,
         bodyBytes,
