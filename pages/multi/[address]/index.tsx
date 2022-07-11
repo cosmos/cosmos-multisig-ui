@@ -14,6 +14,7 @@ import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import TransactionForm from "../../../components/forms/TransactionForm";
+import DelegationForm from "../../../components/forms/DelegationForm";
 
 function participantPubkeysFromMultisig(multisigPubkey: Pubkey) {
   return multisigPubkey.value.pubkeys;
@@ -28,6 +29,7 @@ function participantAddressesFromMultisig(multisigPubkey: Pubkey, addressPrefix:
 const multipage = () => {
   const { state } = useAppContext();
   const [showTxForm, setShowTxForm] = useState(false);
+  const [showDelegateTxForm, setShowDelegateTxForm] = useState(false);
   const [holdings, setHoldings] = useState<Coin | null>(null);
   const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
@@ -97,7 +99,7 @@ const multipage = () => {
             </div>
           </StackableContainer>
         )}
-        {showTxForm ? (
+        {showTxForm && (
           <TransactionForm
             address={multisigAddress}
             accountOnChain={accountOnChain}
@@ -105,7 +107,17 @@ const multipage = () => {
               setShowTxForm(false);
             }}
           />
-        ) : (
+        )}
+        {showDelegateTxForm && (
+          <DelegationForm
+            address={multisigAddress}
+            accountOnChain={accountOnChain}
+            closeForm={() => {
+              setShowDelegateTxForm(false);
+            }}
+          />
+        )}
+        {!showTxForm && !showDelegateTxForm && (
           <div className="interfaces">
             <div className="col-1">
               <MultisigHoldings holdings={holdings} />
@@ -121,6 +133,12 @@ const multipage = () => {
                   label="Create Transaction"
                   onClick={() => {
                     setShowTxForm(true);
+                  }}
+                />
+                <Button
+                  label="Create Delegation"
+                  onClick={() => {
+                    setShowDelegateTxForm(true);
                   }}
                 />
               </StackableContainer>

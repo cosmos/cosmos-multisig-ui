@@ -5,7 +5,7 @@ import { DbTransaction } from "../../types";
 import { useAppContext } from "../../context/AppContext";
 import HashView from "./HashView";
 import StackableContainer from "../layout/StackableContainer";
-import { printableCoins } from "../../lib/displayHelpers";
+import { printableCoins, printableCoin } from "../../lib/displayHelpers";
 
 interface Props {
   tx: DbTransaction;
@@ -16,19 +16,33 @@ const TransactionInfo = (props: Props) => {
   return (
     <StackableContainer lessPadding lessMargin>
       <ul className="meta-data">
-        {props.tx.msgs && (
-          <li>
-            <label>Amount:</label>
-            <div>{printableCoins(props.tx.msgs[0].value.amount, state.chain)}</div>
-          </li>
+        {props.tx.msgs && props.tx.msgs[0].typeUrl === "/cosmos.bank.v1beta1.MsgSend" && (
+          <>
+            <li>
+              <label>Amount:</label>
+              <div>{printableCoins(props.tx.msgs[0].value.amount, state.chain)}</div>
+            </li>
+            <li>
+              <label>To:</label>
+              <div title={props.tx.msgs[0].value.toAddress}>
+                <HashView hash={props.tx.msgs[0].value.toAddress} />
+              </div>
+            </li>
+          </>
         )}
-        {props.tx.msgs && (
-          <li>
-            <label>To:</label>
-            <div title={props.tx.msgs[0].value.toAddress}>
-              <HashView hash={props.tx.msgs[0].value.toAddress} />
-            </div>
-          </li>
+        {props.tx.msgs && props.tx.msgs[0].typeUrl === "/cosmos.staking.v1beta1.MsgDelegate" && (
+          <>
+            <li>
+              <label>Amount:</label>
+              <div>{printableCoin(props.tx.msgs[0].value.amount, state.chain)}</div>
+            </li>
+            <li>
+              <label>Validator Address:</label>
+              <div title={props.tx.msgs[0].value.validatorAddress}>
+                <HashView hash={props.tx.msgs[0].value.validatorAddress} />
+              </div>
+            </li>
+          </>
         )}
         {props.tx.fee && (
           <>
