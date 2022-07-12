@@ -131,16 +131,24 @@ const checkAddress = (input: string, chainAddressPrefix: string) => {
  *
  * Returns null of there is no error.
  */
-const checkValidatorAddress = (input: string, chainAddressPrefix: string) => {
+const checkValidatorAddress = (input: string, chainAddressPrefix: string): string | null => {
   if (!input) return "Empty";
+  let prefix;
   try {
-    const data = fromBech32(input).data;
-    const address = toBech32(chainAddressPrefix, data);
-    checkAddress(address, chainAddressPrefix);
+    ({ prefix } = fromBech32(input));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return error.toString();
   }
+
+  if (prefix !== chainAddressPrefix) {
+    return `Expected address prefix '${chainAddressPrefix}' but got '${prefix}'`;
+  }
+
+  if (input.length !== 52) {
+    return "Invalid address length in validator address. Must be 52 bytes.";
+  }
+
   return null;
 };
 

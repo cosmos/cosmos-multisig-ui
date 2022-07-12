@@ -28,7 +28,7 @@ function participantAddressesFromMultisig(multisigPubkey: Pubkey, addressPrefix:
 
 const multipage = () => {
   const { state } = useAppContext();
-  const [showTxForm, setShowTxForm] = useState(false);
+  const [showSendTxForm, setShowSendTxForm] = useState(false);
   const [showDelegateTxForm, setShowDelegateTxForm] = useState(false);
   const [holdings, setHoldings] = useState<Coin | null>(null);
   const [multisigAddress, setMultisigAddress] = useState("");
@@ -99,12 +99,12 @@ const multipage = () => {
             </div>
           </StackableContainer>
         )}
-        {showTxForm && (
+        {showSendTxForm && (
           <TransactionForm
             address={multisigAddress}
             accountOnChain={accountOnChain}
             closeForm={() => {
-              setShowTxForm(false);
+              setShowSendTxForm(false);
             }}
           />
         )}
@@ -117,7 +117,7 @@ const multipage = () => {
             }}
           />
         )}
-        {!showTxForm && !showDelegateTxForm && (
+        {!showSendTxForm && !showDelegateTxForm && (
           <div className="interfaces">
             <div className="col-1">
               <MultisigHoldings holdings={holdings} />
@@ -132,7 +132,7 @@ const multipage = () => {
                 <Button
                   label="Create Transaction"
                   onClick={() => {
-                    setShowTxForm(true);
+                    setShowSendTxForm(true);
                   }}
                 />
                 <Button

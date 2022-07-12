@@ -60,10 +60,7 @@ const DelegationForm = (props: Props) => {
 
   const handleCreate = async () => {
     assert(state.chain.addressPrefix, "addressPrefix missing");
-    const validatorAddressError = checkValidatorAddress(
-      validatorAddress,
-      state.chain.addressPrefix,
-    );
+    const validatorAddressError = checkValidatorAddress(validatorAddress, "cosmosvaloper");
     if (validatorAddressError) {
       setAddressError(
         `Invalid address for network ${state.chain.chainId}: ${validatorAddressError}`,
