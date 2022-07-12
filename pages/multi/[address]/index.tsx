@@ -151,10 +151,12 @@ const multipage = () => {
           display: flex;
           justify-content: space-between;
           margin-top: 50px;
+          flex-direction: column;
         }
         .col-1 {
           flex: 1;
-          padding-right: 50px;
+          padding-right: 0;
+          margin-bottom: 50px;
         }
         .col-2 {
           flex: 1;
@@ -165,6 +167,7 @@ const multipage = () => {
         }
         p {
           margin-top: 15px;
+          max-width: 100%;
         }
         .multisig-error p {
           max-width: 550px;
