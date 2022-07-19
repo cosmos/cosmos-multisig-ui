@@ -14,6 +14,9 @@ import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import TransactionForm from "../../../components/forms/TransactionForm";
+import UnDelegationForm from "../../../components/forms/UnDelegationForm";
+import ReDelegationForm from "../../../components/forms/ReDelegationForm";
+import RewardsForm from "../../../components/forms/RewardsForm";
 
 function participantPubkeysFromMultisig(multisigPubkey: Pubkey) {
   return multisigPubkey.value.pubkeys;
@@ -27,7 +30,10 @@ function participantAddressesFromMultisig(multisigPubkey: Pubkey, addressPrefix:
 
 const multipage = () => {
   const { state } = useAppContext();
-  const [showTxForm, setShowTxForm] = useState(false);
+  const [showSendTxForm, setShowSendTxForm] = useState(false);
+  const [showUnDelegateTxForm, setShowUnDelegateTxForm] = useState(false);
+  const [showReDelegateTxForm, setShowReDelegateTxForm] = useState(false);
+  const [showRewardsTxForm, setShowRewardsTxForm] = useState(false);
   const [holdings, setHoldings] = useState<Coin | null>(null);
   const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
@@ -97,15 +103,43 @@ const multipage = () => {
             </div>
           </StackableContainer>
         )}
-        {showTxForm ? (
+        {showSendTxForm && (
           <TransactionForm
             address={multisigAddress}
             accountOnChain={accountOnChain}
             closeForm={() => {
-              setShowTxForm(false);
+              setShowSendTxForm(false);
             }}
           />
-        ) : (
+        )}
+        {showUnDelegateTxForm && (
+          <UnDelegationForm
+            address={multisigAddress}
+            accountOnChain={accountOnChain}
+            closeForm={() => {
+              setShowUnDelegateTxForm(false);
+            }}
+          />
+        )}
+        {showReDelegateTxForm && (
+          <ReDelegationForm
+            address={multisigAddress}
+            accountOnChain={accountOnChain}
+            closeForm={() => {
+              setShowReDelegateTxForm(false);
+            }}
+          />
+        )}
+        {showRewardsTxForm && (
+          <RewardsForm
+            address={multisigAddress}
+            accountOnChain={accountOnChain}
+            closeForm={() => {
+              setShowRewardsTxForm(false);
+            }}
+          />
+        )}
+        {!showSendTxForm && !showUnDelegateTxForm && !showRewardsTxForm && !showReDelegateTxForm && (
           <div className="interfaces">
             <div className="col-1">
               <MultisigHoldings holdings={holdings} />
@@ -120,7 +154,25 @@ const multipage = () => {
                 <Button
                   label="Create Transaction"
                   onClick={() => {
-                    setShowTxForm(true);
+                    setShowSendTxForm(true);
+                  }}
+                />
+                <Button
+                  label="Create UnDelegation"
+                  onClick={() => {
+                    setShowUnDelegateTxForm(true);
+                  }}
+                />
+                <Button
+                  label="Claim Rewards"
+                  onClick={() => {
+                    setShowRewardsTxForm(true);
+                  }}
+                />
+                <Button
+                  label="Create Redelegate"
+                  onClick={() => {
+                    setShowReDelegateTxForm(true);
                   }}
                 />
               </StackableContainer>
@@ -133,10 +185,12 @@ const multipage = () => {
           display: flex;
           justify-content: space-between;
           margin-top: 50px;
+          flex-direction: column;
         }
         .col-1 {
           flex: 1;
-          padding-right: 50px;
+          padding-right: 0;
+          margin-bottom: 50px;
         }
         .col-2 {
           flex: 1;
@@ -147,6 +201,7 @@ const multipage = () => {
         }
         p {
           margin-top: 15px;
+          max-width: 100%;
         }
         .multisig-error p {
           max-width: 550px;

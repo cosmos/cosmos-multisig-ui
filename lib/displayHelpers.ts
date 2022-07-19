@@ -125,7 +125,31 @@ const checkAddress = (input: string, chainAddressPrefix: string) => {
 
   return null;
 };
+/**
+ * Returns an error message for invalid addresses.
+ *
+ * Returns null of there is no error.
+ */
+const checkValidatorAddress = (input: string, chainAddressPrefix: string): string | null => {
+  if (!input) return "Empty";
+  let prefix;
+  try {
+    ({ prefix } = fromBech32(input));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    return error.toString();
+  }
 
+  if (prefix !== chainAddressPrefix) {
+    return `Expected address prefix '${chainAddressPrefix}' but got '${prefix}'`;
+  }
+
+  if (input.length !== 52) {
+    return "Invalid address length in validator address. Must be 52 bytes.";
+  }
+
+  return null;
+};
 /**
  * Returns a link to a transaction in an explorer if an explorer is configured
  * for transactions. Returns null otherwise.
@@ -145,4 +169,5 @@ export {
   examplePubkey,
   checkAddress,
   explorerLinkTx,
+  checkValidatorAddress,
 };
