@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { pubkeyToAddress, Pubkey, MultisigThresholdPubkey } from "@cosmjs/amino";
+import { MultisigThresholdPubkey, SinglePubkey } from "@cosmjs/amino";
 import { Account, StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
@@ -15,14 +15,10 @@ import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import TransactionForm from "../../../components/forms/TransactionForm";
 
-function participantPubkeysFromMultisig(multisigPubkey: Pubkey) {
-  return multisigPubkey.value.pubkeys;
-}
-
-function participantAddressesFromMultisig(multisigPubkey: Pubkey, addressPrefix: string) {
-  return participantPubkeysFromMultisig(multisigPubkey).map((p: Pubkey) =>
-    pubkeyToAddress(p, addressPrefix),
-  );
+function participantPubkeysFromMultisig(
+  multisig: MultisigThresholdPubkey,
+): readonly SinglePubkey[] {
+  return multisig.value.pubkeys;
 }
 
 const multipage = () => {
@@ -78,7 +74,8 @@ const multipage = () => {
         </StackableContainer>
         {pubkey && (
           <MultisigMembers
-            members={participantAddressesFromMultisig(pubkey, state.chain.addressPrefix)}
+            members={participantPubkeysFromMultisig(pubkey)}
+            addressPrefix={state.chain.addressPrefix}
             threshold={pubkey.value.threshold}
           />
         )}
