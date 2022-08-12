@@ -127,24 +127,25 @@ const ChainSelect = () => {
       const chainDisplayName = chainData["pretty_name"];
       const registryName = chainOption.name;
       const explorerLink = getExplorerFromArray(chainData.explorers);
-      let asset = null;
-      let denom = "";
-      let displayDenom = "";
-      const displayDenomExponent = 6;
-      let gasPrice = "";
+      let denom: string;
+      let displayDenom: string;
+      let displayDenomExponent: number;
+      let gasPrice: string;
 
       if (assetData.assets.length > 1) {
         denom = "";
         displayDenom = "";
         gasPrice = "";
+        displayDenomExponent = 0;
 
         setChainError("Multiple token denoms available, enter manually");
         setShowSettings(true);
       } else {
-        asset = assetData.assets[0];
+        const asset = assetData.assets[0];
         denom = asset.base;
         displayDenom = asset.symbol;
         gasPrice = `0.03${asset.base}`;
+        displayDenomExponent = 6; // TODO: determine dynamically
       }
 
       // test client connection
