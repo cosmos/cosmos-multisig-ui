@@ -9,6 +9,7 @@ import { useAppContext } from "../../context/AppContext";
 import Select from "../inputs/Select";
 import StackableContainer from "../layout/StackableContainer";
 import { assert } from "@cosmjs/utils";
+import { ChainRegistryAsset } from "./chainregistry";
 
 interface ChainOption {
   label: string;
@@ -141,11 +142,12 @@ const ChainSelect = () => {
         setChainError("Multiple token denoms available, enter manually");
         setShowSettings(true);
       } else {
-        const asset = assetData.assets[0];
+        const asset: ChainRegistryAsset = assetData.assets[0];
         denom = asset.base;
         displayDenom = asset.symbol;
         gasPrice = `0.03${asset.base}`;
-        displayDenomExponent = 6; // TODO: determine dynamically
+        const displayUnit = asset.denom_units.find((u) => u.denom == asset.display);
+        displayDenomExponent = displayUnit?.exponent ?? 6;
       }
 
       // test client connection
