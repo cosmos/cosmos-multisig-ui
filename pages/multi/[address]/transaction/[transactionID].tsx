@@ -1,8 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { GetServerSideProps } from "next";
-import { StargateClient, makeMultisignedTx, Account } from "@cosmjs/stargate";
-import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { StargateClient, Account, makeMultisignedTxBytes } from "@cosmjs/stargate";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { fromBase64 } from "@cosmjs/encoding";
@@ -114,7 +113,7 @@ const transactionPage = ({
       assert(accountOnChain, "Account on chain value missing.");
       assert(pubkey, "Pubkey not found on chain or in database");
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
-      const signedTx = makeMultisignedTx(
+      const signedTxBytes = makeMultisignedTxBytes(
         pubkey,
         txInfo.sequence,
         txInfo.fee,
@@ -123,9 +122,7 @@ const transactionPage = ({
       );
       assert(state.chain.nodeAddress, "Node address missing");
       const broadcaster = await StargateClient.connect(state.chain.nodeAddress);
-      const result = await broadcaster.broadcastTx(
-        Uint8Array.from(TxRaw.encode(signedTx).finish()),
-      );
+      const result = await broadcaster.broadcastTx(signedTxBytes);
       console.log(result);
       const _res = await axios.post(`/api/transaction/${transactionID}`, {
         txHash: result.transactionHash,
