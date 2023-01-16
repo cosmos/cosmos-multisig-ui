@@ -17,14 +17,17 @@ function getChainInfoFromUrl(): ChainInfo {
   const params = new URLSearchParams(url);
   const chainInfo: ChainInfo = {
     nodeAddress: decodeURIComponent(params.get("nodeAddress") || ""),
-    denom: params.get("denom") || "",
-    displayDenom: params.get("displayDenom") || "",
-    displayDenomExponent: parseInt(params.get("displayDenomExponent") || "", 10),
-    gasPrice: params.get("gasPrice") || "",
-    chainId: params.get("chainId") || "",
+    denom: decodeURIComponent(params.get("denom") || ""),
+    displayDenom: decodeURIComponent(params.get("displayDenom") || ""),
+    displayDenomExponent: parseInt(
+      decodeURIComponent(params.get("displayDenomExponent") || ""),
+      10,
+    ),
+    gasPrice: decodeURIComponent(params.get("gasPrice") || ""),
+    chainId: decodeURIComponent(params.get("chainId") || ""),
     chainDisplayName: decodeURIComponent(params.get("chainDisplayName") || ""),
-    registryName: params.get("registryName") || "",
-    addressPrefix: params.get("addressPrefix") || "",
+    registryName: decodeURIComponent(params.get("registryName") || ""),
+    addressPrefix: decodeURIComponent(params.get("addressPrefix") || ""),
     explorerLink: decodeURIComponent(params.get("explorerLink") || ""),
   };
 
