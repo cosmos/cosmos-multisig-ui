@@ -51,6 +51,7 @@ const TransactionSigning = (props: Props) => {
 
   const connectLedger = async () => {
     assert(state.chain.addressPrefix, "addressPrefix missing");
+    assert(props.tx.chainId === state.chain.chainId, "Chain ID mismatch");
 
     // Prepare ledger
     const ledgerTransport = await TransportWebUSB.create(120000, 120000);
