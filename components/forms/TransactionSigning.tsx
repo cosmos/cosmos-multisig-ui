@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toBase64 } from "@cosmjs/encoding";
-import { SigningStargateClient } from "@cosmjs/stargate";
+import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 
 import { useAppContext } from "../../context/AppContext";
@@ -13,6 +13,7 @@ import { DbSignature, DbTransaction, WalletAccount } from "../../types";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
 import { makeCosmoshubPath } from "@cosmjs/amino";
+import { getMultisigAccount } from "../../lib/multisigHelpers";
 
 interface Props {
   signatures: DbSignature[];
@@ -28,6 +29,23 @@ const TransactionSigning = (props: Props) => {
   const [hasSigned, setHasSigned] = useState(false);
   const [walletType, setWalletType] = useState<"Keplr" | "Ledger">();
   const [ledgerSigner, setLedgerSigner] = useState({});
+  const [pubkey, setPubkey] = useState("");
+
+  const getPubkeyFromNode = async (address: string) => {
+    assert(state.chain.nodeAddress, "nodeAddress missing");
+    const client = await StargateClient.connect(state.chain.nodeAddress);
+    const accountOnChain = await client.getAccount(address);
+    console.log(accountOnChain);
+    if (!accountOnChain || !accountOnChain.pubkey) {
+      throw new Error(
+        "Account has no pubkey on chain, this address will need to send a transaction to appear on chain.",
+      );
+    }
+
+    const keys =await getMultisigAccount(address, client)
+
+    return keys;
+  };
 
   const connectKeplr = async () => {
     try {
@@ -82,11 +100,32 @@ const TransactionSigning = (props: Props) => {
   const signTransaction = async () => {
     assert(state.chain.chainId, "chainId missing");
 
+    assert(props.tx.chainId === state.chain.chainId, "Chain ID mismatch");
+
     const offlineSigner =
       walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(state.chain.chainId) : ledgerSigner;
 
     const signerAddress = walletAccount?.bech32Address;
     assert(signerAddress, "Missing signer address");
+    const signerAccounts = await offlineSigner.getAccounts();
+    assert(props.tx.multiSigAddress, "Missing address on transaction");
+
+    const result = await getPubkeyFromNode(props.tx.multiSigAddress);
+
+    const pubkey = result[0];
+
+    let found = (pubkey.value.pubkeys.length > 0) ? false:true;
+
+    for (const statekeys of pubkey.value.pubkeys){
+
+      console.log(statekeys);
+      if (statekeys.value === toBase64(signerAccounts[0].pubkey)){
+        console.log("found");
+        found = true;
+      }
+    }
+    assert(found, "Signing with wrong wallet");
+
     const signingClient = await SigningStargateClient.offline(offlineSigner);
 
     const signerData = {

@@ -23,6 +23,7 @@ export interface DbSignature {
 }
 
 export interface DbTransaction {
+  multiSigAddress: string;
   accountNumber: number;
   sequence: number;
   chainId: string;

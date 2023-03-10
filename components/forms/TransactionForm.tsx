@@ -28,6 +28,7 @@ const TransactionForm = (props: Props) => {
   const [_processing, setProcessing] = useState(false);
   const [addressError, setAddressError] = useState("");
 
+
   const createTransaction = (txToAddress: string, txAmount: string, txGas: number) => {
     const amountInAtomics = Decimal.fromUserInput(
       txAmount,
@@ -52,6 +53,7 @@ const TransactionForm = (props: Props) => {
     const { accountOnChain } = props;
     assert(accountOnChain, "accountOnChain missing");
     return {
+      multiSigAddress: props.address,
       accountNumber: accountOnChain.accountNumber,
       sequence: accountOnChain.sequence,
       chainId: state.chain.chainId,
