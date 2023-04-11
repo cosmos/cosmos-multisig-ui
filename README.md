@@ -52,7 +52,7 @@ This app relies on FaunaDB as for storing account, transaction and signature det
 
 - Create a [FaunaDB](https://dashboard.fauna.com/) account
 - Create a new database
-  - Use the "Classic" region
+  - Use the "Europe (EU)" region
 - Click the "Graphql" tab, and import the `db-schema.graphql` file in the root of this repo
 - Click the "Security" tab, and create a key. Copy that key into the `.env.local` file for the `FAUNADB_SECRET` value
 
