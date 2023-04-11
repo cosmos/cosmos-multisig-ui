@@ -1,7 +1,7 @@
-import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
-import { sha512 } from "@cosmjs/crypto";
-import { Decimal } from "@cosmjs/math";
 import { Coin } from "@cosmjs/amino";
+import { sha512 } from "@cosmjs/crypto";
+import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
+import { Decimal } from "@cosmjs/math";
 import { ChainInfo } from "../types";
 
 /**
@@ -115,11 +115,11 @@ const checkAddress = (input: string, chainAddressPrefix: string) => {
     return error.toString();
   }
 
-  if (prefix !== chainAddressPrefix) {
+  if (!prefix.startsWith(chainAddressPrefix)) {
     return `Expected address prefix '${chainAddressPrefix}' but got '${prefix}'`;
   }
 
-  if (data.length !== 20) {
+  if (data.length < 20) {
     return "Invalid address length in bech32 data. Must be 20 bytes.";
   }
 
