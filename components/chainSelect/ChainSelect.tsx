@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { StargateClient } from "@cosmjs/stargate";
-
+import { assert } from "@cosmjs/utils";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useAppContext } from "../../context/AppContext";
 import GearIcon from "../icons/Gear";
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
-import { useAppContext } from "../../context/AppContext";
 import Select from "../inputs/Select";
 import StackableContainer from "../layout/StackableContainer";
-import { assert } from "@cosmjs/utils";
 import { ChainRegistryAsset } from "./chainregistry";
 
 interface ChainOption {
@@ -104,7 +103,11 @@ const ChainSelect = () => {
     if (index >= 0) {
       return options[index];
     }
-    return { label: "unkown chain", value: -1 };
+    return {
+      label:
+        registryName === process.env.NEXT_PUBLIC_REGISTRY_NAME ? registryName : "unknown chain",
+      value: -1,
+    };
   };
 
   const getChainInfo = async (chainOption: GithubChainRegistryItem) => {
