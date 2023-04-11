@@ -3,7 +3,7 @@ import { DbAccount, DbSignature, DbTransaction } from "../types";
 
 // Graphql base request for Faunadb
 const graphqlReq = axios.create({
-  baseURL: "https://graphql.fauna.com/graphql",
+  baseURL: "https://graphql.eu.fauna.com/graphql",
   headers: {
     Authorization: `Bearer ${process.env.FAUNADB_SECRET}`,
   },
