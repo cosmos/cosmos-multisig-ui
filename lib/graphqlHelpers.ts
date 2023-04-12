@@ -3,6 +3,8 @@ import { DbAccount, DbSignature, DbTransaction } from "../types";
 
 // Graphql base request for Faunadb
 const graphqlReq = axios.create({
+  // The fallback URL works for classic databases. See https://docs.fauna.com/fauna/current/learn/understanding/region_groups
+  // for more information about regions.
   baseURL: process.env.FAUNADB_URL || "https://graphql.fauna.com/graphql",
   headers: {
     Authorization: `Bearer ${process.env.FAUNADB_SECRET}`,
