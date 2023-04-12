@@ -28,7 +28,9 @@ const TransactionForm = (props: Props) => {
   const [_processing, setProcessing] = useState(false);
   const [addressError, setAddressError] = useState("");
 
-  const createTransaction = (txToAddress: string, txAmount: string, txGas: number) => {
+  const createTransaction = (txToAddress: string, txAmount: string, gasLimit: number) => {
+    assert(Number.isSafeInteger(gasLimit) && gasLimit > 0, "gas limit must be a positive integer");
+
     const amountInAtomics = Decimal.fromUserInput(
       txAmount,
       Number(state.chain.displayDenomExponent),
@@ -48,7 +50,7 @@ const TransactionForm = (props: Props) => {
       value: msgSend,
     };
     assert(gasPrice, "gasPrice missing");
-    const fee = calculateFee(Number(txGas), gasPrice);
+    const fee = calculateFee(gasLimit, gasPrice);
     const { accountOnChain } = props;
     assert(accountOnChain, "accountOnChain missing");
     return {
