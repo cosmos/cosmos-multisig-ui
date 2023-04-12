@@ -5,7 +5,7 @@ import axios from "axios";
 import { NextRouter, withRouter } from "next/router";
 import React, { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
-import { checkAddress } from "../../lib/displayHelpers";
+import { checkAddress, exampleValidatorAddress } from "../../lib/displayHelpers";
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
@@ -93,7 +93,7 @@ const DelegationForm = (props: Props) => {
           value={validatorAddress}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValidatorAddress(e.target.value)}
           error={addressError}
-          placeholder={`E.g. ${state.chain.addressPrefix}1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0`}
+          placeholder={`E.g. ${exampleValidatorAddress(0, state.chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">

@@ -81,6 +81,21 @@ const exampleAddress = (index: number, chainAddressPrefix: string) => {
 };
 
 /**
+ * Generates an example address for the configured blockchain.
+ *
+ * `index` can be set to a small integer in order to get different addresses. Defaults to 0.
+ */
+const exampleValidatorAddress = (index: number, chainAddressPrefix: string) => {
+  const usedIndex = index || 0;
+  let data = fromBech32("cosmosvaloper10v6wvdenee8r9l6wlsphcgur2ltl8ztkfrvj9a").data;
+  for (let i = 0; i < usedIndex; ++i) {
+    data = sha512(data).slice(0, data.length); // hash one time and trim to original length
+  }
+  const validatorPrefix = chainAddressPrefix + "valoper";
+  return toBech32(validatorPrefix, data);
+};
+
+/**
  * Generates an example pubkey (secp256k1, compressed).
  *
  * `index` can be set to a small integer in order to get different addresses. Defaults to 0.
@@ -142,6 +157,7 @@ export {
   printableCoin,
   printableCoins,
   exampleAddress,
+  exampleValidatorAddress,
   examplePubkey,
   checkAddress,
   explorerLinkTx,
