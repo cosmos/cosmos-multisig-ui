@@ -131,27 +131,13 @@ const ChainSelect = () => {
       const chainDisplayName = chainData["pretty_name"];
       const registryName = chainOption.name;
       const explorerLink = getExplorerFromArray(chainData.explorers);
-      let denom: string;
-      let displayDenom: string;
-      let displayDenomExponent: number;
-      let gasPrice: string;
 
-      if (assetData.assets.length > 1) {
-        denom = "";
-        displayDenom = "";
-        gasPrice = "";
-        displayDenomExponent = 0;
-
-        setChainError("Multiple token denoms available, enter manually");
-        setShowSettings(true);
-      } else {
-        const asset: ChainRegistryAsset = assetData.assets[0];
-        denom = asset.base;
-        displayDenom = asset.symbol;
-        gasPrice = `0.03${asset.base}`;
-        const displayUnit = asset.denom_units.find((u) => u.denom == asset.display);
-        displayDenomExponent = displayUnit?.exponent ?? 6;
-      }
+      const asset: ChainRegistryAsset | undefined = assetData.assets?.[0];
+      const denom = asset?.base || "";
+      const displayDenom = asset?.symbol || "";
+      const gasPrice = asset ? `0.03${asset.base}` : "";
+      const displayUnit = asset?.denom_units.find((u) => u.denom == asset.display);
+      const displayDenomExponent = displayUnit?.exponent ?? 6;
 
       // test client connection
       const client = await StargateClient.connect(nodeAddress);
