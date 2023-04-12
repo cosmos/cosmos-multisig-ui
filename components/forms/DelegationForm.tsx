@@ -1,15 +1,14 @@
-import axios from "axios";
-import { Account, calculateFee } from "@cosmjs/stargate";
 import { Decimal } from "@cosmjs/math";
+import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
+import axios from "axios";
+import { NextRouter, withRouter } from "next/router";
 import React, { useState } from "react";
-import { withRouter, NextRouter } from "next/router";
-
 import { useAppContext } from "../../context/AppContext";
+import { checkAddress, exampleValidatorAddress } from "../../lib/displayHelpers";
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
-import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
 
 interface Props {
   address: string | null;
@@ -18,9 +17,9 @@ interface Props {
   closeForm: () => void;
 }
 
-const TransactionForm = (props: Props) => {
+const DelegationForm = (props: Props) => {
   const { state } = useAppContext();
-  const [toAddress, setToAddress] = useState("");
+  const [validatorAddress, setValidatorAddress] = useState("");
   const [amount, setAmount] = useState("0");
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(200000);
@@ -28,26 +27,24 @@ const TransactionForm = (props: Props) => {
   const [_processing, setProcessing] = useState(false);
   const [addressError, setAddressError] = useState("");
 
-  const createTransaction = (txToAddress: string, txAmount: string, gasLimit: number) => {
+  const createTransaction = (txValidatorAddress: string, txAmount: string, gasLimit: number) => {
     assert(Number.isSafeInteger(gasLimit) && gasLimit > 0, "gas limit must be a positive integer");
 
     const amountInAtomics = Decimal.fromUserInput(
       txAmount,
       Number(state.chain.displayDenomExponent),
     ).atomics;
-    const msgSend = {
-      fromAddress: props.address,
-      toAddress: txToAddress,
-      amount: [
-        {
-          amount: amountInAtomics,
-          denom: state.chain.denom,
-        },
-      ],
+    const msgDelegate = {
+      delegatorAddress: props.address,
+      validatorAddress: txValidatorAddress,
+      amount: {
+        amount: amountInAtomics,
+        denom: state.chain.denom,
+      },
     };
     const msg = {
-      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-      value: msgSend,
+      typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
+      value: msgDelegate,
     };
     assert(gasPrice, "gasPrice missing");
     const fee = calculateFee(gasLimit, gasPrice);
@@ -65,17 +62,20 @@ const TransactionForm = (props: Props) => {
 
   const handleCreate = async () => {
     assert(state.chain.addressPrefix, "addressPrefix missing");
-    const toAddressError = checkAddress(toAddress, state.chain.addressPrefix);
-    if (toAddressError) {
-      setAddressError(`Invalid address for network ${state.chain.chainId}: ${toAddressError}`);
+    const validatorAddressError = checkAddress(validatorAddress, state.chain.addressPrefix);
+    if (validatorAddressError) {
+      setAddressError(
+        `Invalid address for network ${state.chain.chainId}: ${validatorAddressError}`,
+      );
       return;
     }
 
     setProcessing(true);
-    const tx = createTransaction(toAddress, amount, gas);
-    console.log(tx);
+    const tx = createTransaction(validatorAddress, amount, gas);
+    console.log(tx, "tx data");
     const dataJSON = JSON.stringify(tx);
     const res = await axios.post("/api/transaction", { dataJSON });
+    console.log(dataJSON, "tx dataJSON", res);
     const { transactionID } = res.data;
     props.router.push(`${props.address}/transaction/${transactionID}`);
   };
@@ -87,15 +87,15 @@ const TransactionForm = (props: Props) => {
       <button className="remove" onClick={() => props.closeForm()}>
         ✕
       </button>
-      <h2>Create New transaction</h2>
+      <h2>Create Delegation</h2>
       <div className="form-item">
         <Input
-          label="To Address"
-          name="toAddress"
-          value={toAddress}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setToAddress(e.target.value)}
+          label="Validator Address"
+          name="validatorAddress"
+          value={validatorAddress}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValidatorAddress(e.target.value)}
           error={addressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleValidatorAddress(0, state.chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">
@@ -130,7 +130,7 @@ const TransactionForm = (props: Props) => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMemo(e.target.value)}
         />
       </div>
-      <Button label="Create Transaction" onClick={handleCreate} />
+      <Button label="Delegate" onClick={handleCreate} />
       <style jsx>{`
         p {
           margin-top: 15px;
@@ -154,4 +154,4 @@ const TransactionForm = (props: Props) => {
   );
 };
 
-export default withRouter(TransactionForm);
+export default withRouter(DelegationForm);

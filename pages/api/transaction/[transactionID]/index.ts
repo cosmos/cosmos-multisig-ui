@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { updateTxHash } from "../../../../lib/graphqlHelpers";
 
-export default async function (req: NextApiRequest, res: NextApiResponse) {
+export default async function transactionIDApi(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case "POST":
       try {
-        const transactionID = req.query.transactionID.toString();
+        const transactionID = req.query.transactionID?.toString() || "";
         const { txHash } = req.body;
         console.log("Function `updateTransaction` invoked", txHash);
         const saveRes = await updateTxHash(transactionID, txHash);

@@ -33,6 +33,9 @@ const TransactionSigning = (props: Props) => {
     try {
       assert(state.chain.chainId, "chainId missing");
       await window.keplr.enable(state.chain.chainId);
+      window.keplr.defaultOptions = {
+        sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
+      };
       const tempWalletAccount = await window.keplr.getKey(state.chain.chainId);
       console.log(tempWalletAccount);
       const tempHasSigned = props.signatures.some(

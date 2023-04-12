@@ -1,11 +1,9 @@
-import React from "react";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
-
-import { DbTransaction } from "../../types";
 import { useAppContext } from "../../context/AppContext";
-import HashView from "./HashView";
+import { printableCoin, printableCoins } from "../../lib/displayHelpers";
+import { DbTransaction } from "../../types";
 import StackableContainer from "../layout/StackableContainer";
-import { printableCoins, printableCoin } from "../../lib/displayHelpers";
+import HashView from "./HashView";
 
 interface Props {
   tx: DbTransaction;

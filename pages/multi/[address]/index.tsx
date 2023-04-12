@@ -1,36 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { pubkeyToAddress, Pubkey, MultisigThresholdPubkey } from "@cosmjs/amino";
+import { MultisigThresholdPubkey, SinglePubkey } from "@cosmjs/amino";
 import { Account, StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { useRouter } from "next/router";
-
-import { useAppContext } from "../../../context/AppContext";
-import Button from "../../../components/inputs/Button";
-import { getMultisigAccount } from "../../../lib/multisigHelpers";
+import { useCallback, useEffect, useState } from "react";
 import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
-import Page from "../../../components/layout/Page";
-import StackableContainer from "../../../components/layout/StackableContainer";
-import TransactionForm from "../../../components/forms/TransactionForm";
-import UnDelegationForm from "../../../components/forms/UnDelegationForm";
+import DelegationForm from "../../../components/forms/DelegationForm";
 import ReDelegationForm from "../../../components/forms/ReDelegationForm";
 import RewardsForm from "../../../components/forms/RewardsForm";
+import TransactionForm from "../../../components/forms/TransactionForm";
+import UnDelegationForm from "../../../components/forms/UnDelegationForm";
+import Button from "../../../components/inputs/Button";
+import Page from "../../../components/layout/Page";
+import StackableContainer from "../../../components/layout/StackableContainer";
+import { useAppContext } from "../../../context/AppContext";
+import { getMultisigAccount } from "../../../lib/multisigHelpers";
 
-function participantPubkeysFromMultisig(multisigPubkey: Pubkey) {
-  return multisigPubkey.value.pubkeys;
+function participantPubkeysFromMultisig(
+  multisig: MultisigThresholdPubkey,
+): readonly SinglePubkey[] {
+  return multisig.value.pubkeys;
 }
 
-function participantAddressesFromMultisig(multisigPubkey: Pubkey, addressPrefix: string) {
-  return participantPubkeysFromMultisig(multisigPubkey).map((p: Pubkey) =>
-    pubkeyToAddress(p, addressPrefix),
-  );
-}
-
-const multipage = () => {
+const Multipage = () => {
   const { state } = useAppContext();
   const [showSendTxForm, setShowSendTxForm] = useState(false);
+  const [showDelegateTxForm, setShowDelegateTxForm] = useState(false);
   const [showUnDelegateTxForm, setShowUnDelegateTxForm] = useState(false);
   const [showReDelegateTxForm, setShowReDelegateTxForm] = useState(false);
   const [showRewardsTxForm, setShowRewardsTxForm] = useState(false);
@@ -41,31 +38,34 @@ const multipage = () => {
   const [accountError, setAccountError] = useState(null);
   const router = useRouter();
 
+  const fetchMultisig = useCallback(
+    async (address: string) => {
+      setAccountError(null);
+      try {
+        assert(state.chain.nodeAddress, "Node address missing");
+        const client = await StargateClient.connect(state.chain.nodeAddress);
+        assert(state.chain.denom, "denom missing");
+        const tempHoldings = await client.getBalance(address, state.chain.denom);
+        setHoldings(tempHoldings);
+        const result = await getMultisigAccount(address, client);
+        setPubkey(result[0]);
+        setAccountOnChain(result[1]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        setAccountError(error.message);
+        console.log("Account error:", error);
+      }
+    },
+    [state.chain.denom, state.chain.nodeAddress],
+  );
+
   useEffect(() => {
     const address = router.query.address?.toString();
     if (address) {
       setMultisigAddress(address);
       fetchMultisig(address);
     }
-  }, [state, router.query.address]);
-
-  const fetchMultisig = async (address: string) => {
-    setAccountError(null);
-    try {
-      assert(state.chain.nodeAddress, "Node address missing");
-      const client = await StargateClient.connect(state.chain.nodeAddress);
-      assert(state.chain.denom, "denom missing");
-      const tempHoldings = await client.getBalance(address, state.chain.denom);
-      setHoldings(tempHoldings);
-      const result = await getMultisigAccount(address, client);
-      setPubkey(result[0]);
-      setAccountOnChain(result[1]);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      setAccountError(error.message);
-      console.log("Account error:", error);
-    }
-  };
+  }, [fetchMultisig, router.query.address]);
 
   assert(state.chain.addressPrefix, "address prefix missing");
 
@@ -84,7 +84,8 @@ const multipage = () => {
         </StackableContainer>
         {pubkey && (
           <MultisigMembers
-            members={participantAddressesFromMultisig(pubkey, state.chain.addressPrefix)}
+            members={participantPubkeysFromMultisig(pubkey)}
+            addressPrefix={state.chain.addressPrefix}
             threshold={pubkey.value.threshold}
           />
         )}
@@ -109,6 +110,15 @@ const multipage = () => {
             accountOnChain={accountOnChain}
             closeForm={() => {
               setShowSendTxForm(false);
+            }}
+          />
+        )}
+        {showDelegateTxForm && (
+          <DelegationForm
+            address={multisigAddress}
+            accountOnChain={accountOnChain}
+            closeForm={() => {
+              setShowDelegateTxForm(false);
             }}
           />
         )}
@@ -139,46 +149,56 @@ const multipage = () => {
             }}
           />
         )}
-        {!showSendTxForm && !showUnDelegateTxForm && !showRewardsTxForm && !showReDelegateTxForm && (
-          <div className="interfaces">
-            <div className="col-1">
-              <MultisigHoldings holdings={holdings} />
+        {!showSendTxForm &&
+          !showDelegateTxForm &&
+          !showUnDelegateTxForm &&
+          !showRewardsTxForm &&
+          !showReDelegateTxForm && (
+            <div className="interfaces">
+              <div className="col-1">
+                <MultisigHoldings holdings={holdings} />
+              </div>
+              <div className="col-2">
+                <StackableContainer lessPadding>
+                  <h2>New transaction</h2>
+                  <p>
+                    Once a transaction is created, it can be signed by the multisig members, and
+                    then broadcast.
+                  </p>
+                  <Button
+                    label="Create Transaction"
+                    onClick={() => {
+                      setShowSendTxForm(true);
+                    }}
+                  />
+                  <Button
+                    label="Create Delegation"
+                    onClick={() => {
+                      setShowDelegateTxForm(true);
+                    }}
+                  />
+                  <Button
+                    label="Create UnDelegation"
+                    onClick={() => {
+                      setShowUnDelegateTxForm(true);
+                    }}
+                  />
+                  <Button
+                    label="Create Redelegate"
+                    onClick={() => {
+                      setShowReDelegateTxForm(true);
+                    }}
+                  />
+                  <Button
+                    label="Claim Rewards"
+                    onClick={() => {
+                      setShowRewardsTxForm(true);
+                    }}
+                  />
+                </StackableContainer>
+              </div>
             </div>
-            <div className="col-2">
-              <StackableContainer lessPadding>
-                <h2>New transaction</h2>
-                <p>
-                  Once a transaction is created, it can be signed by the multisig members, and then
-                  broadcast.
-                </p>
-                <Button
-                  label="Create Transaction"
-                  onClick={() => {
-                    setShowSendTxForm(true);
-                  }}
-                />
-                <Button
-                  label="Create UnDelegation"
-                  onClick={() => {
-                    setShowUnDelegateTxForm(true);
-                  }}
-                />
-                <Button
-                  label="Claim Rewards"
-                  onClick={() => {
-                    setShowRewardsTxForm(true);
-                  }}
-                />
-                <Button
-                  label="Create Redelegate"
-                  onClick={() => {
-                    setShowReDelegateTxForm(true);
-                  }}
-                />
-              </StackableContainer>
-            </div>
-          </div>
-        )}
+          )}
       </StackableContainer>
       <style jsx>{`
         .interfaces {
@@ -217,4 +237,4 @@ const multipage = () => {
   );
 };
 
-export default multipage;
+export default Multipage;

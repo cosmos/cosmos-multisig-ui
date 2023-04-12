@@ -15,14 +15,8 @@ module.exports = {
       jsx: true,
     },
   },
-  plugins: ["prettier", "@typescript-eslint"],
-  extends: [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
-    "prettier",
-    "plugin:prettier/recommended",
-  ],
+  plugins: ["@typescript-eslint"],
+  extends: ["next/core-web-vitals", "plugin:@typescript-eslint/recommended", "prettier"],
   rules: {
     curly: ["warn", "multi-line", "consistent"],
     "no-bitwise": "warn",
@@ -41,5 +35,4 @@ module.exports = {
       { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
     ],
   },
-  overrides: [],
 };

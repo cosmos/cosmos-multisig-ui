@@ -1,7 +1,7 @@
-import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
-import { sha512 } from "@cosmjs/crypto";
-import { Decimal } from "@cosmjs/math";
 import { Coin } from "@cosmjs/amino";
+import { sha512 } from "@cosmjs/crypto";
+import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
+import { Decimal } from "@cosmjs/math";
 import { ChainInfo } from "../types";
 
 /**
@@ -69,34 +69,46 @@ const printableCoins = (coins: Coin[], chainInfo: ChainInfo) => {
 /**
  * Generates an example address for the configured blockchain.
  *
- * `index` can be set to a small integer in order to get different addresses. Defaults to 0.
+ * `index` can be set to a small integer in order to get different addresses.
  */
-const exampleAddress = (index: number, chainAddressPrefix: string) => {
-  const usedIndex = index || 0;
+function exampleAddress(index: number, chainAddressPrefix: string): string {
   let data = fromBech32("cosmos1vqpjljwsynsn58dugz0w8ut7kun7t8ls2qkmsq").data;
-  for (let i = 0; i < usedIndex; ++i) {
+  for (let i = 0; i < index; ++i) {
     data = sha512(data).slice(0, data.length); // hash one time and trim to original length
   }
   return toBech32(chainAddressPrefix, data);
-};
+}
+
+/**
+ * Generates an example address for the configured blockchain.
+ *
+ * `index` can be set to a small integer in order to get different addresses.
+ */
+function exampleValidatorAddress(index: number, chainAddressPrefix: string): string {
+  let data = fromBech32("cosmosvaloper10v6wvdenee8r9l6wlsphcgur2ltl8ztkfrvj9a").data;
+  for (let i = 0; i < index; ++i) {
+    data = sha512(data).slice(0, data.length); // hash one time and trim to original length
+  }
+  const validatorPrefix = chainAddressPrefix + "valoper";
+  return toBech32(validatorPrefix, data);
+}
 
 /**
  * Generates an example pubkey (secp256k1, compressed).
  *
- * `index` can be set to a small integer in order to get different addresses. Defaults to 0.
+ * `index` can be set to a small integer in order to get different addresses.
  *
  * Note: the keys are not necessarily valid (as in points on the chain) and should only be used
  * as dummy data.
  */
-const examplePubkey = (index: number) => {
-  const usedIndex = index || 0;
+function examplePubkey(index: number): string {
   let data = fromBase64("Akd/qKMWdZXyiMnSu6aFLpQEGDO0ijyal9mXUIcVaPNX");
-  for (let i = 0; i < usedIndex; ++i) {
+  for (let i = 0; i < index; ++i) {
     data = sha512(data).slice(0, data.length); // hash one time and trim to original length
     data[0] = index % 2 ? 0x02 : 0x03; // pubkeys have to start with 0x02 or 0x03
   }
   return toBase64(data);
-};
+}
 
 /**
  * Returns an error message for invalid addresses.
@@ -115,7 +127,7 @@ const checkAddress = (input: string, chainAddressPrefix: string) => {
     return error.toString();
   }
 
-  if (prefix !== chainAddressPrefix) {
+  if (!prefix.startsWith(chainAddressPrefix)) {
     return `Expected address prefix '${chainAddressPrefix}' but got '${prefix}'`;
   }
 
@@ -166,6 +178,7 @@ export {
   printableCoin,
   printableCoins,
   exampleAddress,
+  exampleValidatorAddress,
   examplePubkey,
   checkAddress,
   explorerLinkTx,

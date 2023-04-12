@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { StargateClient } from "@cosmjs/stargate";
-
+import { assert } from "@cosmjs/utils";
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
+import { useAppContext } from "../../context/AppContext";
 import GearIcon from "../icons/Gear";
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
-import { useAppContext } from "../../context/AppContext";
 import Select from "../inputs/Select";
 import StackableContainer from "../layout/StackableContainer";
-import { assert } from "@cosmjs/utils";
+import { ChainRegistryAsset } from "./chainregistry";
 
 interface ChainOption {
   label: string;
@@ -58,25 +58,7 @@ const ChainSelect = () => {
 
   const url = "https://api.github.com/repos/cosmos/chain-registry/contents";
 
-  useEffect(() => {
-    getGhJson();
-  }, []);
-
-  useEffect(() => {
-    // set settings form fields to new values
-    setChainId(state.chain.chainId);
-    setNodeAddress(state.chain.nodeAddress);
-    setAddressPrefix(state.chain.addressPrefix);
-    setDenom(state.chain.denom);
-    setDisplayDenom(state.chain.displayDenom);
-    setDisplayDenomExponent(state.chain.displayDenomExponent);
-    setGasPrice(state.chain.gasPrice);
-    setChainName(state.chain.chainDisplayName);
-    setExplorerLink(state.chain.explorerLink);
-    setRegistryName(state.chain.registryName);
-  }, [state]);
-
-  const getGhJson = async () => {
+  const getGhJson = useCallback(async () => {
     // getting chain info from this repo: https://github.com/cosmos/chain-registry
     try {
       const res = await axios.get(url);
@@ -96,14 +78,36 @@ const ChainSelect = () => {
       setShowSettings(true);
       setChainError(error.message);
     }
-  };
+  }, [state.chain.registryName]);
+
+  useEffect(() => {
+    getGhJson();
+  }, [getGhJson]);
+
+  useEffect(() => {
+    // set settings form fields to new values
+    setChainId(state.chain.chainId);
+    setNodeAddress(state.chain.nodeAddress);
+    setAddressPrefix(state.chain.addressPrefix);
+    setDenom(state.chain.denom);
+    setDisplayDenom(state.chain.displayDenom);
+    setDisplayDenomExponent(state.chain.displayDenomExponent);
+    setGasPrice(state.chain.gasPrice);
+    setChainName(state.chain.chainDisplayName);
+    setExplorerLink(state.chain.explorerLink);
+    setRegistryName(state.chain.registryName);
+  }, [state]);
 
   const findExistingOption = (options: ChainOption[], registryName: string) => {
     const index = options.findIndex((option) => option.label === registryName);
     if (index >= 0) {
       return options[index];
     }
-    return { label: "unkown chain", value: -1 };
+    return {
+      label:
+        registryName === process.env.NEXT_PUBLIC_REGISTRY_NAME ? registryName : "unknown chain",
+      value: -1,
+    };
   };
 
   const getChainInfo = async (chainOption: GithubChainRegistryItem) => {
@@ -127,24 +131,26 @@ const ChainSelect = () => {
       const chainDisplayName = chainData["pretty_name"];
       const registryName = chainOption.name;
       const explorerLink = getExplorerFromArray(chainData.explorers);
-      let asset = null;
-      let denom = "";
-      let displayDenom = "";
-      const displayDenomExponent = 6;
-      let gasPrice = "";
+      let denom: string;
+      let displayDenom: string;
+      let displayDenomExponent: number;
+      let gasPrice: string;
 
       if (assetData.assets.length > 1) {
         denom = "";
         displayDenom = "";
         gasPrice = "";
+        displayDenomExponent = 0;
 
         setChainError("Multiple token denoms available, enter manually");
         setShowSettings(true);
       } else {
-        asset = assetData.assets[0];
+        const asset: ChainRegistryAsset = assetData.assets[0];
         denom = asset.base;
         displayDenom = asset.symbol;
         gasPrice = `0.03${asset.base}`;
+        const displayUnit = asset.denom_units.find((u) => u.denom == asset.display);
+        displayDenomExponent = displayUnit?.exponent ?? 6;
       }
 
       // test client connection
