@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getMultisig } from "../../../../../../lib/graphqlHelpers";
 
-export default async function (req: NextApiRequest, res: NextApiResponse) {
+export default async function multisigAddressApi(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case "GET":
       try {
-        const multisigAddress = req.query.multisigAddress.toString();
-        const chainId = req.query.chainId.toString();
+        const multisigAddress = req.query.multisigAddress?.toString() || "";
+        const chainId = req.query.chainId?.toString() || "";
         console.log("Function `getMultisig` invoked", multisigAddress, chainId);
         const getRes = await getMultisig(multisigAddress, chainId);
         if (!getRes.data.data.getMultisig) {

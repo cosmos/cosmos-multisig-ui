@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createSignature } from "../../../../lib/graphqlHelpers";
 
-export default async function (req: NextApiRequest, res: NextApiResponse) {
+export default async function transactionIDApi(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case "POST":
       try {
-        const transactionID = req.query.transactionID.toString();
+        const transactionID = req.query.transactionID?.toString() || "";
         const data = req.body;
         console.log("Function `createSignature` invoked", data);
         const saveRes = await createSignature(data, transactionID);
