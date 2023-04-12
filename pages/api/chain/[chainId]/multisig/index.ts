@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createMultisig } from "../../../../../lib/graphqlHelpers";
 
-export default async function (req: NextApiRequest, res: NextApiResponse) {
+export default async function multisigApi(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case "POST":
       try {

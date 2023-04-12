@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from "react";
 import { MultisigThresholdPubkey, SinglePubkey } from "@cosmjs/amino";
 import { Account, StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { useRouter } from "next/router";
-
-import { useAppContext } from "../../../context/AppContext";
-import Button from "../../../components/inputs/Button";
-import { getMultisigAccount } from "../../../lib/multisigHelpers";
+import { useCallback, useEffect, useState } from "react";
 import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
+import DelegationForm from "../../../components/forms/DelegationForm";
+import TransactionForm from "../../../components/forms/TransactionForm";
+import Button from "../../../components/inputs/Button";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
-import TransactionForm from "../../../components/forms/TransactionForm";
-import DelegationForm from "../../../components/forms/DelegationForm";
+import { useAppContext } from "../../../context/AppContext";
+import { getMultisigAccount } from "../../../lib/multisigHelpers";
 
 function participantPubkeysFromMultisig(
   multisig: MultisigThresholdPubkey,
@@ -22,7 +21,7 @@ function participantPubkeysFromMultisig(
   return multisig.value.pubkeys;
 }
 
-const multipage = () => {
+const Multipage = () => {
   const { state } = useAppContext();
   const [showSendTxForm, setShowSendTxForm] = useState(false);
   const [showDelegateTxForm, setShowDelegateTxForm] = useState(false);
@@ -33,31 +32,34 @@ const multipage = () => {
   const [accountError, setAccountError] = useState(null);
   const router = useRouter();
 
+  const fetchMultisig = useCallback(
+    async (address: string) => {
+      setAccountError(null);
+      try {
+        assert(state.chain.nodeAddress, "Node address missing");
+        const client = await StargateClient.connect(state.chain.nodeAddress);
+        assert(state.chain.denom, "denom missing");
+        const tempHoldings = await client.getBalance(address, state.chain.denom);
+        setHoldings(tempHoldings);
+        const result = await getMultisigAccount(address, client);
+        setPubkey(result[0]);
+        setAccountOnChain(result[1]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        setAccountError(error.message);
+        console.log("Account error:", error);
+      }
+    },
+    [state.chain.denom, state.chain.nodeAddress],
+  );
+
   useEffect(() => {
     const address = router.query.address?.toString();
     if (address) {
       setMultisigAddress(address);
       fetchMultisig(address);
     }
-  }, [state, router.query.address]);
-
-  const fetchMultisig = async (address: string) => {
-    setAccountError(null);
-    try {
-      assert(state.chain.nodeAddress, "Node address missing");
-      const client = await StargateClient.connect(state.chain.nodeAddress);
-      assert(state.chain.denom, "denom missing");
-      const tempHoldings = await client.getBalance(address, state.chain.denom);
-      setHoldings(tempHoldings);
-      const result = await getMultisigAccount(address, client);
-      setPubkey(result[0]);
-      setAccountOnChain(result[1]);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      setAccountError(error.message);
-      console.log("Account error:", error);
-    }
-  };
+  }, [fetchMultisig, router.query.address]);
 
   assert(state.chain.addressPrefix, "address prefix missing");
 
@@ -180,4 +182,4 @@ const multipage = () => {
   );
 };
 
-export default multipage;
+export default Multipage;

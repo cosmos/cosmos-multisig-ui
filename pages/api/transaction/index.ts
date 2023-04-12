@@ -1,7 +1,7 @@
-import { createTransaction } from "../../../lib/graphqlHelpers";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { createTransaction } from "../../../lib/graphqlHelpers";
 
-export default async function (req: NextApiRequest, res: NextApiResponse) {
+export default async function transactionApi(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case "POST":
       try {

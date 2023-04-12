@@ -1,7 +1,7 @@
 import { StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import GearIcon from "../icons/Gear";
 import Button from "../inputs/Button";
@@ -58,25 +58,7 @@ const ChainSelect = () => {
 
   const url = "https://api.github.com/repos/cosmos/chain-registry/contents";
 
-  useEffect(() => {
-    getGhJson();
-  }, []);
-
-  useEffect(() => {
-    // set settings form fields to new values
-    setChainId(state.chain.chainId);
-    setNodeAddress(state.chain.nodeAddress);
-    setAddressPrefix(state.chain.addressPrefix);
-    setDenom(state.chain.denom);
-    setDisplayDenom(state.chain.displayDenom);
-    setDisplayDenomExponent(state.chain.displayDenomExponent);
-    setGasPrice(state.chain.gasPrice);
-    setChainName(state.chain.chainDisplayName);
-    setExplorerLink(state.chain.explorerLink);
-    setRegistryName(state.chain.registryName);
-  }, [state]);
-
-  const getGhJson = async () => {
+  const getGhJson = useCallback(async () => {
     // getting chain info from this repo: https://github.com/cosmos/chain-registry
     try {
       const res = await axios.get(url);
@@ -96,7 +78,25 @@ const ChainSelect = () => {
       setShowSettings(true);
       setChainError(error.message);
     }
-  };
+  }, [state.chain.registryName]);
+
+  useEffect(() => {
+    getGhJson();
+  }, [getGhJson]);
+
+  useEffect(() => {
+    // set settings form fields to new values
+    setChainId(state.chain.chainId);
+    setNodeAddress(state.chain.nodeAddress);
+    setAddressPrefix(state.chain.addressPrefix);
+    setDenom(state.chain.denom);
+    setDisplayDenom(state.chain.displayDenom);
+    setDisplayDenomExponent(state.chain.displayDenomExponent);
+    setGasPrice(state.chain.gasPrice);
+    setChainName(state.chain.chainDisplayName);
+    setExplorerLink(state.chain.explorerLink);
+    setRegistryName(state.chain.registryName);
+  }, [state]);
 
   const findExistingOption = (options: ChainOption[], registryName: string) => {
     const index = options.findIndex((option) => option.label === registryName);
