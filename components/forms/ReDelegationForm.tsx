@@ -1,14 +1,14 @@
-import axios from "axios";
-import { Account, calculateFee } from "@cosmjs/stargate";
 import { Decimal } from "@cosmjs/math";
+import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
+import axios from "axios";
+import { NextRouter, withRouter } from "next/router";
 import React, { useState } from "react";
-import { withRouter, NextRouter } from "next/router";
 import { useAppContext } from "../../context/AppContext";
+import { checkAddress, exampleValidatorAddress } from "../../lib/displayHelpers";
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
-import { checkValidatorAddress } from "../../lib/displayHelpers";
 
 interface Props {
   address: string | null;
@@ -67,8 +67,8 @@ const ReDelegationForm = (props: Props) => {
 
   const handleCreate = async () => {
     assert(state.chain.addressPrefix, "addressPrefix missing");
-    const validatorSrcAddressError = checkValidatorAddress(validatorSrcAddress, "cosmosvaloper");
-    const validatorDstAddressError = checkValidatorAddress(validatorDstAddress, "cosmosvaloper");
+    const validatorSrcAddressError = checkAddress(validatorSrcAddress, state.chain.addressPrefix);
+    const validatorDstAddressError = checkAddress(validatorDstAddress, state.chain.addressPrefix);
     if (validatorSrcAddressError) {
       setAddressError(
         `Invalid address for network ${state.chain.chainId}: ${validatorSrcAddressError}`,
@@ -109,7 +109,7 @@ const ReDelegationForm = (props: Props) => {
             setValidatorSrcAddress(e.target.value)
           }
           error={addressError}
-          placeholder={`E.g. cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0`}
+          placeholder={`E.g. ${exampleValidatorAddress(0, state.chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">
@@ -121,7 +121,7 @@ const ReDelegationForm = (props: Props) => {
             setValidatorDstAddress(e.target.value)
           }
           error={addressError}
-          placeholder={`E.g. cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0`}
+          placeholder={`E.g. ${exampleValidatorAddress(1, state.chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">

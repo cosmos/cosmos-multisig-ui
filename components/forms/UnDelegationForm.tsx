@@ -1,14 +1,14 @@
-import axios from "axios";
-import { Account, calculateFee } from "@cosmjs/stargate";
 import { Decimal } from "@cosmjs/math";
+import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import React, { useState } from "react";
-import { withRouter, NextRouter } from "next/router";
+import axios from "axios";
+import { NextRouter, withRouter } from "next/router";
+import { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
+import { checkAddress, exampleValidatorAddress } from "../../lib/displayHelpers";
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
-import { checkValidatorAddress } from "../../lib/displayHelpers";
 
 interface Props {
   address: string | null;
@@ -60,7 +60,7 @@ const UnDelegationForm = (props: Props) => {
 
   const handleCreate = async () => {
     assert(state.chain.addressPrefix, "addressPrefix missing");
-    const validatorAddressError = checkValidatorAddress(validatorAddress, "cosmosvaloper");
+    const validatorAddressError = checkAddress(validatorAddress, state.chain.addressPrefix);
     if (validatorAddressError) {
       setAddressError(
         `Invalid address for network ${state.chain.chainId}: ${validatorAddressError}`,
@@ -93,7 +93,7 @@ const UnDelegationForm = (props: Props) => {
           value={validatorAddress}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValidatorAddress(e.target.value)}
           error={addressError}
-          placeholder={`E.g. cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0`}
+          placeholder={`E.g. ${exampleValidatorAddress(0, state.chain.addressPrefix)})}`}
         />
       </div>
       <div className="form-item">
