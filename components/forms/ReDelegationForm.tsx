@@ -3,7 +3,7 @@ import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import axios from "axios";
 import { NextRouter, withRouter } from "next/router";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { checkAddress, exampleValidatorAddress } from "../../lib/displayHelpers";
 import Button from "../inputs/Button";
@@ -32,8 +32,10 @@ const ReDelegationForm = (props: Props) => {
     txValidatorSrcAddress: string,
     txValidatorDstAddress: string,
     txAmount: string,
-    txGas: number,
+    gasLimit: number,
   ) => {
+    assert(Number.isSafeInteger(gasLimit) && gasLimit > 0, "gas limit must be a positive integer");
+
     const amountInAtomics = Decimal.fromUserInput(
       txAmount,
       Number(state.chain.displayDenomExponent),
@@ -52,7 +54,7 @@ const ReDelegationForm = (props: Props) => {
       value: msgRedelegate,
     };
     assert(gasPrice, "gasPrice missing");
-    const fee = calculateFee(Number(txGas), gasPrice);
+    const fee = calculateFee(gasLimit, gasPrice);
     const { accountOnChain } = props;
     assert(accountOnChain, "accountOnChain missing");
     return {
