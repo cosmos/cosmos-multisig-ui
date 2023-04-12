@@ -1,7 +1,7 @@
-import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
-import { sha512 } from "@cosmjs/crypto";
-import { Decimal } from "@cosmjs/math";
 import { Coin } from "@cosmjs/amino";
+import { sha512 } from "@cosmjs/crypto";
+import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
+import { Decimal } from "@cosmjs/math";
 import { ChainInfo } from "../types";
 
 /**
@@ -81,6 +81,21 @@ const exampleAddress = (index: number, chainAddressPrefix: string) => {
 };
 
 /**
+ * Generates an example address for the configured blockchain.
+ *
+ * `index` can be set to a small integer in order to get different addresses. Defaults to 0.
+ */
+const exampleValidatorAddress = (index: number, chainAddressPrefix: string) => {
+  const usedIndex = index || 0;
+  let data = fromBech32("cosmosvaloper10v6wvdenee8r9l6wlsphcgur2ltl8ztkfrvj9a").data;
+  for (let i = 0; i < usedIndex; ++i) {
+    data = sha512(data).slice(0, data.length); // hash one time and trim to original length
+  }
+  const validatorPrefix = chainAddressPrefix + "valoper";
+  return toBech32(validatorPrefix, data);
+};
+
+/**
  * Generates an example pubkey (secp256k1, compressed).
  *
  * `index` can be set to a small integer in order to get different addresses. Defaults to 0.
@@ -115,38 +130,12 @@ const checkAddress = (input: string, chainAddressPrefix: string) => {
     return error.toString();
   }
 
-  if (prefix !== chainAddressPrefix) {
+  if (!prefix.startsWith(chainAddressPrefix)) {
     return `Expected address prefix '${chainAddressPrefix}' but got '${prefix}'`;
   }
 
   if (data.length !== 20) {
     return "Invalid address length in bech32 data. Must be 20 bytes.";
-  }
-
-  return null;
-};
-
-/**
- * Returns an error message for invalid addresses.
- *
- * Returns null of there is no error.
- */
-const checkValidatorAddress = (input: string, chainAddressPrefix: string): string | null => {
-  if (!input) return "Empty";
-  let prefix;
-  try {
-    ({ prefix } = fromBech32(input));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    return error.toString();
-  }
-
-  if (prefix !== chainAddressPrefix) {
-    return `Expected address prefix '${chainAddressPrefix}' but got '${prefix}'`;
-  }
-
-  if (input.length !== 52) {
-    return "Invalid address length in validator address. Must be 52 bytes.";
   }
 
   return null;
@@ -168,8 +157,8 @@ export {
   printableCoin,
   printableCoins,
   exampleAddress,
+  exampleValidatorAddress,
   examplePubkey,
   checkAddress,
   explorerLinkTx,
-  checkValidatorAddress,
 };
