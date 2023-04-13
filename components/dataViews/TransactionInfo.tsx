@@ -34,12 +34,12 @@ const TransactionInfo = (props: Props) => {
               <>
                 <li>
                   <label>Amount:</label>
-                  <div>{printableCoin(props.tx.msgs[0].value.amount, state.chain)}</div>
+                  <div>{printableCoin(msg.value.amount, state.chain)}</div>
                 </li>
                 <li>
                   <label>Validator Address:</label>
-                  <div title={props.tx.msgs[0].value.validatorAddress}>
-                    <HashView hash={props.tx.msgs[0].value.validatorAddress} />
+                  <div title={msg.value.validatorAddress}>
+                    <HashView hash={msg.value.validatorAddress} />
                   </div>
                 </li>
               </>
@@ -47,34 +47,28 @@ const TransactionInfo = (props: Props) => {
               <>
                 <li>
                   <label>Amount:</label>
-                  <div>{printableCoin(props.tx.msgs[0].value.amount, state.chain)}</div>
+                  <div>{printableCoin(msg.value.amount, state.chain)}</div>
                 </li>
                 <li>
                   <label>Source Validator Address:</label>
-                  <div title={props.tx.msgs[0].value.validatorSrcAddress}>
-                    <HashView hash={props.tx.msgs[0].value.validatorSrcAddress} />
+                  <div title={msg.value.validatorSrcAddress}>
+                    <HashView hash={msg.value.validatorSrcAddress} />
                   </div>
                 </li>
                 <li>
                   <label>Destination Validator Address:</label>
-                  <div title={props.tx.msgs[0].value.validatorDstAddress}>
-                    <HashView hash={props.tx.msgs[0].value.validatorDstAddress} />
+                  <div title={msg.value.validatorDstAddress}>
+                    <HashView hash={msg.value.validatorDstAddress} />
                   </div>
                 </li>
               </>
             ) : msg.typeUrl === "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward" ? (
-              <>
-                <li>
-                  <label>Amount:</label>
-                  <div>{printableCoin(props.tx.msgs[0].value.amount, state.chain)}</div>
-                </li>
-                <li>
-                  <label>Validator Address:</label>
-                  <div title={props.tx.msgs[0].value.validatorAddress}>
-                    <HashView hash={props.tx.msgs[0].value.validatorAddress} />
-                  </div>
-                </li>
-              </>
+              <li>
+                <label>Validator Address:</label>
+                <div title={msg.value.validatorAddress}>
+                  <HashView hash={msg.value.validatorAddress} />
+                </div>
+              </li>
             ) : null,
           )}
           {props.tx.fee && (
