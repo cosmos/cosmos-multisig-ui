@@ -1,6 +1,4 @@
-import React from "react";
-
-import { abbreviateLongString } from "../../lib/displayHelpers";
+import { ellideMiddle } from "../../lib/displayHelpers";
 import CopyAndPaste from "./CopyAndPaste";
 
 interface Props {
@@ -10,7 +8,7 @@ interface Props {
 
 const HashView = (props: Props) => (
   <div className="hash-view">
-    <div>{props.abbreviate ? abbreviateLongString(props.hash) : props.hash}</div>
+    <div>{props.abbreviate ? ellideMiddle(props.hash, 12) : props.hash}</div>
     <CopyAndPaste copyText={props.hash} />
     <style jsx>{`
       .hash-view {
