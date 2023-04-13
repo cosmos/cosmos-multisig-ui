@@ -11,7 +11,7 @@ import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
 
 interface Props {
-  address: string | null;
+  delegatorAddress: string;
   accountOnChain: Account | null;
   router: NextRouter;
   closeForm: () => void;
@@ -41,7 +41,7 @@ const ReDelegationForm = (props: Props) => {
       Number(state.chain.displayDenomExponent),
     ).atomics;
     const msgRedelegate = {
-      delegatorAddress: props.address,
+      delegatorAddress: props.delegatorAddress,
       validatorSrcAddress: txValidatorSrcAddress,
       validatorDstAddress: txValidatorDstAddress,
       amount: {
@@ -91,7 +91,7 @@ const ReDelegationForm = (props: Props) => {
     const res = await axios.post("/api/transaction", { dataJSON });
     console.log(dataJSON, "tx dataJSON", res);
     const { transactionID } = res.data;
-    props.router.push(`${props.address}/transaction/${transactionID}`);
+    props.router.push(`${props.delegatorAddress}/transaction/${transactionID}`);
   };
 
   assert(state.chain.addressPrefix, "addressPrefix missing");
