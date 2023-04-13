@@ -15,7 +15,9 @@ const MultisigHoldings = (props: Props) => {
       <StackableContainer lessPadding lessMargin>
         {props.holdings.length ? (
           props.holdings.map((holding) => (
-            <span key={holding.denom}>{printableCoin(holding, state.chain)}</span>
+            <StackableContainer key={holding.denom} lessPadding lessMargin>
+              <span>{printableCoin(holding, state.chain)}</span>
+            </StackableContainer>
           ))
         ) : (
           <span>None</span>
@@ -24,6 +26,7 @@ const MultisigHoldings = (props: Props) => {
       <style jsx>{`
         span {
           text-align: center;
+          overflow-wrap: break-word;
         }
       `}</style>
     </StackableContainer>
