@@ -18,7 +18,7 @@ import StackableContainer from "../../../components/layout/StackableContainer";
 import { useAppContext } from "../../../context/AppContext";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
 
-type TxView = "select" | "send" | "delegate" | "undelegate" | "redelegate" | "claimRewards";
+type TxView = null | "send" | "delegate" | "undelegate" | "redelegate" | "claimRewards";
 
 function participantPubkeysFromMultisig(
   multisig: MultisigThresholdPubkey,
@@ -28,7 +28,7 @@ function participantPubkeysFromMultisig(
 
 const Multipage = () => {
   const { state } = useAppContext();
-  const [txView, setTxView] = useState<TxView>("select");
+  const [txView, setTxView] = useState<TxView>(null);
   const [holdings, setHoldings] = useState<Coin | null>(null);
   const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
@@ -37,7 +37,7 @@ const Multipage = () => {
   const router = useRouter();
 
   const closeForm = () => {
-    setTxView("select");
+    setTxView(null);
   };
 
   const fetchMultisig = useCallback(
@@ -141,7 +141,7 @@ const Multipage = () => {
             closeForm={closeForm}
           />
         )}
-        {txView === "select" && (
+        {txView === null && (
           <div className="interfaces">
             <div className="col-1">
               <MultisigHoldings holdings={holdings} />
