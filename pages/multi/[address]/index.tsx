@@ -29,7 +29,7 @@ function participantPubkeysFromMultisig(
 const Multipage = () => {
   const { state } = useAppContext();
   const [txView, setTxView] = useState<TxView>(null);
-  const [holdings, setHoldings] = useState<Coin | null>(null);
+  const [holdings, setHoldings] = useState<readonly Coin[]>([]);
   const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
@@ -47,7 +47,7 @@ const Multipage = () => {
         assert(state.chain.nodeAddress, "Node address missing");
         const client = await StargateClient.connect(state.chain.nodeAddress);
         assert(state.chain.denom, "denom missing");
-        const tempHoldings = await client.getBalance(address, state.chain.denom);
+        const tempHoldings = await client.getAllBalances(address);
         setHoldings(tempHoldings);
         const result = await getMultisigAccount(address, client);
         setPubkey(result[0]);
