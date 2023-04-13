@@ -51,7 +51,7 @@ const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
 
   // Ellide IBC tokens
   if (coin.denom.startsWith("ibc/")) {
-    const value = Decimal.fromAtomics(coin.amount ?? "0", 6).toString();
+    const value = coin.amount;
     const hash = coin.denom.slice(4);
     const ellidedHash = ellideMiddle(hash, 12);
     const ticker = `ibc/${ellidedHash}`;
