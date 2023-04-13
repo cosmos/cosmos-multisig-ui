@@ -26,7 +26,7 @@ const ReDelegationForm = (props: Props) => {
   const [gas, setGas] = useState(300000);
   const [gasPrice, _setGasPrice] = useState(state.chain.gasPrice);
   const [_processing, setProcessing] = useState(false);
-  const [addressErrors, setAddressErrors] = useState({ srcAddress: "", dstAddress: "" });
+  const [addressErrors, setAddressErrors] = useState({ src: "", dst: "" });
 
   const createTransaction = (
     txValidatorSrcAddress: string,
@@ -73,10 +73,10 @@ const ReDelegationForm = (props: Props) => {
     const validatorDstAddressError = checkAddress(validatorDstAddress, state.chain.addressPrefix);
 
     setAddressErrors({
-      srcAddress: validatorSrcAddressError
+      src: validatorSrcAddressError
         ? `Invalid address for network ${state.chain.chainId}: ${validatorSrcAddressError}`
         : "",
-      dstAddress: validatorDstAddressError
+      dst: validatorDstAddressError
         ? `Invalid address for network ${state.chain.chainId}: ${validatorDstAddressError}`
         : "",
     });
@@ -110,7 +110,7 @@ const ReDelegationForm = (props: Props) => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setValidatorSrcAddress(e.target.value)
           }
-          error={addressErrors.srcAddress}
+          error={addressErrors.src}
           placeholder={`E.g. ${exampleValidatorAddress(0, state.chain.addressPrefix)}`}
         />
       </div>
@@ -122,7 +122,7 @@ const ReDelegationForm = (props: Props) => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setValidatorDstAddress(e.target.value)
           }
-          error={addressErrors.dstAddress}
+          error={addressErrors.dst}
           placeholder={`E.g. ${exampleValidatorAddress(1, state.chain.addressPrefix)}`}
         />
       </div>
