@@ -26,7 +26,7 @@ const ReDelegationForm = (props: Props) => {
   const [gas, setGas] = useState(300000);
   const [gasPrice, _setGasPrice] = useState(state.chain.gasPrice);
   const [_processing, setProcessing] = useState(false);
-  const [addressError, setAddressError] = useState("");
+  const [addressErrors, setAddressErrors] = useState({ srcAddress: "", dstAddress: "" });
 
   const createTransaction = (
     txValidatorSrcAddress: string,
@@ -71,16 +71,16 @@ const ReDelegationForm = (props: Props) => {
     assert(state.chain.addressPrefix, "addressPrefix missing");
     const validatorSrcAddressError = checkAddress(validatorSrcAddress, state.chain.addressPrefix);
     const validatorDstAddressError = checkAddress(validatorDstAddress, state.chain.addressPrefix);
-    if (validatorSrcAddressError) {
-      setAddressError(
-        `Invalid address for network ${state.chain.chainId}: ${validatorSrcAddressError}`,
-      );
-      return;
-    }
-    if (validatorDstAddressError) {
-      setAddressError(
-        `Invalid address for network ${state.chain.chainId}: ${validatorDstAddressError}`,
-      );
+
+    setAddressErrors({
+      srcAddress: validatorSrcAddressError
+        ? `Invalid address for network ${state.chain.chainId}: ${validatorSrcAddressError}`
+        : "",
+      dstAddress: validatorDstAddressError
+        ? `Invalid address for network ${state.chain.chainId}: ${validatorDstAddressError}`
+        : "",
+    });
+    if (validatorSrcAddressError || validatorDstAddressError) {
       return;
     }
 
@@ -110,7 +110,7 @@ const ReDelegationForm = (props: Props) => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setValidatorSrcAddress(e.target.value)
           }
-          error={addressError}
+          error={addressErrors.srcAddress}
           placeholder={`E.g. ${exampleValidatorAddress(0, state.chain.addressPrefix)}`}
         />
       </div>
@@ -122,7 +122,7 @@ const ReDelegationForm = (props: Props) => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setValidatorDstAddress(e.target.value)
           }
-          error={addressError}
+          error={addressErrors.dstAddress}
           placeholder={`E.g. ${exampleValidatorAddress(1, state.chain.addressPrefix)}`}
         />
       </div>
