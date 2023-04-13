@@ -4,21 +4,15 @@ import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
 import { Decimal } from "@cosmjs/math";
 import { ChainInfo } from "../types";
 
-/**
- * Abbreviates long strings, typically used for
- * addresses and transaction hashes.
- *
- * @param {string} longString The string to abbreviate.
- * @return {string} The abbreviated string.
- */
-const abbreviateLongString = (longString: string) => {
-  if (longString.length < 13) {
-    // no need to abbreviate
-    return longString;
+function ellideMiddle(str: string, maxOutLen: number): string {
+  if (str.length <= maxOutLen) {
+    return str;
   }
-
-  return longString.slice(0, 5) + "..." + longString.slice(-5);
-};
+  const ellide = "…";
+  const frontLen = Math.ceil((maxOutLen - ellide.length) / 2);
+  const tailLen = Math.floor((maxOutLen - ellide.length) / 2);
+  return str.slice(0, frontLen) + ellide + str.slice(str.length - tailLen, str.length);
+}
 
 // NARROW NO-BREAK SPACE (U+202F)
 const thinSpace = "\u202F";
@@ -49,9 +43,18 @@ const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
   }
 
   // Auto-convert leading "u"s
-  if (coin.denom?.startsWith("u")) {
+  if (coin.denom.startsWith("u")) {
     const value = Decimal.fromAtomics(coin.amount ?? "0", 6).toString();
     const ticker = coin.denom.slice(1).toUpperCase();
+    return value + thinSpace + ticker;
+  }
+
+  // Ellide IBC tokens
+  if (coin.denom.startsWith("ibc/")) {
+    const value = Decimal.fromAtomics(coin.amount ?? "0", 6).toString();
+    const hash = coin.denom.slice(4);
+    const ellidedHash = ellideMiddle(hash, 12);
+    const ticker = `ibc/${ellidedHash}`;
     return value + thinSpace + ticker;
   }
 
@@ -150,7 +153,7 @@ const explorerLinkTx = (link: string, hash: string) => {
 };
 
 export {
-  abbreviateLongString,
+  ellideMiddle,
   printableCoin,
   printableCoins,
   exampleAddress,
