@@ -132,11 +132,11 @@ const ChainSelect = () => {
       const registryName = chainOption.name;
       const explorerLink = getExplorerFromArray(chainData.explorers);
 
-      const asset: ChainRegistryAsset | undefined = assetData.assets?.[0];
-      const denom = asset?.base || "";
-      const displayDenom = asset?.symbol || "";
-      const gasPrice = asset ? `0.03${asset.base}` : "";
-      const displayUnit = asset?.denom_units.find((u) => u.denom == asset.display);
+      const firstAsset: ChainRegistryAsset | undefined = assetData.assets?.[0];
+      const denom = firstAsset?.base || "";
+      const displayDenom = firstAsset?.symbol || "";
+      const gasPrice = firstAsset ? `0.03${firstAsset.base}` : "";
+      const displayUnit = firstAsset?.denom_units.find((u) => u.denom == firstAsset.display);
       const displayDenomExponent = displayUnit?.exponent ?? 6;
 
       // test client connection
