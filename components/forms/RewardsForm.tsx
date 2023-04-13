@@ -1,9 +1,8 @@
-import { Decimal } from "@cosmjs/math";
 import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import axios from "axios";
 import { NextRouter, withRouter } from "next/router";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { checkAddress, exampleValidatorAddress } from "../../lib/displayHelpers";
 import Button from "../inputs/Button";
@@ -17,34 +16,25 @@ interface Props {
   closeForm: () => void;
 }
 
-const DelegationForm = (props: Props) => {
+const RewardsForm = (props: Props) => {
   const { state } = useAppContext();
   const [validatorAddress, setValidatorAddress] = useState("");
-  const [amount, setAmount] = useState("0");
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(200000);
   const [gasPrice, _setGasPrice] = useState(state.chain.gasPrice);
   const [_processing, setProcessing] = useState(false);
   const [addressError, setAddressError] = useState("");
 
-  const createTransaction = (txValidatorAddress: string, txAmount: string, gasLimit: number) => {
+  const createTransaction = (txValidatorAddress: string, gasLimit: number) => {
     assert(Number.isSafeInteger(gasLimit) && gasLimit > 0, "gas limit must be a positive integer");
 
-    const amountInAtomics = Decimal.fromUserInput(
-      txAmount,
-      Number(state.chain.displayDenomExponent),
-    ).atomics;
-    const msgDelegate = {
+    const msgDelegatorReward = {
       delegatorAddress: props.delegatorAddress,
       validatorAddress: txValidatorAddress,
-      amount: {
-        amount: amountInAtomics,
-        denom: state.chain.denom,
-      },
     };
     const msg = {
-      typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
-      value: msgDelegate,
+      typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+      value: msgDelegatorReward,
     };
     assert(gasPrice, "gasPrice missing");
     const fee = calculateFee(gasLimit, gasPrice);
@@ -71,7 +61,7 @@ const DelegationForm = (props: Props) => {
     }
 
     setProcessing(true);
-    const tx = createTransaction(validatorAddress, amount, gas);
+    const tx = createTransaction(validatorAddress, gas);
     console.log(tx, "tx data");
     const dataJSON = JSON.stringify(tx);
     const res = await axios.post("/api/transaction", { dataJSON });
@@ -87,7 +77,7 @@ const DelegationForm = (props: Props) => {
       <button className="remove" onClick={() => props.closeForm()}>
         ✕
       </button>
-      <h2>Create Delegation</h2>
+      <h2>Claim Rewards</h2>
       <div className="form-item">
         <Input
           label="Validator Address"
@@ -95,16 +85,7 @@ const DelegationForm = (props: Props) => {
           value={validatorAddress}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValidatorAddress(e.target.value)}
           error={addressError}
-          placeholder={`E.g. ${exampleValidatorAddress(0, state.chain.addressPrefix)}`}
-        />
-      </div>
-      <div className="form-item">
-        <Input
-          label={`Amount (${state.chain.displayDenom})`}
-          name="amount"
-          type="number"
-          value={amount}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
+          placeholder={`E.g. ${exampleValidatorAddress(0, state.chain.addressPrefix)})}`}
         />
       </div>
       <div className="form-item">
@@ -130,7 +111,7 @@ const DelegationForm = (props: Props) => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMemo(e.target.value)}
         />
       </div>
-      <Button label="Delegate" onClick={handleCreate} />
+      <Button label="Claim Rewards" onClick={handleCreate} />
       <style jsx>{`
         p {
           margin-top: 15px;
@@ -154,4 +135,4 @@ const DelegationForm = (props: Props) => {
   );
 };
 
-export default withRouter(DelegationForm);
+export default withRouter(RewardsForm);

@@ -1,11 +1,9 @@
-import React from "react";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
-
-import { DbTransaction } from "../../types";
 import { useAppContext } from "../../context/AppContext";
-import HashView from "./HashView";
+import { printableCoin, printableCoins } from "../../lib/displayHelpers";
+import { DbTransaction } from "../../types";
 import StackableContainer from "../layout/StackableContainer";
-import { printableCoins, printableCoin } from "../../lib/displayHelpers";
+import HashView from "./HashView";
 
 interface Props {
   tx: DbTransaction;
@@ -32,16 +30,16 @@ const TransactionInfo = (props: Props) => {
                 </li>
               </>
             ) : msg.typeUrl === "/cosmos.staking.v1beta1.MsgDelegate" ||
-              msg.typeUrl === "/cosmos.staking.v1beta1.MsgUnDelegate" ? (
+              msg.typeUrl === "/cosmos.staking.v1beta1.MsgUndelegate" ? (
               <>
                 <li>
                   <label>Amount:</label>
-                  <div>{printableCoin(props.tx.msgs[0].value.amount, state.chain)}</div>
+                  <div>{printableCoin(msg.value.amount, state.chain)}</div>
                 </li>
                 <li>
                   <label>Validator Address:</label>
-                  <div title={props.tx.msgs[0].value.validatorAddress}>
-                    <HashView hash={props.tx.msgs[0].value.validatorAddress} />
+                  <div title={msg.value.validatorAddress}>
+                    <HashView hash={msg.value.validatorAddress} />
                   </div>
                 </li>
               </>
@@ -49,21 +47,28 @@ const TransactionInfo = (props: Props) => {
               <>
                 <li>
                   <label>Amount:</label>
-                  <div>{printableCoin(props.tx.msgs[0].value.amount, state.chain)}</div>
+                  <div>{printableCoin(msg.value.amount, state.chain)}</div>
                 </li>
                 <li>
                   <label>Source Validator Address:</label>
-                  <div title={props.tx.msgs[0].value.validatorSrcAddress}>
-                    <HashView hash={props.tx.msgs[0].value.validatorSrcAddress} />
+                  <div title={msg.value.validatorSrcAddress}>
+                    <HashView hash={msg.value.validatorSrcAddress} />
                   </div>
                 </li>
                 <li>
                   <label>Destination Validator Address:</label>
-                  <div title={props.tx.msgs[0].value.validatorDstAddress}>
-                    <HashView hash={props.tx.msgs[0].value.validatorDstAddress} />
+                  <div title={msg.value.validatorDstAddress}>
+                    <HashView hash={msg.value.validatorDstAddress} />
                   </div>
                 </li>
               </>
+            ) : msg.typeUrl === "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward" ? (
+              <li>
+                <label>Validator Address:</label>
+                <div title={msg.value.validatorAddress}>
+                  <HashView hash={msg.value.validatorAddress} />
+                </div>
+              </li>
             ) : null,
           )}
           {props.tx.fee && (

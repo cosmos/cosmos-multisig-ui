@@ -8,12 +8,17 @@ import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import DelegationForm from "../../../components/forms/DelegationForm";
+import ReDelegationForm from "../../../components/forms/ReDelegationForm";
+import RewardsForm from "../../../components/forms/RewardsForm";
 import TransactionForm from "../../../components/forms/TransactionForm";
+import UnDelegationForm from "../../../components/forms/UnDelegationForm";
 import Button from "../../../components/inputs/Button";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import { useAppContext } from "../../../context/AppContext";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
+
+type TxView = null | "send" | "delegate" | "undelegate" | "redelegate" | "claimRewards";
 
 function participantPubkeysFromMultisig(
   multisig: MultisigThresholdPubkey,
@@ -23,14 +28,17 @@ function participantPubkeysFromMultisig(
 
 const Multipage = () => {
   const { state } = useAppContext();
-  const [showSendTxForm, setShowSendTxForm] = useState(false);
-  const [showDelegateTxForm, setShowDelegateTxForm] = useState(false);
+  const [txView, setTxView] = useState<TxView>(null);
   const [holdings, setHoldings] = useState<Coin | null>(null);
   const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
   const router = useRouter();
+
+  const closeForm = () => {
+    setTxView(null);
+  };
 
   const fetchMultisig = useCallback(
     async (address: string) => {
@@ -98,25 +106,42 @@ const Multipage = () => {
             </div>
           </StackableContainer>
         )}
-        {showSendTxForm && (
+        {txView === "send" && (
           <TransactionForm
             address={multisigAddress}
             accountOnChain={accountOnChain}
-            closeForm={() => {
-              setShowSendTxForm(false);
-            }}
+            closeForm={closeForm}
           />
         )}
-        {showDelegateTxForm && (
+        {txView === "delegate" && (
           <DelegationForm
-            address={multisigAddress}
+            delegatorAddress={multisigAddress}
             accountOnChain={accountOnChain}
-            closeForm={() => {
-              setShowDelegateTxForm(false);
-            }}
+            closeForm={closeForm}
           />
         )}
-        {!showSendTxForm && !showDelegateTxForm && (
+        {txView === "undelegate" && (
+          <UnDelegationForm
+            delegatorAddress={multisigAddress}
+            accountOnChain={accountOnChain}
+            closeForm={closeForm}
+          />
+        )}
+        {txView === "redelegate" && (
+          <ReDelegationForm
+            delegatorAddress={multisigAddress}
+            accountOnChain={accountOnChain}
+            closeForm={closeForm}
+          />
+        )}
+        {txView === "claimRewards" && (
+          <RewardsForm
+            delegatorAddress={multisigAddress}
+            accountOnChain={accountOnChain}
+            closeForm={closeForm}
+          />
+        )}
+        {txView === null && (
           <div className="interfaces">
             <div className="col-1">
               <MultisigHoldings holdings={holdings} />
@@ -131,13 +156,31 @@ const Multipage = () => {
                 <Button
                   label="Create Transaction"
                   onClick={() => {
-                    setShowSendTxForm(true);
+                    setTxView("send");
                   }}
                 />
                 <Button
                   label="Create Delegation"
                   onClick={() => {
-                    setShowDelegateTxForm(true);
+                    setTxView("delegate");
+                  }}
+                />
+                <Button
+                  label="Create UnDelegation"
+                  onClick={() => {
+                    setTxView("undelegate");
+                  }}
+                />
+                <Button
+                  label="Create Redelegate"
+                  onClick={() => {
+                    setTxView("redelegate");
+                  }}
+                />
+                <Button
+                  label="Claim Rewards"
+                  onClick={() => {
+                    setTxView("claimRewards");
                   }}
                 />
               </StackableContainer>
