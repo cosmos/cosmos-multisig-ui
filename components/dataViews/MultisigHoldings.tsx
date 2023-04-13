@@ -1,12 +1,10 @@
-import React from "react";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
-
 import { useAppContext } from "../../context/AppContext";
 import { printableCoin } from "../../lib/displayHelpers";
 import StackableContainer from "../layout/StackableContainer";
 
 interface Props {
-  holdings: Coin | null;
+  holdings: readonly Coin[];
 }
 
 const MultisigHoldings = (props: Props) => {
@@ -15,8 +13,10 @@ const MultisigHoldings = (props: Props) => {
     <StackableContainer lessPadding fullHeight>
       <h2>Holdings</h2>
       <StackableContainer lessPadding lessMargin>
-        {props.holdings ? (
-          <span>{printableCoin(props.holdings, state.chain)}</span>
+        {props.holdings.length ? (
+          props.holdings.map((holding) => (
+            <span key={holding.denom}>{printableCoin(holding, state.chain)}</span>
+          ))
         ) : (
           <span>None</span>
         )}
