@@ -18,6 +18,8 @@ import StackableContainer from "../../../components/layout/StackableContainer";
 import { useAppContext } from "../../../context/AppContext";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
 
+type TxView = "select" | "send" | "delegate" | "undelegate" | "redelegate" | "claimRewards";
+
 function participantPubkeysFromMultisig(
   multisig: MultisigThresholdPubkey,
 ): readonly SinglePubkey[] {
@@ -26,17 +28,17 @@ function participantPubkeysFromMultisig(
 
 const Multipage = () => {
   const { state } = useAppContext();
-  const [showSendTxForm, setShowSendTxForm] = useState(false);
-  const [showDelegateTxForm, setShowDelegateTxForm] = useState(false);
-  const [showUnDelegateTxForm, setShowUnDelegateTxForm] = useState(false);
-  const [showReDelegateTxForm, setShowReDelegateTxForm] = useState(false);
-  const [showRewardsTxForm, setShowRewardsTxForm] = useState(false);
+  const [txView, setTxView] = useState<TxView>("select");
   const [holdings, setHoldings] = useState<Coin | null>(null);
   const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
   const router = useRouter();
+
+  const closeForm = () => {
+    setTxView("select");
+  };
 
   const fetchMultisig = useCallback(
     async (address: string) => {
@@ -104,101 +106,87 @@ const Multipage = () => {
             </div>
           </StackableContainer>
         )}
-        {showSendTxForm && (
+        {txView === "send" && (
           <TransactionForm
             address={multisigAddress}
             accountOnChain={accountOnChain}
-            closeForm={() => {
-              setShowSendTxForm(false);
-            }}
+            closeForm={closeForm}
           />
         )}
-        {showDelegateTxForm && (
+        {txView === "delegate" && (
           <DelegationForm
-            address={multisigAddress}
+            delegatorAddress={multisigAddress}
             accountOnChain={accountOnChain}
-            closeForm={() => {
-              setShowDelegateTxForm(false);
-            }}
+            closeForm={closeForm}
           />
         )}
-        {showUnDelegateTxForm && (
+        {txView === "undelegate" && (
           <UnDelegationForm
-            address={multisigAddress}
+            delegatorAddress={multisigAddress}
             accountOnChain={accountOnChain}
-            closeForm={() => {
-              setShowUnDelegateTxForm(false);
-            }}
+            closeForm={closeForm}
           />
         )}
-        {showReDelegateTxForm && (
+        {txView === "redelegate" && (
           <ReDelegationForm
-            address={multisigAddress}
+            delegatorAddress={multisigAddress}
             accountOnChain={accountOnChain}
-            closeForm={() => {
-              setShowReDelegateTxForm(false);
-            }}
+            closeForm={closeForm}
           />
         )}
-        {showRewardsTxForm && (
+        {txView === "claimRewards" && (
           <RewardsForm
-            address={multisigAddress}
+            delegatorAddress={multisigAddress}
             accountOnChain={accountOnChain}
-            closeForm={() => {
-              setShowRewardsTxForm(false);
-            }}
+            closeForm={closeForm}
           />
         )}
-        {!showSendTxForm &&
-          !showDelegateTxForm &&
-          !showUnDelegateTxForm &&
-          !showRewardsTxForm &&
-          !showReDelegateTxForm && (
-            <div className="interfaces">
-              <div className="col-1">
-                <MultisigHoldings holdings={holdings} />
-              </div>
-              <div className="col-2">
-                <StackableContainer lessPadding>
-                  <h2>New transaction</h2>
-                  <p>
-                    Once a transaction is created, it can be signed by the multisig members, and
-                    then broadcast.
-                  </p>
-                  <Button
-                    label="Create Transaction"
-                    onClick={() => {
-                      setShowSendTxForm(true);
-                    }}
-                  />
-                  <Button
-                    label="Create Delegation"
-                    onClick={() => {
-                      setShowDelegateTxForm(true);
-                    }}
-                  />
-                  <Button
-                    label="Create UnDelegation"
-                    onClick={() => {
-                      setShowUnDelegateTxForm(true);
-                    }}
-                  />
-                  <Button
-                    label="Create Redelegate"
-                    onClick={() => {
-                      setShowReDelegateTxForm(true);
-                    }}
-                  />
-                  <Button
-                    label="Claim Rewards"
-                    onClick={() => {
-                      setShowRewardsTxForm(true);
-                    }}
-                  />
-                </StackableContainer>
-              </div>
+        {txView === "select" && (
+          <div className="interfaces">
+            <div className="col-1">
+              <MultisigHoldings holdings={holdings} />
             </div>
-          )}
+            <div className="col-2">
+              <StackableContainer lessPadding>
+                <h2>New transaction</h2>
+                <p>
+                  Once a transaction is created, it can be signed by the multisig members, and then
+                  broadcast.
+                </p>
+                <Button
+                  label="Create Transaction"
+                  onClick={() => {
+                    setTxView("send");
+                  }}
+                />
+                <Button
+                  label="Create Delegation"
+                  onClick={() => {
+                    setTxView("delegate");
+                  }}
+                />
+                <Button
+                  label="Create UnDelegation"
+                  onClick={() => {
+                    setTxView("undelegate");
+                  }}
+                />
+                <Button
+                  label="Create Redelegate"
+                  onClick={() => {
+                    setTxView("redelegate");
+                  }}
+                />
+                <Button
+                  label="Claim Rewards"
+                  onClick={() => {
+                    setTxView("claimRewards");
+                  }}
+                />
+              </StackableContainer>
+            </div>
+          </div>
+        )}
       </StackableContainer>
       <style jsx>{`
         .interfaces {
