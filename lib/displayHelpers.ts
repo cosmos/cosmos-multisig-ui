@@ -53,7 +53,7 @@ const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
   if (coin.denom.startsWith("ibc/")) {
     const value = coin.amount;
     const hash = coin.denom.slice(4);
-    const ellidedHash = ellideMiddle(hash, 12);
+    const ellidedHash = ellideMiddle(hash, 11);
     const ticker = `ibc/${ellidedHash}`;
     return value + thinSpace + ticker;
   }
