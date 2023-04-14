@@ -1,4 +1,4 @@
-import { MultisigThresholdPubkey, SinglePubkey } from "@cosmjs/amino";
+import { MultisigThresholdPubkey, SinglePubkey, isMultisigThresholdPubkey } from "@cosmjs/amino";
 import { Account, StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
@@ -49,9 +49,10 @@ const Multipage = () => {
         assert(state.chain.denom, "denom missing");
         const tempHoldings = await client.getAllBalances(address);
         setHoldings(tempHoldings);
-        const result = await getMultisigAccount(address, client);
-        setPubkey(result[0]);
-        setAccountOnChain(result[1]);
+        const [newPubkey, newAccountOnChain] = await getMultisigAccount(address, client);
+        assert(isMultisigThresholdPubkey(newPubkey), "pubkey is not multisig");
+        setPubkey(newPubkey);
+        setAccountOnChain(newAccountOnChain);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         setAccountError(error.message);
