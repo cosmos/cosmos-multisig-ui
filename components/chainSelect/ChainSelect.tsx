@@ -135,7 +135,16 @@ const ChainSelect = () => {
       const firstAsset: ChainRegistryAsset | undefined = assetData.assets?.[0];
       const denom = firstAsset?.base || "";
       const displayDenom = firstAsset?.symbol || "";
-      const gasPrice = firstAsset ? `0.03${firstAsset.base}` : "";
+      const feeToken = chainData["fees"]?.fee_tokens.find(
+        (token: { denom: string }) => token.denom == denom,
+      );
+      const gasPrice =
+        feeToken["average_gas_price"] ??
+        feeToken["low_gas_price"] ??
+        feeToken["high_gas_price"] ??
+        feeToken["fixed_min_gas_price"] ??
+        0.03;
+      const formattedGasPrice = firstAsset ? `${gasPrice}${denom}` : "";
       const displayUnit = firstAsset?.denom_units.find((u) => u.denom == firstAsset.display);
       const displayDenomExponent = displayUnit?.exponent ?? 6;
 
@@ -151,7 +160,7 @@ const ChainSelect = () => {
           denom,
           displayDenom,
           displayDenomExponent,
-          gasPrice,
+          gasPrice: formattedGasPrice,
           chainId,
           chainDisplayName,
           registryName,
