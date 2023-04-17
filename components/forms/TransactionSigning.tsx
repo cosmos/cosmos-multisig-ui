@@ -36,9 +36,9 @@ const TransactionSigning = (props: Props) => {
 
   const connectKeplr = async () => {
     try {
+      setLoading((newLoading) => ({ ...newLoading, keplr: true }));
       assert(state.chain.chainId, "chainId missing");
 
-      setLoading((newLoading) => ({ ...newLoading, keplr: true }));
       await window.keplr.enable(state.chain.chainId);
       window.keplr.defaultOptions = {
         sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
@@ -60,9 +60,9 @@ const TransactionSigning = (props: Props) => {
 
   const connectLedger = async () => {
     try {
+      setLoading((newLoading) => ({ ...newLoading, ledger: true }));
       assert(state.chain.addressPrefix, "addressPrefix missing");
 
-      setLoading((newLoading) => ({ ...newLoading, ledger: true }));
       // Prepare ledger
       const ledgerTransport = await TransportWebUSB.create(120000, 120000);
 
@@ -95,10 +95,10 @@ const TransactionSigning = (props: Props) => {
   };
 
   const signTransaction = async () => {
-    assert(state.chain.chainId, "chainId missing");
-
     try {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
+      assert(state.chain.chainId, "chainId missing");
+
       const offlineSigner =
         walletType === "Keplr"
           ? window.getOfflineSignerOnlyAmino(state.chain.chainId)
