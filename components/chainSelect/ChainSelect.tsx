@@ -125,7 +125,7 @@ const ChainSelect = () => {
       const { data: chainData } = await axios.get(chainInfoUrl);
       const { data: assetData } = await axios.get(chainAssetUrl);
 
-      const nodeAddress = getNodeFromArray(chainData.apis.rpc);
+      const nodeAddress = await getNodeFromArray(chainData.apis.rpc);
       const addressPrefix = chainData["bech32_prefix"];
       const chainId = chainData["chain_id"];
       const chainDisplayName = chainData["pretty_name"];
@@ -147,10 +147,6 @@ const ChainSelect = () => {
       const formattedGasPrice = firstAsset ? `${gasPrice}${denom}` : "";
       const displayUnit = firstAsset?.denom_units.find((u) => u.denom == firstAsset.display);
       const displayDenomExponent = displayUnit?.exponent ?? 6;
-
-      // test client connection
-      const client = await StargateClient.connect(nodeAddress);
-      await client.getHeight();
 
       // change app state
       dispatch({
@@ -184,13 +180,26 @@ const ChainSelect = () => {
     return "";
   };
 
-  const getNodeFromArray = (nodeArray: { address: string; provider: string }[]) => {
+  const getNodeFromArray = async (nodeArray: { address: string; provider: string }[]) => {
     // only return https connections
-    const secureNodes = nodeArray.filter((node) => node.address.includes("https://"));
+    const secureNodes = nodeArray
+      .filter((node) => node.address.startsWith("https://"))
+      .map(({ address }) => address);
+
     if (secureNodes.length === 0) {
       throw new Error("No SSL enabled RPC nodes available for this chain");
     }
-    return secureNodes[0].address;
+
+    for (const node of secureNodes) {
+      try {
+        // test client connection
+        const client = await StargateClient.connect(node);
+        await client.getHeight();
+        return node;
+      } catch {}
+    }
+
+    throw new Error("No RPC nodes available for this chain");
   };
 
   const onChainSelect = (option: ChainOption) => {
