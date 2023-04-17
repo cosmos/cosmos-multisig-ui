@@ -1,15 +1,14 @@
-import React, { useState } from "react";
-import { withRouter, NextRouter } from "next/router";
 import { StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-
+import { NextRouter, withRouter } from "next/router";
+import { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
-import Button from "../inputs/Button";
-import { createMultisigFromCompressedSecp256k1Pubkeys } from "../../lib/multisigHelpers";
-import Input from "../inputs/Input";
-import StackableContainer from "../layout/StackableContainer";
-import ThresholdInput from "../inputs/ThresholdInput";
 import { exampleAddress, examplePubkey } from "../../lib/displayHelpers";
+import { createMultisigFromCompressedSecp256k1Pubkeys } from "../../lib/multisigHelpers";
+import Button from "../inputs/Button";
+import Input from "../inputs/Input";
+import ThresholdInput from "../inputs/ThresholdInput";
+import StackableContainer from "../layout/StackableContainer";
 
 const emptyPubKeyGroup = () => {
   return { address: "", compressedPubkey: "", keyError: "", isPubkey: false };
@@ -23,7 +22,7 @@ const MultiSigForm = (props: Props) => {
   const { state } = useAppContext();
   const [pubkeys, setPubkeys] = useState([emptyPubKeyGroup(), emptyPubKeyGroup()]);
   const [threshold, setThreshold] = useState(2);
-  const [_processing, setProcessing] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const handleChangeThreshold = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newThreshold = parseInt(e.target.value, 10);
@@ -195,7 +194,7 @@ const MultiSigForm = (props: Props) => {
           </p>
         </StackableContainer>
       </StackableContainer>
-      <Button primary onClick={handleCreate} label="Create Multisig" />
+      <Button primary onClick={handleCreate} label="Create Multisig" loading={processing} />
       <style jsx>{`
         .key-inputs {
           display: flex;
