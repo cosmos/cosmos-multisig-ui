@@ -1,12 +1,11 @@
-import React, { useState } from "react";
-import { withRouter, NextRouter } from "next/router";
-
-import { useAppContext } from "../../context/AppContext";
-import Button from "../inputs/Button";
-import StackableContainer from "../layout/StackableContainer";
-import Input from "../inputs/Input";
-import { exampleAddress } from "../../lib/displayHelpers";
 import { assert } from "@cosmjs/utils";
+import { NextRouter, withRouter } from "next/router";
+import { useState } from "react";
+import { useAppContext } from "../../context/AppContext";
+import { exampleAddress } from "../../lib/displayHelpers";
+import Button from "../inputs/Button";
+import Input from "../inputs/Input";
+import StackableContainer from "../layout/StackableContainer";
 
 interface Props {
   router: NextRouter;
@@ -15,11 +14,8 @@ interface Props {
 const FindMultisigForm = (props: Props) => {
   const { state } = useAppContext();
   const [address, setAddress] = useState("");
-  const [_processing, setProcessing] = useState(false);
 
   const handleSearch = () => {
-    setProcessing(true);
-
     props.router.push(`/multi/${address}`);
   };
 
