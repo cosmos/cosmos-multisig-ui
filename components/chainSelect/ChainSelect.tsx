@@ -181,14 +181,14 @@ const ChainSelect = () => {
       throw new Error("No SSL enabled RPC nodes available for this chain");
     }
 
-    try {
-      for (const node of secureNodes) {
+    for (const node of secureNodes) {
+      try {
         // test client connection
         const client = await StargateClient.connect(node);
         await client.getHeight();
         return node;
-      }
-    } catch {}
+      } catch {}
+    }
 
     throw new Error("No RPC nodes available for this chain");
   };
