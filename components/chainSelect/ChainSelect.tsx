@@ -135,9 +135,9 @@ const ChainSelect = () => {
       const firstAsset: ChainRegistryAsset | undefined = assetData.assets?.[0];
       const denom = firstAsset?.base || "";
       const displayDenom = firstAsset?.symbol || "";
-      const feeToken = chainData["fees"]?.fee_tokens.find(
-        (token: { denom: string }) => token.denom == denom,
-      );
+      const feeToken =
+        chainData["fees"]?.fee_tokens.find((token: { denom: string }) => token.denom == denom) ??
+        {};
       const gasPrice =
         feeToken["average_gas_price"] ??
         feeToken["low_gas_price"] ??
