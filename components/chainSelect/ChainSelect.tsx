@@ -174,7 +174,7 @@ const ChainSelect = () => {
   const getNodeFromArray = async (nodeArray: { address: string; provider: string }[]) => {
     // only return https connections
     const secureNodes = nodeArray
-      .filter((node) => node.address.includes("https://"))
+      .filter((node) => node.address.startsWith("https://"))
       .map(({ address }) => address);
 
     if (secureNodes.length === 0) {
