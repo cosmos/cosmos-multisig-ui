@@ -1,13 +1,13 @@
-import axios from "axios";
 import {
   createMultisigThresholdPubkey,
   isMultisigThresholdPubkey,
   MultisigThresholdPubkey,
   pubkeyToAddress,
 } from "@cosmjs/amino";
-import { Account } from "@cosmjs/stargate";
-import { StargateClient } from "@cosmjs/stargate";
+import { Account, StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
+import axios from "axios";
+import { checkAddress } from "./displayHelpers";
 
 /**
  * Turns array of compressed Secp256k1 pubkeys
@@ -56,12 +56,18 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
  */
 const getMultisigAccount = async (
   address: string,
+  addressPrefix: string,
   client: StargateClient,
 ): Promise<[MultisigThresholdPubkey, Account | null]> => {
   // we need the multisig pubkeys to create transactions, if the multisig
   // is new, and has never submitted a transaction its pubkeys will not be
   // available from a node. If the multisig was created with this instance
   // of this tool its pubkey will be available in the fauna datastore
+  const addressError = checkAddress(address, addressPrefix);
+  if (addressError) {
+    throw new Error(addressError);
+  }
+
   const accountOnChain = await client.getAccount(address);
   const chainId = await client.getChainId();
 
