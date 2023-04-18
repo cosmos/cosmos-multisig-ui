@@ -87,7 +87,8 @@ const TransactionPage = ({
       try {
         assert(state.chain.nodeAddress, "Node address missing");
         const client = await StargateClient.connect(state.chain.nodeAddress);
-        const result = await getMultisigAccount(address, client);
+        assert(state.chain.addressPrefix, "addressPrefix missing");
+        const result = await getMultisigAccount(address, state.chain.addressPrefix, client);
         setPubkey(result[0]);
         setAccountOnChain(result[1]);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -96,7 +97,7 @@ const TransactionPage = ({
         console.log("Account error:", error);
       }
     },
-    [state.chain.nodeAddress],
+    [state.chain.addressPrefix, state.chain.nodeAddress],
   );
 
   useEffect(() => {

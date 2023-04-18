@@ -49,7 +49,8 @@ const Multipage = () => {
         assert(state.chain.denom, "denom missing");
         const tempHoldings = await client.getAllBalances(address);
         setHoldings(tempHoldings);
-        const result = await getMultisigAccount(address, client);
+        assert(state.chain.addressPrefix, "addressPrefix missing");
+        const result = await getMultisigAccount(address, state.chain.addressPrefix, client);
         setPubkey(result[0]);
         setAccountOnChain(result[1]);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,7 +59,7 @@ const Multipage = () => {
         console.log("Account error:", error);
       }
     },
-    [state.chain.denom, state.chain.nodeAddress],
+    [state.chain.addressPrefix, state.chain.denom, state.chain.nodeAddress],
   );
 
   useEffect(() => {
