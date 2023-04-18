@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import { withRouter, NextRouter } from "next/router";
-
-import { useAppContext } from "../../context/AppContext";
-import Button from "../inputs/Button";
-import StackableContainer from "../layout/StackableContainer";
-import Input from "../inputs/Input";
-import { exampleAddress } from "../../lib/displayHelpers";
+import { StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
+import { NextRouter, withRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { useAppContext } from "../../context/AppContext";
+import { exampleAddress } from "../../lib/displayHelpers";
+import { getMultisigAccount } from "../../lib/multisigHelpers";
+import Button from "../inputs/Button";
+import Input from "../inputs/Input";
+import StackableContainer from "../layout/StackableContainer";
 
 interface Props {
   router: NextRouter;
@@ -15,13 +16,35 @@ interface Props {
 const FindMultisigForm = (props: Props) => {
   const { state } = useAppContext();
   const [address, setAddress] = useState("");
-  const [_processing, setProcessing] = useState(false);
+  const [multisigError, setMultisigError] = useState("");
 
   const handleSearch = () => {
-    setProcessing(true);
-
     props.router.push(`/multi/${address}`);
   };
+
+  useEffect(() => {
+    (async function () {
+      if (!address) {
+        setMultisigError("");
+        return;
+      }
+
+      try {
+        assert(state.chain.nodeAddress, "Node address missing");
+        const client = await StargateClient.connect(state.chain.nodeAddress);
+        assert(state.chain.addressPrefix, "addressPrefix missing");
+        await getMultisigAccount(address, state.chain.addressPrefix, client);
+        setMultisigError("");
+      } catch (error) {
+        if (error instanceof Error) {
+          setMultisigError(error.message);
+        } else {
+          setMultisigError("Multisig error");
+        }
+        console.error("Multisig error:", error);
+      }
+    })();
+  }, [address, state.chain.addressPrefix, state.chain.nodeAddress]);
 
   assert(state.chain.addressPrefix, "addressPrefix missing");
 
@@ -40,8 +63,14 @@ const FindMultisigForm = (props: Props) => {
           label="Multisig Address"
           name="address"
           placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          error={multisigError}
         />
-        <Button label="Use this Multisig" onClick={handleSearch} primary />
+        <Button
+          label="Use this Multisig"
+          onClick={handleSearch}
+          primary
+          disabled={!!multisigError}
+        />
       </StackableContainer>
       <StackableContainer lessPadding>
         <p className="create-help">Don't have a multisig?</p>
