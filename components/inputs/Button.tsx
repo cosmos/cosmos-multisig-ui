@@ -1,7 +1,8 @@
-import React from "react";
+import Spinner from "../Spinner";
 
 interface Props {
   primary?: boolean;
+  loading?: boolean;
   disabled?: boolean;
   href?: string;
   label: string;
@@ -17,10 +18,18 @@ const Button = (props: Props) => (
     ) : (
       <button
         className={props.primary ? "primary button" : "button"}
-        onClick={props.onClick}
+        onClick={props.disabled || props.loading ? () => {} : props.onClick}
         disabled={props.disabled}
+        data-loading={props.loading}
       >
-        {props.label}
+        {props.loading ? (
+          <div className="button-cluster">
+            <Spinner />
+            {props.label}
+          </div>
+        ) : (
+          props.label
+        )}
       </button>
     )}
     <style jsx>{`
@@ -44,9 +53,16 @@ const Button = (props: Props) => (
       button:first-child {
         margin-top: 0;
       }
-      button:disabled {
+      button:disabled,
+      button[data-loading="true"] {
         opacity: 0.5;
         cursor: initial;
+      }
+      .button-cluster {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
       }
     `}</style>
   </>

@@ -8,7 +8,12 @@ import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import Select from "../inputs/Select";
 import StackableContainer from "../layout/StackableContainer";
-import { ChainRegistryAsset } from "./chainregistry";
+import {
+  RegistryChainApisRpc,
+  RegistryChainExplorer,
+  getAssetsFromRegistry,
+  getChainFromRegistry,
+} from "./chainregistry";
 
 interface ChainOption {
   label: string;
@@ -112,76 +117,83 @@ const ChainSelect = () => {
 
   const getChainInfo = async (chainOption: GithubChainRegistryItem) => {
     setChainError(null);
+
     try {
-      const chainInfoUrl =
-        "https://cdn.jsdelivr.net/gh/cosmos/chain-registry@master/" +
-        chainOption.path +
-        "/chain.json";
-      const chainAssetUrl =
-        "https://cdn.jsdelivr.net/gh/cosmos/chain-registry@master/" +
-        chainOption.path +
-        "/assetlist.json";
+      const chainData = await getChainFromRegistry(chainOption.path);
+      const assets = await getAssetsFromRegistry(chainOption.path);
+      const firstAsset = assets[0];
 
-      const { data: chainData } = await axios.get(chainInfoUrl);
-      const { data: assetData } = await axios.get(chainAssetUrl);
-
-      const nodeAddress = getNodeFromArray(chainData.apis.rpc);
-      const addressPrefix = chainData["bech32_prefix"];
-      const chainId = chainData["chain_id"];
-      const chainDisplayName = chainData["pretty_name"];
-      const registryName = chainOption.name;
+      const nodeAddress = await getNodeFromArray(chainData.apis.rpc);
       const explorerLink = getExplorerFromArray(chainData.explorers);
+      const denom = firstAsset.base || "";
+      const displayDenom = firstAsset.symbol || "";
 
-      const firstAsset: ChainRegistryAsset | undefined = assetData.assets?.[0];
-      const denom = firstAsset?.base || "";
-      const displayDenom = firstAsset?.symbol || "";
-      const gasPrice = firstAsset ? `0.03${firstAsset.base}` : "";
-      const displayUnit = firstAsset?.denom_units.find((u) => u.denom == firstAsset.display);
+      const displayUnit = firstAsset.denom_units.find((u) => u.denom == firstAsset.display);
       const displayDenomExponent = displayUnit?.exponent ?? 6;
 
-      // test client connection
-      const client = await StargateClient.connect(nodeAddress);
-      await client.getHeight();
+      const feeToken = chainData.fees.fee_tokens.find((token) => token.denom == denom) ?? { denom };
+      const gasPrice =
+        feeToken.average_gas_price ??
+        feeToken.low_gas_price ??
+        feeToken.high_gas_price ??
+        feeToken.fixed_min_gas_price ??
+        0.03;
+      const formattedGasPrice = firstAsset ? `${gasPrice}${denom}` : "";
 
       // change app state
       dispatch({
         type: "changeChain",
         value: {
+          registryName: chainOption.name,
+          addressPrefix: chainData.bech32_prefix,
+          chainId: chainData.chain_id,
+          chainDisplayName: chainData.pretty_name,
           nodeAddress,
+          explorerLink,
           denom,
           displayDenom,
           displayDenomExponent,
-          gasPrice,
-          chainId,
-          chainDisplayName,
-          registryName,
-          addressPrefix,
-          explorerLink,
+          gasPrice: formattedGasPrice,
         },
       });
+
       setShowSettings(false);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
+    } catch (error) {
+      if (error instanceof Error) {
+        setChainError(error.message);
+      } else {
+        setChainError("Error getting chain info");
+      }
+
+      console.error("Error getting chain info", error);
       setShowSettings(true);
-      setChainError(error.toString());
     }
   };
 
-  const getExplorerFromArray = (array: { kind: string; url: string; tx_page: string }[]) => {
-    if (array && array.length > 0) {
-      return array[0]["tx_page"];
-    }
-    return "";
+  const getExplorerFromArray = (explorers: readonly RegistryChainExplorer[]) => {
+    return explorers[0]?.tx_page ?? "";
   };
 
-  const getNodeFromArray = (nodeArray: { address: string; provider: string }[]) => {
+  const getNodeFromArray = async (nodeArray: readonly RegistryChainApisRpc[]) => {
     // only return https connections
-    const secureNodes = nodeArray.filter((node) => node.address.includes("https://"));
+    const secureNodes = nodeArray
+      .filter((node) => node.address.startsWith("https://"))
+      .map(({ address }) => address);
+
     if (secureNodes.length === 0) {
       throw new Error("No SSL enabled RPC nodes available for this chain");
     }
-    return secureNodes[0].address;
+
+    for (const node of secureNodes) {
+      try {
+        // test client connection
+        const client = await StargateClient.connect(node);
+        await client.getHeight();
+        return node;
+      } catch {}
+    }
+
+    throw new Error("No RPC nodes available for this chain");
   };
 
   const onChainSelect = (option: ChainOption) => {

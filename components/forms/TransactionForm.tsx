@@ -1,15 +1,14 @@
-import axios from "axios";
-import { Account, calculateFee } from "@cosmjs/stargate";
 import { Decimal } from "@cosmjs/math";
+import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import React, { useState } from "react";
-import { withRouter, NextRouter } from "next/router";
-
+import axios from "axios";
+import { NextRouter, withRouter } from "next/router";
+import { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
+import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
-import { checkAddress, exampleAddress } from "../../lib/displayHelpers";
 
 interface Props {
   address: string | null;
@@ -25,7 +24,7 @@ const TransactionForm = (props: Props) => {
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(200000);
   const [gasPrice, _setGasPrice] = useState(state.chain.gasPrice);
-  const [_processing, setProcessing] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [addressError, setAddressError] = useState("");
 
   const createTransaction = (txToAddress: string, txAmount: string, gasLimit: number) => {
@@ -130,7 +129,7 @@ const TransactionForm = (props: Props) => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMemo(e.target.value)}
         />
       </div>
-      <Button label="Create Transaction" onClick={handleCreate} />
+      <Button label="Create Transaction" onClick={handleCreate} loading={processing} />
       <style jsx>{`
         p {
           margin-top: 15px;
