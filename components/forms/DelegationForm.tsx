@@ -3,7 +3,7 @@ import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import axios from "axios";
 import { NextRouter, withRouter } from "next/router";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { checkAddress, exampleValidatorAddress } from "../../lib/displayHelpers";
 import Button from "../inputs/Button";
@@ -24,7 +24,7 @@ const DelegationForm = (props: Props) => {
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(200000);
   const [gasPrice, _setGasPrice] = useState(state.chain.gasPrice);
-  const [_processing, setProcessing] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [addressError, setAddressError] = useState("");
 
   const createTransaction = (txValidatorAddress: string, txAmount: string, gasLimit: number) => {
@@ -130,7 +130,7 @@ const DelegationForm = (props: Props) => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMemo(e.target.value)}
         />
       </div>
-      <Button label="Delegate" onClick={handleCreate} />
+      <Button label="Delegate" onClick={handleCreate} loading={processing} />
       <style jsx>{`
         p {
           margin-top: 15px;
