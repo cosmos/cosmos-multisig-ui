@@ -69,7 +69,7 @@ const FindMultisigForm = (props: Props) => {
           label="Use this Multisig"
           onClick={handleSearch}
           primary
-          disabled={!!multisigError}
+          disabled={!address || !!multisigError}
         />
       </StackableContainer>
       <StackableContainer lessPadding>
