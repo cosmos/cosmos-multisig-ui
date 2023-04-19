@@ -36,7 +36,7 @@ const TransactionSigning = (props: Props) => {
 
   const connectKeplr = async () => {
     try {
-      setLoading((newLoading) => ({ ...newLoading, keplr: true }));
+      setLoading((oldLoading) => ({ ...oldLoading, keplr: true }));
       assert(state.chain.chainId, "chainId missing");
 
       await window.keplr.enable(state.chain.chainId);
