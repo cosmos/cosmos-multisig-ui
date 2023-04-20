@@ -81,13 +81,13 @@ const Multipage = () => {
       <StackableContainer base>
         <StackableContainer>
           <label>Multisig Address</label>
-          <h1>
-            {router.query.address ? (
-              <HashView hash={router.query.address?.toString()} />
-            ) : (
-              "No Address"
-            )}
-          </h1>
+          <h1>{multisigAddress ? <HashView hash={multisigAddress} /> : "No Address"}</h1>
+          {multisigAddress ? (
+            <Button
+              href={process.env.NEXT_PUBLIC_EXPLORER_LINK_MULTISIG + multisigAddress}
+              label="View in Explorer"
+            ></Button>
+          ) : null}
         </StackableContainer>
         {pubkey && (
           <MultisigMembers
