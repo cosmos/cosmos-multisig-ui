@@ -39,7 +39,7 @@ export interface DbAccount {
 
 export interface WalletAccount {
   address?: Uint8Array;
-  pubkey: Uint8Array;
+  pubKey: Uint8Array;
   algo: string;
   bech32Address: string;
   isNanoLedger?: boolean;
