@@ -16,6 +16,7 @@ import Button from "../../../components/inputs/Button";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import { useAppContext } from "../../../context/AppContext";
+import { explorerLinkAccount } from "../../../lib/displayHelpers";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
 
 type TxView = null | "send" | "delegate" | "undelegate" | "redelegate" | "claimRewards";
@@ -76,18 +77,18 @@ const Multipage = () => {
 
   assert(state.chain.addressPrefix, "address prefix missing");
 
+  const explorerHref = explorerLinkAccount(
+    process.env.NEXT_PUBLIC_EXPLORER_LINK_ACCOUNT || "",
+    multisigAddress,
+  );
+
   return (
     <Page>
       <StackableContainer base>
         <StackableContainer>
           <label>Multisig Address</label>
           <h1>{multisigAddress ? <HashView hash={multisigAddress} /> : "No Address"}</h1>
-          {multisigAddress ? (
-            <Button
-              href={process.env.NEXT_PUBLIC_EXPLORER_LINK_MULTISIG + multisigAddress}
-              label="View in Explorer"
-            ></Button>
-          ) : null}
+          {explorerHref ? <Button href={explorerHref} label="View in Explorer"></Button> : null}
         </StackableContainer>
         {pubkey && (
           <MultisigMembers
