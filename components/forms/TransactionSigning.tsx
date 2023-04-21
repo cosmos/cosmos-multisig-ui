@@ -1,4 +1,4 @@
-import { makeCosmoshubPath } from "@cosmjs/amino";
+import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
 import { toBase64 } from "@cosmjs/encoding";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
 import { SigningStargateClient } from "@cosmjs/stargate";
@@ -21,6 +21,7 @@ interface LoadingStates {
 interface Props {
   signatures: DbSignature[];
   tx: DbTransaction;
+  pubkey: MultisigThresholdPubkey;
   transactionID: string;
   addSignature: (signature: DbSignature) => void;
 }

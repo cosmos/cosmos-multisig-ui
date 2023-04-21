@@ -168,10 +168,11 @@ const TransactionPage = ({
               {broadcastError && <div className="broadcast-error">{broadcastError}</div>}
             </>
           )}
-        {!transactionHash && (
+        {!transactionHash && !!pubkey && (
           <TransactionSigning
             tx={txInfo}
             transactionID={transactionID}
+            pubkey={pubkey}
             signatures={currentSignatures}
             addSignature={addSignature}
           />
