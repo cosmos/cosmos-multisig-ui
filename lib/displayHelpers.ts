@@ -152,6 +152,17 @@ const explorerLinkTx = (link: string, hash: string) => {
   return null;
 };
 
+/**
+ * Returns a link to an account in an explorer if an explorer is configured
+ * for accounts. Returns null otherwise.
+ */
+const explorerLinkAccount = (link: string, address: string) => {
+  if (link && link.includes("${address}")) {
+    return link.replace("${address}", address);
+  }
+  return null;
+};
+
 export {
   ellideMiddle,
   printableCoin,
@@ -161,4 +172,5 @@ export {
   examplePubkey,
   checkAddress,
   explorerLinkTx,
+  explorerLinkAccount,
 };
