@@ -12,6 +12,8 @@ import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 
+type SigningStatus = "not_signed" | "not_a_member" | "signed";
+
 interface LoadingStates {
   readonly signing?: boolean;
   readonly keplr?: boolean;
@@ -27,10 +29,12 @@ interface Props {
 }
 
 const TransactionSigning = (props: Props) => {
+  const memberPubkeys = props.pubkey?.value.pubkeys.map(({ value }) => value);
+
   const { state } = useAppContext();
   const [walletAccount, setWalletAccount] = useState<WalletAccount>();
   const [sigError, setSigError] = useState("");
-  const [hasSigned, setHasSigned] = useState(false);
+  const [signing, setSigning] = useState<SigningStatus>("not_signed");
   const [walletType, setWalletType] = useState<"Keplr" | "Ledger">();
   const [ledgerSigner, setLedgerSigner] = useState({});
   const [loading, setLoading] = useState<LoadingStates>({});
@@ -45,12 +49,23 @@ const TransactionSigning = (props: Props) => {
         sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
       };
       const tempWalletAccount = await window.keplr.getKey(state.chain.chainId);
-      console.log(tempWalletAccount);
-      const tempHasSigned = props.signatures.some(
-        (sig) => sig.address === tempWalletAccount.bech32Address,
-      );
       setWalletAccount(tempWalletAccount);
-      setHasSigned(tempHasSigned);
+
+      const pubkey = toBase64(tempWalletAccount.pubKey);
+      const isMember = memberPubkeys.includes(pubkey);
+      const hasSigned = isMember
+        ? props.signatures.some((sig) => sig.address === tempWalletAccount.bech32Address)
+        : false;
+      if (hasSigned) {
+        setSigning("signed");
+      }
+      if (isMember && !hasSigned) {
+        setSigning("not_signed");
+      }
+      if (!isMember) {
+        setSigning("not_a_member");
+      }
+
       setWalletType("Keplr");
     } catch (e) {
       console.log("enable keplr err: ", e);
@@ -72,20 +87,29 @@ const TransactionSigning = (props: Props) => {
         hdPaths: [makeCosmoshubPath(0)],
         prefix: state.chain.addressPrefix,
       });
-      console.log(offlineSigner);
       const accounts = await offlineSigner.getAccounts();
-      console.log(accounts);
       const tempWalletAccount: WalletAccount = {
         bech32Address: accounts[0].address,
-        pubkey: accounts[0].pubkey,
+        pubKey: accounts[0].pubkey,
         algo: accounts[0].algo,
       };
-
-      const tempHasSigned = props.signatures.some(
-        (sig) => sig.address === tempWalletAccount.bech32Address,
-      );
       setWalletAccount(tempWalletAccount);
-      setHasSigned(tempHasSigned);
+
+      const pubkey = toBase64(tempWalletAccount.pubKey);
+      const isMember = memberPubkeys.includes(pubkey);
+      const hasSigned = isMember
+        ? props.signatures.some((sig) => sig.address === tempWalletAccount.bech32Address)
+        : false;
+      if (hasSigned) {
+        setSigning("signed");
+      }
+      if (isMember && !hasSigned) {
+        setSigning("not_signed");
+      }
+      if (!isMember) {
+        setSigning("not_a_member");
+      }
+
       setLedgerSigner(offlineSigner);
       setWalletType("Ledger");
     } catch (e) {
@@ -143,7 +167,7 @@ const TransactionSigning = (props: Props) => {
           signature,
         );
         props.addSignature(signature);
-        setHasSigned(true);
+        setSigning("signed");
       }
     } catch (e) {
       console.log("signing err: ", e);
@@ -154,7 +178,7 @@ const TransactionSigning = (props: Props) => {
 
   return (
     <StackableContainer lessPadding lessMargin>
-      {hasSigned ? (
+      {signing === "signed" ? (
         <StackableContainer lessPadding lessMargin lessRadius>
           <div className="confirmation">
             <svg viewBox="0 0 77 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -163,7 +187,15 @@ const TransactionSigning = (props: Props) => {
             <p>You've signed this transaction.</p>
           </div>
         </StackableContainer>
-      ) : (
+      ) : null}
+      {signing === "not_a_member" ? (
+        <StackableContainer lessPadding lessMargin lessRadius>
+          <div className="multisig-error">
+            <p>You don't belong to this multisig.</p>
+          </div>
+        </StackableContainer>
+      ) : null}
+      {signing === "not_signed" ? (
         <>
           <h2>Sign this transaction</h2>
           <StackableContainer lessPadding lessMargin lessRadius>
@@ -191,7 +223,7 @@ const TransactionSigning = (props: Props) => {
             )}
           </StackableContainer>
         </>
-      )}
+      ) : null}
       {sigError && (
         <StackableContainer lessPadding lessRadius lessMargin>
           <div className="signature-error">
@@ -241,6 +273,10 @@ const TransactionSigning = (props: Props) => {
         .confirmation svg {
           height: 0.8em;
           margin-right: 0.5em;
+        }
+        .multisig-error p {
+          color: red;
+          font-size: 16px;
         }
       `}</style>
     </StackableContainer>
