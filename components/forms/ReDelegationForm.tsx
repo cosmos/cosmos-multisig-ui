@@ -57,7 +57,7 @@ const ReDelegationForm = (props: Props) => {
     const fee = calculateFee(gasLimit, gasPrice);
     const { accountOnChain } = props;
     assert(accountOnChain, "accountOnChain missing");
-    assert(accountOnChain.accountNumber, "accountNumber missing");
+    assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
     return {
       accountNumber: accountOnChain.accountNumber,
       sequence: accountOnChain.sequence,

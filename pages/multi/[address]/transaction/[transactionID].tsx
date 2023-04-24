@@ -113,7 +113,10 @@ const TransactionPage = ({
       setBroadcastError("");
 
       assert(accountOnChain, "Account on chain value missing.");
-      assert(accountOnChain.accountNumber, "Account on chain is missing an accountNumber");
+      assert(
+        typeof accountOnChain.accountNumber === "number",
+        "Account on chain is missing an accountNumber",
+      );
       assert(pubkey, "Pubkey not found on chain or in database");
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTxBytes = makeMultisignedTxBytes(
