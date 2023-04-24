@@ -37,6 +37,9 @@ interface GithubChainRegistryItem {
   };
 }
 
+const chainsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents";
+const testnetsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents/testnets";
+
 const ChainSelect = () => {
   const { state, dispatch } = useAppContext();
 
@@ -60,9 +63,6 @@ const ChainSelect = () => {
   const [tempChainName, setChainName] = useState(state.chain.chainDisplayName);
   const [tempRegistryName, setRegistryName] = useState(state.chain.registryName);
   const [tempExplorerLink, setExplorerLink] = useState(state.chain.explorerLink);
-
-  const chainsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents";
-  const testnetsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents/testnets";
 
   const getGhJson = useCallback(async () => {
     // getting chain info from this repo: https://github.com/cosmos/chain-registry
