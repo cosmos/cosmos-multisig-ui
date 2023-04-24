@@ -29,7 +29,7 @@ interface Props {
 }
 
 const TransactionSigning = (props: Props) => {
-  const memberPubkeys = props.pubkey?.value.pubkeys.map(({ value }) => value);
+  const memberPubkeys = props.pubkey.value.pubkeys.map(({ value }) => value);
 
   const { state } = useAppContext();
   const [walletAccount, setWalletAccount] = useState<WalletAccount>();
