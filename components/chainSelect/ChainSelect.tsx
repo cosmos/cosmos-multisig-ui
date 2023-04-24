@@ -67,8 +67,10 @@ const ChainSelect = () => {
   const getGhJson = useCallback(async () => {
     // getting chain info from this repo: https://github.com/cosmos/chain-registry
     try {
-      const { data: chains } = await axios.get(chainsUrl);
-      const { data: testnets } = await axios.get(testnetsUrl);
+      const [{ data: chains }, { data: testnets }] = await Promise.all([
+        axios.get(chainsUrl),
+        axios.get(testnetsUrl),
+      ]);
 
       const allChains: GithubChainRegistryItem[] = [...chains, ...testnets].filter(
         (item: GithubChainRegistryItem) => {
