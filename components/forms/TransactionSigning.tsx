@@ -56,14 +56,14 @@ const TransactionSigning = (props: Props) => {
       const hasSigned = isMember
         ? props.signatures.some((sig) => sig.address === tempWalletAccount.bech32Address)
         : false;
-      if (hasSigned) {
-        setSigning("signed");
-      }
-      if (isMember && !hasSigned) {
-        setSigning("not_signed");
-      }
       if (!isMember) {
         setSigning("not_a_member");
+      } else {
+        if (hasSigned) {
+          setSigning("signed");
+        } else {
+          setSigning("not_signed");
+        }
       }
 
       setWalletType("Keplr");
@@ -100,14 +100,14 @@ const TransactionSigning = (props: Props) => {
       const hasSigned = isMember
         ? props.signatures.some((sig) => sig.address === tempWalletAccount.bech32Address)
         : false;
-      if (hasSigned) {
-        setSigning("signed");
-      }
-      if (isMember && !hasSigned) {
-        setSigning("not_signed");
-      }
       if (!isMember) {
         setSigning("not_a_member");
+      } else {
+        if (hasSigned) {
+          setSigning("signed");
+        } else {
+          setSigning("not_signed");
+        }
       }
 
       setLedgerSigner(offlineSigner);
