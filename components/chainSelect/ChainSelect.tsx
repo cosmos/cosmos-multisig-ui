@@ -37,11 +37,14 @@ interface GithubChainRegistryItem {
   };
 }
 
+const chainsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents";
+const testnetsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents/testnets";
+
 const ChainSelect = () => {
   const { state, dispatch } = useAppContext();
 
   // UI State
-  const [chainArray, setChainArray] = useState([]);
+  const [chainArray, setChainArray] = useState<GithubChainRegistryItem[]>([]);
   const [chainOptions, setChainOptions] = useState<ChainOption[]>([]);
   const [chainError, setChainError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -61,20 +64,27 @@ const ChainSelect = () => {
   const [tempRegistryName, setRegistryName] = useState(state.chain.registryName);
   const [tempExplorerLink, setExplorerLink] = useState(state.chain.explorerLink);
 
-  const url = "https://api.github.com/repos/cosmos/chain-registry/contents";
-
   const getGhJson = useCallback(async () => {
     // getting chain info from this repo: https://github.com/cosmos/chain-registry
     try {
-      const res = await axios.get(url);
-      const chains = res.data.filter((item: GithubChainRegistryItem) => {
-        return item.type == "dir" && !item.name.startsWith(".") && item.name != "testnets";
-      });
-      setChainArray(chains);
-      const options = chains.map(({ name }: GithubChainRegistryItem, index: number) => {
-        return { label: name, value: index };
-      });
+      const [{ data: chains }, { data: testnets }] = await Promise.all([
+        axios.get(chainsUrl),
+        axios.get(testnetsUrl),
+      ]);
+
+      const allChains: GithubChainRegistryItem[] = [...chains, ...testnets].filter(
+        (item: GithubChainRegistryItem) => {
+          return item.type == "dir" && !item.name.startsWith(".") && !item.name.startsWith("_");
+        },
+      );
+      setChainArray(allChains);
+
+      const options = allChains.map(({ name }: GithubChainRegistryItem, index: number) => ({
+        label: name,
+        value: index,
+      }));
       setChainOptions(options);
+
       assert(state.chain.registryName, "registryName missing");
       setSelectValue(findExistingOption(options, state.chain.registryName));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
