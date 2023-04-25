@@ -12,7 +12,7 @@ import StackableContainer from "../layout/StackableContainer";
 
 interface Props {
   delegatorAddress: string;
-  accountOnChain: Account | null;
+  accountOnChain: Account;
   router: NextRouter;
   closeForm: () => void;
 }
@@ -49,7 +49,7 @@ const DelegationForm = (props: Props) => {
     assert(gasPrice, "gasPrice missing");
     const fee = calculateFee(gasLimit, gasPrice);
     const { accountOnChain } = props;
-    assert(accountOnChain, "accountOnChain missing");
+    assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
     return {
       accountNumber: accountOnChain.accountNumber,
       sequence: accountOnChain.sequence,

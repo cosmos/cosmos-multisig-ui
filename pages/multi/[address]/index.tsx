@@ -112,35 +112,35 @@ const Multipage = () => {
             </div>
           </StackableContainer>
         )}
-        {txView === "send" && (
+        {txView === "send" && accountOnChain && (
           <TransactionForm
             address={multisigAddress}
             accountOnChain={accountOnChain}
             closeForm={closeForm}
           />
         )}
-        {txView === "delegate" && (
+        {txView === "delegate" && accountOnChain && (
           <DelegationForm
             delegatorAddress={multisigAddress}
             accountOnChain={accountOnChain}
             closeForm={closeForm}
           />
         )}
-        {txView === "undelegate" && (
+        {txView === "undelegate" && accountOnChain && (
           <UnDelegationForm
             delegatorAddress={multisigAddress}
             accountOnChain={accountOnChain}
             closeForm={closeForm}
           />
         )}
-        {txView === "redelegate" && (
+        {txView === "redelegate" && accountOnChain && (
           <ReDelegationForm
             delegatorAddress={multisigAddress}
             accountOnChain={accountOnChain}
             closeForm={closeForm}
           />
         )}
-        {txView === "claimRewards" && (
+        {txView === "claimRewards" && accountOnChain && (
           <RewardsForm
             delegatorAddress={multisigAddress}
             accountOnChain={accountOnChain}
@@ -159,36 +159,44 @@ const Multipage = () => {
                   Once a transaction is created, it can be signed by the multisig members, and then
                   broadcast.
                 </p>
-                <Button
-                  label="Create Transaction"
-                  onClick={() => {
-                    setTxView("send");
-                  }}
-                />
-                <Button
-                  label="Create Delegation"
-                  onClick={() => {
-                    setTxView("delegate");
-                  }}
-                />
-                <Button
-                  label="Create UnDelegation"
-                  onClick={() => {
-                    setTxView("undelegate");
-                  }}
-                />
-                <Button
-                  label="Create Redelegate"
-                  onClick={() => {
-                    setTxView("redelegate");
-                  }}
-                />
-                <Button
-                  label="Claim Rewards"
-                  onClick={() => {
-                    setTxView("claimRewards");
-                  }}
-                />
+                {accountOnChain ? (
+                  <>
+                    <Button
+                      label="Create Transaction"
+                      onClick={() => {
+                        setTxView("send");
+                      }}
+                    />
+                    <Button
+                      label="Create Delegation"
+                      onClick={() => {
+                        setTxView("delegate");
+                      }}
+                    />
+                    <Button
+                      label="Create UnDelegation"
+                      onClick={() => {
+                        setTxView("undelegate");
+                      }}
+                    />
+                    <Button
+                      label="Create Redelegate"
+                      onClick={() => {
+                        setTxView("redelegate");
+                      }}
+                    />
+                    <Button
+                      label="Claim Rewards"
+                      onClick={() => {
+                        setTxView("claimRewards");
+                      }}
+                    />
+                  </>
+                ) : (
+                  <p>
+                    An account needs to be present on chain before creating a transaction. Send some tokens to the address first.
+                  </p>
+                )}
               </StackableContainer>
             </div>
           </div>
