@@ -193,7 +193,7 @@ const Multipage = () => {
                   </>
                 ) : (
                   <p>
-                    An account needs to be present on the multisig before creating a transaction.
+                    An account needs to be present on chain before creating a transaction. Send some tokens to the address first.
                   </p>
                 )}
               </StackableContainer>
