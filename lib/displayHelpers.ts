@@ -4,6 +4,10 @@ import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
 import { Decimal } from "@cosmjs/math";
 import { ChainInfo } from "../types";
 
+function capitalizeFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 function ellideMiddle(str: string, maxOutLen: number): string {
   if (str.length <= maxOutLen) {
     return str;
