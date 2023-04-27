@@ -35,9 +35,6 @@ const thinSpace = "\u202F";
  * @return {string} The abbreviated string.
  */
 const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
-  // null, undefined and this sort of things
-  if (!coin) return "–";
-
   // The display denom from configuration
   if (coin.denom === chainInfo.denom) {
     const exponent = Number(chainInfo.displayDenomExponent);
@@ -168,6 +165,7 @@ const explorerLinkAccount = (link: string, address: string) => {
 };
 
 export {
+  capitalizeFirstLetter,
   ellideMiddle,
   printableCoin,
   printableCoins,
