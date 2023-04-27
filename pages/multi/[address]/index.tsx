@@ -27,7 +27,7 @@ const Multipage = () => {
   const { state } = useAppContext();
   assert(state.chain.addressPrefix, "address prefix missing");
 
-  const [txType, setTxType] = useState<TxType>(null);
+  const [txType, setTxType] = useState<TxType | null>(null);
   const [holdings, setHoldings] = useState<readonly Coin[]>([]);
   const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);

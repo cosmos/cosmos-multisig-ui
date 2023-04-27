@@ -7,7 +7,7 @@ import MsgSendForm from "./MsgSendForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
 
 type MsgFormProps = {
-  readonly txType: NonNullable<TxType>;
+  readonly txType: TxType;
 } & {
   readonly senderAddress: string;
   readonly setCheckAndGetMsg: Dispatch<SetStateAction<(() => TxMsg | null) | undefined>>;

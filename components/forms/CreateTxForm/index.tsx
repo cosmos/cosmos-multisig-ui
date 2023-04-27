@@ -13,7 +13,7 @@ import MsgForm from "./MsgForm";
 
 interface CreateTxFormProps {
   readonly router: NextRouter;
-  readonly txType: NonNullable<TxType>;
+  readonly txType: TxType;
   readonly senderAddress: string;
   readonly accountOnChain: Account;
   readonly closeForm: () => void;

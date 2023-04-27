@@ -1,4 +1,4 @@
-export type TxType = null | "send" | "delegate" | "undelegate" | "redelegate" | "claimRewards";
+export type TxType = "send" | "delegate" | "undelegate" | "redelegate" | "claimRewards";
 
 export type TxMsg =
   | TxMsgSend
