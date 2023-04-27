@@ -20,7 +20,7 @@ const TransactionInfo = (props: Props) => {
               <>
                 <li>
                   <label>Amount:</label>
-                  <div>{printableCoins(msg.value.amount, state.chain)}</div>
+                  <div>{printableCoins(msg.value.amount[0], state.chain)}</div>
                 </li>
                 <li>
                   <label>To:</label>
@@ -34,7 +34,7 @@ const TransactionInfo = (props: Props) => {
               <>
                 <li>
                   <label>Amount:</label>
-                  <div>{printableCoin(msg.value.amount, state.chain)}</div>
+                  <div>{printableCoin(msg.value.amount[0], state.chain)}</div>
                 </li>
                 <li>
                   <label>Validator Address:</label>
@@ -47,7 +47,7 @@ const TransactionInfo = (props: Props) => {
               <>
                 <li>
                   <label>Amount:</label>
-                  <div>{printableCoin(msg.value.amount, state.chain)}</div>
+                  <div>{printableCoin(msg.value.amount[0], state.chain)}</div>
                 </li>
                 <li>
                   <label>Source Validator Address:</label>
