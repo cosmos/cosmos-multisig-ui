@@ -35,6 +35,8 @@ const thinSpace = "\u202F";
  * @return {string} The abbreviated string.
  */
 const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
+  if (!coin.amount || !coin.denom) return "";
+
   // The display denom from configuration
   if (coin.denom === chainInfo.denom) {
     const exponent = Number(chainInfo.displayDenomExponent);
@@ -63,12 +65,11 @@ const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
   return coin.amount + thinSpace + coin.denom;
 };
 
-const printableCoins = (coins: Coin[], chainInfo: ChainInfo) => {
-  if (coins.length !== 1) {
-    throw new Error("Implementation only supports exactly one coin entry.");
-  }
-  return printableCoin(coins[0], chainInfo);
-};
+const printableCoins = (coins: readonly Coin[], chainInfo: ChainInfo) =>
+  coins
+    .map((coin) => printableCoin(coin, chainInfo))
+    .filter((str) => !!str)
+    .join(", ");
 
 /**
  * Generates an example address for the configured blockchain.
@@ -165,6 +166,7 @@ const explorerLinkAccount = (link: string, address: string) => {
 };
 
 export {
+  thinSpace,
   capitalizeFirstLetter,
   ellideMiddle,
   printableCoin,
