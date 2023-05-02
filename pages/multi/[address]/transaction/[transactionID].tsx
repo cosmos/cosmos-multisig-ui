@@ -75,7 +75,7 @@ const TransactionPage = ({
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
-  const txInfo: DbTransaction = (transactionJSON && JSON.parse(transactionJSON)) || null;
+  const txInfo: DbTransaction = transactionJSON ? JSON.parse(transactionJSON) : null;
   const router = useRouter();
 
   const addSignature = (signature: DbSignature) => {

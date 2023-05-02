@@ -4,6 +4,10 @@ import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
 import { Decimal } from "@cosmjs/math";
 import { ChainInfo } from "../types";
 
+function capitalizeFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 function ellideMiddle(str: string, maxOutLen: number): string {
   if (str.length <= maxOutLen) {
     return str;
@@ -31,8 +35,7 @@ const thinSpace = "\u202F";
  * @return {string} The abbreviated string.
  */
 const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
-  // null, undefined and this sort of things
-  if (!coin) return "–";
+  if (!coin.amount || !coin.denom) return "";
 
   // The display denom from configuration
   if (coin.denom === chainInfo.denom) {
@@ -62,12 +65,11 @@ const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
   return coin.amount + thinSpace + coin.denom;
 };
 
-const printableCoins = (coins: Coin[], chainInfo: ChainInfo) => {
-  if (coins.length !== 1) {
-    throw new Error("Implementation only supports exactly one coin entry.");
-  }
-  return printableCoin(coins[0], chainInfo);
-};
+const printableCoins = (coins: readonly Coin[], chainInfo: ChainInfo) =>
+  coins
+    .map((coin) => printableCoin(coin, chainInfo))
+    .filter((str) => !!str)
+    .join(", ");
 
 /**
  * Generates an example address for the configured blockchain.
@@ -164,6 +166,8 @@ const explorerLinkAccount = (link: string, address: string) => {
 };
 
 export {
+  thinSpace,
+  capitalizeFirstLetter,
   ellideMiddle,
   printableCoin,
   printableCoins,

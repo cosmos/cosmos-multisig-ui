@@ -7,19 +7,14 @@ import { useCallback, useEffect, useState } from "react";
 import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
-import DelegationForm from "../../../components/forms/DelegationForm";
-import ReDelegationForm from "../../../components/forms/ReDelegationForm";
-import RewardsForm from "../../../components/forms/RewardsForm";
-import TransactionForm from "../../../components/forms/TransactionForm";
-import UnDelegationForm from "../../../components/forms/UnDelegationForm";
+import CreateTxForm from "../../../components/forms/CreateTxForm";
 import Button from "../../../components/inputs/Button";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
 import { useAppContext } from "../../../context/AppContext";
 import { explorerLinkAccount } from "../../../lib/displayHelpers";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
-
-type TxView = null | "send" | "delegate" | "undelegate" | "redelegate" | "claimRewards";
+import { TxType } from "../../../types/txMsg";
 
 function participantPubkeysFromMultisig(
   multisig: MultisigThresholdPubkey,
@@ -28,17 +23,24 @@ function participantPubkeysFromMultisig(
 }
 
 const Multipage = () => {
+  const router = useRouter();
   const { state } = useAppContext();
-  const [txView, setTxView] = useState<TxView>(null);
+  assert(state.chain.addressPrefix, "address prefix missing");
+
+  const [txType, setTxType] = useState<TxType | null>(null);
   const [holdings, setHoldings] = useState<readonly Coin[]>([]);
   const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
-  const router = useRouter();
+
+  const explorerHref = explorerLinkAccount(
+    process.env.NEXT_PUBLIC_EXPLORER_LINK_ACCOUNT || "",
+    multisigAddress,
+  );
 
   const closeForm = () => {
-    setTxView(null);
+    setTxType(null);
   };
 
   const fetchMultisig = useCallback(
@@ -75,13 +77,6 @@ const Multipage = () => {
     }
   }, [fetchMultisig, router.query.address]);
 
-  assert(state.chain.addressPrefix, "address prefix missing");
-
-  const explorerHref = explorerLinkAccount(
-    process.env.NEXT_PUBLIC_EXPLORER_LINK_ACCOUNT || "",
-    multisigAddress,
-  );
-
   return (
     <Page>
       <StackableContainer base>
@@ -90,14 +85,14 @@ const Multipage = () => {
           <h1>{multisigAddress ? <HashView hash={multisigAddress} /> : "No Address"}</h1>
           {explorerHref ? <Button href={explorerHref} label="View in Explorer"></Button> : null}
         </StackableContainer>
-        {pubkey && (
+        {pubkey ? (
           <MultisigMembers
             members={participantPubkeysFromMultisig(pubkey)}
             addressPrefix={state.chain.addressPrefix}
             threshold={pubkey.value.threshold}
           />
-        )}
-        {accountError && (
+        ) : null}
+        {accountError ? (
           <StackableContainer>
             <div className="multisig-error">
               <p>
@@ -111,43 +106,16 @@ const Multipage = () => {
               </p>
             </div>
           </StackableContainer>
-        )}
-        {txView === "send" && accountOnChain && (
-          <TransactionForm
-            address={multisigAddress}
+        ) : null}
+        {!!txType && !!accountOnChain ? (
+          <CreateTxForm
+            txType={txType}
+            senderAddress={multisigAddress}
             accountOnChain={accountOnChain}
             closeForm={closeForm}
           />
-        )}
-        {txView === "delegate" && accountOnChain && (
-          <DelegationForm
-            delegatorAddress={multisigAddress}
-            accountOnChain={accountOnChain}
-            closeForm={closeForm}
-          />
-        )}
-        {txView === "undelegate" && accountOnChain && (
-          <UnDelegationForm
-            delegatorAddress={multisigAddress}
-            accountOnChain={accountOnChain}
-            closeForm={closeForm}
-          />
-        )}
-        {txView === "redelegate" && accountOnChain && (
-          <ReDelegationForm
-            delegatorAddress={multisigAddress}
-            accountOnChain={accountOnChain}
-            closeForm={closeForm}
-          />
-        )}
-        {txView === "claimRewards" && accountOnChain && (
-          <RewardsForm
-            delegatorAddress={multisigAddress}
-            accountOnChain={accountOnChain}
-            closeForm={closeForm}
-          />
-        )}
-        {txView === null && (
+        ) : null}
+        {txType === null ? (
           <div className="interfaces">
             <div className="col-1">
               <MultisigHoldings holdings={holdings} />
@@ -164,43 +132,44 @@ const Multipage = () => {
                     <Button
                       label="Create Transaction"
                       onClick={() => {
-                        setTxView("send");
+                        setTxType("send");
                       }}
                     />
                     <Button
                       label="Create Delegation"
                       onClick={() => {
-                        setTxView("delegate");
+                        setTxType("delegate");
                       }}
                     />
                     <Button
-                      label="Create UnDelegation"
+                      label="Create Undelegation"
                       onClick={() => {
-                        setTxView("undelegate");
+                        setTxType("undelegate");
                       }}
                     />
                     <Button
                       label="Create Redelegate"
                       onClick={() => {
-                        setTxView("redelegate");
+                        setTxType("redelegate");
                       }}
                     />
                     <Button
                       label="Claim Rewards"
                       onClick={() => {
-                        setTxView("claimRewards");
+                        setTxType("claimRewards");
                       }}
                     />
                   </>
                 ) : (
                   <p>
-                    An account needs to be present on chain before creating a transaction. Send some tokens to the address first.
+                    An account needs to be present on chain before creating a transaction. Send some
+                    tokens to the address first.
                   </p>
                 )}
               </StackableContainer>
             </div>
           </div>
-        )}
+        ) : null}
       </StackableContainer>
       <style jsx>{`
         .interfaces {
