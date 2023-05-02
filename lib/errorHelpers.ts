@@ -9,7 +9,7 @@ const getConnectError = (error: unknown): string => {
 
   // Ledger
   if (rawErrorMsg.includes("navigator.usb is undefined")) {
-    return "Your browser is not compatible with ledger";
+    return "Your browser is not compatible with Ledger due to missing WebUSB";
   }
 
   if (rawErrorMsg.includes("no device selected")) {
