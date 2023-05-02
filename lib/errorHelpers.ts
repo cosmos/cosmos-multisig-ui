@@ -13,7 +13,7 @@ const getConnectError = (error: unknown): string => {
   }
 
   if (rawErrorMsg.includes("no device selected")) {
-    return "A ledger device needs to be selected";
+    return "A Ledger device needs to be selected";
   }
 
   if (rawErrorMsg.includes("open the cosmos ledger app")) {
