@@ -71,9 +71,8 @@ const TransactionSigning = (props: Props) => {
       setWalletType("Keplr");
       setConnectError("");
     } catch (e) {
-      const error = getConnectError(e);
-      console.error(error);
-      setConnectError(error);
+      console.error(e);
+      setConnectError(getConnectError(e));
     } finally {
       setLoading((newLoading) => ({ ...newLoading, keplr: false }));
     }
@@ -119,9 +118,8 @@ const TransactionSigning = (props: Props) => {
       setWalletType("Ledger");
       setConnectError("");
     } catch (e) {
-      const error = getConnectError(e);
-      console.error(error);
-      setConnectError(error);
+      console.error(e);
+      setConnectError(getConnectError(e));
     } finally {
       setLoading((newLoading) => ({ ...newLoading, ledger: false }));
     }
