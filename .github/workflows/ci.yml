@@ -14,9 +14,20 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: "16"
       - run: npm install
       - run: npm run lint
+
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - run: npm install
+      - run: npm run test
 
   build:
     runs-on: ubuntu-20.04
@@ -25,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: "16"
       - run: npm install
       - run: cp .env.sample .env.local
       - run: npm run build
