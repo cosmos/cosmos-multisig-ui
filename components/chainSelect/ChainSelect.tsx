@@ -1,6 +1,7 @@
 import { StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import axios from "axios";
+import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import GearIcon from "../icons/Gear";
@@ -41,13 +42,15 @@ const chainsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents";
 const testnetsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents/testnets";
 
 const ChainSelect = () => {
+  const router = useRouter();
   const { state, dispatch } = useAppContext();
 
   // UI State
   const [chainArray, setChainArray] = useState<GithubChainRegistryItem[]>([]);
   const [chainOptions, setChainOptions] = useState<ChainOption[]>([]);
   const [chainError, setChainError] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showAuxView, setShowAuxView] = useState<null | "settings" | "confirmRedirect">(null);
+  const [storedOption, setStoredOption] = useState<ChainOption | null>(null);
   const [selectValue, setSelectValue] = useState({ label: "Loading...", value: -1 });
 
   // Chain State
@@ -90,7 +93,7 @@ const ChainSelect = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error);
-      setShowSettings(true);
+      setShowAuxView("settings");
       setChainError(error.message);
     }
   }, [state.chain.registryName]);
@@ -167,7 +170,7 @@ const ChainSelect = () => {
         },
       });
 
-      setShowSettings(false);
+      setShowAuxView(null);
     } catch (error) {
       if (error instanceof Error) {
         setChainError(error.message);
@@ -176,7 +179,7 @@ const ChainSelect = () => {
       }
 
       console.error("Error getting chain info", error);
-      setShowSettings(true);
+      setShowAuxView("settings");
     }
   };
 
@@ -206,10 +209,32 @@ const ChainSelect = () => {
     throw new Error("No RPC nodes available for this chain");
   };
 
-  const onChainSelect = (option: ChainOption) => {
+  const changeChain = (option: ChainOption) => {
     const index = chainOptions.findIndex((opt) => opt.label === option.label);
     setSelectValue(chainOptions[index]);
     getChainInfo(chainArray[option.value]);
+  };
+
+  const onChainSelect = (option: ChainOption) => {
+    if (router.pathname !== "/" && option.label !== selectValue.label) {
+      setStoredOption(option);
+      setShowAuxView("confirmRedirect");
+      return;
+    }
+
+    changeChain(option);
+    setStoredOption(null);
+  };
+
+  const redirectAndChangeChain = () => {
+    setShowAuxView(null);
+
+    if (storedOption) {
+      changeChain(storedOption);
+      setStoredOption(null);
+    }
+
+    router.push("/");
   };
 
   const setChainFromForm = async () => {
@@ -239,11 +264,11 @@ const ChainSelect = () => {
       assert(tempRegistryName, "tempRegistryName missing");
       const selectedOption = findExistingOption(chainOptions, tempRegistryName);
       setSelectValue(selectedOption);
-      setShowSettings(false);
+      setShowAuxView(null);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error);
-      setShowSettings(true);
+      setShowAuxView("settings");
       setChainError(error.message);
     }
   };
@@ -261,17 +286,23 @@ const ChainSelect = () => {
               name="chain-select"
             />
           </div>
-          {showSettings ? (
-            <button className="remove" onClick={() => setShowSettings(!showSettings)}>
+          {showAuxView ? (
+            <button
+              className="remove"
+              onClick={() => {
+                setShowAuxView(null);
+                setStoredOption(null);
+              }}
+            >
               ✕
             </button>
           ) : (
-            <button onClick={() => setShowSettings(!showSettings)}>
+            <button onClick={() => setShowAuxView("settings")}>
               <GearIcon color="white" />
             </button>
           )}
         </div>
-        {showSettings && (
+        {showAuxView === "settings" ? (
           <>
             {chainError && <p className="error">{chainError}</p>}
             <StackableContainer lessPadding lessMargin lessRadius>
@@ -356,7 +387,16 @@ const ChainSelect = () => {
               <Button label="Set Chain" onClick={setChainFromForm} />
             </StackableContainer>
           </>
-        )}
+        ) : null}
+        {showAuxView === "confirmRedirect" && storedOption ? (
+          <StackableContainer lessPadding lessMargin lessRadius>
+            <p>
+              If you change to {storedOption.label} your unsaved changes will be lost and you will
+              be redirected to the main screen
+            </p>
+            <Button label={`Change to ${storedOption.label}`} onClick={redirectAndChangeChain} />
+          </StackableContainer>
+        ) : null}
       </StackableContainer>
       <style jsx>{`
         .chain-select-container {
@@ -364,7 +404,7 @@ const ChainSelect = () => {
           z-index: 10;
           top: 1em;
           right: 1em;
-          width: ${showSettings ? "600px" : "300px"};
+          width: ${showAuxView === "settings" ? "600px" : "300px"};
         }
         .flex {
           margin-top: 0.5em;
