@@ -7,6 +7,7 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import axios from "axios";
 import { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
+import { getConnectError } from "../../lib/errorHelpers";
 import { DbSignature, DbTransaction, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
@@ -34,6 +35,7 @@ const TransactionSigning = (props: Props) => {
   const { state } = useAppContext();
   const [walletAccount, setWalletAccount] = useState<WalletAccount>();
   const [sigError, setSigError] = useState("");
+  const [connectError, setConnectError] = useState("");
   const [signing, setSigning] = useState<SigningStatus>("not_signed");
   const [walletType, setWalletType] = useState<"Keplr" | "Ledger">();
   const [ledgerSigner, setLedgerSigner] = useState({});
@@ -67,8 +69,10 @@ const TransactionSigning = (props: Props) => {
       }
 
       setWalletType("Keplr");
+      setConnectError("");
     } catch (e) {
-      console.log("enable keplr err: ", e);
+      console.error(e);
+      setConnectError(getConnectError(e));
     } finally {
       setLoading((newLoading) => ({ ...newLoading, keplr: false }));
     }
@@ -112,8 +116,10 @@ const TransactionSigning = (props: Props) => {
 
       setLedgerSigner(offlineSigner);
       setWalletType("Ledger");
+      setConnectError("");
     } catch (e) {
-      console.log("enable ledger err: ", e);
+      console.error(e);
+      setConnectError(getConnectError(e));
     } finally {
       setLoading((newLoading) => ({ ...newLoading, ledger: false }));
     }
@@ -228,6 +234,13 @@ const TransactionSigning = (props: Props) => {
         <StackableContainer lessPadding lessRadius lessMargin>
           <div className="signature-error">
             <p>This account has already signed this transaction.</p>
+          </div>
+        </StackableContainer>
+      )}
+      {connectError && (
+        <StackableContainer lessPadding lessRadius lessMargin>
+          <div className="signature-error">
+            <p>{connectError}</p>
           </div>
         </StackableContainer>
       )}
