@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: "16"
       - run: npm install
-      - run: npm run test
+      - run: npm run test:ci
 
   build:
     runs-on: ubuntu-20.04
