@@ -139,6 +139,13 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           onChange={({ target }) => setMemo(target.value)}
         />
       </div>
+      <StackableContainer>
+        <Button label="Add MsgSend" onClick={() => addTxType("send")} />
+        <Button label="Add MsgDelegate" onClick={() => addTxType("delegate")} />
+        <Button label="Add MsgUndelegate" onClick={() => addTxType("undelegate")} />
+        <Button label="Add MsgBeginRedelegate" onClick={() => addTxType("redelegate")} />
+        <Button label="Add MsgWithdrawDelegatorReward" onClick={() => addTxType("claimRewards")} />
+      </StackableContainer>
       <Button
         label="Create Transaction"
         onClick={createTx}
