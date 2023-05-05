@@ -2,34 +2,33 @@ import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import axios from "axios";
 import { NextRouter, withRouter } from "next/router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAppContext } from "../../../context/AppContext";
-import { capitalizeFirstLetter } from "../../../lib/displayHelpers";
 import { TxMsg, TxType } from "../../../types/txMsg";
 import Button from "../../inputs/Button";
 import Input from "../../inputs/Input";
 import StackableContainer from "../../layout/StackableContainer";
 import MsgForm from "./MsgForm";
 
-interface CreateTxFormProps {
-  readonly router: NextRouter;
-  readonly txType: TxType;
-  readonly senderAddress: string;
-  readonly accountOnChain: Account;
-  readonly closeForm: () => void;
+export interface MsgGetter {
+  readonly isMsgValid: (msg: TxMsg) => msg is TxMsg;
+  readonly msg: TxMsg;
 }
 
-const CreateTxForm = ({
-  router,
-  txType,
-  senderAddress,
-  accountOnChain,
-  closeForm,
-}: CreateTxFormProps) => {
+const getMsgFormKey = (txType: TxType, msg: TxMsg) => JSON.stringify({ txType, msg });
+
+interface CreateTxFormProps {
+  readonly router: NextRouter;
+  readonly senderAddress: string;
+  readonly accountOnChain: Account;
+}
+
+const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormProps) => {
   const { state } = useAppContext();
 
   const [processing, setProcessing] = useState(false);
-  const [checkAndGetMsg, setCheckAndGetMsg] = useState<() => TxMsg | null>();
+  const [msgTypes, setMsgTypes] = useState<readonly TxType[]>([]);
+  const msgGetters = useRef<MsgGetter[]>([]);
   const [memo, setMemo] = useState("");
   const [gasLimit, setGasLimit] = useState(200000);
   const [gasLimitError, setGasLimitError] = useState("");
@@ -37,12 +36,24 @@ const CreateTxForm = ({
   const gasPrice = state.chain.gasPrice;
   assert(gasPrice, "gasPrice missing");
 
+  const addTxType = (newTxType: TxType) => {
+    setMsgTypes((oldMsgTypes) => {
+      const newTxTypes = [...oldMsgTypes, newTxType];
+      setGasLimit((oldGasLimit) => (oldGasLimit / (oldMsgTypes.length || 1)) * newTxTypes.length);
+      return newTxTypes;
+    });
+  };
+
   const createTx = async () => {
     try {
       assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
-      assert(!!checkAndGetMsg, "form filled incorrectly");
-      const msg = checkAndGetMsg();
-      if (!msg) return;
+      assert(!!msgGetters.current.length, "form filled incorrectly");
+
+      const msgs = msgGetters.current
+        .filter(({ isMsgValid, msg }) => isMsgValid(msg))
+        .map(({ msg }) => msg);
+
+      if (!msgs.length || msgs.length !== msgTypes.length) return;
 
       if (!Number.isSafeInteger(gasLimit) || gasLimit <= 0) {
         setGasLimitError("gas limit must be a positive integer");
@@ -55,7 +66,7 @@ const CreateTxForm = ({
         accountNumber: accountOnChain.accountNumber,
         sequence: accountOnChain.sequence,
         chainId: state.chain.chainId,
-        msgs: [msg],
+        msgs,
         fee: calculateFee(gasLimit, gasPrice),
         memo,
       };
@@ -76,15 +87,32 @@ const CreateTxForm = ({
 
   return (
     <StackableContainer lessPadding>
-      <button className="remove" onClick={() => closeForm()}>
-        ✕
-      </button>
-      <h2>Create New {capitalizeFirstLetter(txType)} Transaction</h2>
-      <MsgForm
-        txType={txType}
-        senderAddress={senderAddress}
-        setCheckAndGetMsg={setCheckAndGetMsg}
-      />
+      <h2>Create New Transaction</h2>
+      {msgTypes.map((txType, index) => (
+        <MsgForm
+          key={getMsgFormKey(txType, msgGetters.current[index]?.msg ?? {})}
+          txType={txType}
+          senderAddress={senderAddress}
+          setMsgGetter={(msgGetter) => {
+            msgGetters.current = [
+              ...msgGetters.current.slice(0, index),
+              msgGetter,
+              ...msgGetters.current.slice(index + 1),
+            ];
+          }}
+          deleteMsg={() => {
+            msgGetters.current.splice(index, 1);
+            setMsgTypes((oldMsgTypes) => {
+              const newMsgTypes: TxType[] = oldMsgTypes.slice();
+              newMsgTypes.splice(index, 1);
+              setGasLimit(
+                (oldGasLimit) => (oldGasLimit / oldMsgTypes.length) * (newMsgTypes.length || 1),
+              );
+              return newMsgTypes;
+            });
+          }}
+        />
+      ))}
       <div className="form-item">
         <Input
           type="number"
@@ -114,7 +142,7 @@ const CreateTxForm = ({
       <Button
         label="Create Transaction"
         onClick={createTx}
-        disabled={!checkAndGetMsg}
+        disabled={!msgTypes.length}
         loading={processing}
       />
       <style jsx>{`
@@ -123,17 +151,6 @@ const CreateTxForm = ({
         }
         .form-item {
           margin-top: 1.5em;
-        }
-        button.remove {
-          background: rgba(255, 255, 255, 0.2);
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          border: none;
-          color: white;
-          position: absolute;
-          right: 10px;
-          top: 10px;
         }
       `}</style>
     </StackableContainer>
