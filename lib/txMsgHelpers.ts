@@ -1,5 +1,6 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
 import {
+  TxMsg,
   TxMsgClaimRewards,
   TxMsgDelegate,
   TxMsgRedelegate,
@@ -7,7 +8,7 @@ import {
   TxMsgUndelegate,
 } from "../types/txMsg";
 
-const isTxMsgSend = (msg: EncodeObject): msg is TxMsgSend =>
+const isTxMsgSend = (msg: TxMsg | EncodeObject): msg is TxMsgSend =>
   msg.typeUrl === "/cosmos.bank.v1beta1.MsgSend" &&
   "value" in msg &&
   "fromAddress" in msg.value &&
@@ -17,7 +18,7 @@ const isTxMsgSend = (msg: EncodeObject): msg is TxMsgSend =>
   !!msg.value.toAddress &&
   !!msg.value.amount.length;
 
-const isTxMsgDelegate = (msg: EncodeObject): msg is TxMsgDelegate =>
+const isTxMsgDelegate = (msg: TxMsg | EncodeObject): msg is TxMsgDelegate =>
   msg.typeUrl === "/cosmos.staking.v1beta1.MsgDelegate" &&
   "value" in msg &&
   "delegatorAddress" in msg.value &&
@@ -27,7 +28,7 @@ const isTxMsgDelegate = (msg: EncodeObject): msg is TxMsgDelegate =>
   !!msg.value.validatorAddress &&
   !!msg.value.amount.length;
 
-const isTxMsgUndelegate = (msg: EncodeObject): msg is TxMsgUndelegate =>
+const isTxMsgUndelegate = (msg: TxMsg | EncodeObject): msg is TxMsgUndelegate =>
   msg.typeUrl === "/cosmos.staking.v1beta1.MsgUndelegate" &&
   "value" in msg &&
   "delegatorAddress" in msg.value &&
@@ -37,7 +38,7 @@ const isTxMsgUndelegate = (msg: EncodeObject): msg is TxMsgUndelegate =>
   !!msg.value.validatorAddress &&
   !!msg.value.amount.length;
 
-const isTxMsgRedelegate = (msg: EncodeObject): msg is TxMsgRedelegate =>
+const isTxMsgRedelegate = (msg: TxMsg | EncodeObject): msg is TxMsgRedelegate =>
   msg.typeUrl === "/cosmos.staking.v1beta1.MsgBeginRedelegate" &&
   "value" in msg &&
   "delegatorAddress" in msg.value &&
@@ -49,7 +50,7 @@ const isTxMsgRedelegate = (msg: EncodeObject): msg is TxMsgRedelegate =>
   !!msg.value.validatorDstAddress &&
   !!msg.value.amount.length;
 
-const isTxMsgClaimRewards = (msg: EncodeObject): msg is TxMsgClaimRewards =>
+const isTxMsgClaimRewards = (msg: TxMsg | EncodeObject): msg is TxMsgClaimRewards =>
   msg.typeUrl === "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward" &&
   "value" in msg &&
   "delegatorAddress" in msg.value &&
