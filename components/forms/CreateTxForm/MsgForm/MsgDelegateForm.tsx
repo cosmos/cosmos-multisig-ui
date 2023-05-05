@@ -1,17 +1,21 @@
 import { Decimal } from "@cosmjs/math";
 import { assert } from "@cosmjs/utils";
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { isTxMsgDelegate } from "../../../../lib/txMsgHelpers";
 import { TxMsg, TxMsgDelegate } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
+import StackableContainer from "../../../layout/StackableContainer";
 
 interface MsgDelegateFormProps {
   readonly delegatorAddress: string;
-  readonly setCheckAndGetMsg: Dispatch<SetStateAction<(() => TxMsg | null) | undefined>>;
+  readonly setMsgGetter: (msgGetter: MsgGetter) => void;
+  readonly deleteMsg: () => void;
 }
 
-const MsgDelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgDelegateFormProps) => {
+const MsgDelegateForm = ({ delegatorAddress, setMsgGetter, deleteMsg }: MsgDelegateFormProps) => {
   const { state } = useAppContext();
   assert(state.chain.addressPrefix, "addressPrefix missing");
 
@@ -21,41 +25,52 @@ const MsgDelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgDelegateFor
   const [validatorAddressError, setValidatorAddressError] = useState("");
   const [amountError, setAmountError] = useState("");
 
-  const checkAndGetMsg = useCallback(() => {
-    assert(state.chain.addressPrefix, "addressPrefix missing");
-    assert(state.chain.denom, "denom missing");
+  useEffect(() => {
+    try {
+      assert(state.chain.denom, "denom missing");
 
-    const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
-    if (addressErrorMsg) {
-      setValidatorAddressError(
-        `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
-      );
-      return null;
-    }
+      setValidatorAddressError("");
+      setAmountError("");
 
-    if (!amount || Number(amount) <= 0) {
-      setAmountError("Amount must be greater than 0");
-      return null;
-    }
+      const isMsgValid = (msg: TxMsg): msg is TxMsgDelegate => {
+        assert(state.chain.addressPrefix, "addressPrefix missing");
 
-    const amountInAtomics = Decimal.fromUserInput(
-      amount,
-      Number(state.chain.displayDenomExponent),
-    ).atomics;
+        const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
+        if (addressErrorMsg) {
+          setValidatorAddressError(
+            `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
+          );
+          return false;
+        }
 
-    const msg: TxMsgDelegate = {
-      typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
-      value: {
-        delegatorAddress,
-        validatorAddress,
-        amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
-      },
-    };
+        if (!amount || Number(amount) <= 0) {
+          setAmountError("Amount must be greater than 0");
+          return false;
+        }
 
-    return msg;
+        return isTxMsgDelegate(msg);
+      };
+
+      const amountInAtomics = Decimal.fromUserInput(
+        amount || "0",
+        Number(state.chain.displayDenomExponent),
+      ).atomics;
+
+      const msg: TxMsgDelegate = {
+        typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
+        value: {
+          delegatorAddress,
+          validatorAddress,
+          amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
+        },
+      };
+
+      setMsgGetter({ isMsgValid, msg });
+    } catch {}
   }, [
     amount,
     delegatorAddress,
+    setMsgGetter,
     state.chain.addressPrefix,
     state.chain.chainId,
     state.chain.denom,
@@ -63,12 +78,12 @@ const MsgDelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgDelegateFor
     validatorAddress,
   ]);
 
-  useEffect(() => {
-    setCheckAndGetMsg(() => checkAndGetMsg);
-  }, [checkAndGetMsg, setCheckAndGetMsg]);
-
   return (
-    <>
+    <StackableContainer lessPadding lessMargin>
+      <button className="remove" onClick={() => deleteMsg()}>
+        ✕
+      </button>
+      <h2>MsgDelegate</h2>
       <div className="form-item">
         <Input
           label="Validator Address"
@@ -90,14 +105,22 @@ const MsgDelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgDelegateFor
         />
       </div>
       <style jsx>{`
-        p {
-          margin-top: 15px;
-        }
         .form-item {
           margin-top: 1.5em;
         }
+        button.remove {
+          background: rgba(255, 255, 255, 0.2);
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: none;
+          color: white;
+          position: absolute;
+          right: 10px;
+          top: 10px;
+        }
       `}</style>
-    </>
+    </StackableContainer>
   );
 };
 
