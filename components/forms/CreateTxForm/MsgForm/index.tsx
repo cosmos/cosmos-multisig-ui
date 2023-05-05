@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction } from "react";
-import { TxMsg, TxType } from "../../../../types/txMsg";
+import { MsgGetter } from "..";
+import { TxType } from "../../../../types/txMsg";
 import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
 import MsgDelegateForm from "./MsgDelegateForm";
 import MsgRedelegateForm from "./MsgRedelegateForm";
@@ -10,7 +10,8 @@ type MsgFormProps = {
   readonly txType: TxType;
 } & {
   readonly senderAddress: string;
-  readonly setCheckAndGetMsg: Dispatch<SetStateAction<(() => TxMsg | null) | undefined>>;
+  readonly setMsgGetter: (msgGetter: MsgGetter) => void;
+  readonly deleteMsg: () => void;
 };
 
 const MsgForm = ({ txType, senderAddress, ...restProps }: MsgFormProps) => {
