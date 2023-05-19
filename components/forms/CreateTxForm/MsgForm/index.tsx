@@ -4,6 +4,7 @@ import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
 import MsgDelegateForm from "./MsgDelegateForm";
 import MsgRedelegateForm from "./MsgRedelegateForm";
 import MsgSendForm from "./MsgSendForm";
+import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
 
 type MsgFormProps = {
@@ -26,6 +27,8 @@ const MsgForm = ({ txType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgRedelegateForm delegatorAddress={senderAddress} {...restProps} />;
     case "claimRewards":
       return <MsgClaimRewardsForm delegatorAddress={senderAddress} {...restProps} />;
+    case "setWithdrawAddress":
+      return <MsgSetWithdrawAddressForm delegatorAddress={senderAddress} {...restProps} />;
     default:
       return null;
   }

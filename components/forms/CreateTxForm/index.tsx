@@ -145,6 +145,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         <Button label="Add MsgUndelegate" onClick={() => addTxType("undelegate")} />
         <Button label="Add MsgBeginRedelegate" onClick={() => addTxType("redelegate")} />
         <Button label="Add MsgWithdrawDelegatorReward" onClick={() => addTxType("claimRewards")} />
+        <Button label="Add MsgSetWithdrawAddress" onClick={() => addTxType("setWithdrawAddress")} />
       </StackableContainer>
       <Button
         label="Create Transaction"
