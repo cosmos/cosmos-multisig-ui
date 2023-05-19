@@ -4,6 +4,7 @@ import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargat
 import { assert } from "@cosmjs/utils";
 import axios from "axios";
 import { GetServerSideProps } from "next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import CompletedTransaction from "../../../../components/dataViews/CompletedTransaction";
@@ -143,6 +144,12 @@ const TransactionPage = ({
 
   return (
     <Page rootMultisig={multisigAddress}>
+      <Link
+        href={`/multi/${router.query.address}`}
+        style={{ color: "white", fontSize: 20, textDecoration: "none" }}
+      >
+        ← Back to Multisig
+      </Link>
       <StackableContainer base>
         <StackableContainer>
           <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>
