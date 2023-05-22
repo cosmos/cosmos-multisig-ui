@@ -5,6 +5,7 @@ import {
   TxMsgDelegate,
   TxMsgRedelegate,
   TxMsgSend,
+  TxMsgSetWithdrawAddress,
   TxMsgUndelegate,
 } from "../types/txMsg";
 
@@ -58,4 +59,19 @@ const isTxMsgClaimRewards = (msg: TxMsg | EncodeObject): msg is TxMsgClaimReward
   !!msg.value.delegatorAddress &&
   !!msg.value.validatorAddress;
 
-export { isTxMsgSend, isTxMsgDelegate, isTxMsgUndelegate, isTxMsgRedelegate, isTxMsgClaimRewards };
+const isTxMsgSetWithdrawAddress = (msg: TxMsg | EncodeObject): msg is TxMsgSetWithdrawAddress =>
+  msg.typeUrl === "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress" &&
+  "value" in msg &&
+  "delegatorAddress" in msg.value &&
+  "withdrawAddress" in msg.value &&
+  !!msg.value.delegatorAddress &&
+  !!msg.value.withdrawAddress;
+
+export {
+  isTxMsgSend,
+  isTxMsgDelegate,
+  isTxMsgUndelegate,
+  isTxMsgRedelegate,
+  isTxMsgClaimRewards,
+  isTxMsgSetWithdrawAddress,
+};
