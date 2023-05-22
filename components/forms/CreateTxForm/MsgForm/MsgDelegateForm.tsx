@@ -61,7 +61,7 @@ const MsgDelegateForm = ({ delegatorAddress, setMsgGetter, deleteMsg }: MsgDeleg
         value: {
           delegatorAddress,
           validatorAddress,
-          amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
+          amount: { amount: amountInAtomics, denom: state.chain.denom },
         },
       };
 
