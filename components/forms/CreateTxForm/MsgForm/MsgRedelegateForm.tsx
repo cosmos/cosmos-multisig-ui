@@ -59,7 +59,7 @@ const MsgRedelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgRedelegat
         delegatorAddress,
         validatorSrcAddress,
         validatorDstAddress,
-        amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
+        amount: { amount: amountInAtomics, denom: state.chain.denom },
       },
     };
 
