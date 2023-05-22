@@ -21,7 +21,7 @@ export interface TxMsgDelegate {
   readonly value: {
     readonly delegatorAddress: string;
     readonly validatorAddress: string;
-    readonly amount: [{ readonly amount: string; readonly denom: string }];
+    readonly amount: { readonly amount: string; readonly denom: string };
   };
 }
 
@@ -30,7 +30,7 @@ export interface TxMsgUndelegate {
   readonly value: {
     readonly delegatorAddress: string;
     readonly validatorAddress: string;
-    readonly amount: [{ readonly amount: string; readonly denom: string }];
+    readonly amount: { readonly amount: string; readonly denom: string };
   };
 }
 
@@ -40,7 +40,7 @@ export interface TxMsgRedelegate {
     readonly delegatorAddress: string;
     readonly validatorSrcAddress: string;
     readonly validatorDstAddress: string;
-    readonly amount: [{ readonly amount: string; readonly denom: string }];
+    readonly amount: { readonly amount: string; readonly denom: string };
   };
 }
 
