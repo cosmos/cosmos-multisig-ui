@@ -5,7 +5,7 @@ import { SigningStargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import axios from "axios";
-import { useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { getConnectError } from "../../lib/errorHelpers";
 import { DbSignature, DbTransaction, WalletAccount } from "../../types";
@@ -41,7 +41,7 @@ const TransactionSigning = (props: Props) => {
   const [ledgerSigner, setLedgerSigner] = useState({});
   const [loading, setLoading] = useState<LoadingStates>({});
 
-  const connectKeplr = async () => {
+  const connectKeplr = useCallback(async () => {
     try {
       setLoading((oldLoading) => ({ ...oldLoading, keplr: true }));
       assert(state.chain.chainId, "chainId missing");
@@ -76,7 +76,17 @@ const TransactionSigning = (props: Props) => {
     } finally {
       setLoading((newLoading) => ({ ...newLoading, keplr: false }));
     }
-  };
+  }, [memberPubkeys, props.signatures, state.chain.chainId]);
+
+  useLayoutEffect(() => {
+    const accountChangeKey = "keplr_keystorechange";
+
+    if (walletType === "Keplr") {
+      window.addEventListener(accountChangeKey, connectKeplr);
+    } else {
+      window.removeEventListener(accountChangeKey, connectKeplr);
+    }
+  }, [connectKeplr, walletType]);
 
   const connectLedger = async () => {
     try {
