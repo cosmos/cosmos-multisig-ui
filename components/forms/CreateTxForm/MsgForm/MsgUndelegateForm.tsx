@@ -48,7 +48,7 @@ const MsgUndelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgUndelegat
       value: {
         delegatorAddress,
         validatorAddress,
-        amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
+        amount: { amount: amountInAtomics, denom: state.chain.denom },
       },
     };
 

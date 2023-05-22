@@ -1,5 +1,5 @@
 import { useAppContext } from "../../../context/AppContext";
-import { printableCoins } from "../../../lib/displayHelpers";
+import { printableCoin } from "../../../lib/displayHelpers";
 import { TxMsgRedelegate } from "../../../types/txMsg";
 import HashView from "../HashView";
 
@@ -17,7 +17,7 @@ const TxMsgRedelegateDetails = ({ msg }: TxMsgRedelegateDetailsProps) => {
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoins(msg.value.amount, state.chain)}</div>
+        <div>{printableCoin(msg.value.amount, state.chain)}</div>
       </li>
       <li>
         <label>Src Validator Address:</label>

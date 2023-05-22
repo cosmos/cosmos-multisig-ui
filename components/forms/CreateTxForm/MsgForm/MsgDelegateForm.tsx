@@ -48,7 +48,7 @@ const MsgDelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgDelegateFor
       value: {
         delegatorAddress,
         validatorAddress,
-        amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
+        amount: { amount: amountInAtomics, denom: state.chain.denom },
       },
     };
 
