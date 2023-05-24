@@ -2,7 +2,6 @@ import { MultisigThresholdPubkey, SinglePubkey } from "@cosmjs/amino";
 import { Account, StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import HashView from "../../../components/dataViews/HashView";
@@ -80,9 +79,6 @@ const Multipage = () => {
 
   return (
     <Page>
-      <Link href="/" style={{ color: "white", fontSize: 20, textDecoration: "none" }}>
-        ← Back to Home
-      </Link>
       <StackableContainer base>
         <StackableContainer>
           <label>Multisig Address</label>
