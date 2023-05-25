@@ -29,14 +29,14 @@ const Multipage = () => {
 
   const [txType, setTxType] = useState<TxType | null>(null);
   const [holdings, setHoldings] = useState<readonly Coin[]>([]);
-  const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
 
+  const multisigAddress = router.query.address?.toString();
   const explorerHref = explorerLinkAccount(
     process.env.NEXT_PUBLIC_EXPLORER_LINK_ACCOUNT || "",
-    multisigAddress,
+    multisigAddress || "",
   );
 
   const closeForm = () => {
@@ -70,12 +70,10 @@ const Multipage = () => {
   );
 
   useEffect(() => {
-    const address = router.query.address?.toString();
-    if (address) {
-      setMultisigAddress(address);
-      fetchMultisig(address);
+    if (multisigAddress) {
+      fetchMultisig(multisigAddress);
     }
-  }, [fetchMultisig, router.query.address]);
+  }, [fetchMultisig, multisigAddress]);
 
   return (
     <Page>
@@ -107,7 +105,7 @@ const Multipage = () => {
             </div>
           </StackableContainer>
         ) : null}
-        {!!txType && !!accountOnChain ? (
+        {txType && multisigAddress && accountOnChain ? (
           <CreateTxForm
             txType={txType}
             senderAddress={multisigAddress}
