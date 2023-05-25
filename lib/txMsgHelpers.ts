@@ -28,7 +28,7 @@ const isTxMsgDelegate = (msg: TxMsg | EncodeObject): msg is TxMsgDelegate =>
   "amount" in msg.value &&
   !!msg.value.delegatorAddress &&
   !!msg.value.validatorAddress &&
-  !!msg.value.amount.length;
+  !!msg.value.amount;
 
 const isTxMsgUndelegate = (msg: TxMsg | EncodeObject): msg is TxMsgUndelegate =>
   msg.typeUrl === "/cosmos.staking.v1beta1.MsgUndelegate" &&
@@ -38,7 +38,7 @@ const isTxMsgUndelegate = (msg: TxMsg | EncodeObject): msg is TxMsgUndelegate =>
   "amount" in msg.value &&
   !!msg.value.delegatorAddress &&
   !!msg.value.validatorAddress &&
-  !!msg.value.amount.length;
+  !!msg.value.amount;
 
 const isTxMsgRedelegate = (msg: TxMsg | EncodeObject): msg is TxMsgRedelegate =>
   msg.typeUrl === "/cosmos.staking.v1beta1.MsgBeginRedelegate" &&
@@ -50,7 +50,7 @@ const isTxMsgRedelegate = (msg: TxMsg | EncodeObject): msg is TxMsgRedelegate =>
   !!msg.value.delegatorAddress &&
   !!msg.value.validatorSrcAddress &&
   !!msg.value.validatorDstAddress &&
-  !!msg.value.amount.length;
+  !!msg.value.amount;
 
 const isTxMsgClaimRewards = (msg: TxMsg | EncodeObject): msg is TxMsgClaimRewards =>
   msg.typeUrl === "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward" &&
