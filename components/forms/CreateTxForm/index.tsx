@@ -4,7 +4,8 @@ import axios from "axios";
 import { NextRouter, withRouter } from "next/router";
 import { useRef, useState } from "react";
 import { useAppContext } from "../../../context/AppContext";
-import { TxMsg, TxType } from "../../../types/txMsg";
+import { gasOfTx } from "../../../lib/txMsgHelpers";
+import { MsgType, TxMsg } from "../../../types/txMsg";
 import Button from "../../inputs/Button";
 import Input from "../../inputs/Input";
 import StackableContainer from "../../layout/StackableContainer";
@@ -15,7 +16,7 @@ export interface MsgGetter {
   readonly msg: TxMsg;
 }
 
-const getMsgFormKey = (txType: TxType, msg: TxMsg) => JSON.stringify({ txType, msg });
+const getMsgFormKey = (msgType: MsgType, msg: TxMsg) => JSON.stringify({ msgType, msg });
 
 interface CreateTxFormProps {
   readonly router: NextRouter;
@@ -27,27 +28,27 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   const { state } = useAppContext();
 
   const [processing, setProcessing] = useState(false);
-  const [msgTypes, setMsgTypes] = useState<readonly TxType[]>([]);
+  const [msgTypes, setMsgTypes] = useState<readonly MsgType[]>([]);
   const msgGetters = useRef<MsgGetter[]>([]);
   const [memo, setMemo] = useState("");
-  const [gasLimit, setGasLimit] = useState(200000);
+  const [gasLimit, setGasLimit] = useState(100_000);
   const [gasLimitError, setGasLimitError] = useState("");
 
   const gasPrice = state.chain.gasPrice;
   assert(gasPrice, "gasPrice missing");
 
-  const addTxType = (newTxType: TxType) => {
+  const addMsgType = (newMsgType: MsgType) => {
     setMsgTypes((oldMsgTypes) => {
-      const newTxTypes = [...oldMsgTypes, newTxType];
-      setGasLimit((oldGasLimit) => (oldGasLimit / (oldMsgTypes.length || 1)) * newTxTypes.length);
-      return newTxTypes;
+      const newMsgTypes = [...oldMsgTypes, newMsgType];
+      setGasLimit(gasOfTx(newMsgTypes));
+      return newMsgTypes;
     });
   };
 
   const createTx = async () => {
     try {
       assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
-      assert(!!msgGetters.current.length, "form filled incorrectly");
+      assert(msgGetters.current.length, "form filled incorrectly");
 
       const msgs = msgGetters.current
         .filter(({ isMsgValid, msg }) => isMsgValid(msg))
@@ -88,10 +89,10 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   return (
     <StackableContainer lessPadding>
       <h2>Create New Transaction</h2>
-      {msgTypes.map((txType, index) => (
+      {msgTypes.map((msgType, index) => (
         <MsgForm
-          key={getMsgFormKey(txType, msgGetters.current[index]?.msg ?? {})}
-          txType={txType}
+          key={getMsgFormKey(msgType, msgGetters.current[index]?.msg ?? {})}
+          msgType={msgType}
           senderAddress={senderAddress}
           setMsgGetter={(msgGetter) => {
             msgGetters.current = [
@@ -103,11 +104,9 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           deleteMsg={() => {
             msgGetters.current.splice(index, 1);
             setMsgTypes((oldMsgTypes) => {
-              const newMsgTypes: TxType[] = oldMsgTypes.slice();
+              const newMsgTypes: MsgType[] = oldMsgTypes.slice();
               newMsgTypes.splice(index, 1);
-              setGasLimit(
-                (oldGasLimit) => (oldGasLimit / oldMsgTypes.length) * (newMsgTypes.length || 1),
-              );
+              setGasLimit(gasOfTx(newMsgTypes));
               return newMsgTypes;
             });
           }}
@@ -140,12 +139,15 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         />
       </div>
       <StackableContainer>
-        <Button label="Add MsgSend" onClick={() => addTxType("send")} />
-        <Button label="Add MsgDelegate" onClick={() => addTxType("delegate")} />
-        <Button label="Add MsgUndelegate" onClick={() => addTxType("undelegate")} />
-        <Button label="Add MsgBeginRedelegate" onClick={() => addTxType("redelegate")} />
-        <Button label="Add MsgWithdrawDelegatorReward" onClick={() => addTxType("claimRewards")} />
-        <Button label="Add MsgSetWithdrawAddress" onClick={() => addTxType("setWithdrawAddress")} />
+        <Button label="Add MsgSend" onClick={() => addMsgType("send")} />
+        <Button label="Add MsgDelegate" onClick={() => addMsgType("delegate")} />
+        <Button label="Add MsgUndelegate" onClick={() => addMsgType("undelegate")} />
+        <Button label="Add MsgBeginRedelegate" onClick={() => addMsgType("redelegate")} />
+        <Button label="Add MsgWithdrawDelegatorReward" onClick={() => addMsgType("claimRewards")} />
+        <Button
+          label="Add MsgSetWithdrawAddress"
+          onClick={() => addMsgType("setWithdrawAddress")}
+        />
       </StackableContainer>
       <Button
         label="Create Transaction"
