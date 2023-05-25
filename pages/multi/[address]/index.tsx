@@ -76,7 +76,7 @@ const Multipage = () => {
   }, [fetchMultisig, multisigAddress]);
 
   return (
-    <Page>
+    <Page goBack={{ pathname: "/", title: "home", needsConfirm: true }}>
       <StackableContainer base>
         <StackableContainer>
           <label>Multisig Address</label>

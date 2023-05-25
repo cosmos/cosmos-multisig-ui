@@ -140,7 +140,7 @@ const TransactionPage = ({
   };
 
   return (
-    <Page rootMultisig={multisigAddress}>
+    <Page goBack={{ pathname: `/multi/${multisigAddress}`, title: "multisig" }}>
       <StackableContainer base>
         <StackableContainer>
           <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>
