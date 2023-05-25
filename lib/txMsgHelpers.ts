@@ -1,5 +1,6 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
 import {
+  MsgType,
   TxMsg,
   TxMsgClaimRewards,
   TxMsgDelegate,
@@ -67,6 +68,31 @@ const isTxMsgSetWithdrawAddress = (msg: TxMsg | EncodeObject): msg is TxMsgSetWi
   !!msg.value.delegatorAddress &&
   !!msg.value.withdrawAddress;
 
+const gasOfMsg = (msgType: MsgType): number => {
+  switch (msgType) {
+    case "send":
+      return 100_000;
+    case "delegate":
+      return 100_000;
+    case "undelegate":
+      return 100_000;
+    case "redelegate":
+      return 100_000;
+    case "claimRewards":
+      return 100_000;
+    case "setWithdrawAddress":
+      return 100_000;
+    default:
+      throw new Error("Unknown msg type");
+  }
+};
+
+const gasOfTx = (msgTypes: readonly MsgType[]): number => {
+  const txFlatGas = 100_000;
+  const totalTxGas = msgTypes.reduce((acc, msgType) => acc + gasOfMsg(msgType), txFlatGas);
+  return totalTxGas;
+};
+
 export {
   isTxMsgSend,
   isTxMsgDelegate,
@@ -74,4 +100,6 @@ export {
   isTxMsgRedelegate,
   isTxMsgClaimRewards,
   isTxMsgSetWithdrawAddress,
+  gasOfMsg,
+  gasOfTx,
 };
