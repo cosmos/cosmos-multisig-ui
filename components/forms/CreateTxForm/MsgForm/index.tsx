@@ -1,5 +1,5 @@
 import { MsgGetter } from "..";
-import { TxType } from "../../../../types/txMsg";
+import { MsgType } from "../../../../types/txMsg";
 import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
 import MsgDelegateForm from "./MsgDelegateForm";
 import MsgRedelegateForm from "./MsgRedelegateForm";
@@ -7,16 +7,15 @@ import MsgSendForm from "./MsgSendForm";
 import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
 
-type MsgFormProps = {
-  readonly txType: TxType;
-} & {
+interface MsgFormProps {
+  readonly msgType: MsgType;
   readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
-};
+}
 
-const MsgForm = ({ txType, senderAddress, ...restProps }: MsgFormProps) => {
-  switch (txType) {
+const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
+  switch (msgType) {
     case "send":
       return <MsgSendForm fromAddress={senderAddress} {...restProps} />;
     case "delegate":
