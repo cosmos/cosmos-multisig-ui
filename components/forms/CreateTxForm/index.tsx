@@ -31,7 +31,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   const [msgTypes, setMsgTypes] = useState<readonly MsgType[]>([]);
   const msgGetters = useRef<MsgGetter[]>([]);
   const [memo, setMemo] = useState("");
-  const [gasLimit, setGasLimit] = useState(100_000);
+  const [gasLimit, setGasLimit] = useState(gasOfTx([]));
   const [gasLimitError, setGasLimitError] = useState("");
 
   const gasPrice = state.chain.gasPrice;
