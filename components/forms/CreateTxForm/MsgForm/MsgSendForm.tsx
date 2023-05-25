@@ -1,17 +1,21 @@
 import { Decimal } from "@cosmjs/math";
 import { assert } from "@cosmjs/utils";
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { isTxMsgSend } from "../../../../lib/txMsgHelpers";
 import { TxMsg, TxMsgSend } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
+import StackableContainer from "../../../layout/StackableContainer";
 
 interface MsgSendFormProps {
   readonly fromAddress: string;
-  readonly setCheckAndGetMsg: Dispatch<SetStateAction<(() => TxMsg | null) | undefined>>;
+  readonly setMsgGetter: (msgGetter: MsgGetter) => void;
+  readonly deleteMsg: () => void;
 }
 
-const MsgSendForm = ({ fromAddress, setCheckAndGetMsg }: MsgSendFormProps) => {
+const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps) => {
   const { state } = useAppContext();
   assert(state.chain.addressPrefix, "addressPrefix missing");
 
@@ -21,39 +25,51 @@ const MsgSendForm = ({ fromAddress, setCheckAndGetMsg }: MsgSendFormProps) => {
   const [toAddressError, setToAddressError] = useState("");
   const [amountError, setAmountError] = useState("");
 
-  const checkAndGetMsg = useCallback(() => {
-    assert(state.chain.addressPrefix, "addressPrefix missing");
-    assert(state.chain.denom, "denom missing");
+  useEffect(() => {
+    try {
+      assert(state.chain.denom, "denom missing");
 
-    const addressErrorMsg = checkAddress(toAddress, state.chain.addressPrefix);
-    if (addressErrorMsg) {
-      setToAddressError(`Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`);
-      return null;
-    }
+      setToAddressError("");
+      setAmountError("");
 
-    if (!amount || Number(amount) <= 0) {
-      setAmountError("Amount must be greater than 0");
-      return null;
-    }
+      const isMsgValid = (msg: TxMsg): msg is TxMsgSend => {
+        assert(state.chain.addressPrefix, "addressPrefix missing");
 
-    const amountInAtomics = Decimal.fromUserInput(
-      amount,
-      Number(state.chain.displayDenomExponent),
-    ).atomics;
+        const addressErrorMsg = checkAddress(toAddress, state.chain.addressPrefix);
+        if (addressErrorMsg) {
+          setToAddressError(
+            `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
+          );
+          return false;
+        }
 
-    const msg: TxMsgSend = {
-      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-      value: {
-        fromAddress,
-        toAddress,
-        amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
-      },
-    };
+        if (!amount || Number(amount) <= 0) {
+          setAmountError("Amount must be greater than 0");
+          return false;
+        }
 
-    return msg;
+        return isTxMsgSend(msg);
+      };
+
+      const amountInAtomics = amount
+        ? Decimal.fromUserInput(amount, Number(state.chain.displayDenomExponent)).atomics
+        : "0";
+
+      const msg: TxMsgSend = {
+        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+        value: {
+          fromAddress,
+          toAddress,
+          amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
+        },
+      };
+
+      setMsgGetter({ isMsgValid, msg });
+    } catch {}
   }, [
     amount,
     fromAddress,
+    setMsgGetter,
     state.chain.addressPrefix,
     state.chain.chainId,
     state.chain.denom,
@@ -61,12 +77,12 @@ const MsgSendForm = ({ fromAddress, setCheckAndGetMsg }: MsgSendFormProps) => {
     toAddress,
   ]);
 
-  useEffect(() => {
-    setCheckAndGetMsg(() => checkAndGetMsg);
-  }, [checkAndGetMsg, setCheckAndGetMsg]);
-
   return (
-    <>
+    <StackableContainer lessPadding lessMargin>
+      <button className="remove" onClick={() => deleteMsg()}>
+        ✕
+      </button>
+      <h2>MsgSend</h2>
       <div className="form-item">
         <Input
           label="Recipient Address"
@@ -88,14 +104,22 @@ const MsgSendForm = ({ fromAddress, setCheckAndGetMsg }: MsgSendFormProps) => {
         />
       </div>
       <style jsx>{`
-        p {
-          margin-top: 15px;
-        }
         .form-item {
           margin-top: 1.5em;
         }
+        button.remove {
+          background: rgba(255, 255, 255, 0.2);
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: none;
+          color: white;
+          position: absolute;
+          right: 10px;
+          top: 10px;
+        }
       `}</style>
-    </>
+    </StackableContainer>
   );
 };
 

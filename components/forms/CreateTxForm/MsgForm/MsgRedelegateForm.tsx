@@ -1,17 +1,25 @@
 import { Decimal } from "@cosmjs/math";
 import { assert } from "@cosmjs/utils";
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { isTxMsgRedelegate } from "../../../../lib/txMsgHelpers";
 import { TxMsg, TxMsgRedelegate } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
+import StackableContainer from "../../../layout/StackableContainer";
 
 interface MsgRedelegateFormProps {
   readonly delegatorAddress: string;
-  readonly setCheckAndGetMsg: Dispatch<SetStateAction<(() => TxMsg | null) | undefined>>;
+  readonly setMsgGetter: (msgGetter: MsgGetter) => void;
+  readonly deleteMsg: () => void;
 }
 
-const MsgRedelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgRedelegateFormProps) => {
+const MsgRedelegateForm = ({
+  delegatorAddress,
+  setMsgGetter,
+  deleteMsg,
+}: MsgRedelegateFormProps) => {
   const { state } = useAppContext();
   assert(state.chain.addressPrefix, "addressPrefix missing");
 
@@ -23,50 +31,62 @@ const MsgRedelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgRedelegat
   const [validatorDstAddressError, setValidatorDstAddressError] = useState("");
   const [amountError, setAmountError] = useState("");
 
-  const checkAndGetMsg = useCallback(() => {
-    assert(state.chain.addressPrefix, "addressPrefix missing");
-    assert(state.chain.denom, "denom missing");
+  useEffect(() => {
+    try {
+      assert(state.chain.denom, "denom missing");
 
-    const srcAddressErrorMsg = checkAddress(validatorSrcAddress, state.chain.addressPrefix);
-    if (srcAddressErrorMsg) {
-      setValidatorSrcAddressError(
-        `Invalid address for network ${state.chain.chainId}: ${srcAddressErrorMsg}`,
-      );
-      return null;
-    }
+      setValidatorSrcAddressError("");
+      setValidatorDstAddressError("");
+      setAmountError("");
 
-    const dstAddressErrorMsg = checkAddress(validatorDstAddress, state.chain.addressPrefix);
-    if (dstAddressErrorMsg) {
-      setValidatorDstAddressError(
-        `Invalid address for network ${state.chain.chainId}: ${dstAddressErrorMsg}`,
-      );
-      return null;
-    }
+      const isMsgValid = (msg: TxMsg): msg is TxMsgRedelegate => {
+        assert(state.chain.addressPrefix, "addressPrefix missing");
 
-    if (!amount || Number(amount) <= 0) {
-      setAmountError("Amount must be greater than 0");
-      return null;
-    }
+        const srcAddressErrorMsg = checkAddress(validatorSrcAddress, state.chain.addressPrefix);
+        if (srcAddressErrorMsg) {
+          setValidatorSrcAddressError(
+            `Invalid address for network ${state.chain.chainId}: ${srcAddressErrorMsg}`,
+          );
+          return false;
+        }
 
-    const amountInAtomics = Decimal.fromUserInput(
-      amount,
-      Number(state.chain.displayDenomExponent),
-    ).atomics;
+        const dstAddressErrorMsg = checkAddress(validatorDstAddress, state.chain.addressPrefix);
+        if (dstAddressErrorMsg) {
+          setValidatorDstAddressError(
+            `Invalid address for network ${state.chain.chainId}: ${dstAddressErrorMsg}`,
+          );
+          return false;
+        }
 
-    const msg: TxMsgRedelegate = {
-      typeUrl: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
-      value: {
-        delegatorAddress,
-        validatorSrcAddress,
-        validatorDstAddress,
-        amount: { amount: amountInAtomics, denom: state.chain.denom },
-      },
-    };
+        if (!amount || Number(amount) <= 0) {
+          setAmountError("Amount must be greater than 0");
+          return false;
+        }
 
-    return msg;
+        return isTxMsgRedelegate(msg);
+      };
+
+      const amountInAtomics = Decimal.fromUserInput(
+        amount || "0",
+        Number(state.chain.displayDenomExponent),
+      ).atomics;
+
+      const msg: TxMsgRedelegate = {
+        typeUrl: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
+        value: {
+          delegatorAddress,
+          validatorSrcAddress,
+          validatorDstAddress,
+          amount: { amount: amountInAtomics, denom: state.chain.denom },
+        },
+      };
+
+      setMsgGetter({ isMsgValid, msg });
+    } catch {}
   }, [
     amount,
     delegatorAddress,
+    setMsgGetter,
     state.chain.addressPrefix,
     state.chain.chainId,
     state.chain.denom,
@@ -75,12 +95,12 @@ const MsgRedelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgRedelegat
     validatorSrcAddress,
   ]);
 
-  useEffect(() => {
-    setCheckAndGetMsg(() => checkAndGetMsg);
-  }, [checkAndGetMsg, setCheckAndGetMsg]);
-
   return (
-    <>
+    <StackableContainer lessPadding lessMargin>
+      <button className="remove" onClick={() => deleteMsg()}>
+        ✕
+      </button>
+      <h2>MsgBeginRedelegate</h2>
       <div className="form-item">
         <Input
           label="Source Validator Address"
@@ -112,14 +132,22 @@ const MsgRedelegateForm = ({ delegatorAddress, setCheckAndGetMsg }: MsgRedelegat
         />
       </div>
       <style jsx>{`
-        p {
-          margin-top: 15px;
-        }
         .form-item {
           margin-top: 1.5em;
         }
+        button.remove {
+          background: rgba(255, 255, 255, 0.2);
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: none;
+          color: white;
+          position: absolute;
+          right: 10px;
+          top: 10px;
+        }
       `}</style>
-    </>
+    </StackableContainer>
   );
 };
 
