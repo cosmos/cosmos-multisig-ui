@@ -8,7 +8,7 @@ interface TxMsgClaimRewardsDetailsProps {
 const TxMsgClaimRewardsDetails = ({ msg }: TxMsgClaimRewardsDetailsProps) => (
   <>
     <li>
-      <h2>MsgWithdrawDelegatorReward</h2>
+      <h3>MsgWithdrawDelegatorReward</h3>
     </li>
     <li>
       <label>Validator Address:</label>
@@ -17,7 +17,7 @@ const TxMsgClaimRewardsDetails = ({ msg }: TxMsgClaimRewardsDetailsProps) => (
       </div>
     </li>
     <style jsx>{`
-      li:not(:has(h2)) {
+      li:not(:has(h3)) {
         background: rgba(255, 255, 255, 0.03);
         padding: 6px 10px;
         border-radius: 8px;
