@@ -1,4 +1,3 @@
-import React from "react";
 import copy from "copy-to-clipboard";
 
 interface Props {
@@ -26,6 +25,7 @@ const CopyAndPaste = (props: Props) => (
 
       .icon {
         cursor: pointer;
+        line-height: 0;
       }
 
       .icon:hover path {
