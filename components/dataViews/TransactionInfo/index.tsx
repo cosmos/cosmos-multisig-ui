@@ -28,16 +28,6 @@ const TransactionInfo = ({ tx }: Props) => {
     <>
       <ul className="meta-data">
         <>
-          {tx.msgs.map((msg, index) => (
-            <StackableContainer key={index} lessPadding lessMargin>
-              {isTxMsgSend(msg) ? <TxMsgSendDetails msg={msg} /> : null}
-              {isTxMsgDelegate(msg) ? <TxMsgDelegateDetails msg={msg} /> : null}
-              {isTxMsgUndelegate(msg) ? <TxMsgUndelegateDetails msg={msg} /> : null}
-              {isTxMsgRedelegate(msg) ? <TxMsgRedelegateDetails msg={msg} /> : null}
-              {isTxMsgClaimRewards(msg) ? <TxMsgClaimRewardsDetails msg={msg} /> : null}
-              {isTxMsgSetWithdrawAddress(msg) ? <TxMsgSetWithdrawAddressDetails msg={msg} /> : null}
-            </StackableContainer>
-          ))}
           <StackableContainer lessPadding lessMargin>
             {tx.fee ? (
               <>
@@ -57,6 +47,20 @@ const TransactionInfo = ({ tx }: Props) => {
                 <div>{tx.memo}</div>
               </li>
             ) : null}
+          </StackableContainer>
+          <StackableContainer lessPadding lessMargin>
+            {tx.msgs.map((msg, index) => (
+              <StackableContainer key={index} lessPadding lessMargin>
+                {isTxMsgSend(msg) ? <TxMsgSendDetails msg={msg} /> : null}
+                {isTxMsgDelegate(msg) ? <TxMsgDelegateDetails msg={msg} /> : null}
+                {isTxMsgUndelegate(msg) ? <TxMsgUndelegateDetails msg={msg} /> : null}
+                {isTxMsgRedelegate(msg) ? <TxMsgRedelegateDetails msg={msg} /> : null}
+                {isTxMsgClaimRewards(msg) ? <TxMsgClaimRewardsDetails msg={msg} /> : null}
+                {isTxMsgSetWithdrawAddress(msg) ? (
+                  <TxMsgSetWithdrawAddressDetails msg={msg} />
+                ) : null}
+              </StackableContainer>
+            ))}
           </StackableContainer>
         </>
       </ul>
