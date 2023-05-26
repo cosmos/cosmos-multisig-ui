@@ -141,48 +141,51 @@ const TransactionPage = ({
     }
   };
 
+  const isThresholdMet = pubkey
+    ? currentSignatures.length >= Number(pubkey.value.threshold)
+    : false;
+
   return (
     <Page rootMultisig={multisigAddress}>
       <StackableContainer base>
         <StackableContainer>
           <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>
         </StackableContainer>
-        {accountError && (
+        {accountError ? (
           <StackableContainer>
             <div className="multisig-error">
               <p>Multisig address could not be found.</p>
             </div>
           </StackableContainer>
-        )}
-        {transactionHash && <CompletedTransaction transactionHash={transactionHash} />}
-        <TransactionInfo tx={txInfo} />
-        {!transactionHash && pubkey && (
-          <ThresholdInfo signatures={currentSignatures} pubkey={pubkey} />
-        )}
-        {pubkey &&
-          currentSignatures.length >= parseInt(pubkey.value.threshold, 10) &&
-          !transactionHash && (
-            <>
-              <Button
-                label={isBroadcasting ? "Broadcasting..." : "Broadcast Transaction"}
-                onClick={broadcastTx}
-                primary
-                disabled={isBroadcasting}
+        ) : null}
+        {transactionHash ? <CompletedTransaction transactionHash={transactionHash} /> : null}
+        {!transactionHash ? (
+          <StackableContainer lessPadding lessMargin>
+            {pubkey ? <ThresholdInfo signatures={currentSignatures} pubkey={pubkey} /> : null}
+            {isThresholdMet ? (
+              <>
+                <Button
+                  label={isBroadcasting ? "Broadcasting..." : "Broadcast Transaction"}
+                  onClick={broadcastTx}
+                  primary
+                  disabled={isBroadcasting}
+                />
+                {broadcastError ? <div className="broadcast-error">{broadcastError}</div> : null}
+              </>
+            ) : null}
+            {pubkey ? (
+              <TransactionSigning
+                tx={txInfo}
+                transactionID={transactionID}
+                pubkey={pubkey}
+                signatures={currentSignatures}
+                addSignature={addSignature}
               />
-              {broadcastError && <div className="broadcast-error">{broadcastError}</div>}
-            </>
-          )}
-        {!transactionHash && !!pubkey && (
-          <TransactionSigning
-            tx={txInfo}
-            transactionID={transactionID}
-            pubkey={pubkey}
-            signatures={currentSignatures}
-            addSignature={addSignature}
-          />
-        )}
+            ) : null}
+          </StackableContainer>
+        ) : null}
+        <TransactionInfo tx={txInfo} />
       </StackableContainer>
-
       <style jsx>{`
         .broadcast-error {
           background: firebrick;
