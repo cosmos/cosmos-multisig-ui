@@ -3,6 +3,7 @@ import {
   MsgType,
   TxMsg,
   TxMsgClaimRewards,
+  TxMsgCreateVestingAccount,
   TxMsgDelegate,
   TxMsgRedelegate,
   TxMsgSend,
@@ -68,6 +69,20 @@ const isTxMsgSetWithdrawAddress = (msg: TxMsg | EncodeObject): msg is TxMsgSetWi
   !!msg.value.delegatorAddress &&
   !!msg.value.withdrawAddress;
 
+const isTxMsgCreateVestingAccount = (msg: TxMsg | EncodeObject): msg is TxMsgCreateVestingAccount =>
+  msg.typeUrl === "/cosmos.vesting.v1beta1.MsgCreateVestingAccount" &&
+  "value" in msg &&
+  "fromAddress" in msg.value &&
+  "toAddress" in msg.value &&
+  "amount" in msg.value &&
+  "endTime" in msg.value &&
+  "delayed" in msg.value &&
+  !!msg.value.fromAddress &&
+  !!msg.value.toAddress &&
+  !!msg.value.amount.length &&
+  typeof msg.value.endTime === "number" &&
+  typeof msg.value.delayed === "boolean";
+
 const gasOfMsg = (msgType: MsgType): number => {
   switch (msgType) {
     case "send":
@@ -81,6 +96,8 @@ const gasOfMsg = (msgType: MsgType): number => {
     case "claimRewards":
       return 100_000;
     case "setWithdrawAddress":
+      return 100_000;
+    case "createVestingAccount":
       return 100_000;
     default:
       throw new Error("Unknown msg type");
@@ -100,6 +117,7 @@ export {
   isTxMsgRedelegate,
   isTxMsgClaimRewards,
   isTxMsgSetWithdrawAddress,
+  isTxMsgCreateVestingAccount,
   gasOfMsg,
   gasOfTx,
 };
