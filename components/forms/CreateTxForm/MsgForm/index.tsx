@@ -1,6 +1,7 @@
 import { MsgGetter } from "..";
 import { MsgType } from "../../../../types/txMsg";
 import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
+import MsgCreateVestingAccountForm from "./MsgCreateVestingAccountForm";
 import MsgDelegateForm from "./MsgDelegateForm";
 import MsgRedelegateForm from "./MsgRedelegateForm";
 import MsgSendForm from "./MsgSendForm";
@@ -28,6 +29,8 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgClaimRewardsForm delegatorAddress={senderAddress} {...restProps} />;
     case "setWithdrawAddress":
       return <MsgSetWithdrawAddressForm delegatorAddress={senderAddress} {...restProps} />;
+    case "createVestingAccount":
+      return <MsgCreateVestingAccountForm fromAddress={senderAddress} {...restProps} />;
     default:
       return null;
   }

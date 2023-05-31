@@ -148,6 +148,10 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           label="Add MsgSetWithdrawAddress"
           onClick={() => addMsgType("setWithdrawAddress")}
         />
+        <Button
+          label="Add MsgCreateVestingAccount"
+          onClick={() => addMsgType("createVestingAccount")}
+        />
       </StackableContainer>
       <Button
         label="Create Transaction"
