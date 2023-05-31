@@ -2,6 +2,7 @@ import { useAppContext } from "../../../context/AppContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import {
   isTxMsgClaimRewards,
+  isTxMsgCreateVestingAccount,
   isTxMsgDelegate,
   isTxMsgRedelegate,
   isTxMsgSend,
@@ -11,6 +12,7 @@ import {
 import { DbTransaction } from "../../../types";
 import StackableContainer from "../../layout/StackableContainer";
 import TxMsgClaimRewardsDetails from "./TxMsgClaimRewardsDetails";
+import TxMsgCreateVestingAccountDetails from "./TxMsgCreateVestingAccountDetails";
 import TxMsgDelegateDetails from "./TxMsgDelegateDetails";
 import TxMsgRedelegateDetails from "./TxMsgRedelegateDetails";
 import TxMsgSendDetails from "./TxMsgSendDetails";
@@ -58,6 +60,9 @@ const TransactionInfo = ({ tx }: Props) => {
                 {isTxMsgClaimRewards(msg) ? <TxMsgClaimRewardsDetails msg={msg} /> : null}
                 {isTxMsgSetWithdrawAddress(msg) ? (
                   <TxMsgSetWithdrawAddressDetails msg={msg} />
+                ) : null}
+                {isTxMsgCreateVestingAccount(msg) ? (
+                  <TxMsgCreateVestingAccountDetails msg={msg} />
                 ) : null}
               </StackableContainer>
             ))}
