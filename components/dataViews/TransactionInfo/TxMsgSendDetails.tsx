@@ -13,7 +13,7 @@ const TxMsgSendDetails = ({ msg }: TxMsgSendDetailsProps) => {
   return (
     <>
       <li>
-        <h2>MsgSend</h2>
+        <h3>MsgSend</h3>
       </li>
       <li>
         <label>Amount:</label>
@@ -26,7 +26,7 @@ const TxMsgSendDetails = ({ msg }: TxMsgSendDetailsProps) => {
         </div>
       </li>
       <style jsx>{`
-        li:not(:has(h2)) {
+        li:not(:has(h3)) {
           background: rgba(255, 255, 255, 0.03);
           padding: 6px 10px;
           border-radius: 8px;

@@ -13,7 +13,7 @@ const TxMsgRedelegateDetails = ({ msg }: TxMsgRedelegateDetailsProps) => {
   return (
     <>
       <li>
-        <h2>MsgBeginRedelegate</h2>
+        <h3>MsgBeginRedelegate</h3>
       </li>
       <li>
         <label>Amount:</label>
@@ -32,7 +32,7 @@ const TxMsgRedelegateDetails = ({ msg }: TxMsgRedelegateDetailsProps) => {
         </div>
       </li>
       <style jsx>{`
-        li:not(:has(h2)) {
+        li:not(:has(h3)) {
           background: rgba(255, 255, 255, 0.03);
           padding: 6px 10px;
           border-radius: 8px;

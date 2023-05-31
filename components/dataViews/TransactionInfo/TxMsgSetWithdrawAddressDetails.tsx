@@ -8,7 +8,7 @@ interface TxMsgSetWithdrawAddressDetailsProps {
 const TxMsgSetWithdrawAddressDetails = ({ msg }: TxMsgSetWithdrawAddressDetailsProps) => (
   <>
     <li>
-      <h2>MsgSetWithdrawAddress</h2>
+      <h3>MsgSetWithdrawAddress</h3>
     </li>
     <li>
       <label>Withdraw Address:</label>
@@ -17,7 +17,7 @@ const TxMsgSetWithdrawAddressDetails = ({ msg }: TxMsgSetWithdrawAddressDetailsP
       </div>
     </li>
     <style jsx>{`
-      li:not(:has(h2)) {
+      li:not(:has(h3)) {
         background: rgba(255, 255, 255, 0.03);
         padding: 6px 10px;
         border-radius: 8px;
