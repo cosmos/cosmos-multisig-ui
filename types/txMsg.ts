@@ -6,7 +6,8 @@ export type MsgType =
   | "undelegate"
   | "redelegate"
   | "claimRewards"
-  | "setWithdrawAddress";
+  | "setWithdrawAddress"
+  | "createVestingAccount";
 
 export type TxMsg =
   | TxMsgSend
@@ -14,7 +15,8 @@ export type TxMsg =
   | TxMsgUndelegate
   | TxMsgRedelegate
   | TxMsgClaimRewards
-  | TxMsgSetWithdrawAddress;
+  | TxMsgSetWithdrawAddress
+  | TxMsgCreateVestingAccount;
 
 export interface TxMsgSend {
   readonly typeUrl: "/cosmos.bank.v1beta1.MsgSend";
@@ -66,5 +68,16 @@ export interface TxMsgSetWithdrawAddress {
   readonly value: {
     readonly delegatorAddress: string;
     readonly withdrawAddress: string;
+  };
+}
+
+export interface TxMsgCreateVestingAccount {
+  readonly typeUrl: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount";
+  readonly value: {
+    readonly fromAddress: string;
+    readonly toAddress: string;
+    readonly amount: readonly Readonly<Coin>[];
+    readonly endTime: number;
+    readonly delayed: boolean;
   };
 }
