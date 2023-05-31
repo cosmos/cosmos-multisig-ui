@@ -1,3 +1,5 @@
+import { Coin } from "@cosmjs/amino";
+
 export type MsgType =
   | "send"
   | "delegate"
@@ -19,7 +21,7 @@ export interface TxMsgSend {
   readonly value: {
     readonly fromAddress: string;
     readonly toAddress: string;
-    readonly amount: [{ readonly amount: string; readonly denom: string }];
+    readonly amount: readonly Readonly<Coin>[];
   };
 }
 
@@ -28,7 +30,7 @@ export interface TxMsgDelegate {
   readonly value: {
     readonly delegatorAddress: string;
     readonly validatorAddress: string;
-    readonly amount: { readonly amount: string; readonly denom: string };
+    readonly amount: Readonly<Coin>;
   };
 }
 
@@ -37,7 +39,7 @@ export interface TxMsgUndelegate {
   readonly value: {
     readonly delegatorAddress: string;
     readonly validatorAddress: string;
-    readonly amount: { readonly amount: string; readonly denom: string };
+    readonly amount: Readonly<Coin>;
   };
 }
 
@@ -47,7 +49,7 @@ export interface TxMsgRedelegate {
     readonly delegatorAddress: string;
     readonly validatorSrcAddress: string;
     readonly validatorDstAddress: string;
-    readonly amount: { readonly amount: string; readonly denom: string };
+    readonly amount: Readonly<Coin>;
   };
 }
 
