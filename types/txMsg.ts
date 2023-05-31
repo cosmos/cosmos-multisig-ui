@@ -1,11 +1,18 @@
-export type TxType = "send" | "delegate" | "undelegate" | "redelegate" | "claimRewards";
+export type MsgType =
+  | "send"
+  | "delegate"
+  | "undelegate"
+  | "redelegate"
+  | "claimRewards"
+  | "setWithdrawAddress";
 
 export type TxMsg =
   | TxMsgSend
   | TxMsgDelegate
   | TxMsgUndelegate
   | TxMsgRedelegate
-  | TxMsgClaimRewards;
+  | TxMsgClaimRewards
+  | TxMsgSetWithdrawAddress;
 
 export interface TxMsgSend {
   readonly typeUrl: "/cosmos.bank.v1beta1.MsgSend";
@@ -21,7 +28,7 @@ export interface TxMsgDelegate {
   readonly value: {
     readonly delegatorAddress: string;
     readonly validatorAddress: string;
-    readonly amount: [{ readonly amount: string; readonly denom: string }];
+    readonly amount: { readonly amount: string; readonly denom: string };
   };
 }
 
@@ -30,7 +37,7 @@ export interface TxMsgUndelegate {
   readonly value: {
     readonly delegatorAddress: string;
     readonly validatorAddress: string;
-    readonly amount: [{ readonly amount: string; readonly denom: string }];
+    readonly amount: { readonly amount: string; readonly denom: string };
   };
 }
 
@@ -40,7 +47,7 @@ export interface TxMsgRedelegate {
     readonly delegatorAddress: string;
     readonly validatorSrcAddress: string;
     readonly validatorDstAddress: string;
-    readonly amount: [{ readonly amount: string; readonly denom: string }];
+    readonly amount: { readonly amount: string; readonly denom: string };
   };
 }
 
@@ -49,5 +56,13 @@ export interface TxMsgClaimRewards {
   readonly value: {
     readonly delegatorAddress: string;
     readonly validatorAddress: string;
+  };
+}
+
+export interface TxMsgSetWithdrawAddress {
+  readonly typeUrl: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress";
+  readonly value: {
+    readonly delegatorAddress: string;
+    readonly withdrawAddress: string;
   };
 }

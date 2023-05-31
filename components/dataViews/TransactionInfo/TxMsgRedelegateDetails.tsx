@@ -1,5 +1,5 @@
 import { useAppContext } from "../../../context/AppContext";
-import { printableCoins } from "../../../lib/displayHelpers";
+import { printableCoin } from "../../../lib/displayHelpers";
 import { TxMsgRedelegate } from "../../../types/txMsg";
 import HashView from "../HashView";
 
@@ -13,11 +13,11 @@ const TxMsgRedelegateDetails = ({ msg }: TxMsgRedelegateDetailsProps) => {
   return (
     <>
       <li>
-        <h2>MsgBeginRedelegate</h2>
+        <h3>MsgBeginRedelegate</h3>
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoins(msg.value.amount, state.chain)}</div>
+        <div>{printableCoin(msg.value.amount, state.chain)}</div>
       </li>
       <li>
         <label>Src Validator Address:</label>
@@ -32,7 +32,7 @@ const TxMsgRedelegateDetails = ({ msg }: TxMsgRedelegateDetailsProps) => {
         </div>
       </li>
       <style jsx>{`
-        li:not(:has(h2)) {
+        li:not(:has(h3)) {
           background: rgba(255, 255, 255, 0.03);
           padding: 6px 10px;
           border-radius: 8px;

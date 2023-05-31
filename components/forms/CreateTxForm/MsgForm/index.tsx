@@ -1,20 +1,21 @@
-import { Dispatch, SetStateAction } from "react";
-import { TxMsg, TxType } from "../../../../types/txMsg";
+import { MsgGetter } from "..";
+import { MsgType } from "../../../../types/txMsg";
 import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
 import MsgDelegateForm from "./MsgDelegateForm";
 import MsgRedelegateForm from "./MsgRedelegateForm";
 import MsgSendForm from "./MsgSendForm";
+import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
 
-type MsgFormProps = {
-  readonly txType: TxType;
-} & {
+interface MsgFormProps {
+  readonly msgType: MsgType;
   readonly senderAddress: string;
-  readonly setCheckAndGetMsg: Dispatch<SetStateAction<(() => TxMsg | null) | undefined>>;
-};
+  readonly setMsgGetter: (msgGetter: MsgGetter) => void;
+  readonly deleteMsg: () => void;
+}
 
-const MsgForm = ({ txType, senderAddress, ...restProps }: MsgFormProps) => {
-  switch (txType) {
+const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
+  switch (msgType) {
     case "send":
       return <MsgSendForm fromAddress={senderAddress} {...restProps} />;
     case "delegate":
@@ -25,6 +26,8 @@ const MsgForm = ({ txType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgRedelegateForm delegatorAddress={senderAddress} {...restProps} />;
     case "claimRewards":
       return <MsgClaimRewardsForm delegatorAddress={senderAddress} {...restProps} />;
+    case "setWithdrawAddress":
+      return <MsgSetWithdrawAddressForm delegatorAddress={senderAddress} {...restProps} />;
     default:
       return null;
   }

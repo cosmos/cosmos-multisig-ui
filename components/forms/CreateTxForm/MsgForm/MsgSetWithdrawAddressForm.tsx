@@ -3,49 +3,49 @@ import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { isTxMsgClaimRewards } from "../../../../lib/txMsgHelpers";
-import { TxMsg, TxMsgClaimRewards } from "../../../../types/txMsg";
+import { isTxMsgSetWithdrawAddress } from "../../../../lib/txMsgHelpers";
+import { TxMsg, TxMsgSetWithdrawAddress } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
-interface MsgClaimRewardsFormProps {
+interface MsgSetWithdrawAddressFormProps {
   readonly delegatorAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgClaimRewardsForm = ({
+const MsgSetWithdrawAddressForm = ({
   delegatorAddress,
   setMsgGetter,
   deleteMsg,
-}: MsgClaimRewardsFormProps) => {
+}: MsgSetWithdrawAddressFormProps) => {
   const { state } = useAppContext();
   assert(state.chain.addressPrefix, "addressPrefix missing");
 
-  const [validatorAddress, setValidatorAddress] = useState("");
-  const [validatorAddressError, setValidatorAddressError] = useState("");
+  const [withdrawAddress, setWithdrawAddress] = useState("");
+  const [withdrawAddressError, setWithdrawAddressError] = useState("");
 
   useEffect(() => {
     try {
-      setValidatorAddressError("");
+      setWithdrawAddressError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgClaimRewards => {
+      const isMsgValid = (msg: TxMsg): msg is TxMsgSetWithdrawAddress => {
         assert(state.chain.addressPrefix, "addressPrefix missing");
 
-        const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
+        const addressErrorMsg = checkAddress(withdrawAddress, state.chain.addressPrefix);
         if (addressErrorMsg) {
-          setValidatorAddressError(
+          setWithdrawAddressError(
             `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
           );
           return false;
         }
 
-        return isTxMsgClaimRewards(msg);
+        return isTxMsgSetWithdrawAddress(msg);
       };
 
-      const msg: TxMsgClaimRewards = {
-        typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
-        value: { delegatorAddress, validatorAddress },
+      const msg: TxMsgSetWithdrawAddress = {
+        typeUrl: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
+        value: { delegatorAddress, withdrawAddress },
       };
 
       setMsgGetter({ isMsgValid, msg });
@@ -55,7 +55,7 @@ const MsgClaimRewardsForm = ({
     setMsgGetter,
     state.chain.addressPrefix,
     state.chain.chainId,
-    validatorAddress,
+    withdrawAddress,
   ]);
 
   return (
@@ -63,14 +63,14 @@ const MsgClaimRewardsForm = ({
       <button className="remove" onClick={() => deleteMsg()}>
         ✕
       </button>
-      <h2>MsgWithdrawDelegatorReward</h2>
+      <h2>MsgSetWithdrawAddress</h2>
       <div className="form-item">
         <Input
-          label="Validator Address"
-          name="validator-address"
-          value={validatorAddress}
-          onChange={({ target }) => setValidatorAddress(target.value)}
-          error={validatorAddressError}
+          label="Withdraw Address"
+          name="withdraw-address"
+          value={withdrawAddress}
+          onChange={({ target }) => setWithdrawAddress(target.value)}
+          error={withdrawAddressError}
           placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
         />
       </div>
@@ -94,4 +94,4 @@ const MsgClaimRewardsForm = ({
   );
 };
 
-export default MsgClaimRewardsForm;
+export default MsgSetWithdrawAddressForm;

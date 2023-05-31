@@ -5,7 +5,7 @@ import { SigningStargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import axios from "axios";
-import { useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { getConnectError } from "../../lib/errorHelpers";
 import { DbSignature, DbTransaction, WalletAccount } from "../../types";
@@ -41,7 +41,7 @@ const TransactionSigning = (props: Props) => {
   const [ledgerSigner, setLedgerSigner] = useState({});
   const [loading, setLoading] = useState<LoadingStates>({});
 
-  const connectKeplr = async () => {
+  const connectKeplr = useCallback(async () => {
     try {
       setLoading((oldLoading) => ({ ...oldLoading, keplr: true }));
       assert(state.chain.chainId, "chainId missing");
@@ -76,7 +76,17 @@ const TransactionSigning = (props: Props) => {
     } finally {
       setLoading((newLoading) => ({ ...newLoading, keplr: false }));
     }
-  };
+  }, [memberPubkeys, props.signatures, state.chain.chainId]);
+
+  useLayoutEffect(() => {
+    const accountChangeKey = "keplr_keystorechange";
+
+    if (walletType === "Keplr") {
+      window.addEventListener(accountChangeKey, connectKeplr);
+    } else {
+      window.removeEventListener(accountChangeKey, connectKeplr);
+    }
+  }, [connectKeplr, walletType]);
 
   const connectLedger = async () => {
     try {
@@ -183,33 +193,37 @@ const TransactionSigning = (props: Props) => {
   };
 
   return (
-    <StackableContainer lessPadding lessMargin>
-      {signing === "signed" ? (
-        <StackableContainer lessPadding lessMargin lessRadius>
+    <>
+      <StackableContainer lessPadding lessMargin lessRadius>
+        <h2>Current Signers</h2>
+        {props.signatures.map((signature, i) => (
+          <StackableContainer lessPadding lessRadius lessMargin key={`${signature.address}_${i}`}>
+            <HashView hash={signature.address} />
+          </StackableContainer>
+        ))}
+        {!props.signatures.length ? <p>No signatures yet</p> : null}
+      </StackableContainer>
+      <StackableContainer lessPadding lessMargin lessRadius>
+        {signing === "signed" ? (
           <div className="confirmation">
             <svg viewBox="0 0 77 60" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M5 30L26 51L72 5" stroke="white" strokeWidth="12" />
             </svg>
-            <p>You've signed this transaction.</p>
+            <p>You've signed this transaction</p>
           </div>
-        </StackableContainer>
-      ) : null}
-      {signing === "not_a_member" ? (
-        <StackableContainer lessPadding lessMargin lessRadius>
+        ) : null}
+        {signing === "not_a_member" ? (
           <div className="multisig-error">
-            <p>You don't belong to this multisig.</p>
+            <p>You don't belong to this multisig</p>
           </div>
-        </StackableContainer>
-      ) : null}
-      {signing === "not_signed" ? (
-        <>
-          <h2>Sign this transaction</h2>
-          <StackableContainer lessPadding lessMargin lessRadius>
+        ) : null}
+        {signing === "not_signed" ? (
+          <>
             {walletAccount ? (
               <>
                 <p>
-                  Connected signer {walletAccount.bech32Address} (
-                  {walletType ?? "Unknown wallet type"}).
+                  You can sign this transaction with {walletAccount.bech32Address} (
+                  {walletType ?? "Unknown wallet type"})
                 </p>
                 <Button
                   label="Sign transaction"
@@ -219,6 +233,7 @@ const TransactionSigning = (props: Props) => {
               </>
             ) : (
               <>
+                <h2>Choose wallet to sign</h2>
                 <Button label="Connect Keplr" onClick={connectKeplr} loading={loading.keplr} />
                 <Button
                   label="Connect Ledger (WebUSB)"
@@ -227,32 +242,22 @@ const TransactionSigning = (props: Props) => {
                 />
               </>
             )}
+          </>
+        ) : null}
+        {sigError ? (
+          <StackableContainer lessPadding lessRadius lessMargin>
+            <div className="signature-error">
+              <p>This account has already signed this transaction</p>
+            </div>
           </StackableContainer>
-        </>
-      ) : null}
-      {sigError && (
-        <StackableContainer lessPadding lessRadius lessMargin>
-          <div className="signature-error">
-            <p>This account has already signed this transaction.</p>
-          </div>
-        </StackableContainer>
-      )}
-      {connectError && (
-        <StackableContainer lessPadding lessRadius lessMargin>
-          <div className="signature-error">
-            <p>{connectError}</p>
-          </div>
-        </StackableContainer>
-      )}
-      <h2>Current Signers</h2>
-      <StackableContainer lessPadding lessMargin lessRadius>
-        {props.signatures.map((signature, i) => (
-          <StackableContainer lessPadding lessRadius lessMargin key={`${signature.address}_${i}`}>
-            <HashView hash={signature.address} />
+        ) : null}
+        {connectError ? (
+          <StackableContainer lessPadding lessRadius lessMargin>
+            <div className="signature-error">
+              <p>{connectError}</p>
+            </div>
           </StackableContainer>
-        ))}
-
-        {props.signatures.length === 0 && <p>No signatures yet</p>}
+        ) : null}
       </StackableContainer>
       <style jsx>{`
         p {
@@ -292,7 +297,7 @@ const TransactionSigning = (props: Props) => {
           font-size: 16px;
         }
       `}</style>
-    </StackableContainer>
+    </>
   );
 };
 

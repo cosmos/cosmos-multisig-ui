@@ -1,19 +1,19 @@
-import { TxMsgClaimRewards } from "../../../types/txMsg";
+import { TxMsgSetWithdrawAddress } from "../../../types/txMsg";
 import HashView from "../HashView";
 
-interface TxMsgClaimRewardsDetailsProps {
-  readonly msg: TxMsgClaimRewards;
+interface TxMsgSetWithdrawAddressDetailsProps {
+  readonly msg: TxMsgSetWithdrawAddress;
 }
 
-const TxMsgClaimRewardsDetails = ({ msg }: TxMsgClaimRewardsDetailsProps) => (
+const TxMsgSetWithdrawAddressDetails = ({ msg }: TxMsgSetWithdrawAddressDetailsProps) => (
   <>
     <li>
-      <h3>MsgWithdrawDelegatorReward</h3>
+      <h3>MsgSetWithdrawAddress</h3>
     </li>
     <li>
-      <label>Validator Address:</label>
-      <div title={msg.value.validatorAddress}>
-        <HashView hash={msg.value.validatorAddress} />
+      <label>Withdraw Address:</label>
+      <div title={msg.value.withdrawAddress}>
+        <HashView hash={msg.value.withdrawAddress} />
       </div>
     </li>
     <style jsx>{`
@@ -44,4 +44,4 @@ const TxMsgClaimRewardsDetails = ({ msg }: TxMsgClaimRewardsDetailsProps) => (
   </>
 );
 
-export default TxMsgClaimRewardsDetails;
+export default TxMsgSetWithdrawAddressDetails;

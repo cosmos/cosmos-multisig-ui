@@ -1,10 +1,8 @@
-import React from "react";
-
+import { useAppContext } from "../../context/AppContext";
+import { explorerLinkTx } from "../../lib/displayHelpers";
+import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 import HashView from "./HashView";
-import Button from "../inputs/Button";
-import { explorerLinkTx } from "../../lib/displayHelpers";
-import { useAppContext } from "../../context/AppContext";
 
 interface Props {
   transactionHash: string;
@@ -21,7 +19,7 @@ const CompletedTransaction = ({ transactionHash }: Props) => {
           <svg viewBox="0 0 77 60" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M5 30L26 51L72 5" stroke="white" strokeWidth="12" />
           </svg>
-          <p>This transaction has been broadcast.</p>
+          <p>This transaction has been broadcast</p>
         </div>
       </StackableContainer>
       <StackableContainer lessPadding lessMargin lessRadius>

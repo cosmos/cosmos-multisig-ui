@@ -14,7 +14,6 @@ import StackableContainer from "../../../components/layout/StackableContainer";
 import { useAppContext } from "../../../context/AppContext";
 import { explorerLinkAccount } from "../../../lib/displayHelpers";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
-import { TxType } from "../../../types/txMsg";
 
 function participantPubkeysFromMultisig(
   multisig: MultisigThresholdPubkey,
@@ -27,7 +26,6 @@ const Multipage = () => {
   const { state } = useAppContext();
   assert(state.chain.addressPrefix, "address prefix missing");
 
-  const [txType, setTxType] = useState<TxType | null>(null);
   const [holdings, setHoldings] = useState<readonly Coin[]>([]);
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
@@ -38,10 +36,6 @@ const Multipage = () => {
     process.env.NEXT_PUBLIC_EXPLORER_LINK_ACCOUNT || "",
     multisigAddress || "",
   );
-
-  const closeForm = () => {
-    setTxType(null);
-  };
 
   const fetchMultisig = useCallback(
     async (address: string) => {
@@ -90,83 +84,47 @@ const Multipage = () => {
             threshold={pubkey.value.threshold}
           />
         ) : null}
-        {accountError ? (
+        <div className="interfaces">
+          <div className="col-1">
+            <MultisigHoldings holdings={holdings} />
+          </div>
+          <div className="col-2">
+            <StackableContainer lessPadding>
+              <h2>New transaction</h2>
+              <p>
+                Once a transaction is created, it can be signed by the multisig members, and then
+                broadcast.
+              </p>
+            </StackableContainer>
+          </div>
+        </div>
+        {accountError || !accountOnChain ? (
           <StackableContainer>
             <div className="multisig-error">
-              <p>
-                This multisig address's pubkeys are not available, and so it cannot be used with
-                this tool.
-              </p>
-              <p>
-                You can recreate it with this tool here, or sign and broadcast a transaction with
-                the tool you used to create it. Either option will make the pubkeys accessible and
-                will allow this tool to use this multisig fully.
-              </p>
+              {accountError ? (
+                <>
+                  <p>
+                    This multisig address's pubkeys are not available, and so it cannot be used with
+                    this tool.
+                  </p>
+                  <p>
+                    You can recreate it with this tool here, or sign and broadcast a transaction
+                    with the tool you used to create it. Either option will make the pubkeys
+                    accessible and will allow this tool to use this multisig fully.
+                  </p>
+                </>
+              ) : null}
+              {!!accountOnChain ? (
+                <p>
+                  An account needs to be present on chain before creating a transaction. Send some
+                  tokens to the address first.
+                </p>
+              ) : null}
             </div>
           </StackableContainer>
         ) : null}
-        {txType && multisigAddress && accountOnChain ? (
-          <CreateTxForm
-            txType={txType}
-            senderAddress={multisigAddress}
-            accountOnChain={accountOnChain}
-            closeForm={closeForm}
-          />
-        ) : null}
-        {txType === null ? (
-          <div className="interfaces">
-            <div className="col-1">
-              <MultisigHoldings holdings={holdings} />
-            </div>
-            <div className="col-2">
-              <StackableContainer lessPadding>
-                <h2>New transaction</h2>
-                <p>
-                  Once a transaction is created, it can be signed by the multisig members, and then
-                  broadcast.
-                </p>
-                {accountOnChain ? (
-                  <>
-                    <Button
-                      label="Create Transaction"
-                      onClick={() => {
-                        setTxType("send");
-                      }}
-                    />
-                    <Button
-                      label="Create Delegation"
-                      onClick={() => {
-                        setTxType("delegate");
-                      }}
-                    />
-                    <Button
-                      label="Create Undelegation"
-                      onClick={() => {
-                        setTxType("undelegate");
-                      }}
-                    />
-                    <Button
-                      label="Create Redelegate"
-                      onClick={() => {
-                        setTxType("redelegate");
-                      }}
-                    />
-                    <Button
-                      label="Claim Rewards"
-                      onClick={() => {
-                        setTxType("claimRewards");
-                      }}
-                    />
-                  </>
-                ) : (
-                  <p>
-                    An account needs to be present on chain before creating a transaction. Send some
-                    tokens to the address first.
-                  </p>
-                )}
-              </StackableContainer>
-            </div>
-          </div>
+        {accountOnChain && multisigAddress ? (
+          <CreateTxForm senderAddress={multisigAddress} accountOnChain={accountOnChain} />
         ) : null}
       </StackableContainer>
       <style jsx>{`
