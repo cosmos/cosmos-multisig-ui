@@ -55,13 +55,11 @@ export const getServerSideProps: GetServerSideProps = async (context): Promise<P
 };
 
 const TransactionPage = ({
-  multisigAddress,
   transactionJSON,
   transactionID,
   signatures,
   txHash,
 }: {
-  multisigAddress: string;
   transactionJSON: string;
   transactionID: string;
   signatures: DbSignature[];
@@ -77,6 +75,7 @@ const TransactionPage = ({
   const [accountError, setAccountError] = useState(null);
   const txInfo: DbTransaction = transactionJSON ? JSON.parse(transactionJSON) : null;
   const router = useRouter();
+  const multisigAddress = router.query.address?.toString();
 
   const addSignature = (signature: DbSignature) => {
     setCurrentSignatures((prevState: DbSignature[]) => [...prevState, signature]);
@@ -101,11 +100,10 @@ const TransactionPage = ({
   );
 
   useEffect(() => {
-    const address = router.query.address?.toString();
-    if (address) {
-      fetchMultisig(address);
+    if (multisigAddress) {
+      fetchMultisig(multisigAddress);
     }
-  }, [fetchMultisig, router.query.address]);
+  }, [fetchMultisig, multisigAddress]);
 
   const broadcastTx = async () => {
     try {
@@ -146,7 +144,7 @@ const TransactionPage = ({
     : false;
 
   return (
-    <Page rootMultisig={multisigAddress}>
+    <Page goBack={{ pathname: `/multi/${multisigAddress}`, title: "multisig" }}>
       <StackableContainer base>
         <StackableContainer>
           <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>

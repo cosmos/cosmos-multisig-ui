@@ -1,30 +1,69 @@
-import React from "react";
-
+import { useRouter } from "next/router";
+import { useState } from "react";
 import Head from "../head";
 import StackableContainer from "./StackableContainer";
 
-interface Props {
-  title?: string;
-  rootMultisig?: string;
-  children: React.ReactNode;
+interface PageProps {
+  readonly title?: string;
+  readonly goBack?: {
+    readonly pathname: string;
+    readonly title: string;
+    readonly needsConfirm?: boolean;
+  };
+  readonly children: React.ReactNode;
 }
 
-const Page = (props: Props) => {
+const Page = ({ title, goBack, children }: PageProps) => {
+  const router = useRouter();
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const linkProps = (() => {
+    if (!goBack) {
+      return {};
+    }
+
+    if (goBack.needsConfirm && !showConfirm) {
+      return {
+        href: "",
+        onClick: (e: React.MouseEvent<HTMLAnchorElement | HTMLDivElement, MouseEvent>) => {
+          e.preventDefault();
+          setShowConfirm(true);
+        },
+      };
+    }
+
+    return {
+      href: goBack.pathname,
+    };
+  })();
+
   return (
     <div className="page">
-      <Head title={props.title || "Cosmos Multisig Manager"} />
-      <div className="container">
-        {props.rootMultisig && (
-          <div className="nav">
-            <StackableContainer base lessPadding lessMargin>
-              <p>
-                <a href={`/multi/${props.rootMultisig}`}>← Back to multisig account</a>
-              </p>
-            </StackableContainer>
-          </div>
-        )}
-        {props.children}
-      </div>
+      <Head title={title || "Cosmos Multisig Manager"} />
+      <StackableContainer>
+        {goBack ? (
+          <StackableContainer
+            base
+            lessPadding
+            lessMargin
+            divProps={{
+              style: { width: "fit-content", cursor: "pointer" },
+              onClick: linkProps.href ? () => router.push(linkProps.href) : linkProps.onClick,
+            }}
+          >
+            <p>
+              <a {...linkProps}>← Back to {goBack.title}</a>
+            </p>
+            {showConfirm ? (
+              <>
+                <p style={{ marginTop: "8px" }}>Changes to any form will be lost if you go back</p>
+                <p>Click again to confirm</p>
+              </>
+            ) : null}
+          </StackableContainer>
+        ) : null}
+        {children}
+      </StackableContainer>
       <div className="footer-links">
         <StackableContainer base lessPadding lessMargin>
           <p>
@@ -37,15 +76,6 @@ const Page = (props: Props) => {
           display: flex;
           justify-content: center;
           padding: 120px 0;
-        }
-        .container {
-          position: relative;
-        }
-        .nav {
-          position: absolute;
-          top: -40px;
-          left: 0;
-          display: flex;
         }
         a,
         a:visited {

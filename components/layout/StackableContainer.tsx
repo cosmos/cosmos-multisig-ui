@@ -1,5 +1,3 @@
-import React from "react";
-
 interface Props {
   base?: boolean;
   children: React.ReactNode;
@@ -7,10 +5,11 @@ interface Props {
   lessMargin?: boolean;
   lessRadius?: boolean;
   fullHeight?: boolean;
+  divProps?: React.HTMLAttributes<HTMLDivElement>;
 }
 
 const StackableContainer = (props: Props) => (
-  <div className={`container ${props.base ? "base" : ""}`}>
+  <div className={`container ${props.base ? "base" : ""}`} {...props.divProps}>
     {props.children}
 
     <style jsx>{`
