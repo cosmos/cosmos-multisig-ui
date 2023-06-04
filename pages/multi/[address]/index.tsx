@@ -27,14 +27,14 @@ const Multipage = () => {
   assert(state.chain.addressPrefix, "address prefix missing");
 
   const [holdings, setHoldings] = useState<readonly Coin[]>([]);
-  const [multisigAddress, setMultisigAddress] = useState("");
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
 
+  const multisigAddress = router.query.address?.toString();
   const explorerHref = explorerLinkAccount(
     process.env.NEXT_PUBLIC_EXPLORER_LINK_ACCOUNT || "",
-    multisigAddress,
+    multisigAddress || "",
   );
 
   const fetchMultisig = useCallback(
@@ -64,15 +64,13 @@ const Multipage = () => {
   );
 
   useEffect(() => {
-    const address = router.query.address?.toString();
-    if (address) {
-      setMultisigAddress(address);
-      fetchMultisig(address);
+    if (multisigAddress) {
+      fetchMultisig(multisigAddress);
     }
-  }, [fetchMultisig, router.query.address]);
+  }, [fetchMultisig, multisigAddress]);
 
   return (
-    <Page>
+    <Page goBack={{ pathname: "/", title: "home", needsConfirm: true }}>
       <StackableContainer base>
         <StackableContainer>
           <label>Multisig Address</label>
@@ -125,7 +123,7 @@ const Multipage = () => {
             </div>
           </StackableContainer>
         ) : null}
-        {!!accountOnChain ? (
+        {accountOnChain && multisigAddress ? (
           <CreateTxForm senderAddress={multisigAddress} accountOnChain={accountOnChain} />
         ) : null}
       </StackableContainer>
