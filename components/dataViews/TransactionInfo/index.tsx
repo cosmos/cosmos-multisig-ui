@@ -7,9 +7,11 @@ import {
   isTxMsgSend,
   isTxMsgSetWithdrawAddress,
   isTxMsgUndelegate,
+  isUnknownEncodeObject,
 } from "../../../lib/txMsgHelpers";
 import { DbTransaction } from "../../../types";
 import StackableContainer from "../../layout/StackableContainer";
+import TxEncodeObjectDetails from "./TxEncodeObjectDetails";
 import TxMsgClaimRewardsDetails from "./TxMsgClaimRewardsDetails";
 import TxMsgDelegateDetails from "./TxMsgDelegateDetails";
 import TxMsgRedelegateDetails from "./TxMsgRedelegateDetails";
@@ -59,6 +61,7 @@ const TransactionInfo = ({ tx }: Props) => {
                 {isTxMsgSetWithdrawAddress(msg) ? (
                   <TxMsgSetWithdrawAddressDetails msg={msg} />
                 ) : null}
+                {isUnknownEncodeObject(msg) ? <TxEncodeObjectDetails msg={msg} /> : null}
               </StackableContainer>
             ))}
           </StackableContainer>
