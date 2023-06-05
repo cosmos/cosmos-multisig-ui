@@ -26,30 +26,28 @@ const MsgClaimRewardsForm = ({
   const [validatorAddressError, setValidatorAddressError] = useState("");
 
   useEffect(() => {
-    try {
-      setValidatorAddressError("");
+    setValidatorAddressError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgClaimRewards => {
-        assert(state.chain.addressPrefix, "addressPrefix missing");
+    const isMsgValid = (msg: TxMsg): msg is TxMsgClaimRewards => {
+      assert(state.chain.addressPrefix, "addressPrefix missing");
 
-        const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
-        if (addressErrorMsg) {
-          setValidatorAddressError(
-            `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
-          );
-          return false;
-        }
+      const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
+      if (addressErrorMsg) {
+        setValidatorAddressError(
+          `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
+        );
+        return false;
+      }
 
-        return isTxMsgClaimRewards(msg);
-      };
+      return isTxMsgClaimRewards(msg);
+    };
 
-      const msg: TxMsgClaimRewards = {
-        typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
-        value: { delegatorAddress, validatorAddress },
-      };
+    const msg: TxMsgClaimRewards = {
+      typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+      value: { delegatorAddress, validatorAddress },
+    };
 
-      setMsgGetter({ isMsgValid, msg });
-    } catch {}
+    setMsgGetter({ isMsgValid, msg });
   }, [
     delegatorAddress,
     setMsgGetter,

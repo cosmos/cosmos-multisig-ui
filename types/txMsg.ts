@@ -1,10 +1,13 @@
+import { EncodeObject } from "@cosmjs/proto-signing";
+
 export type MsgType =
   | "send"
   | "delegate"
   | "undelegate"
   | "redelegate"
   | "claimRewards"
-  | "setWithdrawAddress";
+  | "setWithdrawAddress"
+  | "encodeObject";
 
 export type TxMsg =
   | TxMsgSend
@@ -12,7 +15,8 @@ export type TxMsg =
   | TxMsgUndelegate
   | TxMsgRedelegate
   | TxMsgClaimRewards
-  | TxMsgSetWithdrawAddress;
+  | TxMsgSetWithdrawAddress
+  | EncodeObject;
 
 export interface TxMsgSend {
   readonly typeUrl: "/cosmos.bank.v1beta1.MsgSend";
