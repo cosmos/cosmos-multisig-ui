@@ -26,30 +26,28 @@ const MsgSetWithdrawAddressForm = ({
   const [withdrawAddressError, setWithdrawAddressError] = useState("");
 
   useEffect(() => {
-    try {
-      setWithdrawAddressError("");
+    setWithdrawAddressError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgSetWithdrawAddress => {
-        assert(state.chain.addressPrefix, "addressPrefix missing");
+    const isMsgValid = (msg: TxMsg): msg is TxMsgSetWithdrawAddress => {
+      assert(state.chain.addressPrefix, "addressPrefix missing");
 
-        const addressErrorMsg = checkAddress(withdrawAddress, state.chain.addressPrefix);
-        if (addressErrorMsg) {
-          setWithdrawAddressError(
-            `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
-          );
-          return false;
-        }
+      const addressErrorMsg = checkAddress(withdrawAddress, state.chain.addressPrefix);
+      if (addressErrorMsg) {
+        setWithdrawAddressError(
+          `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
+        );
+        return false;
+      }
 
-        return isTxMsgSetWithdrawAddress(msg);
-      };
+      return isTxMsgSetWithdrawAddress(msg);
+    };
 
-      const msg: TxMsgSetWithdrawAddress = {
-        typeUrl: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
-        value: { delegatorAddress, withdrawAddress },
-      };
+    const msg: TxMsgSetWithdrawAddress = {
+      typeUrl: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
+      value: { delegatorAddress, withdrawAddress },
+    };
 
-      setMsgGetter({ isMsgValid, msg });
-    } catch {}
+    setMsgGetter({ isMsgValid, msg });
   }, [
     delegatorAddress,
     setMsgGetter,
