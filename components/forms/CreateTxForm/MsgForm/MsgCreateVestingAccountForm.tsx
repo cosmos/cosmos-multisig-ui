@@ -16,9 +16,10 @@ import StackableContainer from "../../../layout/StackableContainer";
   Matching the crazy datetime-local input format
 */
 const getMinEndTime = (): string => {
-  const minDate = new Date();
+  const minTimestamp = Date.now() + 1000 * 60 * 60 * 24 * 30;
+  const minDate = new Date(minTimestamp);
 
-  const minMonth = minDate.getMonth() + 1 + 1; // It's 0-indexed and we want next month
+  const minMonth = minDate.getMonth() + 1; // It's 0-indexed
   const minMonthStr = minMonth < 10 ? `0${minMonth}` : String(minMonth);
 
   const minDay = minDate.getDate();
