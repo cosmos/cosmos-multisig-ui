@@ -10,7 +10,7 @@ import {
   TxMsgUndelegate,
 } from "../types/txMsg";
 
-const isTxMsgSend = (msg: TxMsg | EncodeObject): msg is TxMsgSend =>
+const isTxMsgSend = (msg: TxMsg): msg is TxMsgSend =>
   msg.typeUrl === "/cosmos.bank.v1beta1.MsgSend" &&
   "value" in msg &&
   "fromAddress" in msg.value &&
@@ -20,7 +20,7 @@ const isTxMsgSend = (msg: TxMsg | EncodeObject): msg is TxMsgSend =>
   !!msg.value.toAddress &&
   !!msg.value.amount.length;
 
-const isTxMsgDelegate = (msg: TxMsg | EncodeObject): msg is TxMsgDelegate =>
+const isTxMsgDelegate = (msg: TxMsg): msg is TxMsgDelegate =>
   msg.typeUrl === "/cosmos.staking.v1beta1.MsgDelegate" &&
   "value" in msg &&
   "delegatorAddress" in msg.value &&
@@ -30,7 +30,7 @@ const isTxMsgDelegate = (msg: TxMsg | EncodeObject): msg is TxMsgDelegate =>
   !!msg.value.validatorAddress &&
   !!msg.value.amount;
 
-const isTxMsgUndelegate = (msg: TxMsg | EncodeObject): msg is TxMsgUndelegate =>
+const isTxMsgUndelegate = (msg: TxMsg): msg is TxMsgUndelegate =>
   msg.typeUrl === "/cosmos.staking.v1beta1.MsgUndelegate" &&
   "value" in msg &&
   "delegatorAddress" in msg.value &&
@@ -40,7 +40,7 @@ const isTxMsgUndelegate = (msg: TxMsg | EncodeObject): msg is TxMsgUndelegate =>
   !!msg.value.validatorAddress &&
   !!msg.value.amount;
 
-const isTxMsgRedelegate = (msg: TxMsg | EncodeObject): msg is TxMsgRedelegate =>
+const isTxMsgRedelegate = (msg: TxMsg): msg is TxMsgRedelegate =>
   msg.typeUrl === "/cosmos.staking.v1beta1.MsgBeginRedelegate" &&
   "value" in msg &&
   "delegatorAddress" in msg.value &&
@@ -52,7 +52,7 @@ const isTxMsgRedelegate = (msg: TxMsg | EncodeObject): msg is TxMsgRedelegate =>
   !!msg.value.validatorDstAddress &&
   !!msg.value.amount;
 
-const isTxMsgClaimRewards = (msg: TxMsg | EncodeObject): msg is TxMsgClaimRewards =>
+const isTxMsgClaimRewards = (msg: TxMsg): msg is TxMsgClaimRewards =>
   msg.typeUrl === "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward" &&
   "value" in msg &&
   "delegatorAddress" in msg.value &&
@@ -60,13 +60,25 @@ const isTxMsgClaimRewards = (msg: TxMsg | EncodeObject): msg is TxMsgClaimReward
   !!msg.value.delegatorAddress &&
   !!msg.value.validatorAddress;
 
-const isTxMsgSetWithdrawAddress = (msg: TxMsg | EncodeObject): msg is TxMsgSetWithdrawAddress =>
+const isTxMsgSetWithdrawAddress = (msg: TxMsg): msg is TxMsgSetWithdrawAddress =>
   msg.typeUrl === "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress" &&
   "value" in msg &&
   "delegatorAddress" in msg.value &&
   "withdrawAddress" in msg.value &&
   !!msg.value.delegatorAddress &&
   !!msg.value.withdrawAddress;
+
+const isEncodeObject = (msg: TxMsg): msg is EncodeObject =>
+  "typeUrl" in msg && "value" in msg && !!msg.typeUrl && !!msg.value;
+
+const isUnknownEncodeObject = (msg: TxMsg): msg is EncodeObject =>
+  isEncodeObject(msg) &&
+  !isTxMsgSend(msg) &&
+  !isTxMsgDelegate(msg) &&
+  !isTxMsgUndelegate(msg) &&
+  !isTxMsgRedelegate(msg) &&
+  !isTxMsgClaimRewards(msg) &&
+  !isTxMsgSetWithdrawAddress(msg);
 
 const gasOfMsg = (msgType: MsgType): number => {
   switch (msgType) {
@@ -81,6 +93,8 @@ const gasOfMsg = (msgType: MsgType): number => {
     case "claimRewards":
       return 100_000;
     case "setWithdrawAddress":
+      return 100_000;
+    case "encodeObject":
       return 100_000;
     default:
       throw new Error("Unknown msg type");
@@ -100,6 +114,8 @@ export {
   isTxMsgRedelegate,
   isTxMsgClaimRewards,
   isTxMsgSetWithdrawAddress,
+  isEncodeObject,
+  isUnknownEncodeObject,
   gasOfMsg,
   gasOfTx,
 };
