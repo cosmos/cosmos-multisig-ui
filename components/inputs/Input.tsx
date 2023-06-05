@@ -61,6 +61,14 @@ const Input = (props: Props) => (
       input::placeholder {
         color: rgba(255, 255, 255, 0.3);
       }
+      input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.6;
+        filter: invert(0.8);
+      }
+      input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
+      }
       .error {
         font-size: 12px;
         color: coral;
