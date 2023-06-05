@@ -10,6 +10,7 @@ import {
   TxMsgRedelegate,
   TxMsgSend,
   TxMsgSetWithdrawAddress,
+  TxMsgTransfer,
   TxMsgUndelegate,
 } from "../types/txMsg";
 
@@ -85,6 +86,18 @@ const isTxMsgCreateVestingAccount = (msg: TxMsg | EncodeObject): msg is TxMsgCre
   !!msg.value.endTime &&
   typeof msg.value.delayed === "boolean";
 
+const isTxMsgTransfer = (msg: TxMsg | EncodeObject): msg is TxMsgTransfer =>
+  msg.typeUrl === "/ibc.applications.transfer.v1.MsgTransfer" &&
+  "value" in msg &&
+  "sourcePort" in msg.value &&
+  "sourceChannel" in msg.value &&
+  "sender" in msg.value &&
+  "receiver" in msg.value &&
+  !!msg.value.sourcePort &&
+  !!msg.value.sourceChannel &&
+  !!msg.value.sender &&
+  !!msg.value.receiver;
+
 const gasOfMsg = (msgType: MsgType): number => {
   switch (msgType) {
     case "send":
@@ -100,6 +113,8 @@ const gasOfMsg = (msgType: MsgType): number => {
     case "setWithdrawAddress":
       return 100_000;
     case "createVestingAccount":
+      return 100_000;
+    case "msgTransfer":
       return 100_000;
     default:
       throw new Error("Unknown msg type");
@@ -148,6 +163,7 @@ export {
   isTxMsgClaimRewards,
   isTxMsgSetWithdrawAddress,
   isTxMsgCreateVestingAccount,
+  isTxMsgTransfer,
   gasOfMsg,
   gasOfTx,
   dbTxFromJson,
