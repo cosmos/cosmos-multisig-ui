@@ -10,7 +10,7 @@ interface TxMsgTransferDetailsProps {
 const TxMsgTransferDetails = ({ msg }: TxMsgTransferDetailsProps) => {
   const { state } = useAppContext();
 
-  const timeoutDateObj = new Date(msg.value.timeoutTimestamp / 1000000);
+  const timeoutDateObj = new Date(msg.value.timeoutTimestamp.divide(1_000_000).toNumber());
   const timeoutDate = timeoutDateObj.toLocaleDateString();
   const timeoutTime = timeoutDateObj.toLocaleTimeString();
 

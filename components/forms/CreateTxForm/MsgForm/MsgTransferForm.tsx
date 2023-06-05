@@ -1,4 +1,5 @@
 import { assert } from "@cosmjs/utils";
+import Long from "long";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
@@ -106,8 +107,8 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
 
     const timeoutTimestamp =
       selectedTimestamp.label === "custom"
-        ? Number(customTimestamp)
-        : (Date.now() + selectedTimestamp.value) * 1000000; // In nanoseconds
+        ? Long.fromString(customTimestamp)
+        : Long.fromNumber(Date.now() + selectedTimestamp.value, true).multiply(1_000_000); // In nanoseconds
 
     const msg: TxMsgTransfer = {
       typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",

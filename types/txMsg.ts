@@ -1,4 +1,5 @@
-import { Coin } from "@cosmjs/amino";
+import { Coin, MsgTransferEncodeObject } from "@cosmjs/stargate";
+import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 
 export type MsgType =
   | "send"
@@ -84,15 +85,12 @@ export interface TxMsgCreateVestingAccount {
   };
 }
 
-export interface TxMsgTransfer {
-  readonly typeUrl: "/ibc.applications.transfer.v1.MsgTransfer";
-  readonly value: {
-    readonly sourcePort: string;
-    readonly sourceChannel: string;
-    readonly token: Coin;
-    readonly sender: string;
-    readonly receiver: string;
-    readonly timeoutTimestamp: number;
-    readonly memo: string;
-  };
+type OmmitedMsgTransfer = Omit<MsgTransfer, "timeoutHeight" | "memo">;
+type MsgTransferRequiredToken = OmmitedMsgTransfer & Required<Pick<OmmitedMsgTransfer, "token">>;
+interface MsgTransferOptionalMemo extends MsgTransferRequiredToken {
+  readonly memo?: string;
+}
+
+export interface TxMsgTransfer extends MsgTransferEncodeObject {
+  readonly value: Readonly<MsgTransferOptionalMemo>;
 }
