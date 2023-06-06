@@ -1,4 +1,6 @@
-const timestampFromDatetimeLocal = (datetimeLocal: string): number => {
+import Long from "long";
+
+const timestampFromDatetimeLocal = (datetimeLocal: string): Long => {
   const [date, time] = datetimeLocal.split("T");
   const [year, month, day] = date.split("-");
   const [hours, minutes] = time.split(":");
@@ -10,7 +12,7 @@ const timestampFromDatetimeLocal = (datetimeLocal: string): number => {
     Number(hours),
     Number(minutes),
   );
-  return Math.floor(dateObj.getTime() / 1000);
+  return Long.fromNumber(dateObj.getTime(), true).divide(1000);
 };
 
 export { timestampFromDatetimeLocal };
