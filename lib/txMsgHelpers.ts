@@ -80,7 +80,7 @@ const isTxMsgCreateVestingAccount = (msg: TxMsg | EncodeObject): msg is TxMsgCre
   !!msg.value.fromAddress &&
   !!msg.value.toAddress &&
   !!msg.value.amount.length &&
-  typeof msg.value.endTime === "number" &&
+  !!msg.value.endTime &&
   typeof msg.value.delayed === "boolean";
 
 const gasOfMsg = (msgType: MsgType): number => {
