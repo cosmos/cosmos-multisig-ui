@@ -77,7 +77,7 @@ export interface TxMsgCreateVestingAccount {
     readonly fromAddress: string;
     readonly toAddress: string;
     readonly amount: readonly Readonly<Coin>[];
-    readonly endTime: number;
+    readonly endTime: Long;
     readonly delayed: boolean;
   };
 }
