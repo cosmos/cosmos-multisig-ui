@@ -1,5 +1,5 @@
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
-import { toBase64 } from "@cosmjs/encoding";
+import { toBase64, toHex } from "@cosmjs/encoding";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
@@ -155,6 +155,8 @@ const TransactionSigning = (props: Props) => {
         chainId: state.chain.chainId,
       };
 
+      console.log({ msgs: props.tx.msgs });
+
       const { bodyBytes, signatures } = await signingClient.sign(
         signerAddress,
         props.tx.msgs,
@@ -162,6 +164,8 @@ const TransactionSigning = (props: Props) => {
         props.tx.memo,
         signerData,
       );
+
+      console.log({ bodyBytes: toHex(bodyBytes) });
 
       // check existing signatures
       const bases64EncodedSignature = toBase64(signatures[0]);
