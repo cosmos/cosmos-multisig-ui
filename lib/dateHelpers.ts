@@ -12,7 +12,7 @@ const timestampFromDatetimeLocal = (datetimeLocal: string): Long => {
     Number(hours),
     Number(minutes),
   );
-  return Long.fromNumber(dateObj.getTime(), true).divide(1000);
+  return Long.fromNumber(dateObj.getTime()).divide(1000);
 };
 
 export { timestampFromDatetimeLocal };
