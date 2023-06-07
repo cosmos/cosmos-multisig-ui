@@ -3,6 +3,7 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import axios from "axios";
+import Long from "long";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
@@ -16,6 +17,7 @@ import StackableContainer from "../../../../components/layout/StackableContainer
 import { useAppContext } from "../../../../context/AppContext";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
 import { getMultisigAccount } from "../../../../lib/multisigHelpers";
+import { isTxMsgCreateVestingAccount } from "../../../../lib/txMsgHelpers";
 import { DbSignature, DbTransaction } from "../../../../types";
 
 interface Props {
@@ -74,6 +76,13 @@ const TransactionPage = ({
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
   const txInfo: DbTransaction = transactionJSON ? JSON.parse(transactionJSON) : null;
+  // Mutate msgs to build Long from JSON
+  txInfo.msgs = txInfo.msgs.map((msg) =>
+    isTxMsgCreateVestingAccount(msg)
+      ? { ...msg, value: { ...msg.value, endTime: Long.fromValue(msg.value.endTime) } }
+      : msg,
+  );
+  console.log({ txInfo });
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
 
