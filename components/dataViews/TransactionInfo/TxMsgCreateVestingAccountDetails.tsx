@@ -1,4 +1,3 @@
-import Long from "long";
 import { useAppContext } from "../../../context/AppContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import { TxMsgCreateVestingAccount } from "../../../types/txMsg";
@@ -10,7 +9,7 @@ interface TxMsgCreateVestingAccountDetailsProps {
 
 const TxMsgCreateVestingAccountDetails = ({ msg }: TxMsgCreateVestingAccountDetailsProps) => {
   const { state } = useAppContext();
-  const endTimeDateObj = new Date(Long.fromValue(msg.value.endTime).multiply(1000).toNumber());
+  const endTimeDateObj = new Date(msg.value.endTime.multiply(1000).toNumber());
   const endTimeDate = endTimeDateObj.toLocaleDateString();
   const endTimeHours = endTimeDateObj.toLocaleTimeString().slice(0, -3);
 
