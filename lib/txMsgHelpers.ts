@@ -1,4 +1,6 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
+import Long from "long";
+import { DbTransaction } from "../types";
 import {
   MsgType,
   TxMsg,
@@ -110,6 +112,34 @@ const gasOfTx = (msgTypes: readonly MsgType[]): number => {
   return totalTxGas;
 };
 
+const importMsgCreateVestingAccount = (msg: EncodeObject): EncodeObject => {
+  if (isTxMsgCreateVestingAccount(msg)) {
+    return { ...msg, value: { ...msg.value, endTime: Long.fromValue(msg.value.endTime) } };
+  }
+
+  return msg;
+};
+
+const importMsgTypes = (msgs: readonly EncodeObject[]): EncodeObject[] =>
+  msgs.map(importMsgCreateVestingAccount);
+
+const dbTxFromJson = (txJson: string): DbTransaction | null => {
+  try {
+    const dbTx: DbTransaction = JSON.parse(txJson);
+    dbTx.msgs = importMsgTypes(dbTx.msgs);
+
+    return dbTx;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    } else {
+      console.error("Error when parsing tx JSON from DB");
+    }
+
+    return null;
+  }
+};
+
 export {
   isTxMsgSend,
   isTxMsgDelegate,
@@ -120,4 +150,5 @@ export {
   isTxMsgCreateVestingAccount,
   gasOfMsg,
   gasOfTx,
+  dbTxFromJson,
 };
