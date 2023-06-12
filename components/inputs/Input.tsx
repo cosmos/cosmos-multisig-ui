@@ -1,6 +1,7 @@
 interface Props {
   label?: string;
   type?: string;
+  list?: string;
   name?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   value: number | string | undefined;
@@ -18,6 +19,7 @@ const Input = (props: Props) => (
     <label>{props.label || ""}</label>
     <input
       type={props.type || "text"}
+      list={props.list}
       name={props.name || "text-input"}
       onChange={props.onChange}
       value={props.value}

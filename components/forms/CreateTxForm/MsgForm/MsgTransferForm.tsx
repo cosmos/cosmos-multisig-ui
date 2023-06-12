@@ -7,7 +7,6 @@ import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { isTxMsgTransfer } from "../../../../lib/txMsgHelpers";
 import { TxMsg, TxMsgTransfer } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
-import Select from "../../../inputs/Select";
 import StackableContainer from "../../../layout/StackableContainer";
 
 const humanTimestampOptions = [
@@ -20,10 +19,7 @@ const humanTimestampOptions = [
   { label: "2 weeks from now", value: 2 * 7 * 24 * 60 * 60 * 1000 },
   { label: "3 weeks from now", value: 3 * 7 * 24 * 60 * 60 * 1000 },
   { label: "1 month from now", value: 4 * 7 * 24 * 60 * 60 * 1000 },
-  { label: "custom", value: 0 },
 ];
-
-type HumanTimestampOption = (typeof humanTimestampOptions)[number];
 
 interface MsgTransferFormProps {
   readonly fromAddress: string;
@@ -40,10 +36,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
   const [denom, setDenom] = useState("");
   const [amount, setAmount] = useState("0");
   const [toAddress, setToAddress] = useState("");
-  const [selectedTimestamp, setSelectedTimestamp] = useState<HumanTimestampOption>(
-    humanTimestampOptions[0],
-  );
-  const [customTimestamp, setCustomTimestamp] = useState("");
+  const [timeout, setTimeout] = useState("");
   const [memo, setMemo] = useState("");
 
   const [sourcePortError, setSourcePortError] = useState("");
@@ -51,7 +44,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
   const [denomError, setDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
   const [toAddressError, setToAddressError] = useState("");
-  const [customTimestampError, setCustomTimestampError] = useState("");
+  const [timeoutError, setTimeoutError] = useState("");
 
   useEffect(() => {
     setSourcePortError("");
@@ -59,7 +52,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
     setDenomError("");
     setAmountError("");
     setToAddressError("");
-    setCustomTimestampError("");
+    setTimeoutError("");
 
     const isMsgValid = (msg: TxMsg): msg is TxMsgTransfer => {
       assert(state.chain.addressPrefix, "addressPrefix missing");
@@ -84,31 +77,35 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
         return false;
       }
 
-      const addressErrorMsg = checkAddress(toAddress, state.chain.addressPrefix);
+      const addressErrorMsg = checkAddress(toAddress, "");
       if (addressErrorMsg) {
         setToAddressError(`Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`);
         return false;
       }
 
-      if (selectedTimestamp.label === "custom") {
-        if (!customTimestamp || isNaN(Number(customTimestamp))) {
-          setCustomTimestampError("A timestamp is required");
-          return false;
-        }
+      const foundTimeout = humanTimestampOptions.find(({ label }) => label === timeout);
+      const isTimeoutNumber = !isNaN(Number(timeout));
+      const isTimeoutInFuture = Number(timeout) > Date.now();
 
-        if (Number(customTimestamp) <= Date.now()) {
-          setCustomTimestampError("Timestamp needs to be in the future");
-          return false;
-        }
+      if (!foundTimeout || !isTimeoutNumber || !isTimeoutInFuture) {
+        setTimeoutError("Timeout must be a valid timestamp in the future");
       }
 
       return isTxMsgTransfer(msg);
     };
 
-    const timeoutTimestamp =
-      selectedTimestamp.label === "custom"
-        ? Long.fromString(customTimestamp)
-        : Long.fromNumber(Date.now() + selectedTimestamp.value, true).multiply(1_000_000); // In nanoseconds
+    const timeoutTimestamp = (() => {
+      const foundTimeout = humanTimestampOptions.find(({ label }) => label === timeout)?.value;
+      if (foundTimeout) {
+        return Long.fromNumber(Date.now() + foundTimeout).multiply(1_000_000); // In nanoseconds
+      }
+
+      try {
+        return Long.fromString(timeout);
+      } catch {
+        return Long.fromNumber(0);
+      }
+    })();
 
     const msg: TxMsgTransfer = {
       typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
@@ -126,17 +123,15 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
     setMsgGetter({ isMsgValid, msg });
   }, [
     amount,
-    customTimestamp,
     denom,
     fromAddress,
     memo,
-    selectedTimestamp.label,
-    selectedTimestamp.value,
     setMsgGetter,
     sourceChannel,
     sourcePort,
     state.chain.addressPrefix,
     state.chain.chainId,
+    timeout,
     toAddress,
   ]);
 
@@ -194,29 +189,21 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
         />
       </div>
       <div className="form-item">
-        <Select
-          options={humanTimestampOptions}
-          onChange={(option: HumanTimestampOption) => {
-            setSelectedTimestamp(option);
-
-            if (option.label !== "custom") {
-              setCustomTimestamp("");
-            }
-          }}
-          value={selectedTimestamp}
-          name="chain-select"
-        />
-      </div>
-      <div className="form-item">
         <Input
-          type="number"
-          label="Custom Timestamp"
-          name="custom-timestamp"
-          disabled={selectedTimestamp.label !== "custom"}
-          value={customTimestamp}
-          onChange={({ target }) => setCustomTimestamp(target.value)}
-          error={customTimestampError}
+          type="text"
+          list="timestamp-options"
+          label="Timeout"
+          name="timeout"
+          placeholder="Enter timestamp in nanoseconds or select from list"
+          value={timeout}
+          onChange={({ target }) => setTimeout(target.value)}
+          error={timeoutError}
         />
+        <datalist id="timestamp-options">
+          {humanTimestampOptions.map(({ label }) => (
+            <option key={label}>{label}</option>
+          ))}
+        </datalist>
       </div>
       <div className="form-item">
         <Input
