@@ -127,16 +127,22 @@ const gasOfTx = (msgTypes: readonly MsgType[]): number => {
   return totalTxGas;
 };
 
-const importMsgCreateVestingAccount = (msg: EncodeObject): EncodeObject => {
+const importMsgType = (msg: EncodeObject): EncodeObject => {
   if (isTxMsgCreateVestingAccount(msg)) {
     return { ...msg, value: { ...msg.value, endTime: Long.fromValue(msg.value.endTime) } };
+  }
+
+  if (isTxMsgTransfer(msg)) {
+    return {
+      ...msg,
+      value: { ...msg.value, timeoutTimestamp: Long.fromValue(msg.value.timeoutTimestamp) },
+    };
   }
 
   return msg;
 };
 
-const importMsgTypes = (msgs: readonly EncodeObject[]): EncodeObject[] =>
-  msgs.map(importMsgCreateVestingAccount);
+const importMsgTypes = (msgs: readonly EncodeObject[]): EncodeObject[] => msgs.map(importMsgType);
 
 const dbTxFromJson = (txJson: string): DbTransaction | null => {
   try {
