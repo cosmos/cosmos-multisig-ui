@@ -16,7 +16,8 @@ import StackableContainer from "../../../../components/layout/StackableContainer
 import { useAppContext } from "../../../../context/AppContext";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
 import { getMultisigAccount } from "../../../../lib/multisigHelpers";
-import { DbSignature, DbTransaction } from "../../../../types";
+import { dbTxFromJson } from "../../../../lib/txMsgHelpers";
+import { DbSignature } from "../../../../types";
 
 interface Props {
   props: {
@@ -73,7 +74,7 @@ const TransactionPage = ({
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
   const [accountError, setAccountError] = useState(null);
-  const txInfo: DbTransaction = transactionJSON ? JSON.parse(transactionJSON) : null;
+  const txInfo = dbTxFromJson(transactionJSON);
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
 
@@ -116,6 +117,7 @@ const TransactionPage = ({
         "Account on chain is missing an accountNumber",
       );
       assert(pubkey, "Pubkey not found on chain or in database");
+      assert(txInfo, "Transaction not found in database");
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTxBytes = makeMultisignedTxBytes(
         pubkey,
@@ -171,7 +173,7 @@ const TransactionPage = ({
                 {broadcastError ? <div className="broadcast-error">{broadcastError}</div> : null}
               </>
             ) : null}
-            {pubkey ? (
+            {pubkey && txInfo ? (
               <TransactionSigning
                 tx={txInfo}
                 transactionID={transactionID}
@@ -182,7 +184,7 @@ const TransactionPage = ({
             ) : null}
           </StackableContainer>
         ) : null}
-        <TransactionInfo tx={txInfo} />
+        {txInfo ? <TransactionInfo tx={txInfo} /> : null}
       </StackableContainer>
       <style jsx>{`
         .broadcast-error {

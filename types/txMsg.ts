@@ -1,10 +1,13 @@
+import { Coin } from "@cosmjs/amino";
+
 export type MsgType =
   | "send"
   | "delegate"
   | "undelegate"
   | "redelegate"
   | "claimRewards"
-  | "setWithdrawAddress";
+  | "setWithdrawAddress"
+  | "createVestingAccount";
 
 export type TxMsg =
   | TxMsgSend
@@ -12,14 +15,15 @@ export type TxMsg =
   | TxMsgUndelegate
   | TxMsgRedelegate
   | TxMsgClaimRewards
-  | TxMsgSetWithdrawAddress;
+  | TxMsgSetWithdrawAddress
+  | TxMsgCreateVestingAccount;
 
 export interface TxMsgSend {
   readonly typeUrl: "/cosmos.bank.v1beta1.MsgSend";
   readonly value: {
     readonly fromAddress: string;
     readonly toAddress: string;
-    readonly amount: [{ readonly amount: string; readonly denom: string }];
+    readonly amount: readonly Readonly<Coin>[];
   };
 }
 
@@ -28,7 +32,7 @@ export interface TxMsgDelegate {
   readonly value: {
     readonly delegatorAddress: string;
     readonly validatorAddress: string;
-    readonly amount: { readonly amount: string; readonly denom: string };
+    readonly amount: Readonly<Coin>;
   };
 }
 
@@ -37,7 +41,7 @@ export interface TxMsgUndelegate {
   readonly value: {
     readonly delegatorAddress: string;
     readonly validatorAddress: string;
-    readonly amount: { readonly amount: string; readonly denom: string };
+    readonly amount: Readonly<Coin>;
   };
 }
 
@@ -47,7 +51,7 @@ export interface TxMsgRedelegate {
     readonly delegatorAddress: string;
     readonly validatorSrcAddress: string;
     readonly validatorDstAddress: string;
-    readonly amount: { readonly amount: string; readonly denom: string };
+    readonly amount: Readonly<Coin>;
   };
 }
 
@@ -64,5 +68,16 @@ export interface TxMsgSetWithdrawAddress {
   readonly value: {
     readonly delegatorAddress: string;
     readonly withdrawAddress: string;
+  };
+}
+
+export interface TxMsgCreateVestingAccount {
+  readonly typeUrl: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount";
+  readonly value: {
+    readonly fromAddress: string;
+    readonly toAddress: string;
+    readonly amount: readonly Readonly<Coin>[];
+    readonly endTime: Long;
+    readonly delayed: boolean;
   };
 }

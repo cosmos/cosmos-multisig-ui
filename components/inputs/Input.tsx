@@ -1,11 +1,11 @@
-import React from "react";
-
 interface Props {
   label?: string;
   type?: string;
   name?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   value: number | string | undefined;
+  min?: string | number | undefined;
+  checked?: boolean;
   onBlur?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
   error?: string;
@@ -21,6 +21,8 @@ const Input = (props: Props) => (
       name={props.name || "text-input"}
       onChange={props.onChange}
       value={props.value}
+      checked={props.checked}
+      min={props.type === "datetime-local" ? props.min : undefined}
       placeholder={props.placeholder || ""}
       autoComplete="off"
       onBlur={props.onBlur}
@@ -29,15 +31,16 @@ const Input = (props: Props) => (
     {props.error && <div className="error">{props.error}</div>}
     <style jsx>{`
       .text-input {
-        display: flex;
-        flex-direction: column;
         width: ${props.width ? props.width : "auto"};
+        display: flex;
+        flex-direction: ${props.type === "checkbox" ? "row" : "column"};
+        gap: ${props.type === "checkbox" ? "8px" : 0};
       }
 
       label {
         font-style: italic;
         font-size: 12px;
-        margin-bottom: 1em;
+        margin-bottom: ${props.type === "checkbox" ? 0 : "1em"};
       }
 
       input {
@@ -57,6 +60,14 @@ const Input = (props: Props) => (
 
       input::placeholder {
         color: rgba(255, 255, 255, 0.3);
+      }
+      input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.6;
+        filter: invert(0.8);
+      }
+      input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
       }
       .error {
         font-size: 12px;
