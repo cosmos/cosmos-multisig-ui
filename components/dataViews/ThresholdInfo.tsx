@@ -17,8 +17,7 @@ const ThresholdInfo = ({ signatures, pubkey }: Props) => {
     setUrlToCopy(urlWithoutQuery);
   }, []);
 
-  const signaturesDiff = Number(pubkey.value.threshold) - signatures.length;
-  const remainingSignatures = signaturesDiff > 0 ? signaturesDiff : 0;
+  const remainingSignatures = Math.max(Number(pubkey.value.threshold) - signatures.length, 0);
   if (!remainingSignatures) return null;
 
   return (
