@@ -1,3 +1,4 @@
+import { assert } from "@cosmjs/utils";
 import { useAppContext } from "../../../context/AppContext";
 import { printableCoin } from "../../../lib/displayHelpers";
 import { TxMsgRedelegate } from "../../../types/txMsg";
@@ -9,6 +10,7 @@ interface TxMsgRedelegateDetailsProps {
 
 const TxMsgRedelegateDetails = ({ msg }: TxMsgRedelegateDetailsProps) => {
   const { state } = useAppContext();
+  assert(msg.value.amount, "Amount must be set, same as https://github.com/osmosis-labs/telescope/issues/386");
 
   return (
     <>

@@ -1,4 +1,7 @@
-import { Coin, MsgTransferEncodeObject } from "@cosmjs/stargate";
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import { MsgSetWithdrawAddress, MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
+import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
+import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 
 export type MsgType =
@@ -23,71 +26,40 @@ export type TxMsg =
 
 export interface TxMsgSend {
   readonly typeUrl: "/cosmos.bank.v1beta1.MsgSend";
-  readonly value: {
-    readonly fromAddress: string;
-    readonly toAddress: string;
-    readonly amount: readonly Readonly<Coin>[];
-  };
+  readonly value: MsgSend;
 }
 
 export interface TxMsgDelegate {
   readonly typeUrl: "/cosmos.staking.v1beta1.MsgDelegate";
-  readonly value: {
-    readonly delegatorAddress: string;
-    readonly validatorAddress: string;
-    readonly amount: Readonly<Coin>;
-  };
+  readonly value: MsgDelegate;
 }
 
 export interface TxMsgUndelegate {
   readonly typeUrl: "/cosmos.staking.v1beta1.MsgUndelegate";
-  readonly value: {
-    readonly delegatorAddress: string;
-    readonly validatorAddress: string;
-    readonly amount: Readonly<Coin>;
-  };
+  readonly value: MsgUndelegate;
 }
 
 export interface TxMsgRedelegate {
   readonly typeUrl: "/cosmos.staking.v1beta1.MsgBeginRedelegate";
-  readonly value: {
-    readonly delegatorAddress: string;
-    readonly validatorSrcAddress: string;
-    readonly validatorDstAddress: string;
-    readonly amount: Readonly<Coin>;
-  };
+  readonly value: MsgBeginRedelegate;
 }
 
 export interface TxMsgClaimRewards {
   readonly typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward";
-  readonly value: {
-    readonly delegatorAddress: string;
-    readonly validatorAddress: string;
-  };
+  readonly value: MsgWithdrawDelegatorReward;
 }
 
 export interface TxMsgSetWithdrawAddress {
   readonly typeUrl: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress";
-  readonly value: {
-    readonly delegatorAddress: string;
-    readonly withdrawAddress: string;
-  };
+  readonly value: MsgSetWithdrawAddress;
 }
 
 export interface TxMsgCreateVestingAccount {
   readonly typeUrl: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount";
-  readonly value: {
-    readonly fromAddress: string;
-    readonly toAddress: string;
-    readonly amount: readonly Readonly<Coin>[];
-    readonly endTime: Long;
-    readonly delayed: boolean;
-  };
+  readonly value: MsgCreateVestingAccount;
 }
 
-type OmmitedMsgTransfer = Omit<MsgTransfer, "timeoutHeight">;
-type MsgTransferRequiredToken = OmmitedMsgTransfer & Required<Pick<OmmitedMsgTransfer, "token">>;
-
-export interface TxMsgTransfer extends MsgTransferEncodeObject {
-  readonly value: Readonly<MsgTransferRequiredToken>;
+export interface TxMsgTransfer {
+  readonly typeUrl: "/ibc.applications.transfer.v1.MsgTransfer";
+  readonly value: MsgTransfer;
 }
