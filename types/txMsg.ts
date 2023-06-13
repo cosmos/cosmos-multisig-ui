@@ -85,12 +85,9 @@ export interface TxMsgCreateVestingAccount {
   };
 }
 
-type OmmitedMsgTransfer = Omit<MsgTransfer, "timeoutHeight" | "memo">;
+type OmmitedMsgTransfer = Omit<MsgTransfer, "timeoutHeight">;
 type MsgTransferRequiredToken = OmmitedMsgTransfer & Required<Pick<OmmitedMsgTransfer, "token">>;
-interface MsgTransferOptionalMemo extends MsgTransferRequiredToken {
-  readonly memo?: string;
-}
 
 export interface TxMsgTransfer extends MsgTransferEncodeObject {
-  readonly value: Readonly<MsgTransferOptionalMemo>;
+  readonly value: Readonly<MsgTransferRequiredToken>;
 }
