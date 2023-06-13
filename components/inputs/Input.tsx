@@ -1,20 +1,12 @@
-interface Props {
+import { DetailedHTMLProps, InputHTMLAttributes } from "react";
+
+interface InputProps
+  extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   label?: string;
-  type?: string;
-  list?: string;
-  name?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  value: number | string | undefined;
-  min?: string | number | undefined;
-  checked?: boolean;
-  onBlur?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  disabled?: boolean;
   error?: string;
-  placeholder?: string;
-  width?: string;
 }
 
-const Input = (props: Props) => (
+const Input = (props: InputProps) => (
   <div className="text-input">
     <label>{props.label || ""}</label>
     <input
@@ -22,6 +14,7 @@ const Input = (props: Props) => (
       list={props.list}
       name={props.name || "text-input"}
       onChange={props.onChange}
+      onFocus={props.onFocus}
       value={props.value}
       checked={props.checked}
       min={props.type === "datetime-local" ? props.min : undefined}
