@@ -7,6 +7,7 @@ import {
   isTxMsgRedelegate,
   isTxMsgSend,
   isTxMsgSetWithdrawAddress,
+  isTxMsgTransfer,
   isTxMsgUndelegate,
 } from "../../../lib/txMsgHelpers";
 import { DbTransaction } from "../../../types";
@@ -17,6 +18,7 @@ import TxMsgDelegateDetails from "./TxMsgDelegateDetails";
 import TxMsgRedelegateDetails from "./TxMsgRedelegateDetails";
 import TxMsgSendDetails from "./TxMsgSendDetails";
 import TxMsgSetWithdrawAddressDetails from "./TxMsgSetWithdrawAddressDetails";
+import TxMsgTransferDetails from "./TxMsgTransferDetails";
 import TxMsgUndelegateDetails from "./TxMsgUndelegateDetails";
 
 interface Props {
@@ -58,12 +60,9 @@ const TransactionInfo = ({ tx }: Props) => {
                 {isTxMsgUndelegate(msg) ? <TxMsgUndelegateDetails msg={msg} /> : null}
                 {isTxMsgRedelegate(msg) ? <TxMsgRedelegateDetails msg={msg} /> : null}
                 {isTxMsgClaimRewards(msg) ? <TxMsgClaimRewardsDetails msg={msg} /> : null}
-                {isTxMsgSetWithdrawAddress(msg) ? (
-                  <TxMsgSetWithdrawAddressDetails msg={msg} />
-                ) : null}
-                {isTxMsgCreateVestingAccount(msg) ? (
-                  <TxMsgCreateVestingAccountDetails msg={msg} />
-                ) : null}
+                {isTxMsgSetWithdrawAddress(msg) ? (<TxMsgSetWithdrawAddressDetails msg={msg} />) : null}
+                {isTxMsgCreateVestingAccount(msg) ? (<TxMsgCreateVestingAccountDetails msg={msg} />) : null}
+                {isTxMsgTransfer(msg) ? <TxMsgTransferDetails msg={msg} /> : null}
               </StackableContainer>
             ))}
           </StackableContainer>

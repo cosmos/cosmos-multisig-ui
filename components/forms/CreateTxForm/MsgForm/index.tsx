@@ -6,6 +6,7 @@ import MsgDelegateForm from "./MsgDelegateForm";
 import MsgRedelegateForm from "./MsgRedelegateForm";
 import MsgSendForm from "./MsgSendForm";
 import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
+import MsgTransferForm from "./MsgTransferForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
 
 interface MsgFormProps {
@@ -31,6 +32,8 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgSetWithdrawAddressForm delegatorAddress={senderAddress} {...restProps} />;
     case "createVestingAccount":
       return <MsgCreateVestingAccountForm fromAddress={senderAddress} {...restProps} />;
+    case "msgTransfer":
+      return <MsgTransferForm fromAddress={senderAddress} {...restProps} />;
     default:
       return null;
   }
