@@ -1,3 +1,4 @@
+import { assert } from "@cosmjs/utils";
 import { thinSpace } from "../../../lib/displayHelpers";
 import { TxMsgTransfer } from "../../../types/txMsg";
 import HashView from "../HashView";
@@ -7,6 +8,7 @@ interface TxMsgTransferDetailsProps {
 }
 
 const TxMsgTransferDetails = ({ msg }: TxMsgTransferDetailsProps) => {
+  assert(msg.value.token, "Token must be set, same as https://github.com/osmosis-labs/telescope/issues/386");
   const timeoutDateObj = new Date(msg.value.timeoutTimestamp.divide(1_000_000).toNumber());
   const timeoutDate = timeoutDateObj.toLocaleDateString();
   const timeoutTime = timeoutDateObj.toLocaleTimeString();
