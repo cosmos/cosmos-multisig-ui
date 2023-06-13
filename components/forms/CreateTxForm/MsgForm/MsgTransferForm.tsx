@@ -194,6 +194,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
           placeholder="Enter timestamp in nanoseconds or select from list"
           value={timeout}
           onChange={({ target }) => setTimeout(target.value)}
+          onFocus={() => setTimeout("")}
           error={timeoutError}
         />
         <datalist id="timestamp-options">
