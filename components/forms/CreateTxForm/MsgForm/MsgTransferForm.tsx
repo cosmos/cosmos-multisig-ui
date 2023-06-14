@@ -75,7 +75,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
         return false;
       }
 
-      const addressErrorMsg = checkAddress(toAddress, ""); // Allow address from any chain
+      const addressErrorMsg = checkAddress(toAddress, null); // Allow address from any chain
       if (addressErrorMsg) {
         setToAddressError(`Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`);
         return false;

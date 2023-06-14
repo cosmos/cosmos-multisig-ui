@@ -117,10 +117,11 @@ function examplePubkey(index: number): string {
 
 /**
  * Returns an error message for invalid addresses.
- *
  * Returns null of there is no error.
+ *
+ * If `chainAddressPrefix` is null, the prefix check will be skipped.
  */
-const checkAddress = (input: string, chainAddressPrefix: string) => {
+const checkAddress = (input: string, chainAddressPrefix: string | null) => {
   if (!input) return "Empty";
 
   let data;
@@ -132,12 +133,16 @@ const checkAddress = (input: string, chainAddressPrefix: string) => {
     return error.toString();
   }
 
-  if (!prefix.startsWith(chainAddressPrefix)) {
-    return `Expected address prefix '${chainAddressPrefix}' but got '${prefix}'`;
+  if (chainAddressPrefix) {
+    if (!prefix.startsWith(chainAddressPrefix)) {
+      return `Expected address prefix '${chainAddressPrefix}' but got '${prefix}'`;
+    }
+  } else {
+    // any prefix is allowed
   }
 
-  if (data.length !== 20) {
-    return "Invalid address length in bech32 data. Must be 20 bytes.";
+  if (data.length !== 20 && data.length !== 32) {
+    return "Invalid address length in bech32 data. Expected 20 or 32 bytes.";
   }
 
   return null;
