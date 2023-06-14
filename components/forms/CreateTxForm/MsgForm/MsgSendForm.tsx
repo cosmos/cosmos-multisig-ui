@@ -1,11 +1,12 @@
 import { Decimal } from "@cosmjs/math";
+import { MsgSendEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { isTxMsgSend } from "../../../../lib/txMsgHelpers";
-import { TxMsg, TxMsgSend } from "../../../../types/txMsg";
+import { MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -32,7 +33,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
       setToAddressError("");
       setAmountError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgSend => {
+      const isMsgValid = (): boolean => {
         assert(state.chain.addressPrefix, "addressPrefix missing");
 
         const addressErrorMsg = checkAddress(toAddress, state.chain.addressPrefix);
@@ -48,21 +49,20 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
           return false;
         }
 
-        return isTxMsgSend(msg);
+        return true;
       };
 
       const amountInAtomics = amount
         ? Decimal.fromUserInput(amount, Number(state.chain.displayDenomExponent)).atomics
         : "0";
 
-      const msg: TxMsgSend = {
-        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-        value: {
-          fromAddress,
-          toAddress,
-          amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
-        },
+      const msgValue: MsgSend = {
+        fromAddress,
+        toAddress,
+        amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
       };
+
+      const msg: MsgSendEncodeObject = { typeUrl: MsgTypeUrls.Send, value: msgValue };
 
       setMsgGetter({ isMsgValid, msg });
     } catch {}

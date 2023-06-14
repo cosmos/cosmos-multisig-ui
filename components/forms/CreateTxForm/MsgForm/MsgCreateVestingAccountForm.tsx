@@ -1,12 +1,13 @@
 import { Decimal } from "@cosmjs/math";
+import { EncodeObject } from "@cosmjs/proto-signing";
 import { assert } from "@cosmjs/utils";
+import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { timestampFromDatetimeLocal } from "../../../../lib/dateHelpers";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { isTxMsgCreateVestingAccount } from "../../../../lib/txMsgHelpers";
-import { TxMsg, TxMsgCreateVestingAccount } from "../../../../types/txMsg";
+import { MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -66,7 +67,7 @@ const MsgCreateVestingAccountForm = ({
       setAmountError("");
       setEndTimeError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgCreateVestingAccount => {
+      const isMsgValid = (): boolean => {
         assert(state.chain.addressPrefix, "addressPrefix missing");
 
         const addressErrorMsg = checkAddress(toAddress, state.chain.addressPrefix);
@@ -87,23 +88,22 @@ const MsgCreateVestingAccountForm = ({
           return false;
         }
 
-        return isTxMsgCreateVestingAccount(msg);
+        return true;
       };
 
       const amountInAtomics = amount
         ? Decimal.fromUserInput(amount, Number(state.chain.displayDenomExponent)).atomics
         : "0";
 
-      const msg: TxMsgCreateVestingAccount = {
-        typeUrl: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount",
-        value: {
-          fromAddress,
-          toAddress,
-          amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
-          endTime: timestampFromDatetimeLocal(endTime),
-          delayed,
-        },
+      const msgValue: MsgCreateVestingAccount = {
+        fromAddress,
+        toAddress,
+        amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
+        endTime: timestampFromDatetimeLocal(endTime),
+        delayed,
       };
+
+      const msg: EncodeObject = { typeUrl: MsgTypeUrls.CreateVestingAccount, value: msgValue };
 
       setMsgGetter({ isMsgValid, msg });
     } catch {}

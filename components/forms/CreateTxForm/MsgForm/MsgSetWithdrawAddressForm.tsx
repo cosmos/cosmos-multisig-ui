@@ -1,10 +1,11 @@
+import { EncodeObject } from "@cosmjs/proto-signing";
 import { assert } from "@cosmjs/utils";
+import { MsgSetWithdrawAddress } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { isTxMsgSetWithdrawAddress } from "../../../../lib/txMsgHelpers";
-import { TxMsg, TxMsgSetWithdrawAddress } from "../../../../types/txMsg";
+import { MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -29,7 +30,7 @@ const MsgSetWithdrawAddressForm = ({
     try {
       setWithdrawAddressError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgSetWithdrawAddress => {
+      const isMsgValid = (): boolean => {
         assert(state.chain.addressPrefix, "addressPrefix missing");
 
         const addressErrorMsg = checkAddress(withdrawAddress, state.chain.addressPrefix);
@@ -40,13 +41,11 @@ const MsgSetWithdrawAddressForm = ({
           return false;
         }
 
-        return isTxMsgSetWithdrawAddress(msg);
+        return true;
       };
 
-      const msg: TxMsgSetWithdrawAddress = {
-        typeUrl: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
-        value: { delegatorAddress, withdrawAddress },
-      };
+      const msgValue: MsgSetWithdrawAddress = { delegatorAddress, withdrawAddress };
+      const msg: EncodeObject = { typeUrl: MsgTypeUrls.SetWithdrawAddress, value: msgValue };
 
       setMsgGetter({ isMsgValid, msg });
     } catch {}

@@ -1,5 +1,5 @@
 import { MsgGetter } from "..";
-import { MsgType } from "../../../../types/txMsg";
+import { MsgTypeUrl, MsgTypeUrls } from "../../../../types/txMsg";
 import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
 import MsgCreateVestingAccountForm from "./MsgCreateVestingAccountForm";
 import MsgDelegateForm from "./MsgDelegateForm";
@@ -10,7 +10,7 @@ import MsgTransferForm from "./MsgTransferForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
 
 interface MsgFormProps {
-  readonly msgType: MsgType;
+  readonly msgType: MsgTypeUrl;
   readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
@@ -18,21 +18,21 @@ interface MsgFormProps {
 
 const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
   switch (msgType) {
-    case "send":
+    case MsgTypeUrls.Send:
       return <MsgSendForm fromAddress={senderAddress} {...restProps} />;
-    case "delegate":
+    case MsgTypeUrls.Delegate:
       return <MsgDelegateForm delegatorAddress={senderAddress} {...restProps} />;
-    case "undelegate":
+    case MsgTypeUrls.Undelegate:
       return <MsgUndelegateForm delegatorAddress={senderAddress} {...restProps} />;
-    case "redelegate":
+    case MsgTypeUrls.BeginRedelegate:
       return <MsgRedelegateForm delegatorAddress={senderAddress} {...restProps} />;
-    case "claimRewards":
+    case MsgTypeUrls.WithdrawDelegatorReward:
       return <MsgClaimRewardsForm delegatorAddress={senderAddress} {...restProps} />;
-    case "setWithdrawAddress":
+    case MsgTypeUrls.SetWithdrawAddress:
       return <MsgSetWithdrawAddressForm delegatorAddress={senderAddress} {...restProps} />;
-    case "createVestingAccount":
+    case MsgTypeUrls.CreateVestingAccount:
       return <MsgCreateVestingAccountForm fromAddress={senderAddress} {...restProps} />;
-    case "msgTransfer":
+    case MsgTypeUrls.Transfer:
       return <MsgTransferForm fromAddress={senderAddress} {...restProps} />;
     default:
       return null;
