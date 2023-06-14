@@ -1,19 +1,21 @@
+import { EncodeObject } from "@cosmjs/proto-signing";
 import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import axios from "axios";
 import { NextRouter, withRouter } from "next/router";
 import { useRef, useState } from "react";
 import { useAppContext } from "../../../context/AppContext";
-import { gasOfTx } from "../../../lib/txMsgHelpers";
-import { MsgType, TxMsg } from "../../../types/txMsg";
+import { exportMsgToJson, gasOfTx } from "../../../lib/txMsgHelpers";
+import { DbTransaction } from "../../../types";
+import { MsgTypeUrl, MsgTypeUrls } from "../../../types/txMsg";
 import Button from "../../inputs/Button";
 import Input from "../../inputs/Input";
 import StackableContainer from "../../layout/StackableContainer";
 import MsgForm from "./MsgForm";
 
 export interface MsgGetter {
-  readonly isMsgValid: (msg: TxMsg) => msg is TxMsg;
-  readonly msg: TxMsg;
+  readonly isMsgValid: () => boolean;
+  readonly msg: EncodeObject;
 }
 
 interface CreateTxFormProps {
@@ -26,7 +28,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   const { state } = useAppContext();
 
   const [processing, setProcessing] = useState(false);
-  const [msgTypes, setMsgTypes] = useState<readonly MsgType[]>([]);
+  const [msgTypes, setMsgTypes] = useState<readonly MsgTypeUrl[]>([]);
   const [msgKeys, setMsgKeys] = useState<readonly string[]>([]);
   const msgGetters = useRef<MsgGetter[]>([]);
   const [memo, setMemo] = useState("");
@@ -36,7 +38,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   const gasPrice = state.chain.gasPrice;
   assert(gasPrice, "gasPrice missing");
 
-  const addMsgType = (newMsgType: MsgType) => {
+  const addMsgType = (newMsgType: MsgTypeUrl) => {
     setMsgKeys((oldMsgKeys) => [...oldMsgKeys, crypto.randomUUID()]);
     setMsgTypes((oldMsgTypes) => {
       const newMsgTypes = [...oldMsgTypes, newMsgType];
@@ -49,10 +51,11 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
     try {
       assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
       assert(msgGetters.current.length, "form filled incorrectly");
+      assert(state.chain.chainId, "chainId missing");
 
       const msgs = msgGetters.current
-        .filter(({ isMsgValid, msg }) => isMsgValid(msg))
-        .map(({ msg }) => msg);
+        .filter(({ isMsgValid }) => isMsgValid())
+        .map(({ msg }) => exportMsgToJson(msg));
 
       if (!msgs.length || msgs.length !== msgTypes.length) return;
 
@@ -63,7 +66,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
 
       setProcessing(true);
 
-      const tx = {
+      const tx: DbTransaction = {
         accountNumber: accountOnChain.accountNumber,
         sequence: accountOnChain.sequence,
         chainId: state.chain.chainId,
@@ -108,7 +111,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
               ...oldMsgKeys.slice(index + 1),
             ]);
             setMsgTypes((oldMsgTypes) => {
-              const newMsgTypes: MsgType[] = oldMsgTypes.slice();
+              const newMsgTypes: MsgTypeUrl[] = oldMsgTypes.slice();
               newMsgTypes.splice(index, 1);
               setGasLimit(gasOfTx(newMsgTypes));
               return newMsgTypes;
@@ -143,20 +146,26 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         />
       </div>
       <StackableContainer>
-        <Button label="Add MsgSend" onClick={() => addMsgType("send")} />
-        <Button label="Add MsgDelegate" onClick={() => addMsgType("delegate")} />
-        <Button label="Add MsgUndelegate" onClick={() => addMsgType("undelegate")} />
-        <Button label="Add MsgBeginRedelegate" onClick={() => addMsgType("redelegate")} />
-        <Button label="Add MsgWithdrawDelegatorReward" onClick={() => addMsgType("claimRewards")} />
+        <Button label="Add MsgSend" onClick={() => addMsgType(MsgTypeUrls.Send)} />
+        <Button label="Add MsgDelegate" onClick={() => addMsgType(MsgTypeUrls.Delegate)} />
+        <Button label="Add MsgUndelegate" onClick={() => addMsgType(MsgTypeUrls.Undelegate)} />
+        <Button
+          label="Add MsgBeginRedelegate"
+          onClick={() => addMsgType(MsgTypeUrls.BeginRedelegate)}
+        />
+        <Button
+          label="Add MsgWithdrawDelegatorReward"
+          onClick={() => addMsgType(MsgTypeUrls.WithdrawDelegatorReward)}
+        />
         <Button
           label="Add MsgSetWithdrawAddress"
-          onClick={() => addMsgType("setWithdrawAddress")}
+          onClick={() => addMsgType(MsgTypeUrls.SetWithdrawAddress)}
         />
         <Button
           label="Add MsgCreateVestingAccount"
-          onClick={() => addMsgType("createVestingAccount")}
+          onClick={() => addMsgType(MsgTypeUrls.CreateVestingAccount)}
         />
-        <Button label="Add MsgTransfer" onClick={() => addMsgType("msgTransfer")} />
+        <Button label="Add MsgTransfer" onClick={() => addMsgType(MsgTypeUrls.Transfer)} />
       </StackableContainer>
       <Button
         label="Create Transaction"
