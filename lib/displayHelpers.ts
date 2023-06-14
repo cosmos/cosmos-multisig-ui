@@ -141,8 +141,8 @@ const checkAddress = (input: string, chainAddressPrefix: string | null) => {
     // any prefix is allowed
   }
 
-  if (data.length !== 20) {
-    return "Invalid address length in bech32 data. Must be 20 bytes.";
+  if (data.length !== 20 && data.length !== 32) {
+    return "Invalid address length in bech32 data. Expected 20 or 32 bytes.";
   }
 
   return null;
