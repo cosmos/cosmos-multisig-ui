@@ -1,13 +1,13 @@
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import { useAppContext } from "../../../context/AppContext";
 import { printableCoins } from "../../../lib/displayHelpers";
-import { TxMsgSend } from "../../../types/txMsg";
 import HashView from "../HashView";
 
 interface TxMsgSendDetailsProps {
-  readonly msg: TxMsgSend;
+  readonly msgValue: MsgSend;
 }
 
-const TxMsgSendDetails = ({ msg }: TxMsgSendDetailsProps) => {
+const TxMsgSendDetails = ({ msgValue }: TxMsgSendDetailsProps) => {
   const { state } = useAppContext();
 
   return (
@@ -17,12 +17,12 @@ const TxMsgSendDetails = ({ msg }: TxMsgSendDetailsProps) => {
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoins(msg.value.amount, state.chain)}</div>
+        <div>{printableCoins(msgValue.amount, state.chain)}</div>
       </li>
       <li>
         <label>To:</label>
-        <div title={msg.value.toAddress}>
-          <HashView hash={msg.value.toAddress} />
+        <div title={msgValue.toAddress}>
+          <HashView hash={msgValue.toAddress} />
         </div>
       </li>
       <style jsx>{`

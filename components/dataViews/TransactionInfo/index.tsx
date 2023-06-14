@@ -1,16 +1,7 @@
 import { useAppContext } from "../../../context/AppContext";
 import { printableCoins } from "../../../lib/displayHelpers";
-import {
-  isTxMsgClaimRewards,
-  isTxMsgCreateVestingAccount,
-  isTxMsgDelegate,
-  isTxMsgRedelegate,
-  isTxMsgSend,
-  isTxMsgSetWithdrawAddress,
-  isTxMsgTransfer,
-  isTxMsgUndelegate,
-} from "../../../lib/txMsgHelpers";
 import { DbTransaction } from "../../../types";
+import { MsgTypeUrls } from "../../../types/txMsg";
 import StackableContainer from "../../layout/StackableContainer";
 import TxMsgClaimRewardsDetails from "./TxMsgClaimRewardsDetails";
 import TxMsgCreateVestingAccountDetails from "./TxMsgCreateVestingAccountDetails";
@@ -55,14 +46,30 @@ const TransactionInfo = ({ tx }: Props) => {
           <StackableContainer lessPadding lessMargin>
             {tx.msgs.map((msg, index) => (
               <StackableContainer key={index} lessPadding lessMargin>
-                {isTxMsgSend(msg) ? <TxMsgSendDetails msg={msg} /> : null}
-                {isTxMsgDelegate(msg) ? <TxMsgDelegateDetails msg={msg} /> : null}
-                {isTxMsgUndelegate(msg) ? <TxMsgUndelegateDetails msg={msg} /> : null}
-                {isTxMsgRedelegate(msg) ? <TxMsgRedelegateDetails msg={msg} /> : null}
-                {isTxMsgClaimRewards(msg) ? <TxMsgClaimRewardsDetails msg={msg} /> : null}
-                {isTxMsgSetWithdrawAddress(msg) ? (<TxMsgSetWithdrawAddressDetails msg={msg} />) : null}
-                {isTxMsgCreateVestingAccount(msg) ? (<TxMsgCreateVestingAccountDetails msg={msg} />) : null}
-                {isTxMsgTransfer(msg) ? <TxMsgTransferDetails msg={msg} /> : null}
+                {MsgTypeUrls.Send === msg.typeUrl ? (
+                  <TxMsgSendDetails msgValue={msg.value} />
+                ) : null}
+                {MsgTypeUrls.Delegate === msg.typeUrl ? (
+                  <TxMsgDelegateDetails msgValue={msg.value} />
+                ) : null}
+                {MsgTypeUrls.Undelegate === msg.typeUrl ? (
+                  <TxMsgUndelegateDetails msgValue={msg.value} />
+                ) : null}
+                {MsgTypeUrls.BeginRedelegate === msg.typeUrl ? (
+                  <TxMsgRedelegateDetails msgValue={msg.value} />
+                ) : null}
+                {MsgTypeUrls.WithdrawDelegatorReward === msg.typeUrl ? (
+                  <TxMsgClaimRewardsDetails msgValue={msg.value} />
+                ) : null}
+                {MsgTypeUrls.SetWithdrawAddress === msg.typeUrl ? (
+                  <TxMsgSetWithdrawAddressDetails msgValue={msg.value} />
+                ) : null}
+                {MsgTypeUrls.CreateVestingAccount === msg.typeUrl ? (
+                  <TxMsgCreateVestingAccountDetails msgValue={msg.value} />
+                ) : null}
+                {MsgTypeUrls.Transfer === msg.typeUrl ? (
+                  <TxMsgTransferDetails msgValue={msg.value} />
+                ) : null}
               </StackableContainer>
             ))}
           </StackableContainer>

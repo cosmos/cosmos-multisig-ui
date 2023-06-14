@@ -1,16 +1,19 @@
 import { assert } from "@cosmjs/utils";
+import { MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { useAppContext } from "../../../context/AppContext";
 import { printableCoin } from "../../../lib/displayHelpers";
-import { TxMsgUndelegate } from "../../../types/txMsg";
 import HashView from "../HashView";
 
 interface TxMsgUndelegateDetailsProps {
-  readonly msg: TxMsgUndelegate;
+  readonly msgValue: MsgUndelegate;
 }
 
-const TxMsgUndelegateDetails = ({ msg }: TxMsgUndelegateDetailsProps) => {
+const TxMsgUndelegateDetails = ({ msgValue: msg }: TxMsgUndelegateDetailsProps) => {
   const { state } = useAppContext();
-  assert(msg.value.amount, "Amount must be set, same as https://github.com/osmosis-labs/telescope/issues/386");
+  assert(
+    msg.amount,
+    "Amount must be set, same as https://github.com/osmosis-labs/telescope/issues/386",
+  );
 
   return (
     <>
@@ -19,12 +22,12 @@ const TxMsgUndelegateDetails = ({ msg }: TxMsgUndelegateDetailsProps) => {
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoin(msg.value.amount, state.chain)}</div>
+        <div>{printableCoin(msg.amount, state.chain)}</div>
       </li>
       <li>
         <label>Validator Address:</label>
-        <div title={msg.value.validatorAddress}>
-          <HashView hash={msg.value.validatorAddress} />
+        <div title={msg.validatorAddress}>
+          <HashView hash={msg.validatorAddress} />
         </div>
       </li>
       <style jsx>{`

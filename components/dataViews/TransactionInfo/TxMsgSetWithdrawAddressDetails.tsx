@@ -1,19 +1,19 @@
-import { TxMsgSetWithdrawAddress } from "../../../types/txMsg";
+import { MsgSetWithdrawAddress } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import HashView from "../HashView";
 
 interface TxMsgSetWithdrawAddressDetailsProps {
-  readonly msg: TxMsgSetWithdrawAddress;
+  readonly msgValue: MsgSetWithdrawAddress;
 }
 
-const TxMsgSetWithdrawAddressDetails = ({ msg }: TxMsgSetWithdrawAddressDetailsProps) => (
+const TxMsgSetWithdrawAddressDetails = ({ msgValue }: TxMsgSetWithdrawAddressDetailsProps) => (
   <>
     <li>
       <h3>MsgSetWithdrawAddress</h3>
     </li>
     <li>
       <label>Withdraw Address:</label>
-      <div title={msg.value.withdrawAddress}>
-        <HashView hash={msg.value.withdrawAddress} />
+      <div title={msgValue.withdrawAddress}>
+        <HashView hash={msgValue.withdrawAddress} />
       </div>
     </li>
     <style jsx>{`
