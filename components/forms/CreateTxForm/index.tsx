@@ -16,8 +16,6 @@ export interface MsgGetter {
   readonly msg: TxMsg;
 }
 
-const getMsgFormKey = (msgType: MsgType, msg: TxMsg) => JSON.stringify({ msgType, msg });
-
 interface CreateTxFormProps {
   readonly router: NextRouter;
   readonly senderAddress: string;
@@ -29,6 +27,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
 
   const [processing, setProcessing] = useState(false);
   const [msgTypes, setMsgTypes] = useState<readonly MsgType[]>([]);
+  const [msgKeys, setMsgKeys] = useState<string[]>([]);
   const msgGetters = useRef<MsgGetter[]>([]);
   const [memo, setMemo] = useState("");
   const [gasLimit, setGasLimit] = useState(gasOfTx([]));
@@ -38,6 +37,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   assert(gasPrice, "gasPrice missing");
 
   const addMsgType = (newMsgType: MsgType) => {
+    setMsgKeys((oldMsgKeys) => [...oldMsgKeys, crypto.randomUUID()]);
     setMsgTypes((oldMsgTypes) => {
       const newMsgTypes = [...oldMsgTypes, newMsgType];
       setGasLimit(gasOfTx(newMsgTypes));
@@ -91,7 +91,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
       <h2>Create New Transaction</h2>
       {msgTypes.map((msgType, index) => (
         <MsgForm
-          key={getMsgFormKey(msgType, msgGetters.current[index]?.msg ?? {})}
+          key={msgKeys[index]}
           msgType={msgType}
           senderAddress={senderAddress}
           setMsgGetter={(msgGetter) => {
@@ -103,6 +103,10 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           }}
           deleteMsg={() => {
             msgGetters.current.splice(index, 1);
+            setMsgKeys((oldMsgKeys) => [
+              ...oldMsgKeys.slice(0, index),
+              ...oldMsgKeys.slice(index + 1),
+            ]);
             setMsgTypes((oldMsgTypes) => {
               const newMsgTypes: MsgType[] = oldMsgTypes.slice();
               newMsgTypes.splice(index, 1);
