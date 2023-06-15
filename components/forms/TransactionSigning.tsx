@@ -155,8 +155,6 @@ const TransactionSigning = (props: Props) => {
         chainId: state.chain.chainId,
       };
 
-      console.log({ msgs: props.tx.msgs });
-
       const { bodyBytes, signatures } = await signingClient.sign(
         signerAddress,
         props.tx.msgs,
@@ -164,8 +162,6 @@ const TransactionSigning = (props: Props) => {
         props.tx.memo,
         signerData,
       );
-
-      console.log({ bodyBytes: toHex(bodyBytes) });
 
       // check existing signatures
       const bases64EncodedSignature = toBase64(signatures[0]);
