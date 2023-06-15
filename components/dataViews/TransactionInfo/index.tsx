@@ -1,16 +1,8 @@
+import { EncodeObject } from "@cosmjs/proto-signing";
 import { useAppContext } from "../../../context/AppContext";
 import { printableCoins } from "../../../lib/displayHelpers";
-import {
-  isTxMsgClaimRewards,
-  isTxMsgCreateVestingAccount,
-  isTxMsgDelegate,
-  isTxMsgRedelegate,
-  isTxMsgSend,
-  isTxMsgSetWithdrawAddress,
-  isTxMsgTransfer,
-  isTxMsgUndelegate,
-} from "../../../lib/txMsgHelpers";
 import { DbTransaction } from "../../../types";
+import { MsgTypeUrls } from "../../../types/txMsg";
 import StackableContainer from "../../layout/StackableContainer";
 import TxMsgClaimRewardsDetails from "./TxMsgClaimRewardsDetails";
 import TxMsgCreateVestingAccountDetails from "./TxMsgCreateVestingAccountDetails";
@@ -21,11 +13,34 @@ import TxMsgSetWithdrawAddressDetails from "./TxMsgSetWithdrawAddressDetails";
 import TxMsgTransferDetails from "./TxMsgTransferDetails";
 import TxMsgUndelegateDetails from "./TxMsgUndelegateDetails";
 
-interface Props {
+const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
+  switch (typeUrl) {
+    case MsgTypeUrls.Send:
+      return <TxMsgSendDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Delegate:
+      return <TxMsgDelegateDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Undelegate:
+      return <TxMsgUndelegateDetails msgValue={msgValue} />;
+    case MsgTypeUrls.BeginRedelegate:
+      return <TxMsgRedelegateDetails msgValue={msgValue} />;
+    case MsgTypeUrls.WithdrawDelegatorReward:
+      return <TxMsgClaimRewardsDetails msgValue={msgValue} />;
+    case MsgTypeUrls.SetWithdrawAddress:
+      return <TxMsgSetWithdrawAddressDetails msgValue={msgValue} />;
+    case MsgTypeUrls.CreateVestingAccount:
+      return <TxMsgCreateVestingAccountDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Transfer:
+      return <TxMsgTransferDetails msgValue={msgValue} />;
+    default:
+      return null;
+  }
+};
+
+interface TransactionInfoProps {
   readonly tx: DbTransaction;
 }
 
-const TransactionInfo = ({ tx }: Props) => {
+const TransactionInfo = ({ tx }: TransactionInfoProps) => {
   const { state } = useAppContext();
 
   return (
@@ -55,14 +70,7 @@ const TransactionInfo = ({ tx }: Props) => {
           <StackableContainer lessPadding lessMargin>
             {tx.msgs.map((msg, index) => (
               <StackableContainer key={index} lessPadding lessMargin>
-                {isTxMsgSend(msg) ? <TxMsgSendDetails msg={msg} /> : null}
-                {isTxMsgDelegate(msg) ? <TxMsgDelegateDetails msg={msg} /> : null}
-                {isTxMsgUndelegate(msg) ? <TxMsgUndelegateDetails msg={msg} /> : null}
-                {isTxMsgRedelegate(msg) ? <TxMsgRedelegateDetails msg={msg} /> : null}
-                {isTxMsgClaimRewards(msg) ? <TxMsgClaimRewardsDetails msg={msg} /> : null}
-                {isTxMsgSetWithdrawAddress(msg) ? (<TxMsgSetWithdrawAddressDetails msg={msg} />) : null}
-                {isTxMsgCreateVestingAccount(msg) ? (<TxMsgCreateVestingAccountDetails msg={msg} />) : null}
-                {isTxMsgTransfer(msg) ? <TxMsgTransferDetails msg={msg} /> : null}
+                <TxMsgDetails {...msg} />
               </StackableContainer>
             ))}
           </StackableContainer>

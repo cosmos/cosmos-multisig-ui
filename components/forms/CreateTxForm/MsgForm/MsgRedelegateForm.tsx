@@ -1,11 +1,11 @@
 import { Decimal } from "@cosmjs/math";
+import { EncodeObject } from "@cosmjs/proto-signing";
 import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { isTxMsgRedelegate } from "../../../../lib/txMsgHelpers";
-import { TxMsg, TxMsgRedelegate } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -39,7 +39,7 @@ const MsgRedelegateForm = ({
       setValidatorDstAddressError("");
       setAmountError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgRedelegate => {
+      const isMsgValid = (): boolean => {
         assert(state.chain.addressPrefix, "addressPrefix missing");
 
         const srcAddressErrorMsg = checkAddress(validatorSrcAddress, state.chain.addressPrefix);
@@ -63,7 +63,7 @@ const MsgRedelegateForm = ({
           return false;
         }
 
-        return isTxMsgRedelegate(msg);
+        return true;
       };
 
       const amountInAtomics = Decimal.fromUserInput(
@@ -71,15 +71,14 @@ const MsgRedelegateForm = ({
         Number(state.chain.displayDenomExponent),
       ).atomics;
 
-      const msg: TxMsgRedelegate = {
-        typeUrl: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
-        value: {
-          delegatorAddress,
-          validatorSrcAddress,
-          validatorDstAddress,
-          amount: { amount: amountInAtomics, denom: state.chain.denom },
-        },
-      };
+      const msgValue = MsgCodecs[MsgTypeUrls.BeginRedelegate].fromPartial({
+        delegatorAddress,
+        validatorSrcAddress,
+        validatorDstAddress,
+        amount: { amount: amountInAtomics, denom: state.chain.denom },
+      });
+
+      const msg: EncodeObject = { typeUrl: MsgTypeUrls.BeginRedelegate, value: msgValue };
 
       setMsgGetter({ isMsgValid, msg });
     } catch {}

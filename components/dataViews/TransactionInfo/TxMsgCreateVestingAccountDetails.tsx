@@ -1,15 +1,15 @@
+import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import { useAppContext } from "../../../context/AppContext";
 import { printableCoins } from "../../../lib/displayHelpers";
-import { TxMsgCreateVestingAccount } from "../../../types/txMsg";
 import HashView from "../HashView";
 
 interface TxMsgCreateVestingAccountDetailsProps {
-  readonly msg: TxMsgCreateVestingAccount;
+  readonly msgValue: MsgCreateVestingAccount;
 }
 
-const TxMsgCreateVestingAccountDetails = ({ msg }: TxMsgCreateVestingAccountDetailsProps) => {
+const TxMsgCreateVestingAccountDetails = ({ msgValue }: TxMsgCreateVestingAccountDetailsProps) => {
   const { state } = useAppContext();
-  const endTimeDateObj = new Date(msg.value.endTime.multiply(1000).toNumber());
+  const endTimeDateObj = new Date(msgValue.endTime.multiply(1000).toNumber());
   const endTimeDate = endTimeDateObj.toLocaleDateString();
   const endTimeHours = endTimeDateObj.toLocaleTimeString().slice(0, -3);
 
@@ -20,23 +20,23 @@ const TxMsgCreateVestingAccountDetails = ({ msg }: TxMsgCreateVestingAccountDeta
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoins(msg.value.amount, state.chain)}</div>
+        <div>{printableCoins(msgValue.amount, state.chain)}</div>
       </li>
       <li>
         <label>From:</label>
-        <div title={msg.value.fromAddress}>
-          <HashView hash={msg.value.fromAddress} />
+        <div title={msgValue.fromAddress}>
+          <HashView hash={msgValue.fromAddress} />
         </div>
       </li>
       <li>
         <label>To:</label>
-        <div title={msg.value.toAddress}>
-          <HashView hash={msg.value.toAddress} />
+        <div title={msgValue.toAddress}>
+          <HashView hash={msgValue.toAddress} />
         </div>
       </li>
       <li>
         <label>End time:</label>
-        <div title={String(msg.value.endTime)}>
+        <div title={String(msgValue.endTime)}>
           <p>
             {endTimeDate} {endTimeHours}
           </p>
@@ -44,8 +44,8 @@ const TxMsgCreateVestingAccountDetails = ({ msg }: TxMsgCreateVestingAccountDeta
       </li>
       <li>
         <label>Delayed:</label>
-        <div title={String(msg.value.endTime)}>
-          <p>{msg.value.delayed ? "Yes" : "No"}</p>
+        <div title={String(msgValue.endTime)}>
+          <p>{msgValue.delayed ? "Yes" : "No"}</p>
         </div>
       </li>
       <style jsx>{`

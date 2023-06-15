@@ -1,11 +1,11 @@
+import { MsgTransferEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import Long from "long";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { isTxMsgTransfer } from "../../../../lib/txMsgHelpers";
-import { TxMsg, TxMsgTransfer } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -54,7 +54,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
     setToAddressError("");
     setTimeoutError("");
 
-    const isMsgValid = (msg: TxMsg): msg is TxMsgTransfer => {
+    const isMsgValid = (): boolean => {
       if (!sourcePort) {
         setSourcePortError("Source port is required");
         return false;
@@ -89,7 +89,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
         setTimeoutError("Timeout must be a valid timestamp in the future");
       }
 
-      return isTxMsgTransfer(msg);
+      return true;
     };
 
     const timeoutTimestamp = (() => {
@@ -105,18 +105,17 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
       }
     })();
 
-    const msg: TxMsgTransfer = {
-      typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
-      value: {
-        sender: fromAddress,
-        receiver: toAddress,
-        token: { denom, amount },
-        sourcePort,
-        sourceChannel,
-        timeoutTimestamp,
-        memo,
-      },
-    };
+    const msgValue = MsgCodecs[MsgTypeUrls.Transfer].fromPartial({
+      sender: fromAddress,
+      receiver: toAddress,
+      token: { denom, amount },
+      sourcePort,
+      sourceChannel,
+      timeoutTimestamp,
+      memo,
+    });
+
+    const msg: MsgTransferEncodeObject = { typeUrl: MsgTypeUrls.Transfer, value: msgValue };
 
     setMsgGetter({ isMsgValid, msg });
   }, [

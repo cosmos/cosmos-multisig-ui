@@ -1,11 +1,11 @@
 import { Decimal } from "@cosmjs/math";
+import { MsgDelegateEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { isTxMsgDelegate } from "../../../../lib/txMsgHelpers";
-import { TxMsg, TxMsgDelegate } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -32,7 +32,7 @@ const MsgDelegateForm = ({ delegatorAddress, setMsgGetter, deleteMsg }: MsgDeleg
       setValidatorAddressError("");
       setAmountError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgDelegate => {
+      const isMsgValid = (): boolean => {
         assert(state.chain.addressPrefix, "addressPrefix missing");
 
         const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
@@ -48,7 +48,7 @@ const MsgDelegateForm = ({ delegatorAddress, setMsgGetter, deleteMsg }: MsgDeleg
           return false;
         }
 
-        return isTxMsgDelegate(msg);
+        return true;
       };
 
       const amountInAtomics = Decimal.fromUserInput(
@@ -56,14 +56,13 @@ const MsgDelegateForm = ({ delegatorAddress, setMsgGetter, deleteMsg }: MsgDeleg
         Number(state.chain.displayDenomExponent),
       ).atomics;
 
-      const msg: TxMsgDelegate = {
-        typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
-        value: {
-          delegatorAddress,
-          validatorAddress,
-          amount: { amount: amountInAtomics, denom: state.chain.denom },
-        },
-      };
+      const msgValue = MsgCodecs[MsgTypeUrls.Delegate].fromPartial({
+        delegatorAddress,
+        validatorAddress,
+        amount: { amount: amountInAtomics, denom: state.chain.denom },
+      });
+
+      const msg: MsgDelegateEncodeObject = { typeUrl: MsgTypeUrls.Delegate, value: msgValue };
 
       setMsgGetter({ isMsgValid, msg });
     } catch {}

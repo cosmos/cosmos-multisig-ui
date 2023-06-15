@@ -1,19 +1,19 @@
-import { TxMsgClaimRewards } from "../../../types/txMsg";
+import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import HashView from "../HashView";
 
 interface TxMsgClaimRewardsDetailsProps {
-  readonly msg: TxMsgClaimRewards;
+  readonly msgValue: MsgWithdrawDelegatorReward;
 }
 
-const TxMsgClaimRewardsDetails = ({ msg }: TxMsgClaimRewardsDetailsProps) => (
+const TxMsgClaimRewardsDetails = ({ msgValue }: TxMsgClaimRewardsDetailsProps) => (
   <>
     <li>
       <h3>MsgWithdrawDelegatorReward</h3>
     </li>
     <li>
       <label>Validator Address:</label>
-      <div title={msg.value.validatorAddress}>
-        <HashView hash={msg.value.validatorAddress} />
+      <div title={msgValue.validatorAddress}>
+        <HashView hash={msgValue.validatorAddress} />
       </div>
     </li>
     <style jsx>{`

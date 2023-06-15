@@ -1,11 +1,11 @@
 import { Decimal } from "@cosmjs/math";
+import { MsgUndelegateEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { isTxMsgUndelegate } from "../../../../lib/txMsgHelpers";
-import { TxMsg, TxMsgUndelegate } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -36,7 +36,7 @@ const MsgUndelegateForm = ({
       setValidatorAddressError("");
       setAmountError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgUndelegate => {
+      const isMsgValid = (): boolean => {
         assert(state.chain.addressPrefix, "addressPrefix missing");
 
         const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
@@ -52,7 +52,7 @@ const MsgUndelegateForm = ({
           return false;
         }
 
-        return isTxMsgUndelegate(msg);
+        return true;
       };
 
       const amountInAtomics = Decimal.fromUserInput(
@@ -60,14 +60,13 @@ const MsgUndelegateForm = ({
         Number(state.chain.displayDenomExponent),
       ).atomics;
 
-      const msg: TxMsgUndelegate = {
-        typeUrl: "/cosmos.staking.v1beta1.MsgUndelegate",
-        value: {
-          delegatorAddress,
-          validatorAddress,
-          amount: { amount: amountInAtomics, denom: state.chain.denom },
-        },
-      };
+      const msgValue = MsgCodecs[MsgTypeUrls.Undelegate].fromPartial({
+        delegatorAddress,
+        validatorAddress,
+        amount: { amount: amountInAtomics, denom: state.chain.denom },
+      });
+
+      const msg: MsgUndelegateEncodeObject = { typeUrl: MsgTypeUrls.Undelegate, value: msgValue };
 
       setMsgGetter({ isMsgValid, msg });
     } catch {}

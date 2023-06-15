@@ -1,65 +1,36 @@
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import { MsgSetWithdrawAddress, MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
-import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
+import {
+  MsgSetWithdrawAddress,
+  MsgWithdrawDelegatorReward,
+} from "cosmjs-types/cosmos/distribution/v1beta1/tx";
+import {
+  MsgBeginRedelegate,
+  MsgDelegate,
+  MsgUndelegate,
+} from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 
-export type MsgType =
-  | "send"
-  | "delegate"
-  | "undelegate"
-  | "redelegate"
-  | "claimRewards"
-  | "setWithdrawAddress"
-  | "createVestingAccount"
-  | "msgTransfer";
+export const MsgTypeUrls = {
+  Send: "/cosmos.bank.v1beta1.MsgSend",
+  SetWithdrawAddress: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
+  WithdrawDelegatorReward: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+  BeginRedelegate: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
+  Delegate: "/cosmos.staking.v1beta1.MsgDelegate",
+  Undelegate: "/cosmos.staking.v1beta1.MsgUndelegate",
+  CreateVestingAccount: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount",
+  Transfer: "/ibc.applications.transfer.v1.MsgTransfer",
+} as const;
 
-export type TxMsg =
-  | TxMsgSend
-  | TxMsgDelegate
-  | TxMsgUndelegate
-  | TxMsgRedelegate
-  | TxMsgClaimRewards
-  | TxMsgSetWithdrawAddress
-  | TxMsgCreateVestingAccount
-  | TxMsgTransfer;
+export type MsgTypeUrl = (typeof MsgTypeUrls)[keyof typeof MsgTypeUrls];
 
-export interface TxMsgSend {
-  readonly typeUrl: "/cosmos.bank.v1beta1.MsgSend";
-  readonly value: MsgSend;
-}
-
-export interface TxMsgDelegate {
-  readonly typeUrl: "/cosmos.staking.v1beta1.MsgDelegate";
-  readonly value: MsgDelegate;
-}
-
-export interface TxMsgUndelegate {
-  readonly typeUrl: "/cosmos.staking.v1beta1.MsgUndelegate";
-  readonly value: MsgUndelegate;
-}
-
-export interface TxMsgRedelegate {
-  readonly typeUrl: "/cosmos.staking.v1beta1.MsgBeginRedelegate";
-  readonly value: MsgBeginRedelegate;
-}
-
-export interface TxMsgClaimRewards {
-  readonly typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward";
-  readonly value: MsgWithdrawDelegatorReward;
-}
-
-export interface TxMsgSetWithdrawAddress {
-  readonly typeUrl: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress";
-  readonly value: MsgSetWithdrawAddress;
-}
-
-export interface TxMsgCreateVestingAccount {
-  readonly typeUrl: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount";
-  readonly value: MsgCreateVestingAccount;
-}
-
-export interface TxMsgTransfer {
-  readonly typeUrl: "/ibc.applications.transfer.v1.MsgTransfer";
-  readonly value: MsgTransfer;
-}
+export const MsgCodecs = {
+  [MsgTypeUrls.Send]: MsgSend,
+  [MsgTypeUrls.SetWithdrawAddress]: MsgSetWithdrawAddress,
+  [MsgTypeUrls.WithdrawDelegatorReward]: MsgWithdrawDelegatorReward,
+  [MsgTypeUrls.BeginRedelegate]: MsgBeginRedelegate,
+  [MsgTypeUrls.Delegate]: MsgDelegate,
+  [MsgTypeUrls.Undelegate]: MsgUndelegate,
+  [MsgTypeUrls.CreateVestingAccount]: MsgCreateVestingAccount,
+  [MsgTypeUrls.Transfer]: MsgTransfer,
+};

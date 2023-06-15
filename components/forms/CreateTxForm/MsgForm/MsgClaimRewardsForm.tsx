@@ -1,10 +1,10 @@
+import { MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { isTxMsgClaimRewards } from "../../../../lib/txMsgHelpers";
-import { TxMsg, TxMsgClaimRewards } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -29,7 +29,7 @@ const MsgClaimRewardsForm = ({
     try {
       setValidatorAddressError("");
 
-      const isMsgValid = (msg: TxMsg): msg is TxMsgClaimRewards => {
+      const isMsgValid = (): boolean => {
         assert(state.chain.addressPrefix, "addressPrefix missing");
 
         const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
@@ -40,12 +40,17 @@ const MsgClaimRewardsForm = ({
           return false;
         }
 
-        return isTxMsgClaimRewards(msg);
+        return true;
       };
 
-      const msg: TxMsgClaimRewards = {
-        typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
-        value: { delegatorAddress, validatorAddress },
+      const msgValue = MsgCodecs[MsgTypeUrls.WithdrawDelegatorReward].fromPartial({
+        delegatorAddress,
+        validatorAddress,
+      });
+
+      const msg: MsgWithdrawDelegatorRewardEncodeObject = {
+        typeUrl: MsgTypeUrls.WithdrawDelegatorReward,
+        value: msgValue,
       };
 
       setMsgGetter({ isMsgValid, msg });

@@ -1,15 +1,18 @@
 import { assert } from "@cosmjs/utils";
+import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { thinSpace } from "../../../lib/displayHelpers";
-import { TxMsgTransfer } from "../../../types/txMsg";
 import HashView from "../HashView";
 
 interface TxMsgTransferDetailsProps {
-  readonly msg: TxMsgTransfer;
+  readonly msgValue: MsgTransfer;
 }
 
-const TxMsgTransferDetails = ({ msg }: TxMsgTransferDetailsProps) => {
-  assert(msg.value.token, "Token must be set, same as https://github.com/osmosis-labs/telescope/issues/386");
-  const timeoutDateObj = new Date(msg.value.timeoutTimestamp.divide(1_000_000).toNumber());
+const TxMsgTransferDetails = ({ msgValue }: TxMsgTransferDetailsProps) => {
+  assert(
+    msgValue.token,
+    "Token must be set, same as https://github.com/osmosis-labs/telescope/issues/386",
+  );
+  const timeoutDateObj = new Date(msgValue.timeoutTimestamp.divide(1_000_000).toNumber());
   const timeoutDate = timeoutDateObj.toLocaleDateString();
   const timeoutTime = timeoutDateObj.toLocaleTimeString();
 
@@ -20,20 +23,20 @@ const TxMsgTransferDetails = ({ msg }: TxMsgTransferDetailsProps) => {
       </li>
       <li>
         <label>Source Port:</label>
-        <div>{msg.value.sourcePort}</div>
+        <div>{msgValue.sourcePort}</div>
       </li>
       <li>
         <label>Source Channel:</label>
-        <div>{msg.value.sourceChannel}</div>
+        <div>{msgValue.sourceChannel}</div>
       </li>
       <li>
         <label>Token:</label>
-        <div>{msg.value.token.amount + thinSpace + msg.value.token.denom}</div>
+        <div>{msgValue.token.amount + thinSpace + msgValue.token.denom}</div>
       </li>
       <li>
         <label>To:</label>
-        <div title={msg.value.receiver}>
-          <HashView hash={msg.value.receiver} />
+        <div title={msgValue.receiver}>
+          <HashView hash={msgValue.receiver} />
         </div>
       </li>
       <li>
@@ -44,7 +47,7 @@ const TxMsgTransferDetails = ({ msg }: TxMsgTransferDetailsProps) => {
       </li>
       <li>
         <label>Memo:</label>
-        <div>{msg.value.memo}</div>
+        <div>{msgValue.memo}</div>
       </li>
       <style jsx>{`
         li:not(:has(h3)) {

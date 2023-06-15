@@ -1,16 +1,19 @@
 import { assert } from "@cosmjs/utils";
+import { MsgDelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { useAppContext } from "../../../context/AppContext";
 import { printableCoin } from "../../../lib/displayHelpers";
-import { TxMsgDelegate } from "../../../types/txMsg";
 import HashView from "../HashView";
 
 interface TxMsgDelegateDetailsProps {
-  readonly msg: TxMsgDelegate;
+  readonly msgValue: MsgDelegate;
 }
 
-const TxMsgDelegateDetails = ({ msg }: TxMsgDelegateDetailsProps) => {
+const TxMsgDelegateDetails = ({ msgValue }: TxMsgDelegateDetailsProps) => {
   const { state } = useAppContext();
-  assert(msg.value.amount, "Amount must be set, see https://github.com/osmosis-labs/telescope/issues/386");
+  assert(
+    msgValue.amount,
+    "Amount must be set, see https://github.com/osmosis-labs/telescope/issues/386",
+  );
 
   return (
     <>
@@ -19,12 +22,12 @@ const TxMsgDelegateDetails = ({ msg }: TxMsgDelegateDetailsProps) => {
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoin(msg.value.amount, state.chain)}</div>
+        <div>{printableCoin(msgValue.amount, state.chain)}</div>
       </li>
       <li>
         <label>Validator Address:</label>
-        <div title={msg.value.validatorAddress}>
-          <HashView hash={msg.value.validatorAddress} />
+        <div title={msgValue.validatorAddress}>
+          <HashView hash={msgValue.validatorAddress} />
         </div>
       </li>
       <style jsx>{`
