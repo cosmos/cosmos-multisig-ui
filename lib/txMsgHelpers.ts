@@ -39,7 +39,7 @@ export const exportMsgToJson = (msg: EncodeObject): EncodeObject => {
     return { ...msg, value: MsgCodecs[msg.typeUrl].toJSON(msg.value) };
   }
 
-  return msg;
+  throw new Error("Unknown msg type");
 };
 
 const importMsgFromJson = (msg: EncodeObject): EncodeObject => {
@@ -48,7 +48,7 @@ const importMsgFromJson = (msg: EncodeObject): EncodeObject => {
     return { ...msg, value: parsedValue };
   }
 
-  return msg;
+  throw new Error("Unknown msg type");
 };
 
 export const dbTxFromJson = (txJson: string): DbTransaction | null => {
