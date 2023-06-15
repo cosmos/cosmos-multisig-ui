@@ -22,7 +22,7 @@ export const timestampFromDatetimeLocal = (
     case "s":
       return timestampMillis.divide(1000); // seconds
     case "ns":
-      return timestampMillis.divide(1000_000); // nanoseconds
+      return timestampMillis.multiply(1000_000); // nanoseconds
     default:
       return timestampMillis; // milliseconds
   }
