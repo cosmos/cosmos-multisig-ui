@@ -1,12 +1,11 @@
 import { MsgTransferEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import Long from "long";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { MsgTypeUrls } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -106,7 +105,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
       }
     })();
 
-    const msgValue: MsgTransfer = {
+    const msgValue = MsgCodecs[MsgTypeUrls.Transfer].fromPartial({
       sender: fromAddress,
       receiver: toAddress,
       token: { denom, amount },
@@ -114,7 +113,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
       sourceChannel,
       timeoutTimestamp,
       memo,
-    };
+    });
 
     const msg: MsgTransferEncodeObject = { typeUrl: MsgTypeUrls.Transfer, value: msgValue };
 

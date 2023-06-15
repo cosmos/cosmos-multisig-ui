@@ -1,12 +1,11 @@
 import { Decimal } from "@cosmjs/math";
 import { MsgSendEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { MsgTypeUrls } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -56,11 +55,11 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
         ? Decimal.fromUserInput(amount, Number(state.chain.displayDenomExponent)).atomics
         : "0";
 
-      const msgValue: MsgSend = {
+      const msgValue = MsgCodecs[MsgTypeUrls.Send].fromPartial({
         fromAddress,
         toAddress,
         amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
-      };
+      });
 
       const msg: MsgSendEncodeObject = { typeUrl: MsgTypeUrls.Send, value: msgValue };
 

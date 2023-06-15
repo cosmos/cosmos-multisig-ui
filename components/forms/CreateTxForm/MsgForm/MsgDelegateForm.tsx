@@ -1,12 +1,11 @@
 import { Decimal } from "@cosmjs/math";
 import { MsgDelegateEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import { MsgDelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { MsgTypeUrls } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -57,11 +56,11 @@ const MsgDelegateForm = ({ delegatorAddress, setMsgGetter, deleteMsg }: MsgDeleg
         Number(state.chain.displayDenomExponent),
       ).atomics;
 
-      const msgValue: MsgDelegate = {
+      const msgValue = MsgCodecs[MsgTypeUrls.Delegate].fromPartial({
         delegatorAddress,
         validatorAddress,
         amount: { amount: amountInAtomics, denom: state.chain.denom },
-      };
+      });
 
       const msg: MsgDelegateEncodeObject = { typeUrl: MsgTypeUrls.Delegate, value: msgValue };
 

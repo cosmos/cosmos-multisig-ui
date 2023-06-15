@@ -1,13 +1,12 @@
 import { Decimal } from "@cosmjs/math";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { assert } from "@cosmjs/utils";
-import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { timestampFromDatetimeLocal } from "../../../../lib/dateHelpers";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { MsgTypeUrls } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -95,13 +94,13 @@ const MsgCreateVestingAccountForm = ({
         ? Decimal.fromUserInput(amount, Number(state.chain.displayDenomExponent)).atomics
         : "0";
 
-      const msgValue: MsgCreateVestingAccount = {
+      const msgValue = MsgCodecs[MsgTypeUrls.CreateVestingAccount].fromPartial({
         fromAddress,
         toAddress,
         amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
         endTime: timestampFromDatetimeLocal(endTime),
         delayed,
-      };
+      });
 
       const msg: EncodeObject = { typeUrl: MsgTypeUrls.CreateVestingAccount, value: msgValue };
 

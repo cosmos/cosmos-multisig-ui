@@ -1,11 +1,10 @@
 import { MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { MsgTypeUrls } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -44,7 +43,10 @@ const MsgClaimRewardsForm = ({
         return true;
       };
 
-      const msgValue: MsgWithdrawDelegatorReward = { delegatorAddress, validatorAddress };
+      const msgValue = MsgCodecs[MsgTypeUrls.WithdrawDelegatorReward].fromPartial({
+        delegatorAddress,
+        validatorAddress,
+      });
 
       const msg: MsgWithdrawDelegatorRewardEncodeObject = {
         typeUrl: MsgTypeUrls.WithdrawDelegatorReward,

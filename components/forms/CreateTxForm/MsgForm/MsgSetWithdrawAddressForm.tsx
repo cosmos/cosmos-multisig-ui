@@ -1,11 +1,10 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { assert } from "@cosmjs/utils";
-import { MsgSetWithdrawAddress } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { MsgTypeUrls } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -44,7 +43,10 @@ const MsgSetWithdrawAddressForm = ({
         return true;
       };
 
-      const msgValue: MsgSetWithdrawAddress = { delegatorAddress, withdrawAddress };
+      const msgValue = MsgCodecs[MsgTypeUrls.SetWithdrawAddress].fromPartial({
+        delegatorAddress,
+        withdrawAddress,
+      });
       const msg: EncodeObject = { typeUrl: MsgTypeUrls.SetWithdrawAddress, value: msgValue };
 
       setMsgGetter({ isMsgValid, msg });

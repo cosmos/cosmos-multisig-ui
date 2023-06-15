@@ -1,12 +1,11 @@
 import { Decimal } from "@cosmjs/math";
 import { MsgUndelegateEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import { MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { MsgTypeUrls } from "../../../../types/txMsg";
+import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
@@ -61,11 +60,11 @@ const MsgUndelegateForm = ({
         Number(state.chain.displayDenomExponent),
       ).atomics;
 
-      const msgValue: MsgUndelegate = {
+      const msgValue = MsgCodecs[MsgTypeUrls.Undelegate].fromPartial({
         delegatorAddress,
         validatorAddress,
         amount: { amount: amountInAtomics, denom: state.chain.denom },
-      };
+      });
 
       const msg: MsgUndelegateEncodeObject = { typeUrl: MsgTypeUrls.Undelegate, value: msgValue };
 
