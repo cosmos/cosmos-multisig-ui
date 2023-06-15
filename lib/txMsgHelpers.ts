@@ -11,11 +11,11 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
     case MsgTypeUrls.WithdrawDelegatorReward:
       return 100_000;
     case MsgTypeUrls.BeginRedelegate:
-      return 100_000;
+      return 150_000;
     case MsgTypeUrls.Delegate:
-      return 100_000;
+      return 150_000;
     case MsgTypeUrls.Undelegate:
-      return 100_000;
+      return 150_000;
     case MsgTypeUrls.CreateVestingAccount:
       return 100_000;
     case MsgTypeUrls.Transfer:
