@@ -1,9 +1,12 @@
 import { MsgTransferEncodeObject } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import Long from "long";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
+import {
+  datetimeLocalFromTimestamp,
+  timestampFromDatetimeLocal,
+} from "../../../../lib/dateHelpers";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -18,7 +21,7 @@ const humanTimestampOptions = [
   { label: "10 days from now", value: 10 * 24 * 60 * 60 * 1000 },
   { label: "2 weeks from now", value: 2 * 7 * 24 * 60 * 60 * 1000 },
   { label: "3 weeks from now", value: 3 * 7 * 24 * 60 * 60 * 1000 },
-  { label: "1 month from now", value: 4 * 7 * 24 * 60 * 60 * 1000 },
+  { label: "1 month from now", value: 30 * 24 * 60 * 60 * 1000 },
 ];
 
 interface MsgTransferFormProps {
@@ -36,7 +39,9 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
   const [denom, setDenom] = useState("");
   const [amount, setAmount] = useState("0");
   const [toAddress, setToAddress] = useState("");
-  const [timeout, setTimeout] = useState("");
+  const [timeout, setTimeout] = useState(
+    datetimeLocalFromTimestamp(Date.now() + humanTimestampOptions[0].value),
+  );
   const [memo, setMemo] = useState("");
 
   const [sourcePortError, setSourcePortError] = useState("");
@@ -81,29 +86,14 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
         return false;
       }
 
-      const foundTimeout = humanTimestampOptions.find(({ label }) => label === timeout);
-      const isTimeoutNumber = !isNaN(Number(timeout));
-      const isTimeoutInFuture = Number(timeout) > Date.now();
-
-      if (!foundTimeout || !isTimeoutNumber || !isTimeoutInFuture) {
-        setTimeoutError("Timeout must be a valid timestamp in the future");
+      const timeoutDate = new Date(timestampFromDatetimeLocal(timeout).toNumber());
+      if (timeoutDate <= new Date()) {
+        setTimeoutError("Timeout must be a date in the future");
+        return false;
       }
 
       return true;
     };
-
-    const timeoutTimestamp = (() => {
-      const foundTimeout = humanTimestampOptions.find(({ label }) => label === timeout)?.value;
-      if (foundTimeout) {
-        return Long.fromNumber(Date.now() + foundTimeout).multiply(1_000_000); // In nanoseconds
-      }
-
-      try {
-        return Long.fromString(timeout);
-      } catch {
-        return Long.fromNumber(0);
-      }
-    })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.Transfer].fromPartial({
       sender: fromAddress,
@@ -111,7 +101,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
       token: { denom, amount },
       sourcePort,
       sourceChannel,
-      timeoutTimestamp,
+      timeoutTimestamp: timestampFromDatetimeLocal(timeout, "ns"),
       memo,
     });
 
@@ -186,19 +176,19 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
       </div>
       <div className="form-item">
         <Input
-          type="text"
+          type="datetime-local"
           list="timestamp-options"
           label="Timeout"
           name="timeout"
-          placeholder="Enter timestamp in nanoseconds or select from list"
           value={timeout}
           onChange={({ target }) => setTimeout(target.value)}
-          onFocus={() => setTimeout("")}
           error={timeoutError}
         />
         <datalist id="timestamp-options">
-          {humanTimestampOptions.map(({ label }) => (
-            <option key={label}>{label}</option>
+          {humanTimestampOptions.map(({ label, value }) => (
+            <option key={label} value={datetimeLocalFromTimestamp(Date.now() + value)}>
+              {label}
+            </option>
           ))}
         </datalist>
       </div>
