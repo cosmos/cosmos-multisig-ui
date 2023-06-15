@@ -1,3 +1,4 @@
+import { EncodeObject } from "@cosmjs/proto-signing";
 import { useAppContext } from "../../../context/AppContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import { DbTransaction } from "../../../types";
@@ -12,11 +13,34 @@ import TxMsgSetWithdrawAddressDetails from "./TxMsgSetWithdrawAddressDetails";
 import TxMsgTransferDetails from "./TxMsgTransferDetails";
 import TxMsgUndelegateDetails from "./TxMsgUndelegateDetails";
 
-interface Props {
+const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
+  switch (typeUrl) {
+    case MsgTypeUrls.Send:
+      return <TxMsgSendDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Delegate:
+      return <TxMsgDelegateDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Undelegate:
+      return <TxMsgUndelegateDetails msgValue={msgValue} />;
+    case MsgTypeUrls.BeginRedelegate:
+      return <TxMsgRedelegateDetails msgValue={msgValue} />;
+    case MsgTypeUrls.WithdrawDelegatorReward:
+      return <TxMsgClaimRewardsDetails msgValue={msgValue} />;
+    case MsgTypeUrls.SetWithdrawAddress:
+      return <TxMsgSetWithdrawAddressDetails msgValue={msgValue} />;
+    case MsgTypeUrls.CreateVestingAccount:
+      return <TxMsgCreateVestingAccountDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Transfer:
+      return <TxMsgTransferDetails msgValue={msgValue} />;
+    default:
+      return null;
+  }
+};
+
+interface TransactionInfoProps {
   readonly tx: DbTransaction;
 }
 
-const TransactionInfo = ({ tx }: Props) => {
+const TransactionInfo = ({ tx }: TransactionInfoProps) => {
   const { state } = useAppContext();
 
   return (
@@ -46,30 +70,7 @@ const TransactionInfo = ({ tx }: Props) => {
           <StackableContainer lessPadding lessMargin>
             {tx.msgs.map((msg, index) => (
               <StackableContainer key={index} lessPadding lessMargin>
-                {MsgTypeUrls.Send === msg.typeUrl ? (
-                  <TxMsgSendDetails msgValue={msg.value} />
-                ) : null}
-                {MsgTypeUrls.Delegate === msg.typeUrl ? (
-                  <TxMsgDelegateDetails msgValue={msg.value} />
-                ) : null}
-                {MsgTypeUrls.Undelegate === msg.typeUrl ? (
-                  <TxMsgUndelegateDetails msgValue={msg.value} />
-                ) : null}
-                {MsgTypeUrls.BeginRedelegate === msg.typeUrl ? (
-                  <TxMsgRedelegateDetails msgValue={msg.value} />
-                ) : null}
-                {MsgTypeUrls.WithdrawDelegatorReward === msg.typeUrl ? (
-                  <TxMsgClaimRewardsDetails msgValue={msg.value} />
-                ) : null}
-                {MsgTypeUrls.SetWithdrawAddress === msg.typeUrl ? (
-                  <TxMsgSetWithdrawAddressDetails msgValue={msg.value} />
-                ) : null}
-                {MsgTypeUrls.CreateVestingAccount === msg.typeUrl ? (
-                  <TxMsgCreateVestingAccountDetails msgValue={msg.value} />
-                ) : null}
-                {MsgTypeUrls.Transfer === msg.typeUrl ? (
-                  <TxMsgTransferDetails msgValue={msg.value} />
-                ) : null}
+                <TxMsgDetails {...msg} />
               </StackableContainer>
             ))}
           </StackableContainer>
