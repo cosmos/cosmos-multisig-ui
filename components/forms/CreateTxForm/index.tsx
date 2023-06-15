@@ -32,6 +32,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   const [memo, setMemo] = useState("");
   const [gasLimit, setGasLimit] = useState(gasOfTx([]));
   const [gasLimitError, setGasLimitError] = useState("");
+  const [showCreateTxError, setShowTxError] = useState(false);
 
   const gasPrice = state.chain.gasPrice;
   assert(gasPrice, "gasPrice missing");
@@ -47,6 +48,8 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
 
   const createTx = async () => {
     try {
+      setShowTxError(false);
+
       assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
       assert(msgGetters.current.length, "form filled incorrectly");
 
@@ -81,6 +84,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
       router.push(`${senderAddress}/transaction/${transactionID}`);
     } catch (error) {
       console.error("Creat transaction error:", error);
+      setShowTxError(true);
     } finally {
       setProcessing(false);
     }
@@ -158,6 +162,13 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         />
         <Button label="Add MsgTransfer" onClick={() => addMsgType("msgTransfer")} />
       </StackableContainer>
+      {showCreateTxError ? (
+        <StackableContainer lessMargin lessPadding>
+          <p className="multisig-error">
+            Error when creating the transaction. See console for more details.
+          </p>
+        </StackableContainer>
+      ) : null}
       <Button
         label="Create Transaction"
         onClick={createTx}
@@ -170,6 +181,13 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         }
         .form-item {
           margin-top: 1.5em;
+        }
+        .multisig-error {
+          margin: 0;
+          max-width: 100%;
+          color: red;
+          font-size: 16px;
+          text-align: center;
         }
       `}</style>
     </StackableContainer>
