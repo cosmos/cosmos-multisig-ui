@@ -4,35 +4,14 @@ import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useAppContext } from "../../../../context/AppContext";
-import { timestampFromDatetimeLocal } from "../../../../lib/dateHelpers";
+import {
+  datetimeLocalFromTimestamp,
+  timestampFromDatetimeLocal,
+} from "../../../../lib/dateHelpers";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
-
-/*
-  One month from now
-  With stripped seconds and milliseconds
-  Matching the crazy datetime-local input format
-*/
-const getMinEndTime = (): string => {
-  const minTimestamp = Date.now() + 1000 * 60 * 60 * 24 * 30;
-  const minDate = new Date(minTimestamp);
-
-  const minMonth = minDate.getMonth() + 1; // It's 0-indexed
-  const minMonthStr = minMonth < 10 ? `0${minMonth}` : String(minMonth);
-
-  const minDay = minDate.getDate();
-  const minDayStr = minDay < 10 ? `0${minDay}` : String(minDay);
-
-  const minHours = minDate.getHours();
-  const minHoursStr = minHours < 10 ? `0${minHours}` : String(minHours);
-
-  const minMinutes = minDate.getMinutes();
-  const minMinutesStr = minMinutes < 10 ? `0${minMinutes}` : String(minMinutes);
-
-  return `${minDate.getFullYear()}-${minMonthStr}-${minDayStr}T${minHoursStr}:${minMinutesStr}`;
-};
 
 interface MsgCreateVestingAccountFormProps {
   readonly fromAddress: string;
@@ -50,8 +29,9 @@ const MsgCreateVestingAccountForm = ({
 
   const [toAddress, setToAddress] = useState("");
   const [amount, setAmount] = useState("0");
-  const minEndTime = getMinEndTime();
-  const [endTime, setEndTime] = useState(minEndTime);
+  const [endTime, setEndTime] = useState(
+    datetimeLocalFromTimestamp(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default is one month from now
+  );
   const [delayed, setDelayed] = useState(true);
 
   const [toAddressError, setToAddressError] = useState("");
@@ -82,8 +62,9 @@ const MsgCreateVestingAccountForm = ({
           return false;
         }
 
-        if (!endTime) {
-          setEndTimeError("End time is required");
+        const timeoutDate = new Date(timestampFromDatetimeLocal(endTime).toNumber());
+        if (timeoutDate <= new Date()) {
+          setEndTimeError("End time must be a date in the future");
           return false;
         }
 
@@ -98,7 +79,7 @@ const MsgCreateVestingAccountForm = ({
         fromAddress,
         toAddress,
         amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
-        endTime: timestampFromDatetimeLocal(endTime),
+        endTime: timestampFromDatetimeLocal(endTime, "s"),
         delayed,
       });
 
@@ -151,7 +132,6 @@ const MsgCreateVestingAccountForm = ({
           label="End time"
           name="end-time"
           value={endTime}
-          min={minEndTime}
           onChange={({ target }) => setEndTime(target.value)}
           error={endTimeError}
         />
