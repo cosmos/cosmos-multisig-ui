@@ -84,7 +84,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         dataJSON: JSON.stringify(tx),
       });
 
-      router.push(`${senderAddress}/transaction/${transactionID}`);
+      router.push(`/multi/${senderAddress}/transaction/${transactionID}`);
     } catch (error) {
       console.error("Creat transaction error:", error);
       setShowTxError(true);
@@ -94,7 +94,10 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   };
 
   return (
-    <StackableContainer lessPadding>
+    <StackableContainer
+      lessPadding
+      divProps={{ style: { width: "min(690px, 90vw)", maxWidth: "690px" } }}
+    >
       <h2>Create New Transaction</h2>
       {msgTypes.length ? (
         msgTypes.map((msgType, index) => (

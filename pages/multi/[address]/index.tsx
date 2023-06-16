@@ -7,7 +7,6 @@ import { useCallback, useEffect, useState } from "react";
 import HashView from "../../../components/dataViews/HashView";
 import MultisigHoldings from "../../../components/dataViews/MultisigHoldings";
 import MultisigMembers from "../../../components/dataViews/MultisigMembers";
-import CreateTxForm from "../../../components/forms/CreateTxForm";
 import Button from "../../../components/inputs/Button";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
@@ -70,7 +69,7 @@ const Multipage = () => {
   }, [fetchMultisig, multisigAddress]);
 
   return (
-    <Page goBack={{ pathname: "/", title: "home", needsConfirm: true }}>
+    <Page goBack={{ pathname: "/", title: "home" }}>
       <StackableContainer base>
         <StackableContainer>
           <label>Multisig Address</label>
@@ -84,20 +83,7 @@ const Multipage = () => {
             threshold={pubkey.value.threshold}
           />
         ) : null}
-        <div className="interfaces">
-          <div className="col-1">
-            <MultisigHoldings holdings={holdings} />
-          </div>
-          <div className="col-2">
-            <StackableContainer lessPadding>
-              <h2>New transaction</h2>
-              <p>
-                Once a transaction is created, it can be signed by the multisig members, and then
-                broadcast.
-              </p>
-            </StackableContainer>
-          </div>
-        </div>
+        <MultisigHoldings holdings={holdings} />
         {accountError || !accountOnChain ? (
           <StackableContainer>
             <div className="multisig-error">
@@ -123,25 +109,13 @@ const Multipage = () => {
             </div>
           </StackableContainer>
         ) : null}
-        {accountOnChain && multisigAddress ? (
-          <CreateTxForm senderAddress={multisigAddress} accountOnChain={accountOnChain} />
-        ) : null}
+        <Button
+          label="Create New Transaction"
+          onClick={() => router.push(`/multi/${multisigAddress}/transaction/new`)}
+          disabled={!accountOnChain || !multisigAddress}
+        />
       </StackableContainer>
       <style jsx>{`
-        .interfaces {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 50px;
-          flex-direction: column;
-        }
-        .col-1 {
-          flex: 1;
-          padding-right: 0;
-          margin-bottom: 50px;
-        }
-        .col-2 {
-          flex: 1;
-        }
         label {
           font-size: 12px;
           font-style: italic;
