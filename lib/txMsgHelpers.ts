@@ -19,7 +19,7 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
     case MsgTypeUrls.CreateVestingAccount:
       return 100_000;
     case MsgTypeUrls.Transfer:
-      return 100_000;
+      return 180_000;
     default:
       throw new Error("Unknown msg type");
   }
