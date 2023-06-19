@@ -67,7 +67,7 @@ const Page = ({ title, goBack, children }: PageProps) => {
       <div className="footer-links">
         <StackableContainer base lessPadding lessMargin>
           <p>
-            <a href="https://github.com/samepant/cosmoshub-legacy-multisig">View on github</a>
+            <a href="https://github.com/cosmos/cosmos-multisig-ui">View on GitHub</a>
           </p>
         </StackableContainer>
       </div>

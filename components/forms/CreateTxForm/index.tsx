@@ -84,7 +84,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         dataJSON: JSON.stringify(tx),
       });
 
-      router.push(`${senderAddress}/transaction/${transactionID}`);
+      router.push(`/multi/${senderAddress}/transaction/${transactionID}`);
     } catch (error) {
       console.error("Creat transaction error:", error);
       setShowTxError(true);
@@ -94,35 +94,44 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   };
 
   return (
-    <StackableContainer lessPadding>
+    <StackableContainer
+      lessPadding
+      divProps={{ style: { width: "min(690px, 90vw)", maxWidth: "690px" } }}
+    >
       <h2>Create New Transaction</h2>
-      {msgTypes.map((msgType, index) => (
-        <MsgForm
-          key={msgKeys[index]}
-          msgType={msgType}
-          senderAddress={senderAddress}
-          setMsgGetter={(msgGetter) => {
-            msgGetters.current = [
-              ...msgGetters.current.slice(0, index),
-              msgGetter,
-              ...msgGetters.current.slice(index + 1),
-            ];
-          }}
-          deleteMsg={() => {
-            msgGetters.current.splice(index, 1);
-            setMsgKeys((oldMsgKeys) => [
-              ...oldMsgKeys.slice(0, index),
-              ...oldMsgKeys.slice(index + 1),
-            ]);
-            setMsgTypes((oldMsgTypes) => {
-              const newMsgTypes: MsgTypeUrl[] = oldMsgTypes.slice();
-              newMsgTypes.splice(index, 1);
-              setGasLimit(gasOfTx(newMsgTypes));
-              return newMsgTypes;
-            });
-          }}
-        />
-      ))}
+      {msgTypes.length ? (
+        msgTypes.map((msgType, index) => (
+          <MsgForm
+            key={msgKeys[index]}
+            msgType={msgType}
+            senderAddress={senderAddress}
+            setMsgGetter={(msgGetter) => {
+              msgGetters.current = [
+                ...msgGetters.current.slice(0, index),
+                msgGetter,
+                ...msgGetters.current.slice(index + 1),
+              ];
+            }}
+            deleteMsg={() => {
+              msgGetters.current.splice(index, 1);
+              setMsgKeys((oldMsgKeys) => [
+                ...oldMsgKeys.slice(0, index),
+                ...oldMsgKeys.slice(index + 1),
+              ]);
+              setMsgTypes((oldMsgTypes) => {
+                const newMsgTypes: MsgTypeUrl[] = oldMsgTypes.slice();
+                newMsgTypes.splice(index, 1);
+                setGasLimit(gasOfTx(newMsgTypes));
+                return newMsgTypes;
+              });
+            }}
+          />
+        ))
+      ) : (
+        <StackableContainer lessMargin lessPadding>
+          <p className="empty-msg-warning">Add at least one message to this transaction</p>
+        </StackableContainer>
+      )}
       <div className="form-item">
         <Input
           type="number"
@@ -187,6 +196,10 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
       <style jsx>{`
         p {
           margin-top: 15px;
+        }
+        .empty-msg-warning {
+          margin: 0;
+          font-size: 16px;
         }
         .form-item {
           margin-top: 1.5em;
