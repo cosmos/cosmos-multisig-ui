@@ -1,7 +1,6 @@
-import React, { useEffect, createContext, useContext, useReducer } from "react";
-
-import { AppReducer, ChangeChainAction, initialState } from "./AppReducer";
+import { createContext, useContext, useEffect, useReducer } from "react";
 import { ChainInfo } from "../types";
+import { AppReducer, ChangeChainAction, initialState } from "./AppReducer";
 
 export interface AppContextType {
   chain: ChainInfo;
@@ -23,6 +22,7 @@ function getChainInfoFromUrl(): ChainInfo {
       decodeURIComponent(params.get("displayDenomExponent") || ""),
       10,
     ),
+    assets: JSON.parse(decodeURIComponent(params.get("assets") || "{}")),
     gasPrice: decodeURIComponent(params.get("gasPrice") || ""),
     chainId: decodeURIComponent(params.get("chainId") || ""),
     chainDisplayName: decodeURIComponent(params.get("chainDisplayName") || ""),
@@ -37,11 +37,13 @@ function getChainInfoFromUrl(): ChainInfo {
 function setChainInfoParams(chainInfo: ChainInfo) {
   const params = new URLSearchParams();
 
-  const keys = Object.keys(chainInfo) as Array<keyof ChainInfo>;
-
-  keys.forEach((value: keyof ChainInfo) => {
-    params.set(value, encodeURIComponent(chainInfo[value] || ""));
-  });
+  for (const [key, value] of Object.entries(chainInfo)) {
+    if (Array.isArray(value)) {
+      params.set(key, encodeURIComponent(JSON.stringify(value)));
+    } else {
+      params.set(key, encodeURIComponent(value ?? ""));
+    }
+  }
 
   window.history.replaceState({}, "", `${location.pathname}?${params}`);
 }
