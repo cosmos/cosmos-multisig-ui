@@ -51,6 +51,7 @@ export interface ChainInfo {
   denom?: string;
   displayDenom?: string;
   displayDenomExponent?: number;
+  assets?: readonly { readonly denom: string; readonly exponent: number }[];
   gasPrice?: string;
   chainId?: string;
   chainDisplayName?: string;
