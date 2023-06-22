@@ -167,7 +167,9 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
           name="custom-denom"
           value={customDenom}
           onChange={({ target }) => setCustomDenom(target.value)}
-          placeholder="Select Custom denom above"
+          placeholder={
+            selectedDenom.value === "custom" ? "Enter custom denom" : "Select Custom denom above"
+          }
           disabled={selectedDenom.value !== "custom"}
           error={customDenomError}
         />
