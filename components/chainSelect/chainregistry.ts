@@ -46,7 +46,7 @@ export interface RegistryChainResponse {
 export interface RegistryAssetDenomUnit {
   denom: string;
   exponent: number;
-  aliases: string[];
+  aliases?: string[];
 }
 
 /**
