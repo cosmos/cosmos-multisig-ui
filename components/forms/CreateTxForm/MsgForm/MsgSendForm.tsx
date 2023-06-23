@@ -11,31 +11,14 @@ import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
 import StackableContainer from "../../../layout/StackableContainer";
 
+const customDenomOption = { label: "Custom (enter denom below)", value: "custom" } as const;
+
 const getDenomOptions = (assets: ChainInfo["assets"]) => {
-  const customDenomOption = { label: "Custom (enter denom below)", value: "custom" };
   if (!assets?.length) {
     return [customDenomOption];
   }
 
-  const filteredAssets = assets.filter(({ denom: denomToFilter }) => {
-    if (denomToFilter.startsWith("u")) {
-      const foundMacroDenom = assets.find(
-        ({ denom }) => denom.toLowerCase() === denomToFilter.slice(1).toLowerCase(),
-      );
-      if (foundMacroDenom) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-
-  const denomOptions = filteredAssets.map(({ denom }) => ({
-    label: denom.toUpperCase(),
-    value: denom,
-  }));
-
-  return [...denomOptions, customDenomOption];
+  return [...assets.map((asset) => ({ label: asset.symbol, value: asset })), customDenomOption];
 };
 
 interface MsgSendFormProps {
@@ -75,7 +58,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
         return false;
       }
 
-      if (selectedDenom.value === "custom" && !customDenom) {
+      if (selectedDenom.value === customDenomOption.value && !customDenom) {
         setCustomDenomError("Custom denom must be set because of selection above");
         return false;
       }
@@ -85,7 +68,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
         return false;
       }
 
-      if (selectedDenom.value === "custom" && !Number.isInteger(amount)) {
+      if (selectedDenom.value === customDenomOption.value && !Number.isInteger(Number(amount))) {
         setAmountError("Amount cannot be decimal for custom denom");
         return false;
       }
@@ -93,15 +76,20 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
       return true;
     };
 
-    const denom = (
-      selectedDenom.value === "custom" ? customDenom : selectedDenom.value
-    ).toLowerCase();
-    const exponent =
-      state.chain.assets?.find(({ denom: currentDenom }) => currentDenom.toLowerCase() === denom)
-        ?.exponent ?? 0;
+    const denom =
+      selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
 
     const amountInAtomics = (() => {
       try {
+        if (selectedDenom.value === customDenomOption.value) {
+          return Decimal.fromUserInput(amount, 0).atomics;
+        }
+
+        const foundAsset = state.chain.assets?.find((asset) => asset.symbol === denom);
+        const exponent =
+          foundAsset?.denom_units.find((unit) => unit.denom === foundAsset.symbol.toLowerCase())
+            ?.exponent ?? 0;
+
         return Decimal.fromUserInput(amount, exponent).atomics;
       } catch {
         return "0";
@@ -155,7 +143,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
           value={selectedDenom}
           onChange={(option: (typeof denomOptions)[number]) => {
             setSelectedDenom(option);
-            if (option.value !== "custom") {
+            if (option.value !== customDenomOption.value) {
               setCustomDenom("");
             }
           }}
@@ -168,9 +156,11 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
           value={customDenom}
           onChange={({ target }) => setCustomDenom(target.value)}
           placeholder={
-            selectedDenom.value === "custom" ? "Enter custom denom" : "Select Custom denom above"
+            selectedDenom.value === customDenomOption.value
+              ? "Enter custom denom"
+              : "Select Custom denom above"
           }
-          disabled={selectedDenom.value !== "custom"}
+          disabled={selectedDenom.value !== customDenomOption.value}
           error={customDenomError}
         />
       </div>
