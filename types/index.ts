@@ -1,5 +1,6 @@
 import { StdFee } from "@cosmjs/amino";
 import { EncodeObject } from "@cosmjs/proto-signing";
+import { RegistryAsset } from "../components/chainSelect/chainregistry";
 
 declare global {
   interface Window {
@@ -51,7 +52,7 @@ export interface ChainInfo {
   denom?: string;
   displayDenom?: string;
   displayDenomExponent?: number;
-  assets?: readonly { readonly denom: string; readonly exponent: number }[];
+  assets?: readonly RegistryAsset[];
   gasPrice?: string;
   chainId?: string;
   chainDisplayName?: string;

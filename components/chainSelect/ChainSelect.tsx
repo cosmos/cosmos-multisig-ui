@@ -142,11 +142,6 @@ const ChainSelect = () => {
       const explorerLink = getExplorerFromArray(chainData.explorers);
       const firstAssetDenom = firstAsset.base;
       const displayDenom = firstAsset.symbol;
-
-      const assets = registryAssets.flatMap(({ denom_units }) =>
-        denom_units.map(({ denom, exponent }) => ({ denom, exponent })),
-      );
-
       const displayUnit = firstAsset.denom_units.find((u) => u.denom == firstAsset.display);
       const displayDenomExponent = displayUnit?.exponent ?? 6;
 
@@ -175,7 +170,7 @@ const ChainSelect = () => {
           displayDenom,
           displayDenomExponent,
           gasPrice: formattedGasPrice,
-          assets,
+          assets: registryAssets,
         },
       });
 
