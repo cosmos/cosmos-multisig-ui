@@ -37,32 +37,25 @@ const thinSpace = "\u202F";
 const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
   if (!coin.amount || !coin.denom) return "";
 
-  // Check if denom is in assets
-  const foundAsset = chainInfo.assets?.find(
-    (asset) => asset.denom.toLowerCase() === coin.denom.toLowerCase(),
-  );
-
-  // Check if denom starting with "u" has a macrodenom in assets
-  const foundMacrodenom = coin.denom.startsWith("u")
-    ? chainInfo.assets?.find(
-        (asset) => asset.denom.toLowerCase() === coin.denom.slice(1).toLowerCase(),
-      )
-    : undefined;
-
-  const assetToPrint = foundMacrodenom ?? foundAsset;
-
-  if (assetToPrint) {
-    const value = Decimal.fromAtomics(coin.amount ?? "0", assetToPrint.exponent).toString();
-    const ticker = assetToPrint.denom.toUpperCase();
-    return value + thinSpace + ticker;
-  }
-
   // Ellide IBC tokens
   if (coin.denom.startsWith("ibc/")) {
     const value = coin.amount;
     const hash = coin.denom.slice(4);
     const ellidedHash = ellideMiddle(hash, 11);
     const ticker = `ibc/${ellidedHash}`.toUpperCase();
+    return value + thinSpace + ticker;
+  }
+
+  const foundAsset = chainInfo.assets?.find(
+    (asset) => coin.denom === asset.symbol || coin.denom === asset.base,
+  );
+  const foundExponent = foundAsset?.denom_units.find(
+    (unit) => unit.denom === foundAsset.symbol.toLowerCase(),
+  )?.exponent;
+
+  if (foundExponent) {
+    const value = Decimal.fromAtomics(coin.amount, foundExponent).toString();
+    const ticker = foundAsset.symbol;
     return value + thinSpace + ticker;
   }
 
