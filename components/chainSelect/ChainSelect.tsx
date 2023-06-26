@@ -136,6 +136,7 @@ const ChainSelect = () => {
     try {
       const chainData = await getChainFromRegistry(chainOption.path);
       const registryAssets = await getAssetsFromRegistry(chainOption.path);
+      assert(registryAssets.length >= 1, "No assets found in registry");
       const firstAsset = registryAssets[0];
 
       const nodeAddress = await getNodeFromArray(chainData.apis.rpc);
