@@ -66,7 +66,7 @@ describe("printableCoin", () => {
   });
 
   it("works with IBC coin", () => {
-    expect(printableCoin(ibcCoin, testChainInfo)).toEqual(`4000000${thinSpace}IBC/C4CFF…319F9`);
+    expect(printableCoin(ibcCoin, testChainInfo)).toEqual(`4000000${thinSpace}ibc/C4CFF…319F9`);
   });
 });
 
@@ -89,7 +89,7 @@ describe("printableCoins", () => {
     ];
 
     expect(printableCoins(coins, testChainInfo)).toEqual(
-      `0.001${thinSpace}JUNOX, 20000${thinSpace}UTEST, 300000${thinSpace}TEST, 4000000 IBC/C4CFF…319F9`,
+      `0.001${thinSpace}JUNOX, 20000${thinSpace}UTEST, 300000${thinSpace}TEST, 4000000 ibc/C4CFF…319F9`,
     );
   });
 });

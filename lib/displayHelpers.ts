@@ -42,7 +42,7 @@ const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
     const value = coin.amount;
     const hash = coin.denom.slice(4);
     const ellidedHash = ellideMiddle(hash, 11);
-    const ticker = `ibc/${ellidedHash}`.toUpperCase();
+    const ticker = `ibc/${ellidedHash.toUpperCase()}`;
     return value + thinSpace + ticker;
   }
 
