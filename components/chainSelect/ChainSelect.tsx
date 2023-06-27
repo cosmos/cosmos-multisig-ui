@@ -62,6 +62,7 @@ const ChainSelect = () => {
   const [tempDisplayDenomExponent, setDisplayDenomExponent] = useState(
     state.chain.displayDenomExponent,
   );
+  const [tempAssets, setAssets] = useState(state.chain.assets);
   const [tempGasPrice, setGasPrice] = useState(state.chain.gasPrice);
   const [tempChainName, setChainName] = useState(state.chain.chainDisplayName);
   const [tempRegistryName, setRegistryName] = useState(state.chain.registryName);
@@ -110,6 +111,7 @@ const ChainSelect = () => {
     setDenom(state.chain.denom);
     setDisplayDenom(state.chain.displayDenom);
     setDisplayDenomExponent(state.chain.displayDenomExponent);
+    setAssets(state.chain.assets);
     setGasPrice(state.chain.gasPrice);
     setChainName(state.chain.chainDisplayName);
     setExplorerLink(state.chain.explorerLink);
@@ -133,25 +135,27 @@ const ChainSelect = () => {
 
     try {
       const chainData = await getChainFromRegistry(chainOption.path);
-      const assets = await getAssetsFromRegistry(chainOption.path);
-      const firstAsset = assets[0];
+      const registryAssets = await getAssetsFromRegistry(chainOption.path);
+      assert(registryAssets.length >= 1, "No assets found in registry");
+      const firstAsset = registryAssets[0];
 
       const nodeAddress = await getNodeFromArray(chainData.apis.rpc);
       const explorerLink = getExplorerFromArray(chainData.explorers);
-      const denom = firstAsset.base || "";
-      const displayDenom = firstAsset.symbol || "";
-
+      const firstAssetDenom = firstAsset.base;
+      const displayDenom = firstAsset.symbol;
       const displayUnit = firstAsset.denom_units.find((u) => u.denom == firstAsset.display);
       const displayDenomExponent = displayUnit?.exponent ?? 6;
 
-      const feeToken = chainData.fees.fee_tokens.find((token) => token.denom == denom) ?? { denom };
+      const feeToken = chainData.fees.fee_tokens.find(
+        (token) => token.denom == firstAssetDenom,
+      ) ?? { denom: firstAssetDenom };
       const gasPrice =
         feeToken.average_gas_price ??
         feeToken.low_gas_price ??
         feeToken.high_gas_price ??
         feeToken.fixed_min_gas_price ??
         0.03;
-      const formattedGasPrice = firstAsset ? `${gasPrice}${denom}` : "";
+      const formattedGasPrice = firstAsset ? `${gasPrice}${firstAssetDenom}` : "";
 
       // change app state
       dispatch({
@@ -163,10 +167,11 @@ const ChainSelect = () => {
           chainDisplayName: chainData.pretty_name,
           nodeAddress,
           explorerLink,
-          denom,
+          denom: firstAssetDenom,
           displayDenom,
           displayDenomExponent,
           gasPrice: formattedGasPrice,
+          assets: registryAssets,
         },
       });
 
@@ -253,6 +258,7 @@ const ChainSelect = () => {
           denom: tempDenom,
           displayDenom: tempDisplayDenom,
           displayDenomExponent: tempDisplayDenomExponent,
+          assets: tempAssets,
           gasPrice: tempGasPrice,
           chainId: tempChainId,
           chainDisplayName: tempChainName,
@@ -369,12 +375,20 @@ const ChainSelect = () => {
                 />
                 <Input
                   width="48%"
+                  value={JSON.stringify(tempAssets)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setAssets(JSON.parse(e.target.value))
+                  }
+                  label="Assets"
+                />
+              </div>
+              <div className="settings-group">
+                <Input
+                  width="48%"
                   value={tempGasPrice}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGasPrice(e.target.value)}
                   label="Gas Price"
                 />
-              </div>
-              <div className="settings-group">
                 <Input
                   width="48%"
                   value={tempExplorerLink}

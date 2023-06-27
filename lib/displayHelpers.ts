@@ -37,32 +37,30 @@ const thinSpace = "\u202F";
 const printableCoin = (coin: Coin, chainInfo: ChainInfo) => {
   if (!coin.amount || !coin.denom) return "";
 
-  // The display denom from configuration
-  if (coin.denom === chainInfo.denom) {
-    const exponent = Number(chainInfo.displayDenomExponent);
-    const value = Decimal.fromAtomics(coin.amount ?? "0", exponent).toString();
-    const ticker = chainInfo.displayDenom;
-    return value + thinSpace + ticker;
-  }
-
-  // Auto-convert leading "u"s
-  if (coin.denom.startsWith("u")) {
-    const value = Decimal.fromAtomics(coin.amount ?? "0", 6).toString();
-    const ticker = coin.denom.slice(1).toUpperCase();
-    return value + thinSpace + ticker;
-  }
-
   // Ellide IBC tokens
   if (coin.denom.startsWith("ibc/")) {
     const value = coin.amount;
     const hash = coin.denom.slice(4);
     const ellidedHash = ellideMiddle(hash, 11);
-    const ticker = `ibc/${ellidedHash}`;
+    const ticker = `ibc/${ellidedHash.toUpperCase()}`;
+    return value + thinSpace + ticker;
+  }
+
+  const foundAsset = chainInfo.assets?.find(
+    (asset) => coin.denom === asset.symbol || coin.denom === asset.base,
+  );
+  const foundExponent = foundAsset?.denom_units.find(
+    (unit) => unit.denom === foundAsset.symbol.toLowerCase(),
+  )?.exponent;
+
+  if (foundExponent) {
+    const value = Decimal.fromAtomics(coin.amount, foundExponent).toString();
+    const ticker = foundAsset.symbol;
     return value + thinSpace + ticker;
   }
 
   // Fallback to plain coin display
-  return coin.amount + thinSpace + coin.denom;
+  return coin.amount + thinSpace + coin.denom.toUpperCase();
 };
 
 const printableCoins = (coins: readonly Coin[], chainInfo: ChainInfo) =>
