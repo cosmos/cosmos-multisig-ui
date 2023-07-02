@@ -22,7 +22,7 @@ function getChainInfoFromUrl(): ChainInfo {
       decodeURIComponent(params.get("displayDenomExponent") || ""),
       10,
     ),
-    assets: JSON.parse(decodeURIComponent(params.get("assets") || "{}")),
+    assets: JSON.parse(decodeURIComponent(params.get("assets") || "[]")),
     gasPrice: decodeURIComponent(params.get("gasPrice") || ""),
     chainId: decodeURIComponent(params.get("chainId") || ""),
     chainDisplayName: decodeURIComponent(params.get("chainDisplayName") || ""),
