@@ -1,5 +1,5 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { useAppContext } from "../../../context/AppContext";
+import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import { DbTransaction } from "../../../types";
 import { MsgTypeUrls } from "../../../types/txMsg";
@@ -41,7 +41,7 @@ interface TransactionInfoProps {
 }
 
 const TransactionInfo = ({ tx }: TransactionInfoProps) => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
 
   return (
     <>
@@ -56,7 +56,7 @@ const TransactionInfo = ({ tx }: TransactionInfoProps) => {
                 </li>
                 <li>
                   <label>Fee:</label>
-                  <div>{printableCoins(tx.fee.amount, state.chain)}</div>
+                  <div>{printableCoins(tx.fee.amount, chain)}</div>
                 </li>
               </>
             ) : null}

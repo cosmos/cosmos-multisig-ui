@@ -1,5 +1,5 @@
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import { useAppContext } from "../../../context/AppContext";
+import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import HashView from "../HashView";
 
@@ -8,7 +8,7 @@ interface TxMsgSendDetailsProps {
 }
 
 const TxMsgSendDetails = ({ msgValue }: TxMsgSendDetailsProps) => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
 
   return (
     <>
@@ -17,7 +17,7 @@ const TxMsgSendDetails = ({ msgValue }: TxMsgSendDetailsProps) => {
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoins(msgValue.amount, state.chain)}</div>
+        <div>{printableCoins(msgValue.amount, chain)}</div>
       </li>
       <li>
         <label>To:</label>

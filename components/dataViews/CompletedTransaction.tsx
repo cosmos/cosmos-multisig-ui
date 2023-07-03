@@ -1,16 +1,16 @@
-import { useAppContext } from "../../context/AppContext";
+import { useChains } from "../../context/ChainsContext";
 import { explorerLinkTx } from "../../lib/displayHelpers";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 import HashView from "./HashView";
 
-interface Props {
-  transactionHash: string;
+interface CompletedTransactionProps {
+  readonly transactionHash: string;
 }
 
-const CompletedTransaction = ({ transactionHash }: Props) => {
-  const { state } = useAppContext();
-  const baseURL = state.chain.explorerLink ? state.chain.explorerLink : "";
+const CompletedTransaction = ({ transactionHash }: CompletedTransactionProps) => {
+  const { chain } = useChains();
+  const baseURL = chain.explorerLink ? chain.explorerLink : "";
   const explorerLink = explorerLinkTx(baseURL, transactionHash);
   return (
     <StackableContainer lessPadding lessMargin>
