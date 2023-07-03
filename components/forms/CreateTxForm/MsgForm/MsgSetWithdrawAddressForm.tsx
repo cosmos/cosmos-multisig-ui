@@ -1,8 +1,7 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -19,8 +18,7 @@ const MsgSetWithdrawAddressForm = ({
   setMsgGetter,
   deleteMsg,
 }: MsgSetWithdrawAddressFormProps) => {
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  const { chain } = useChains();
 
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [withdrawAddressError, setWithdrawAddressError] = useState("");
@@ -30,12 +28,10 @@ const MsgSetWithdrawAddressForm = ({
       setWithdrawAddressError("");
 
       const isMsgValid = (): boolean => {
-        assert(state.chain.addressPrefix, "addressPrefix missing");
-
-        const addressErrorMsg = checkAddress(withdrawAddress, state.chain.addressPrefix);
+        const addressErrorMsg = checkAddress(withdrawAddress, chain.addressPrefix);
         if (addressErrorMsg) {
           setWithdrawAddressError(
-            `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
+            `Invalid address for network ${chain.chainId}: ${addressErrorMsg}`,
           );
           return false;
         }
@@ -51,13 +47,7 @@ const MsgSetWithdrawAddressForm = ({
 
       setMsgGetter({ isMsgValid, msg });
     } catch {}
-  }, [
-    delegatorAddress,
-    setMsgGetter,
-    state.chain.addressPrefix,
-    state.chain.chainId,
-    withdrawAddress,
-  ]);
+  }, [chain.addressPrefix, chain.chainId, delegatorAddress, setMsgGetter, withdrawAddress]);
 
   return (
     <StackableContainer lessPadding lessMargin>
@@ -72,7 +62,7 @@ const MsgSetWithdrawAddressForm = ({
           value={withdrawAddress}
           onChange={({ target }) => setWithdrawAddress(target.value)}
           error={withdrawAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <style jsx>{`

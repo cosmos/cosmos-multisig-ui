@@ -1,9 +1,8 @@
 import { Decimal } from "@cosmjs/math";
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
 import {
   datetimeLocalFromTimestamp,
   timestampFromDatetimeLocal,
@@ -24,8 +23,7 @@ const MsgCreateVestingAccountForm = ({
   setMsgGetter,
   deleteMsg,
 }: MsgCreateVestingAccountFormProps) => {
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  const { chain } = useChains();
 
   const [toAddress, setToAddress] = useState("");
   const [amount, setAmount] = useState("0");
@@ -40,20 +38,14 @@ const MsgCreateVestingAccountForm = ({
 
   useEffect(() => {
     try {
-      assert(state.chain.denom, "denom missing");
-
       setToAddressError("");
       setAmountError("");
       setEndTimeError("");
 
       const isMsgValid = (): boolean => {
-        assert(state.chain.addressPrefix, "addressPrefix missing");
-
-        const addressErrorMsg = checkAddress(toAddress, state.chain.addressPrefix);
+        const addressErrorMsg = checkAddress(toAddress, chain.addressPrefix);
         if (addressErrorMsg) {
-          setToAddressError(
-            `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
-          );
+          setToAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
           return false;
         }
 
@@ -72,13 +64,13 @@ const MsgCreateVestingAccountForm = ({
       };
 
       const amountInAtomics = amount
-        ? Decimal.fromUserInput(amount, Number(state.chain.displayDenomExponent)).atomics
+        ? Decimal.fromUserInput(amount, Number(chain.displayDenomExponent)).atomics
         : "0";
 
       const msgValue = MsgCodecs[MsgTypeUrls.CreateVestingAccount].fromPartial({
         fromAddress,
         toAddress,
-        amount: [{ amount: amountInAtomics, denom: state.chain.denom }],
+        amount: [{ amount: amountInAtomics, denom: chain.denom }],
         endTime: timestampFromDatetimeLocal(endTime, "s"),
         delayed,
       });
@@ -89,14 +81,14 @@ const MsgCreateVestingAccountForm = ({
     } catch {}
   }, [
     amount,
+    chain.addressPrefix,
+    chain.chainId,
+    chain.denom,
+    chain.displayDenomExponent,
     delayed,
     endTime,
     fromAddress,
     setMsgGetter,
-    state.chain.addressPrefix,
-    state.chain.chainId,
-    state.chain.denom,
-    state.chain.displayDenomExponent,
     toAddress,
   ]);
 
@@ -113,13 +105,13 @@ const MsgCreateVestingAccountForm = ({
           value={toAddress}
           onChange={({ target }) => setToAddress(target.value)}
           error={toAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">
         <Input
           type="number"
-          label={`Amount (${state.chain.displayDenom})`}
+          label={`Amount (${chain.displayDenom})`}
           name="amount"
           value={amount}
           onChange={({ target }) => setAmount(target.value)}

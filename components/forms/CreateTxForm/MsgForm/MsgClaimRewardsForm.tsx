@@ -1,8 +1,7 @@
 import { MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -19,8 +18,7 @@ const MsgClaimRewardsForm = ({
   setMsgGetter,
   deleteMsg,
 }: MsgClaimRewardsFormProps) => {
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  const { chain } = useChains();
 
   const [validatorAddress, setValidatorAddress] = useState("");
   const [validatorAddressError, setValidatorAddressError] = useState("");
@@ -30,12 +28,10 @@ const MsgClaimRewardsForm = ({
       setValidatorAddressError("");
 
       const isMsgValid = (): boolean => {
-        assert(state.chain.addressPrefix, "addressPrefix missing");
-
-        const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
+        const addressErrorMsg = checkAddress(validatorAddress, chain.addressPrefix);
         if (addressErrorMsg) {
           setValidatorAddressError(
-            `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
+            `Invalid address for network ${chain.chainId}: ${addressErrorMsg}`,
           );
           return false;
         }
@@ -55,13 +51,7 @@ const MsgClaimRewardsForm = ({
 
       setMsgGetter({ isMsgValid, msg });
     } catch {}
-  }, [
-    delegatorAddress,
-    setMsgGetter,
-    state.chain.addressPrefix,
-    state.chain.chainId,
-    validatorAddress,
-  ]);
+  }, [chain.addressPrefix, chain.chainId, delegatorAddress, setMsgGetter, validatorAddress]);
 
   return (
     <StackableContainer lessPadding lessMargin>
@@ -76,7 +66,7 @@ const MsgClaimRewardsForm = ({
           value={validatorAddress}
           onChange={({ target }) => setValidatorAddress(target.value)}
           error={validatorAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <style jsx>{`

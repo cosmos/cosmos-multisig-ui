@@ -1,8 +1,7 @@
 import { MsgTransferEncodeObject } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
 import {
   datetimeLocalFromTimestamp,
   timestampFromDatetimeLocal,
@@ -31,8 +30,7 @@ interface MsgTransferFormProps {
 }
 
 const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFormProps) => {
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  const { chain } = useChains();
 
   const [sourcePort, setSourcePort] = useState("transfer");
   const [sourceChannel, setSourceChannel] = useState("");
@@ -82,7 +80,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
 
       const addressErrorMsg = checkAddress(toAddress, null); // Allow address from any chain
       if (addressErrorMsg) {
-        setToAddressError(`Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`);
+        setToAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
         return false;
       }
 
@@ -110,13 +108,13 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
     setMsgGetter({ isMsgValid, msg });
   }, [
     amount,
+    chain.chainId,
     denom,
     fromAddress,
     memo,
     setMsgGetter,
     sourceChannel,
     sourcePort,
-    state.chain.chainId,
     timeout,
     toAddress,
   ]);
@@ -134,7 +132,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
           value={toAddress}
           onChange={({ target }) => setToAddress(target.value)}
           error={toAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">
