@@ -67,7 +67,7 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
           if (error instanceof Error) {
             setChainsError(dispatch, error.message);
           } else {
-            setChainsError(dispatch, "Failed to get chains from registry");
+            setChainsError(dispatch, `Failed to get chain ${chainName} from registry`);
           }
         }
       }
