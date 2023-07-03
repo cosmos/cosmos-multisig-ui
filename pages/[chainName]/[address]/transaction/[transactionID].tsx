@@ -13,7 +13,7 @@ import TransactionSigning from "../../../../components/forms/TransactionSigning"
 import Button from "../../../../components/inputs/Button";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
 import { getMultisigAccount } from "../../../../lib/multisigHelpers";
 import { dbTxFromJson } from "../../../../lib/txMsgHelpers";
@@ -66,7 +66,7 @@ const TransactionPage = ({
   signatures: DbSignature[];
   txHash: string;
 }) => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
   const [currentSignatures, setCurrentSignatures] = useState(signatures);
   const [broadcastError, setBroadcastError] = useState("");
   const [isBroadcasting, setIsBroadcasting] = useState(false);
@@ -85,10 +85,9 @@ const TransactionPage = ({
   const fetchMultisig = useCallback(
     async (address: string) => {
       try {
-        assert(state.chain.nodeAddress, "Node address missing");
-        const client = await StargateClient.connect(state.chain.nodeAddress);
-        assert(state.chain.addressPrefix, "addressPrefix missing");
-        const result = await getMultisigAccount(address, state.chain.addressPrefix, client);
+        const client = await StargateClient.connect(chain.nodeAddress);
+
+        const result = await getMultisigAccount(address, chain.addressPrefix, client);
         setPubkey(result[0]);
         setAccountOnChain(result[1]);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,7 +96,7 @@ const TransactionPage = ({
         console.log("Account error:", error);
       }
     },
-    [state.chain.addressPrefix, state.chain.nodeAddress],
+    [chain.addressPrefix, chain.nodeAddress],
   );
 
   useEffect(() => {
@@ -126,8 +125,8 @@ const TransactionPage = ({
         bodyBytes,
         new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
       );
-      assert(state.chain.nodeAddress, "Node address missing");
-      const broadcaster = await StargateClient.connect(state.chain.nodeAddress);
+
+      const broadcaster = await StargateClient.connect(chain.nodeAddress);
       const result = await broadcaster.broadcastTx(signedTxBytes);
       console.log(result);
       const _res = await axios.post(`/api/transaction/${transactionID}`, {
@@ -146,7 +145,12 @@ const TransactionPage = ({
     : false;
 
   return (
-    <Page goBack={{ pathname: `/multi/${multisigAddress}`, title: "multisig" }}>
+    <Page
+      goBack={{
+        pathname: `/${chain.registryName}/${multisigAddress}`,
+        title: "multisig",
+      }}
+    >
       <StackableContainer base>
         <StackableContainer>
           <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>

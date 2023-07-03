@@ -1,15 +1,14 @@
 import { Account, StargateClient } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import CreateTxForm from "../../../../components/forms/CreateTxForm";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
 import { getMultisigAccount } from "../../../../lib/multisigHelpers";
 
 const NewTransactionPage = () => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [accountError, setAccountError] = useState(null);
   const router = useRouter();
@@ -19,10 +18,9 @@ const NewTransactionPage = () => {
     async (address: string) => {
       setAccountError(null);
       try {
-        assert(state.chain.nodeAddress, "Node address missing");
-        const client = await StargateClient.connect(state.chain.nodeAddress);
-        assert(state.chain.addressPrefix, "addressPrefix missing");
-        const result = await getMultisigAccount(address, state.chain.addressPrefix, client);
+        const client = await StargateClient.connect(chain.nodeAddress);
+
+        const result = await getMultisigAccount(address, chain.addressPrefix, client);
         setAccountOnChain(result[1]);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
@@ -30,7 +28,7 @@ const NewTransactionPage = () => {
         console.log("Account error:", error);
       }
     },
-    [state.chain.addressPrefix, state.chain.nodeAddress],
+    [chain.addressPrefix, chain.nodeAddress],
   );
 
   useEffect(() => {
@@ -40,7 +38,13 @@ const NewTransactionPage = () => {
   }, [fetchMultisig, multisigAddress]);
 
   return (
-    <Page goBack={{ pathname: `/multi/${multisigAddress}`, title: "multisig", needsConfirm: true }}>
+    <Page
+      goBack={{
+        pathname: `/${chain.registryName}/${multisigAddress}`,
+        title: "multisig",
+        needsConfirm: true,
+      }}
+    >
       <StackableContainer base>
         {accountError || !accountOnChain ? (
           <StackableContainer>
