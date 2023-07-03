@@ -32,7 +32,7 @@ const ChainSelect = () => {
     value: name,
   }));
   const selectValue = chainOptions.find((option) => option.value === chain.registryName) ?? {
-    label: "unknowm chain",
+    label: "unknown chain",
     value: chain.registryName,
   };
 
