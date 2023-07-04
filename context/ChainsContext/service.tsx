@@ -1,4 +1,5 @@
 import { StargateClient } from "@cosmjs/stargate";
+import { assert } from "@cosmjs/utils";
 import {
   GithubChainRegistryItem,
   RegistryAsset,
@@ -98,7 +99,7 @@ export const getChainFromRegistry = async (chainName: string, isTestnet?: boolea
   const firstAssetDenom = firstAsset.base;
   const displayDenom = firstAsset.symbol;
   const displayUnit = firstAsset.denom_units.find((u) => u.denom == firstAsset.display);
-  const displayDenomExponent = displayUnit?.exponent ?? 6; // TODO remove hardcoded fallback 6
+  assert(displayUnit, `Unit not found for ${firstAsset.display}`);
 
   const feeToken = chainItem.fees.fee_tokens.find((token) => token.denom == firstAssetDenom) ?? {
     denom: firstAssetDenom,
@@ -120,14 +121,15 @@ export const getChainFromRegistry = async (chainName: string, isTestnet?: boolea
     explorerLink,
     denom: firstAssetDenom,
     displayDenom,
-    displayDenomExponent,
+    displayDenomExponent: displayUnit.exponent,
     gasPrice: formattedGasPrice,
     assets: registryAssets,
   };
 
-  if (!isChainInfoFilled(chain)) {
-    throw new Error(`Chain ${chainName} loaded from the registry with missing data`);
-  }
+  assert(
+    !isChainInfoFilled(chain),
+    `Chain ${chainName} loaded from the registry with missing data`,
+  );
 
   return chain;
 };
