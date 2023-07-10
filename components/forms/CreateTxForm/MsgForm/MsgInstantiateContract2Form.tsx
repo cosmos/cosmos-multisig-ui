@@ -57,6 +57,7 @@ const MsgInstantiateContract2Form = ({
   useEffect(() => {
     assert(state.chain.denom, "denom missing");
 
+    setCodeIdError("");
     setAdminAddressError("");
     setMsgContentError("");
     setCustomDenomError("");
