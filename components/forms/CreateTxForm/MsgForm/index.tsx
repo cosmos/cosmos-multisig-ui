@@ -3,6 +3,9 @@ import { MsgTypeUrl, MsgTypeUrls } from "../../../../types/txMsg";
 import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
 import MsgCreateVestingAccountForm from "./MsgCreateVestingAccountForm";
 import MsgDelegateForm from "./MsgDelegateForm";
+import MsgExecuteContractForm from "./MsgExecuteContractForm";
+import MsgInstantiateContract2Form from "./MsgInstantiateContract2Form";
+import MsgInstantiateContractForm from "./MsgInstantiateContractForm";
 import MsgRedelegateForm from "./MsgRedelegateForm";
 import MsgSendForm from "./MsgSendForm";
 import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
@@ -34,6 +37,12 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgCreateVestingAccountForm fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Transfer:
       return <MsgTransferForm fromAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.Execute:
+      return <MsgExecuteContractForm fromAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.Instantiate:
+      return <MsgInstantiateContractForm fromAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.Instantiate2:
+      return <MsgInstantiateContract2Form fromAddress={senderAddress} {...restProps} />;
     default:
       return null;
   }
