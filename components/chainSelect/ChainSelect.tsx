@@ -7,6 +7,7 @@ import {
   setChainFromRegistry,
   setChainsError,
 } from "../../context/ChainsContext/helpers";
+import { RegistryAsset } from "../../types/chainRegistry";
 import GearIcon from "../icons/Gear";
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
@@ -25,6 +26,7 @@ const ChainSelect = () => {
   const [optionToConfirm, setOptionToConfirm] = useState<ChainOption | null>(null);
   const [showAuxView, setShowAuxView] = useState<null | "settings" | "confirmRedirect">(null);
   const [chainInForm, setChainInForm] = useState(chain);
+  const [stringAssets, setStringAssets] = useState(JSON.stringify(chain.assets));
 
   const chainArray = [...chains.mainnets, ...chains.testnets];
   const chainOptions: readonly ChainOption[] = chainArray.map(({ name }) => ({
@@ -38,7 +40,17 @@ const ChainSelect = () => {
 
   useEffect(() => {
     setChainInForm(chain);
+    setStringAssets(JSON.stringify(chain.assets));
   }, [chain]);
+
+  useEffect(() => {
+    try {
+      const assets: readonly RegistryAsset[] = JSON.parse(stringAssets);
+      setChainInForm((oldChain) => ({ ...oldChain, assets }));
+    } catch {
+      setChainsError(chainsDispatch, "Assets needs to be valid JSON");
+    }
+  }, [chainsDispatch, stringAssets]);
 
   const selectChainOption = (chainOption: ChainOption) => {
     if (router.pathname !== "/" && chainOption.value !== selectValue.value) {
@@ -186,13 +198,8 @@ const ChainSelect = () => {
                 />
                 <Input
                   width="48%"
-                  value={JSON.stringify(chainInForm.assets)}
-                  onChange={({ target }) =>
-                    setChainInForm((oldChain) => ({
-                      ...oldChain,
-                      assets: JSON.parse(target.value),
-                    }))
-                  }
+                  value={stringAssets}
+                  onChange={({ target }) => setStringAssets(target.value)}
                   label="Assets"
                 />
               </div>
