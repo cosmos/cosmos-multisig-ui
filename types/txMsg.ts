@@ -13,6 +13,7 @@ import {
   MsgExecuteContract,
   MsgInstantiateContract,
   MsgInstantiateContract2,
+  MsgMigrateContract,
 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 
@@ -28,6 +29,7 @@ export const MsgTypeUrls = {
   Execute: "/cosmwasm.wasm.v1.MsgExecuteContract",
   Instantiate: "/cosmwasm.wasm.v1.MsgInstantiateContract",
   Instantiate2: "/cosmwasm.wasm.v1.MsgInstantiateContract2",
+  Migrate: "/cosmwasm.wasm.v1.MsgMigrateContract",
 } as const;
 
 export type MsgTypeUrl = (typeof MsgTypeUrls)[keyof typeof MsgTypeUrls];
@@ -44,4 +46,5 @@ export const MsgCodecs = {
   [MsgTypeUrls.Execute]: MsgExecuteContract,
   [MsgTypeUrls.Instantiate]: MsgInstantiateContract,
   [MsgTypeUrls.Instantiate2]: MsgInstantiateContract2,
+  [MsgTypeUrls.Migrate]: MsgMigrateContract,
 };

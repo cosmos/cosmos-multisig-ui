@@ -26,6 +26,8 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
       return 150_000;
     case MsgTypeUrls.Instantiate2:
       return 150_000;
+    case MsgTypeUrls.Migrate:
+      return 150_000;
     default:
       throw new Error("Unknown msg type");
   }
