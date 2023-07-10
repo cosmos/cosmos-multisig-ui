@@ -188,6 +188,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           label="Add MsgInstantiateContract2"
           onClick={() => addMsgType(MsgTypeUrls.Instantiate2)}
         />
+        <Button label="Add MsgMigrateContract" onClick={() => addMsgType(MsgTypeUrls.Migrate)} />
       </StackableContainer>
       {showCreateTxError ? (
         <StackableContainer lessMargin lessPadding>
