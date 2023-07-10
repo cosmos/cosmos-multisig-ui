@@ -126,10 +126,7 @@ export const getChainFromRegistry = async (chainName: string, isTestnet?: boolea
     assets: registryAssets,
   };
 
-  assert(
-    !isChainInfoFilled(chain),
-    `Chain ${chainName} loaded from the registry with missing data`,
-  );
+  assert(isChainInfoFilled(chain), `Chain ${chainName} loaded from the registry with missing data`);
 
   return chain;
 };
