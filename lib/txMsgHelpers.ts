@@ -20,6 +20,12 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
       return 100_000;
     case MsgTypeUrls.Transfer:
       return 180_000;
+    case MsgTypeUrls.Execute:
+      return 150_000;
+    case MsgTypeUrls.Instantiate:
+      return 150_000;
+    case MsgTypeUrls.Instantiate2:
+      return 150_000;
     default:
       throw new Error("Unknown msg type");
   }
