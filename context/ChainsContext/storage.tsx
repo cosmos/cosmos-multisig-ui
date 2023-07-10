@@ -38,7 +38,7 @@ export const setChainInUrl = (chain: ChainInfo) => {
   window.history.replaceState({}, "", `${location.pathname}?${params}`);
 };
 
-export const getChainFromStorage = (chainName: string | undefined) => {
+export const getChainFromStorage = (chainName: string | null) => {
   const storedChain = localStorage.getItem(localStorageKey);
   if (!storedChain) return null;
 
@@ -47,17 +47,12 @@ export const getChainFromStorage = (chainName: string | undefined) => {
   return isChainNameValid && isChainInfoFilled(chain) ? chain : null;
 };
 
-const setChainInStorage = (chain: ChainInfo) => {
+export const setChainInStorage = (chain: ChainInfo) => {
   const stringChain = JSON.stringify(chain);
   localStorage.setItem(localStorageKey, stringChain);
 };
 
-export const storeChain = (chain: ChainInfo) => {
-  setChainInStorage(chain);
-  setChainInUrl(chain);
-};
-
-export const getChainFromEnvfile = (chainName: string | undefined) => {
+export const getChainFromEnvfile = (chainName: string | null) => {
   const chain: ChainInfo = {
     nodeAddress: process.env.NEXT_PUBLIC_NODE_ADDRESS || "",
     denom: process.env.NEXT_PUBLIC_DENOM || "",
