@@ -3,11 +3,11 @@ import { ChainInfo } from "./types";
 
 const localStorageKey = "context-chain-info";
 
-export const getChainFromUrl = (chainName: string | undefined) => {
+export const getChainFromUrl = (chainName: string | null) => {
   const params = new URLSearchParams(location.search);
 
   const chain: ChainInfo = {
-    registryName: chainName || "",
+    registryName: decodeURIComponent(params.get("registryName") || ""),
     chainId: decodeURIComponent(params.get("chainId") || ""),
     nodeAddress: decodeURIComponent(params.get("nodeAddress") || ""),
     denom: decodeURIComponent(params.get("denom") || ""),
@@ -20,13 +20,14 @@ export const getChainFromUrl = (chainName: string | undefined) => {
     explorerLink: decodeURIComponent(params.get("explorerLink") || ""),
   };
 
-  return isChainInfoFilled(chain) ? chain : null;
+  const isChainNameValid = chain.registryName === chainName || !chainName;
+  return isChainNameValid && isChainInfoFilled(chain) ? chain : null;
 };
 
-const setChainInUrl = ({ registryName, ...restChainFields }: ChainInfo) => {
+export const setChainInUrl = (chain: ChainInfo) => {
   const params = new URLSearchParams();
 
-  for (const [key, value] of Object.entries(restChainFields)) {
+  for (const [key, value] of Object.entries(chain)) {
     if (typeof value === "object") {
       params.set(key, encodeURIComponent(JSON.stringify(value)));
     } else {
@@ -34,7 +35,7 @@ const setChainInUrl = ({ registryName, ...restChainFields }: ChainInfo) => {
     }
   }
 
-  window.history.replaceState({}, registryName, `${location.pathname}?${params}`);
+  window.history.replaceState({}, "", `${location.pathname}?${params}`);
 };
 
 export const getChainFromStorage = (chainName: string | undefined) => {
