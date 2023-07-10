@@ -14,7 +14,7 @@ const TxMsgInstantiateContract2Details = ({ msgValue }: TxMsgInstantiateContract
   return (
     <>
       <li>
-        <h3>MsgInstantiateContract</h3>
+        <h3>MsgInstantiateContract2</h3>
       </li>
       <li>
         <label>Code ID:</label>

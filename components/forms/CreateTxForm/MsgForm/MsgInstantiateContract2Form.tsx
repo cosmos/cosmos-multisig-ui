@@ -163,7 +163,7 @@ const MsgInstantiateContract2Form = ({
       <button className="remove" onClick={() => deleteMsg()}>
         ✕
       </button>
-      <h2>MsgInstantiateContract</h2>
+      <h2>MsgInstantiateContract2</h2>
       <div className="form-item">
         <Input
           label="Code ID"

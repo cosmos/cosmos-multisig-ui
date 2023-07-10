@@ -142,7 +142,7 @@ const MsgExecuteContractForm = ({
       <button className="remove" onClick={() => deleteMsg()}>
         ✕
       </button>
-      <h2>MsgSend</h2>
+      <h2>MsgExecuteContract</h2>
       <div className="form-item">
         <Input
           label="Contract Address"
