@@ -8,7 +8,13 @@ import {
   RegistryChainExplorer,
 } from "../../types/chainRegistry";
 import { emptyChain, isChainInfoFilled } from "./helpers";
-import { getChainFromEnvfile, getChainFromStorage, getChainFromUrl } from "./storage";
+import {
+  getChainFromEnvfile,
+  getChainFromStorage,
+  getChainFromUrl,
+  setChainInStorage,
+  setChainInUrl,
+} from "./storage";
 import { ChainInfo, ChainItems } from "./types";
 
 const chainsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents";
@@ -134,15 +140,28 @@ export const getChainFromRegistry = async (chainName: string, isTestnet?: boolea
 export const getChain = () => {
   if (typeof window === "undefined") return emptyChain;
 
-  const chainName = location.pathname.split("/")[1];
-  const chainFromUrl = getChainFromUrl(chainName);
-  if (chainFromUrl) return chainFromUrl;
+  const rootRoute = location.pathname.split("/")[1];
+  // Avoid app from thinking the /create and /api routes are registryNames
+  const chainNameFromUrl = ["create", "api"].includes(rootRoute) ? null : rootRoute;
 
-  const chainFromStorage = getChainFromStorage(chainName);
-  if (chainFromStorage) return chainFromStorage;
+  const chainFromUrl = getChainFromUrl(chainNameFromUrl);
+  if (chainFromUrl) {
+    setChainInStorage(chainFromUrl);
+    return chainFromUrl;
+  }
 
-  const chainFromEnvfile = getChainFromEnvfile(chainName);
-  if (chainFromEnvfile) return chainFromEnvfile;
+  const chainFromStorage = getChainFromStorage(chainNameFromUrl);
+  if (chainFromStorage) {
+    setChainInUrl(chainFromStorage);
+    return chainFromStorage;
+  }
 
-  return emptyChain;
+  const chainFromEnvfile = getChainFromEnvfile(chainNameFromUrl);
+  if (chainFromEnvfile) {
+    setChainInStorage(chainFromEnvfile);
+    setChainInUrl(chainFromEnvfile);
+    return chainFromEnvfile;
+  }
+
+  return { ...emptyChain, registryName: chainNameFromUrl || "cosmoshub" };
 };
