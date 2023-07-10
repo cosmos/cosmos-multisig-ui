@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect, useReducer } from "react";
-import { setChain, setChains, setChainsError } from "./helpers";
+import { isChainInfoFilled, setChain, setChains, setChainsError } from "./helpers";
 import { getChain, getChainFromRegistry, getChainItemsFromRegistry } from "./service";
-import { storeChain } from "./storage";
+import { setChainInStorage, setChainInUrl } from "./storage";
 import { Action, ChainsContextType, State } from "./types";
 
 const ChainsContext = createContext<ChainsContextType | undefined>(undefined);
@@ -12,7 +12,8 @@ const chainsReducer = (state: State, action: Action) => {
       return { ...state, chains: action.payload };
     }
     case "setChain": {
-      storeChain(action.payload);
+      setChainInStorage(action.payload);
+      setChainInUrl(action.payload);
       return { ...state, chain: action.payload };
     }
     case "setChainsError": {
@@ -51,33 +52,30 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
 
   useEffect(() => {
     (async function getChainFromRegistryIfEmpty() {
-      if (!state.chain.chainId && state.chains.mainnets.length && state.chains.testnets.length) {
-        const chainName =
-          state.chain.registryName ||
-          location.pathname.split("/")[1] ||
-          process.env.NEXT_PUBLIC_REGISTRY_NAME ||
-          "cosmoshub";
+      if (
+        isChainInfoFilled(state.chain) ||
+        !state.chains.mainnets.length ||
+        !state.chains.testnets.length
+      ) {
+        return;
+      }
 
-        const isTestnet = !!state.chains.testnets.find(({ name }) => name === chainName);
+      const isTestnet = !!state.chains.testnets.find(
+        ({ name }) => name === state.chain.registryName,
+      );
 
-        try {
-          const chainFromRegistry = await getChainFromRegistry(chainName, isTestnet);
-          setChain(dispatch, chainFromRegistry);
-        } catch (error) {
-          if (error instanceof Error) {
-            setChainsError(dispatch, error.message);
-          } else {
-            setChainsError(dispatch, `Failed to get chain ${chainName} from registry`);
-          }
+      try {
+        const chainFromRegistry = await getChainFromRegistry(state.chain.registryName, isTestnet);
+        setChain(dispatch, chainFromRegistry);
+      } catch (error) {
+        if (error instanceof Error) {
+          setChainsError(dispatch, error.message);
+        } else {
+          setChainsError(dispatch, `Failed to get chain ${state.chain.registryName} from registry`);
         }
       }
     })();
-  }, [
-    state.chain.chainId,
-    state.chain.registryName,
-    state.chains.mainnets.length,
-    state.chains.testnets,
-  ]);
+  }, [state.chain, state.chains.mainnets.length, state.chains.testnets]);
 
   return <ChainsContext.Provider value={{ state, dispatch }}>{children}</ChainsContext.Provider>;
 };
