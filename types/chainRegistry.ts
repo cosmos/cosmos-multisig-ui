@@ -1,4 +1,19 @@
-import axios from "axios";
+export interface GithubChainRegistryItem {
+  name: string;
+  path: string;
+  sha: string;
+  size: number;
+  url: string;
+  html_url: string;
+  git_url: string;
+  download_url: string | null;
+  type: string;
+  _links: {
+    self: string;
+    git: string;
+    html: string;
+  };
+}
 
 export interface RegistryChainApisRpc {
   readonly address: string;
@@ -36,57 +51,28 @@ export interface RegistryChain {
   readonly pretty_name: string;
 }
 
-export interface RegistryChainResponse {
-  readonly data: RegistryChain;
-}
-
 /**
  * See https://github.com/cosmos/chain-registry/blob/1e9ecde770951cab90f0853a624411d79af90b83/provenance/assetlist.json#L8-L12
  */
 export interface RegistryAssetDenomUnit {
-  denom: string;
-  exponent: number;
-  aliases?: string[];
+  readonly denom: string;
+  readonly exponent: number;
+  readonly aliases?: readonly string[];
 }
 
 /**
  * See https://github.com/cosmos/chain-registry/blob/1e9ecde770951cab90f0853a624411d79af90b83/provenance/assetlist.json#L5-L28
  */
 export interface RegistryAsset {
-  description: string;
-  denom_units: RegistryAssetDenomUnit[];
-  base: string;
-  name: string;
-  display: string;
-  symbol: string;
-  logo_URIs: {
-    png: string;
-    svg: string;
+  readonly denom_units: readonly RegistryAssetDenomUnit[];
+  readonly base: string;
+  readonly display: string;
+  readonly name: string;
+  readonly symbol: string;
+  readonly description?: string;
+  readonly logo_URIs?: {
+    readonly png: string;
+    readonly svg: string;
   };
-  coingecko_id: string;
+  readonly coingecko_id?: string;
 }
-
-export interface RegistryAssetsResponse {
-  readonly data: { readonly assets: readonly RegistryAsset[] };
-}
-
-const registryGhUrl = "https://cdn.jsdelivr.net/gh/cosmos/chain-registry@master/";
-
-export const getChainFromRegistry = async (chainGhName: string): Promise<RegistryChain> => {
-  const chainGhUrl = registryGhUrl + chainGhName + "/chain.json";
-
-  const { data: chain }: RegistryChainResponse = await axios.get(chainGhUrl);
-  return chain;
-};
-
-export const getAssetsFromRegistry = async (
-  chainGhName: string,
-): Promise<readonly RegistryAsset[]> => {
-  const assetsGhUrl = registryGhUrl + chainGhName + "/assetlist.json";
-
-  const {
-    data: { assets },
-  }: RegistryAssetsResponse = await axios.get(assetsGhUrl);
-
-  return assets;
-};

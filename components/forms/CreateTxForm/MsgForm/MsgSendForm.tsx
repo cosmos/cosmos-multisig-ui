@@ -1,11 +1,10 @@
 import { Decimal } from "@cosmjs/math";
 import { MsgSendEncodeObject } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { ChainInfo } from "../../../../types";
+import { RegistryAsset } from "../../../../types/chainRegistry";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
@@ -13,7 +12,7 @@ import StackableContainer from "../../../layout/StackableContainer";
 
 const customDenomOption = { label: "Custom (enter denom below)", value: "custom" } as const;
 
-const getDenomOptions = (assets: ChainInfo["assets"]) => {
+const getDenomOptions = (assets: readonly RegistryAsset[]) => {
   if (!assets?.length) {
     return [customDenomOption];
   }
@@ -28,10 +27,9 @@ interface MsgSendFormProps {
 }
 
 const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps) => {
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  const { chain } = useChains();
 
-  const denomOptions = getDenomOptions(state.chain.assets);
+  const denomOptions = getDenomOptions(chain.assets);
 
   const [toAddress, setToAddress] = useState("");
   const [selectedDenom, setSelectedDenom] = useState(denomOptions[0]);
@@ -43,18 +41,14 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
   const [amountError, setAmountError] = useState("");
 
   useEffect(() => {
-    assert(state.chain.denom, "denom missing");
-
     setToAddressError("");
     setCustomDenomError("");
     setAmountError("");
 
     const isMsgValid = (): boolean => {
-      assert(state.chain.addressPrefix, "addressPrefix missing");
-
-      const addressErrorMsg = checkAddress(toAddress, state.chain.addressPrefix);
+      const addressErrorMsg = checkAddress(toAddress, chain.addressPrefix);
       if (addressErrorMsg) {
-        setToAddressError(`Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`);
+        setToAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
         return false;
       }
 
@@ -85,7 +79,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
           return Decimal.fromUserInput(amount, 0).atomics;
         }
 
-        const foundAsset = state.chain.assets?.find((asset) => asset.symbol === denom);
+        const foundAsset = chain.assets.find((asset) => asset.symbol === denom);
         const exponent =
           foundAsset?.denom_units.find((unit) => unit.denom === foundAsset.symbol.toLowerCase())
             ?.exponent ?? 0;
@@ -107,14 +101,13 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
     setMsgGetter({ isMsgValid, msg });
   }, [
     amount,
+    chain.addressPrefix,
+    chain.assets,
+    chain.chainId,
     customDenom,
     fromAddress,
     selectedDenom.value,
     setMsgGetter,
-    state.chain.addressPrefix,
-    state.chain.assets,
-    state.chain.chainId,
-    state.chain.denom,
     toAddress,
   ]);
 
@@ -131,7 +124,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
           value={toAddress}
           onChange={({ target }) => setToAddress(target.value)}
           error={toAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item form-select">

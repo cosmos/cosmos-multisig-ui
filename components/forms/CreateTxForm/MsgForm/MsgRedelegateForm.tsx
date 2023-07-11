@@ -1,9 +1,8 @@
 import { Decimal } from "@cosmjs/math";
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -20,8 +19,7 @@ const MsgRedelegateForm = ({
   setMsgGetter,
   deleteMsg,
 }: MsgRedelegateFormProps) => {
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  const { chain } = useChains();
 
   const [validatorSrcAddress, setValidatorSrcAddress] = useState("");
   const [validatorDstAddress, setValidatorDstAddress] = useState("");
@@ -33,27 +31,23 @@ const MsgRedelegateForm = ({
 
   useEffect(() => {
     try {
-      assert(state.chain.denom, "denom missing");
-
       setValidatorSrcAddressError("");
       setValidatorDstAddressError("");
       setAmountError("");
 
       const isMsgValid = (): boolean => {
-        assert(state.chain.addressPrefix, "addressPrefix missing");
-
-        const srcAddressErrorMsg = checkAddress(validatorSrcAddress, state.chain.addressPrefix);
+        const srcAddressErrorMsg = checkAddress(validatorSrcAddress, chain.addressPrefix);
         if (srcAddressErrorMsg) {
           setValidatorSrcAddressError(
-            `Invalid address for network ${state.chain.chainId}: ${srcAddressErrorMsg}`,
+            `Invalid address for network ${chain.chainId}: ${srcAddressErrorMsg}`,
           );
           return false;
         }
 
-        const dstAddressErrorMsg = checkAddress(validatorDstAddress, state.chain.addressPrefix);
+        const dstAddressErrorMsg = checkAddress(validatorDstAddress, chain.addressPrefix);
         if (dstAddressErrorMsg) {
           setValidatorDstAddressError(
-            `Invalid address for network ${state.chain.chainId}: ${dstAddressErrorMsg}`,
+            `Invalid address for network ${chain.chainId}: ${dstAddressErrorMsg}`,
           );
           return false;
         }
@@ -68,14 +62,14 @@ const MsgRedelegateForm = ({
 
       const amountInAtomics = Decimal.fromUserInput(
         amount || "0",
-        Number(state.chain.displayDenomExponent),
+        Number(chain.displayDenomExponent),
       ).atomics;
 
       const msgValue = MsgCodecs[MsgTypeUrls.BeginRedelegate].fromPartial({
         delegatorAddress,
         validatorSrcAddress,
         validatorDstAddress,
-        amount: { amount: amountInAtomics, denom: state.chain.denom },
+        amount: { amount: amountInAtomics, denom: chain.denom },
       });
 
       const msg: EncodeObject = { typeUrl: MsgTypeUrls.BeginRedelegate, value: msgValue };
@@ -84,12 +78,12 @@ const MsgRedelegateForm = ({
     } catch {}
   }, [
     amount,
+    chain.addressPrefix,
+    chain.chainId,
+    chain.denom,
+    chain.displayDenomExponent,
     delegatorAddress,
     setMsgGetter,
-    state.chain.addressPrefix,
-    state.chain.chainId,
-    state.chain.denom,
-    state.chain.displayDenomExponent,
     validatorDstAddress,
     validatorSrcAddress,
   ]);
@@ -107,7 +101,7 @@ const MsgRedelegateForm = ({
           value={validatorSrcAddress}
           onChange={({ target }) => setValidatorSrcAddress(target.value)}
           error={validatorSrcAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">
@@ -117,13 +111,13 @@ const MsgRedelegateForm = ({
           value={validatorDstAddress}
           onChange={({ target }) => setValidatorDstAddress(target.value)}
           error={validatorDstAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">
         <Input
           type="number"
-          label={`Amount (${state.chain.displayDenom})`}
+          label={`Amount (${chain.displayDenom})`}
           name="amount"
           value={amount}
           onChange={({ target }) => setAmount(target.value)}

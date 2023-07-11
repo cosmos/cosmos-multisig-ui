@@ -1,8 +1,7 @@
 import { StargateClient } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
 import { NextRouter, withRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useAppContext } from "../../context/AppContext";
+import { useChains } from "../../context/ChainsContext";
 import { exampleAddress } from "../../lib/displayHelpers";
 import { getMultisigAccount } from "../../lib/multisigHelpers";
 import Button from "../inputs/Button";
@@ -14,12 +13,12 @@ interface Props {
 }
 
 const FindMultisigForm = (props: Props) => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
   const [address, setAddress] = useState("");
   const [multisigError, setMultisigError] = useState("");
 
   const handleSearch = () => {
-    props.router.push(`/multi/${address}`);
+    props.router.push(`/${chain.registryName}/${address}`);
   };
 
   useEffect(() => {
@@ -30,10 +29,8 @@ const FindMultisigForm = (props: Props) => {
       }
 
       try {
-        assert(state.chain.nodeAddress, "Node address missing");
-        const client = await StargateClient.connect(state.chain.nodeAddress);
-        assert(state.chain.addressPrefix, "addressPrefix missing");
-        await getMultisigAccount(address, state.chain.addressPrefix, client);
+        const client = await StargateClient.connect(chain.nodeAddress);
+        await getMultisigAccount(address, chain.addressPrefix, client);
         setMultisigError("");
       } catch (error) {
         if (error instanceof Error) {
@@ -44,9 +41,7 @@ const FindMultisigForm = (props: Props) => {
         console.error("Multisig error:", error);
       }
     })();
-  }, [address, state.chain.addressPrefix, state.chain.nodeAddress]);
-
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  }, [address, chain.addressPrefix, chain.nodeAddress]);
 
   return (
     <StackableContainer>
@@ -62,7 +57,7 @@ const FindMultisigForm = (props: Props) => {
           value={address}
           label="Multisig Address"
           name="address"
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
           error={multisigError}
         />
         <Button

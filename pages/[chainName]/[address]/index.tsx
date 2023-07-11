@@ -1,6 +1,5 @@
 import { MultisigThresholdPubkey, SinglePubkey } from "@cosmjs/amino";
 import { Account, StargateClient } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
@@ -10,7 +9,7 @@ import MultisigMembers from "../../../components/dataViews/MultisigMembers";
 import Button from "../../../components/inputs/Button";
 import Page from "../../../components/layout/Page";
 import StackableContainer from "../../../components/layout/StackableContainer";
-import { useAppContext } from "../../../context/AppContext";
+import { useChains } from "../../../context/ChainsContext";
 import { explorerLinkAccount } from "../../../lib/displayHelpers";
 import { getMultisigAccount } from "../../../lib/multisigHelpers";
 
@@ -22,8 +21,7 @@ function participantPubkeysFromMultisig(
 
 const Multipage = () => {
   const router = useRouter();
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "address prefix missing");
+  const { chain } = useChains();
 
   const [holdings, setHoldings] = useState<readonly Coin[]>([]);
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
@@ -40,15 +38,13 @@ const Multipage = () => {
     async (address: string) => {
       setAccountError(null);
       try {
-        assert(state.chain.nodeAddress, "Node address missing");
-        const client = await StargateClient.connect(state.chain.nodeAddress);
-        assert(state.chain.denom, "denom missing");
+        const client = await StargateClient.connect(chain.nodeAddress);
         const tempHoldings = await client.getAllBalances(address);
         setHoldings(tempHoldings);
-        assert(state.chain.addressPrefix, "addressPrefix missing");
+
         const [newPubkey, newAccountOnChain] = await getMultisigAccount(
           address,
-          state.chain.addressPrefix,
+          chain.addressPrefix,
           client,
         );
         setPubkey(newPubkey);
@@ -59,7 +55,7 @@ const Multipage = () => {
         console.log("Account error:", error);
       }
     },
-    [state.chain.addressPrefix, state.chain.denom, state.chain.nodeAddress],
+    [chain.addressPrefix, chain.nodeAddress],
   );
 
   useEffect(() => {
@@ -79,7 +75,7 @@ const Multipage = () => {
         {pubkey ? (
           <MultisigMembers
             members={participantPubkeysFromMultisig(pubkey)}
-            addressPrefix={state.chain.addressPrefix}
+            addressPrefix={chain.addressPrefix}
             threshold={pubkey.value.threshold}
           />
         ) : null}
@@ -111,7 +107,7 @@ const Multipage = () => {
         ) : null}
         <Button
           label="Create New Transaction"
-          onClick={() => router.push(`/multi/${multisigAddress}/transaction/new`)}
+          onClick={() => router.push(`/${chain.registryName}/${multisigAddress}/transaction/new`)}
           disabled={!accountOnChain || !multisigAddress}
         />
       </StackableContainer>

@@ -6,7 +6,7 @@ import { assert } from "@cosmjs/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import axios from "axios";
 import { useCallback, useLayoutEffect, useState } from "react";
-import { useAppContext } from "../../context/AppContext";
+import { useChains } from "../../context/ChainsContext";
 import { getConnectError } from "../../lib/errorHelpers";
 import { DbSignature, DbTransaction, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
@@ -21,18 +21,18 @@ interface LoadingStates {
   readonly ledger?: boolean;
 }
 
-interface Props {
-  signatures: DbSignature[];
-  tx: DbTransaction;
-  pubkey: MultisigThresholdPubkey;
-  transactionID: string;
-  addSignature: (signature: DbSignature) => void;
+interface TransactionSigningProps {
+  readonly signatures: DbSignature[];
+  readonly tx: DbTransaction;
+  readonly pubkey: MultisigThresholdPubkey;
+  readonly transactionID: string;
+  readonly addSignature: (signature: DbSignature) => void;
 }
 
-const TransactionSigning = (props: Props) => {
+const TransactionSigning = (props: TransactionSigningProps) => {
   const memberPubkeys = props.pubkey.value.pubkeys.map(({ value }) => value);
 
-  const { state } = useAppContext();
+  const { chain } = useChains();
   const [walletAccount, setWalletAccount] = useState<WalletAccount>();
   const [sigError, setSigError] = useState("");
   const [connectError, setConnectError] = useState("");
@@ -44,13 +44,12 @@ const TransactionSigning = (props: Props) => {
   const connectKeplr = useCallback(async () => {
     try {
       setLoading((oldLoading) => ({ ...oldLoading, keplr: true }));
-      assert(state.chain.chainId, "chainId missing");
 
-      await window.keplr.enable(state.chain.chainId);
+      await window.keplr.enable(chain.chainId);
       window.keplr.defaultOptions = {
         sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
       };
-      const tempWalletAccount = await window.keplr.getKey(state.chain.chainId);
+      const tempWalletAccount = await window.keplr.getKey(chain.chainId);
       setWalletAccount(tempWalletAccount);
 
       const pubkey = toBase64(tempWalletAccount.pubKey);
@@ -76,7 +75,7 @@ const TransactionSigning = (props: Props) => {
     } finally {
       setLoading((newLoading) => ({ ...newLoading, keplr: false }));
     }
-  }, [memberPubkeys, props.signatures, state.chain.chainId]);
+  }, [chain.chainId, memberPubkeys, props.signatures]);
 
   useLayoutEffect(() => {
     const accountChangeKey = "keplr_keystorechange";
@@ -91,7 +90,6 @@ const TransactionSigning = (props: Props) => {
   const connectLedger = async () => {
     try {
       setLoading((newLoading) => ({ ...newLoading, ledger: true }));
-      assert(state.chain.addressPrefix, "addressPrefix missing");
 
       // Prepare ledger
       const ledgerTransport = await TransportWebUSB.create(120000, 120000);
@@ -99,7 +97,7 @@ const TransactionSigning = (props: Props) => {
       // Setup signer
       const offlineSigner = new LedgerSigner(ledgerTransport, {
         hdPaths: [makeCosmoshubPath(0)],
-        prefix: state.chain.addressPrefix,
+        prefix: chain.addressPrefix,
       });
       const accounts = await offlineSigner.getAccounts();
       const tempWalletAccount: WalletAccount = {
@@ -138,12 +136,9 @@ const TransactionSigning = (props: Props) => {
   const signTransaction = async () => {
     try {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
-      assert(state.chain.chainId, "chainId missing");
 
       const offlineSigner =
-        walletType === "Keplr"
-          ? window.getOfflineSignerOnlyAmino(state.chain.chainId)
-          : ledgerSigner;
+        walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
@@ -152,7 +147,7 @@ const TransactionSigning = (props: Props) => {
       const signerData = {
         accountNumber: props.tx.accountNumber,
         sequence: props.tx.sequence,
-        chainId: state.chain.chainId,
+        chainId: chain.chainId,
       };
 
       const { bodyBytes, signatures } = await signingClient.sign(

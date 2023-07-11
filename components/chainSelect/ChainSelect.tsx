@@ -1,281 +1,97 @@
 import { StargateClient } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
-import axios from "axios";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
-import { useAppContext } from "../../context/AppContext";
+import { useEffect, useState } from "react";
+import { useChains } from "../../context/ChainsContext";
+import {
+  setChain,
+  setChainFromRegistry,
+  setChainsError,
+} from "../../context/ChainsContext/helpers";
+import { RegistryAsset } from "../../types/chainRegistry";
 import GearIcon from "../icons/Gear";
 import Button from "../inputs/Button";
 import Input from "../inputs/Input";
 import Select from "../inputs/Select";
 import StackableContainer from "../layout/StackableContainer";
-import {
-  RegistryChainApisRpc,
-  RegistryChainExplorer,
-  getAssetsFromRegistry,
-  getChainFromRegistry,
-} from "./chainregistry";
 
 interface ChainOption {
-  label: string;
-  value: number;
+  readonly label: string;
+  readonly value: string;
 }
-
-interface GithubChainRegistryItem {
-  name: string;
-  path: string;
-  sha: string;
-  size: number;
-  url: string;
-  html_url: string;
-  git_url: string;
-  download_url: string | null;
-  type: string;
-  _links: {
-    self: string;
-    git: string;
-    html: string;
-  };
-}
-
-const chainsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents";
-const testnetsUrl = "https://api.github.com/repos/cosmos/chain-registry/contents/testnets";
 
 const ChainSelect = () => {
   const router = useRouter();
-  const { state, dispatch } = useAppContext();
+  const { chain, chains, chainsError, chainsDispatch } = useChains();
 
-  // UI State
-  const [chainArray, setChainArray] = useState<GithubChainRegistryItem[]>([]);
-  const [chainOptions, setChainOptions] = useState<ChainOption[]>([]);
-  const [chainError, setChainError] = useState<string | null>(null);
+  const [optionToConfirm, setOptionToConfirm] = useState<ChainOption | null>(null);
   const [showAuxView, setShowAuxView] = useState<null | "settings" | "confirmRedirect">(null);
-  const [storedOption, setStoredOption] = useState<ChainOption | null>(null);
-  const [selectValue, setSelectValue] = useState({ label: "Loading...", value: -1 });
+  const [chainInForm, setChainInForm] = useState(chain);
+  const [stringAssets, setStringAssets] = useState(JSON.stringify(chain.assets));
 
-  // Chain State
-  const [tempChainId, setChainId] = useState(state.chain.chainId);
-  const [tempNodeAddress, setNodeAddress] = useState(state.chain.nodeAddress);
-  const [tempAddressPrefix, setAddressPrefix] = useState(state.chain.addressPrefix);
-  const [tempDenom, setDenom] = useState(state.chain.denom);
-  const [tempDisplayDenom, setDisplayDenom] = useState(state.chain.displayDenom);
-  const [tempDisplayDenomExponent, setDisplayDenomExponent] = useState(
-    state.chain.displayDenomExponent,
-  );
-  const [tempAssets, setAssets] = useState(state.chain.assets);
-  const [tempGasPrice, setGasPrice] = useState(state.chain.gasPrice);
-  const [tempChainName, setChainName] = useState(state.chain.chainDisplayName);
-  const [tempRegistryName, setRegistryName] = useState(state.chain.registryName);
-  const [tempExplorerLink, setExplorerLink] = useState(state.chain.explorerLink);
-
-  const getGhJson = useCallback(async () => {
-    // getting chain info from this repo: https://github.com/cosmos/chain-registry
-    try {
-      const [{ data: chains }, { data: testnets }] = await Promise.all([
-        axios.get(chainsUrl),
-        axios.get(testnetsUrl),
-      ]);
-
-      const allChains: GithubChainRegistryItem[] = [...chains, ...testnets].filter(
-        (item: GithubChainRegistryItem) => {
-          return item.type == "dir" && !item.name.startsWith(".") && !item.name.startsWith("_");
-        },
-      );
-      setChainArray(allChains);
-
-      const options = allChains.map(({ name }: GithubChainRegistryItem, index: number) => ({
-        label: name,
-        value: index,
-      }));
-      setChainOptions(options);
-
-      assert(state.chain.registryName, "registryName missing");
-      setSelectValue(findExistingOption(options, state.chain.registryName));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
-      setShowAuxView("settings");
-      setChainError(error.message);
-    }
-  }, [state.chain.registryName]);
+  const chainArray = [...chains.mainnets, ...chains.testnets];
+  const chainOptions: readonly ChainOption[] = chainArray.map(({ name }) => ({
+    label: name,
+    value: name,
+  }));
+  const selectValue = chainOptions.find((option) => option.value === chain.registryName) ?? {
+    label: "unknown chain",
+    value: chain.registryName,
+  };
 
   useEffect(() => {
-    getGhJson();
-  }, [getGhJson]);
+    setChainInForm(chain);
+    setStringAssets(JSON.stringify(chain.assets));
+  }, [chain]);
 
   useEffect(() => {
-    // set settings form fields to new values
-    setChainId(state.chain.chainId);
-    setNodeAddress(state.chain.nodeAddress);
-    setAddressPrefix(state.chain.addressPrefix);
-    setDenom(state.chain.denom);
-    setDisplayDenom(state.chain.displayDenom);
-    setDisplayDenomExponent(state.chain.displayDenomExponent);
-    setAssets(state.chain.assets);
-    setGasPrice(state.chain.gasPrice);
-    setChainName(state.chain.chainDisplayName);
-    setExplorerLink(state.chain.explorerLink);
-    setRegistryName(state.chain.registryName);
-  }, [state]);
-
-  const findExistingOption = (options: ChainOption[], registryName: string) => {
-    const index = options.findIndex((option) => option.label === registryName);
-    if (index >= 0) {
-      return options[index];
-    }
-    return {
-      label:
-        registryName === process.env.NEXT_PUBLIC_REGISTRY_NAME ? registryName : "unknown chain",
-      value: -1,
-    };
-  };
-
-  const getChainInfo = async (chainOption: GithubChainRegistryItem) => {
-    setChainError(null);
-
     try {
-      const chainData = await getChainFromRegistry(chainOption.path);
-      const registryAssets = await getAssetsFromRegistry(chainOption.path);
-      assert(registryAssets.length >= 1, "No assets found in registry");
-      const firstAsset = registryAssets[0];
-
-      const nodeAddress = await getNodeFromArray(chainData.apis.rpc);
-      const explorerLink = getExplorerFromArray(chainData.explorers);
-      const firstAssetDenom = firstAsset.base;
-      const displayDenom = firstAsset.symbol;
-      const displayUnit = firstAsset.denom_units.find((u) => u.denom == firstAsset.display);
-      const displayDenomExponent = displayUnit?.exponent ?? 6;
-
-      const feeToken = chainData.fees.fee_tokens.find(
-        (token) => token.denom == firstAssetDenom,
-      ) ?? { denom: firstAssetDenom };
-      const gasPrice =
-        feeToken.average_gas_price ??
-        feeToken.low_gas_price ??
-        feeToken.high_gas_price ??
-        feeToken.fixed_min_gas_price ??
-        0.03;
-      const formattedGasPrice = firstAsset ? `${gasPrice}${firstAssetDenom}` : "";
-
-      // change app state
-      dispatch({
-        type: "changeChain",
-        value: {
-          registryName: chainOption.name,
-          addressPrefix: chainData.bech32_prefix,
-          chainId: chainData.chain_id,
-          chainDisplayName: chainData.pretty_name,
-          nodeAddress,
-          explorerLink,
-          denom: firstAssetDenom,
-          displayDenom,
-          displayDenomExponent,
-          gasPrice: formattedGasPrice,
-          assets: registryAssets,
-        },
-      });
-
-      setShowAuxView(null);
-    } catch (error) {
-      if (error instanceof Error) {
-        setChainError(error.message);
-      } else {
-        setChainError("Error getting chain info");
-      }
-
-      console.error("Error getting chain info", error);
-      setShowAuxView("settings");
+      const assets: readonly RegistryAsset[] = JSON.parse(stringAssets);
+      setChainInForm((oldChain) => ({ ...oldChain, assets }));
+    } catch {
+      setChainsError(chainsDispatch, "Assets needs to be valid JSON");
     }
-  };
+  }, [chainsDispatch, stringAssets]);
 
-  const getExplorerFromArray = (explorers: readonly RegistryChainExplorer[]) => {
-    return explorers[0]?.tx_page ?? "";
-  };
-
-  const getNodeFromArray = async (nodeArray: readonly RegistryChainApisRpc[]) => {
-    // only return https connections
-    const secureNodes = nodeArray
-      .filter((node) => node.address.startsWith("https://"))
-      .map(({ address }) => address);
-
-    if (secureNodes.length === 0) {
-      throw new Error("No SSL enabled RPC nodes available for this chain");
-    }
-
-    for (const node of secureNodes) {
-      try {
-        // test client connection
-        const client = await StargateClient.connect(node);
-        await client.getHeight();
-        return node;
-      } catch {}
-    }
-
-    throw new Error("No RPC nodes available for this chain");
-  };
-
-  const changeChain = (option: ChainOption) => {
-    const index = chainOptions.findIndex((opt) => opt.label === option.label);
-    setSelectValue(chainOptions[index]);
-    getChainInfo(chainArray[option.value]);
-  };
-
-  const onChainSelect = (option: ChainOption) => {
-    if (router.pathname !== "/" && option.label !== selectValue.label) {
-      setStoredOption(option);
+  const selectChainOption = (chainOption: ChainOption) => {
+    if (router.pathname !== "/" && chainOption.value !== selectValue.value) {
+      setOptionToConfirm(chainOption);
       setShowAuxView("confirmRedirect");
       return;
     }
 
-    changeChain(option);
-    setStoredOption(null);
+    setChainsError(chainsDispatch, null);
+    setChainFromRegistry(chainsDispatch, chainOption.value);
+    setOptionToConfirm(null);
   };
 
   const redirectAndChangeChain = () => {
     setShowAuxView(null);
 
-    if (storedOption) {
-      changeChain(storedOption);
-      setStoredOption(null);
+    if (optionToConfirm) {
+      setChainFromRegistry(chainsDispatch, optionToConfirm.value);
+      setOptionToConfirm(null);
     }
 
     router.push("/");
   };
 
   const setChainFromForm = async () => {
-    setChainError(null);
+    setChainsError(chainsDispatch, null);
+
     try {
       // test client connection
-      assert(tempNodeAddress, "tempNodeAddress missing");
-      const client = await StargateClient.connect(tempNodeAddress);
+      const client = await StargateClient.connect(chainInForm.nodeAddress);
       await client.getHeight();
 
-      // change app state
-      dispatch({
-        type: "changeChain",
-        value: {
-          nodeAddress: tempNodeAddress,
-          denom: tempDenom,
-          displayDenom: tempDisplayDenom,
-          displayDenomExponent: tempDisplayDenomExponent,
-          assets: tempAssets,
-          gasPrice: tempGasPrice,
-          chainId: tempChainId,
-          chainDisplayName: tempChainName,
-          registryName: tempRegistryName,
-          addressPrefix: tempAddressPrefix,
-          explorerLink: tempExplorerLink,
-        },
-      });
-      assert(tempRegistryName, "tempRegistryName missing");
-      const selectedOption = findExistingOption(chainOptions, tempRegistryName);
-      setSelectValue(selectedOption);
       setShowAuxView(null);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
+      setChain(chainsDispatch, chainInForm);
+    } catch (error) {
+      if (error instanceof Error) {
+        setChainsError(chainsDispatch, error.message);
+      } else {
+        setChainsError(chainsDispatch, "Error when setting new chain");
+      }
       setShowAuxView("settings");
-      setChainError(error.message);
     }
   };
 
@@ -286,10 +102,10 @@ const ChainSelect = () => {
         <div className="flex">
           <div className="select-parent">
             <Select
-              options={chainOptions}
-              onChange={onChainSelect}
-              value={selectValue}
               name="chain-select"
+              options={chainOptions}
+              value={selectValue}
+              onChange={selectChainOption}
             />
           </div>
           {showAuxView ? (
@@ -297,7 +113,7 @@ const ChainSelect = () => {
               className="remove"
               onClick={() => {
                 setShowAuxView(null);
-                setStoredOption(null);
+                setOptionToConfirm(null);
               }}
             >
               ✕
@@ -310,40 +126,42 @@ const ChainSelect = () => {
         </div>
         {showAuxView === "settings" ? (
           <>
-            {chainError && <p className="error">{chainError}</p>}
+            {chainsError ? <p className="error">{chainsError}</p> : null}
             <StackableContainer lessPadding lessMargin lessRadius>
               <p>Settings</p>
               <div className="settings-group">
                 <Input
                   width="48%"
-                  value={tempChainName}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setChainName(e.target.value)
+                  value={chainInForm.chainDisplayName}
+                  onChange={({ target }) =>
+                    setChainInForm((oldChain) => ({ ...oldChain, chainDisplayName: target.value }))
                   }
                   label="Chain Name"
                 />
 
                 <Input
                   width="48%"
-                  value={tempChainId}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChainId(e.target.value)}
+                  value={chainInForm.chainId}
+                  onChange={({ target }) =>
+                    setChainInForm((oldChain) => ({ ...oldChain, chainId: target.value }))
+                  }
                   label="Chain ID"
                 />
               </div>
               <div className="settings-group">
                 <Input
                   width="48%"
-                  value={tempAddressPrefix}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setAddressPrefix(e.target.value)
+                  value={chainInForm.addressPrefix}
+                  onChange={({ target }) =>
+                    setChainInForm((oldChain) => ({ ...oldChain, addressPrefix: target.value }))
                   }
                   label="Bech32 Prefix (address prefix)"
                 />
                 <Input
                   width="48%"
-                  value={tempNodeAddress}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setNodeAddress(e.target.value)
+                  value={chainInForm.nodeAddress}
+                  onChange={({ target }) =>
+                    setChainInForm((oldChain) => ({ ...oldChain, nodeAddress: target.value }))
                   }
                   label="RPC Node URL (must be https)"
                 />
@@ -351,49 +169,54 @@ const ChainSelect = () => {
               <div className="settings-group">
                 <Input
                   width="48%"
-                  value={tempDisplayDenom}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setDisplayDenom(e.target.value)
+                  value={chainInForm.displayDenom}
+                  onChange={({ target }) =>
+                    setChainInForm((oldChain) => ({ ...oldChain, displayDenom: target.value }))
                   }
                   label="Display Denom"
                 />
                 <Input
                   width="48%"
-                  value={tempDenom}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDenom(e.target.value)}
+                  value={chainInForm.denom}
+                  onChange={({ target }) =>
+                    setChainInForm((oldChain) => ({ ...oldChain, denom: target.value }))
+                  }
                   label="Base Denom"
                 />
               </div>
               <div className="settings-group">
                 <Input
                   width="48%"
-                  value={tempDisplayDenomExponent}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setDisplayDenomExponent(parseInt(e.target.value, 10))
+                  value={chainInForm.displayDenomExponent}
+                  onChange={({ target }) =>
+                    setChainInForm((oldChain) => ({
+                      ...oldChain,
+                      displayDenomExponent: Number(target.value),
+                    }))
                   }
                   label="Denom Exponent"
                 />
                 <Input
                   width="48%"
-                  value={JSON.stringify(tempAssets)}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setAssets(JSON.parse(e.target.value))
-                  }
+                  value={stringAssets}
+                  onChange={({ target }) => setStringAssets(target.value)}
                   label="Assets"
                 />
               </div>
               <div className="settings-group">
                 <Input
                   width="48%"
-                  value={tempGasPrice}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGasPrice(e.target.value)}
+                  value={chainInForm.gasPrice}
+                  onChange={({ target }) =>
+                    setChainInForm((oldChain) => ({ ...oldChain, gasPrice: target.value }))
+                  }
                   label="Gas Price"
                 />
                 <Input
                   width="48%"
-                  value={tempExplorerLink}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setExplorerLink(e.target.value)
+                  value={chainInForm.explorerLink}
+                  onChange={({ target }) =>
+                    setChainInForm((oldChain) => ({ ...oldChain, explorerLink: target.value }))
                   }
                   label="Explorer Link (with '${txHash}' included)"
                 />
@@ -402,13 +225,13 @@ const ChainSelect = () => {
             </StackableContainer>
           </>
         ) : null}
-        {showAuxView === "confirmRedirect" && storedOption ? (
+        {showAuxView === "confirmRedirect" && optionToConfirm ? (
           <StackableContainer lessPadding lessMargin lessRadius>
             <p>
-              If you change to {storedOption.label} your unsaved changes will be lost and you will
-              be redirected to the main screen
+              If you change to {optionToConfirm.label} your unsaved changes will be lost and you
+              will be redirected to the main screen
             </p>
-            <Button label={`Change to ${storedOption.label}`} onClick={redirectAndChangeChain} />
+            <Button label={`Change to ${optionToConfirm.label}`} onClick={redirectAndChangeChain} />
           </StackableContainer>
         ) : null}
       </StackableContainer>

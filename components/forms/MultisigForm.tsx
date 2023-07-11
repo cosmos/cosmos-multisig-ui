@@ -1,8 +1,7 @@
 import { StargateClient } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
 import { NextRouter, withRouter } from "next/router";
 import { useState } from "react";
-import { useAppContext } from "../../context/AppContext";
+import { useChains } from "../../context/ChainsContext";
 import { exampleAddress, examplePubkey } from "../../lib/displayHelpers";
 import { createMultisigFromCompressedSecp256k1Pubkeys } from "../../lib/multisigHelpers";
 import Button from "../inputs/Button";
@@ -19,7 +18,7 @@ interface Props {
 }
 
 const MultiSigForm = (props: Props) => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
   const [pubkeys, setPubkeys] = useState([emptyPubKeyGroup(), emptyPubKeyGroup()]);
   const [threshold, setThreshold] = useState(2);
   const [processing, setProcessing] = useState(false);
@@ -57,8 +56,7 @@ const MultiSigForm = (props: Props) => {
   };
 
   const getPubkeyFromNode = async (address: string) => {
-    assert(state.chain.nodeAddress, "nodeAddress missing");
-    const client = await StargateClient.connect(state.chain.nodeAddress);
+    const client = await StargateClient.connect(chain.nodeAddress);
     const accountOnChain = await client.getAccount(address);
     console.log(accountOnChain);
     if (!accountOnChain || !accountOnChain.pubkey) {
@@ -105,15 +103,13 @@ const MultiSigForm = (props: Props) => {
     const compressedPubkeys = pubkeys.map((item) => item.compressedPubkey);
     let multisigAddress;
     try {
-      assert(state.chain.addressPrefix, "addressPrefix missing");
-      assert(state.chain.chainId, "chainId missing");
       multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
         compressedPubkeys,
         threshold,
-        state.chain.addressPrefix,
-        state.chain.chainId,
+        chain.addressPrefix,
+        chain.chainId,
       );
-      props.router.push(`/multi/${multisigAddress}`);
+      props.router.push(`/${chain.registryName}/${multisigAddress}`);
     } catch (error) {
       console.log("Failed to creat multisig: ", error);
     }
@@ -132,7 +128,6 @@ const MultiSigForm = (props: Props) => {
           <p>Add the addresses that will make up this multisig.</p>
         </StackableContainer>
         {pubkeys.map((pubkeyGroup, index) => {
-          assert(state.chain.addressPrefix, "addressPrefix missing");
           return (
             <StackableContainer lessPadding lessMargin key={index}>
               <div className="key-row">
@@ -160,7 +155,7 @@ const MultiSigForm = (props: Props) => {
                     placeholder={`E.g. ${
                       pubkeyGroup.isPubkey
                         ? examplePubkey(index)
-                        : exampleAddress(index, state.chain.addressPrefix)
+                        : exampleAddress(index, chain.addressPrefix)
                     }`}
                     error={pubkeyGroup.keyError}
                     onBlur={(e: React.ChangeEvent<HTMLInputElement>) => {
