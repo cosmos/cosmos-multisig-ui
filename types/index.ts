@@ -1,6 +1,5 @@
 import { StdFee } from "@cosmjs/amino";
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { RegistryAsset } from "../components/chainSelect/chainregistry";
 
 declare global {
   interface Window {
@@ -45,18 +44,4 @@ export interface WalletAccount {
   bech32Address: string;
   isNanoLedger?: boolean;
   name?: string;
-}
-
-export interface ChainInfo {
-  nodeAddress?: string;
-  denom?: string;
-  displayDenom?: string;
-  displayDenomExponent?: number;
-  assets?: readonly RegistryAsset[];
-  gasPrice?: string;
-  chainId?: string;
-  chainDisplayName?: string;
-  registryName?: string;
-  addressPrefix?: string;
-  explorerLink?: string;
 }

@@ -1,6 +1,6 @@
 import { assert } from "@cosmjs/utils";
 import { MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
-import { useAppContext } from "../../../context/AppContext";
+import { useChains } from "../../../context/ChainsContext";
 import { printableCoin } from "../../../lib/displayHelpers";
 import HashView from "../HashView";
 
@@ -9,7 +9,7 @@ interface TxMsgUndelegateDetailsProps {
 }
 
 const TxMsgUndelegateDetails = ({ msgValue: msg }: TxMsgUndelegateDetailsProps) => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
   assert(
     msg.amount,
     "Amount must be set, same as https://github.com/osmosis-labs/telescope/issues/386",
@@ -22,7 +22,7 @@ const TxMsgUndelegateDetails = ({ msgValue: msg }: TxMsgUndelegateDetailsProps) 
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoin(msg.amount, state.chain)}</div>
+        <div>{printableCoin(msg.amount, chain)}</div>
       </li>
       <li>
         <label>Validator Address:</label>

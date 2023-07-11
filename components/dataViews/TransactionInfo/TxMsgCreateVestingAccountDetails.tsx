@@ -1,5 +1,5 @@
 import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
-import { useAppContext } from "../../../context/AppContext";
+import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import HashView from "../HashView";
 
@@ -8,7 +8,7 @@ interface TxMsgCreateVestingAccountDetailsProps {
 }
 
 const TxMsgCreateVestingAccountDetails = ({ msgValue }: TxMsgCreateVestingAccountDetailsProps) => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
   const endTimeDateObj = new Date(msgValue.endTime.multiply(1000).toNumber());
   const endTimeDate = endTimeDateObj.toLocaleDateString();
   const endTimeHours = endTimeDateObj.toLocaleTimeString().slice(0, -3);
@@ -20,7 +20,7 @@ const TxMsgCreateVestingAccountDetails = ({ msgValue }: TxMsgCreateVestingAccoun
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoins(msgValue.amount, state.chain)}</div>
+        <div>{printableCoins(msgValue.amount, chain)}</div>
       </li>
       <li>
         <label>From:</label>

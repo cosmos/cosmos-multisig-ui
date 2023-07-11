@@ -1,15 +1,14 @@
-import React from "react";
-import { AppWrapper } from "../context/AppContext";
-import ChainSelect from "../components/chainSelect/ChainSelect";
 import type { AppProps } from "next/app";
+import ChainSelect from "../components/chainSelect/ChainSelect";
+import { ChainsProvider } from "../context/ChainsContext";
 
 function MultisigApp({ Component, pageProps }: AppProps) {
   const showChainSelect = process.env.NEXT_PUBLIC_MULTICHAIN?.toLowerCase() === "true";
   return (
-    <AppWrapper>
+    <ChainsProvider>
       {showChainSelect && <ChainSelect />}
       <Component {...pageProps} />
-    </AppWrapper>
+    </ChainsProvider>
   );
 }
 export default MultisigApp;

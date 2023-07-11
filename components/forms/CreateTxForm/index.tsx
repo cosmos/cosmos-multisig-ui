@@ -4,7 +4,7 @@ import { assert } from "@cosmjs/utils";
 import axios from "axios";
 import { NextRouter, withRouter } from "next/router";
 import { useRef, useState } from "react";
-import { useAppContext } from "../../../context/AppContext";
+import { useChains } from "../../../context/ChainsContext";
 import { exportMsgToJson, gasOfTx } from "../../../lib/txMsgHelpers";
 import { DbTransaction } from "../../../types";
 import { MsgTypeUrl, MsgTypeUrls } from "../../../types/txMsg";
@@ -25,7 +25,7 @@ interface CreateTxFormProps {
 }
 
 const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormProps) => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
 
   const [processing, setProcessing] = useState(false);
   const [msgTypes, setMsgTypes] = useState<readonly MsgTypeUrl[]>([]);
@@ -35,9 +35,6 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   const [gasLimit, setGasLimit] = useState(gasOfTx([]));
   const [gasLimitError, setGasLimitError] = useState("");
   const [showCreateTxError, setShowTxError] = useState(false);
-
-  const gasPrice = state.chain.gasPrice;
-  assert(gasPrice, "gasPrice missing");
 
   const addMsgType = (newMsgType: MsgTypeUrl) => {
     setMsgKeys((oldMsgKeys) => [...oldMsgKeys, crypto.randomUUID()]);
@@ -54,7 +51,6 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
 
       assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
       assert(msgGetters.current.length, "form filled incorrectly");
-      assert(state.chain.chainId, "chainId missing");
 
       const msgs = msgGetters.current
         .filter(({ isMsgValid }) => isMsgValid())
@@ -72,9 +68,9 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
       const tx: DbTransaction = {
         accountNumber: accountOnChain.accountNumber,
         sequence: accountOnChain.sequence,
-        chainId: state.chain.chainId,
+        chainId: chain.chainId,
         msgs,
-        fee: calculateFee(gasLimit, gasPrice),
+        fee: calculateFee(gasLimit, chain.gasPrice),
         memo,
       };
 
@@ -84,7 +80,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         dataJSON: JSON.stringify(tx),
       });
 
-      router.push(`/multi/${senderAddress}/transaction/${transactionID}`);
+      router.push(`/${chain.registryName}/${senderAddress}/transaction/${transactionID}`);
     } catch (error) {
       console.error("Creat transaction error:", error);
       setShowTxError(true);
@@ -145,7 +141,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         <Input
           label="Gas Price"
           name="gas-price"
-          value={gasPrice}
+          value={chain.gasPrice}
           disabled={true}
           error={gasLimitError}
         />

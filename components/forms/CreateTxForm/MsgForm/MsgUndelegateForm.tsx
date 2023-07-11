@@ -1,9 +1,8 @@
 import { Decimal } from "@cosmjs/math";
 import { MsgUndelegateEncodeObject } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -20,8 +19,7 @@ const MsgUndelegateForm = ({
   setMsgGetter,
   deleteMsg,
 }: MsgUndelegateFormProps) => {
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  const { chain } = useChains();
 
   const [validatorAddress, setValidatorAddress] = useState("");
   const [amount, setAmount] = useState("0");
@@ -31,18 +29,14 @@ const MsgUndelegateForm = ({
 
   useEffect(() => {
     try {
-      assert(state.chain.denom, "denom missing");
-
       setValidatorAddressError("");
       setAmountError("");
 
       const isMsgValid = (): boolean => {
-        assert(state.chain.addressPrefix, "addressPrefix missing");
-
-        const addressErrorMsg = checkAddress(validatorAddress, state.chain.addressPrefix);
+        const addressErrorMsg = checkAddress(validatorAddress, chain.addressPrefix);
         if (addressErrorMsg) {
           setValidatorAddressError(
-            `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
+            `Invalid address for network ${chain.chainId}: ${addressErrorMsg}`,
           );
           return false;
         }
@@ -57,13 +51,13 @@ const MsgUndelegateForm = ({
 
       const amountInAtomics = Decimal.fromUserInput(
         amount || "0",
-        Number(state.chain.displayDenomExponent),
+        Number(chain.displayDenomExponent),
       ).atomics;
 
       const msgValue = MsgCodecs[MsgTypeUrls.Undelegate].fromPartial({
         delegatorAddress,
         validatorAddress,
-        amount: { amount: amountInAtomics, denom: state.chain.denom },
+        amount: { amount: amountInAtomics, denom: chain.denom },
       });
 
       const msg: MsgUndelegateEncodeObject = { typeUrl: MsgTypeUrls.Undelegate, value: msgValue };
@@ -72,12 +66,12 @@ const MsgUndelegateForm = ({
     } catch {}
   }, [
     amount,
+    chain.addressPrefix,
+    chain.chainId,
+    chain.denom,
+    chain.displayDenomExponent,
     delegatorAddress,
     setMsgGetter,
-    state.chain.addressPrefix,
-    state.chain.chainId,
-    state.chain.denom,
-    state.chain.displayDenomExponent,
     validatorAddress,
   ]);
 
@@ -94,13 +88,13 @@ const MsgUndelegateForm = ({
           value={validatorAddress}
           onChange={({ target }) => setValidatorAddress(target.value)}
           error={validatorAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">
         <Input
           type="number"
-          label={`Amount (${state.chain.displayDenom})`}
+          label={`Amount (${chain.displayDenom})`}
           name="amount"
           value={amount}
           onChange={({ target }) => setAmount(target.value)}
