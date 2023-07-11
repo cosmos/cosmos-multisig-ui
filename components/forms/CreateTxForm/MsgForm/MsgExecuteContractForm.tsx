@@ -1,12 +1,11 @@
 import { MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { toUtf8 } from "@cosmjs/encoding";
 import { Decimal } from "@cosmjs/math";
-import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
+import { ChainInfo } from "../../../../context/ChainsContext/types";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { ChainInfo } from "../../../../types";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
@@ -33,10 +32,9 @@ const MsgExecuteContractForm = ({
   setMsgGetter,
   deleteMsg,
 }: MsgExecuteContractFormProps) => {
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  const { chain } = useChains();
 
-  const denomOptions = getDenomOptions(state.chain.assets);
+  const denomOptions = getDenomOptions(chain.assets);
 
   const [contractAddress, setContractAddress] = useState("");
   const [msgContent, setMsgContent] = useState("{}");
@@ -50,21 +48,15 @@ const MsgExecuteContractForm = ({
   const [amountError, setAmountError] = useState("");
 
   useEffect(() => {
-    assert(state.chain.denom, "denom missing");
-
     setContractAddressError("");
     setMsgContentError("");
     setCustomDenomError("");
     setAmountError("");
 
     const isMsgValid = (): boolean => {
-      assert(state.chain.addressPrefix, "addressPrefix missing");
-
-      const addressErrorMsg = checkAddress(contractAddress, state.chain.addressPrefix);
+      const addressErrorMsg = checkAddress(contractAddress, chain.addressPrefix);
       if (addressErrorMsg) {
-        setContractAddressError(
-          `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
-        );
+        setContractAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
         return false;
       }
 
@@ -102,7 +94,7 @@ const MsgExecuteContractForm = ({
           return Decimal.fromUserInput(amount, 0).atomics;
         }
 
-        const foundAsset = state.chain.assets?.find((asset) => asset.symbol === denom);
+        const foundAsset = chain.assets?.find((asset) => asset.symbol === denom);
         const exponent =
           foundAsset?.denom_units.find((unit) => unit.denom === foundAsset.symbol.toLowerCase())
             ?.exponent ?? 0;
@@ -125,16 +117,15 @@ const MsgExecuteContractForm = ({
     setMsgGetter({ isMsgValid, msg });
   }, [
     amount,
+    chain.addressPrefix,
+    chain.assets,
+    chain.chainId,
     contractAddress,
     customDenom,
     fromAddress,
     msgContent,
     selectedDenom.value,
     setMsgGetter,
-    state.chain.addressPrefix,
-    state.chain.assets,
-    state.chain.chainId,
-    state.chain.denom,
   ]);
 
   return (
@@ -150,7 +141,7 @@ const MsgExecuteContractForm = ({
           value={contractAddress}
           onChange={({ target }) => setContractAddress(target.value)}
           error={contractAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">

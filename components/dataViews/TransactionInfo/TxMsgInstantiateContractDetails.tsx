@@ -1,6 +1,6 @@
 import { fromUtf8 } from "@cosmjs/encoding";
 import { MsgInstantiateContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
-import { useAppContext } from "../../../context/AppContext";
+import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import HashView from "../HashView";
 
@@ -9,7 +9,7 @@ interface TxMsgInstantiateContractDetailsProps {
 }
 
 const TxMsgInstantiateContractDetails = ({ msgValue }: TxMsgInstantiateContractDetailsProps) => {
-  const { state } = useAppContext();
+  const { chain } = useChains();
 
   return (
     <>
@@ -36,7 +36,7 @@ const TxMsgInstantiateContractDetails = ({ msgValue }: TxMsgInstantiateContractD
       </li>
       <li>
         <label>Funds:</label>
-        <div>{printableCoins(msgValue.funds, state.chain)}</div>
+        <div>{printableCoins(msgValue.funds, chain)}</div>
       </li>
       <li>
         <label>Msg:</label>

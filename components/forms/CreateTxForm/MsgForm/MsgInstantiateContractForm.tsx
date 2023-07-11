@@ -1,12 +1,11 @@
 import { MsgInstantiateContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { toUtf8 } from "@cosmjs/encoding";
 import { Decimal } from "@cosmjs/math";
-import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
-import { useAppContext } from "../../../../context/AppContext";
+import { useChains } from "../../../../context/ChainsContext";
+import { ChainInfo } from "../../../../context/ChainsContext/types";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { ChainInfo } from "../../../../types";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
@@ -33,10 +32,9 @@ const MsgInstantiateContractForm = ({
   setMsgGetter,
   deleteMsg,
 }: MsgInstantiateContractFormProps) => {
-  const { state } = useAppContext();
-  assert(state.chain.addressPrefix, "addressPrefix missing");
+  const { chain } = useChains();
 
-  const denomOptions = getDenomOptions(state.chain.assets);
+  const denomOptions = getDenomOptions(chain.assets);
 
   const [codeId, setCodeId] = useState("");
   const [label, setLabel] = useState("");
@@ -53,8 +51,6 @@ const MsgInstantiateContractForm = ({
   const [amountError, setAmountError] = useState("");
 
   useEffect(() => {
-    assert(state.chain.denom, "denom missing");
-
     setCodeIdError("");
     setAdminAddressError("");
     setMsgContentError("");
@@ -62,18 +58,14 @@ const MsgInstantiateContractForm = ({
     setAmountError("");
 
     const isMsgValid = (): boolean => {
-      assert(state.chain.addressPrefix, "addressPrefix missing");
-
       if (!codeId || !Number.isSafeInteger(Number(codeId)) || Number(codeId) <= 0) {
         setCodeIdError("Code ID must be a positive integer");
         return false;
       }
 
-      const addressErrorMsg = checkAddress(adminAddress, state.chain.addressPrefix);
+      const addressErrorMsg = checkAddress(adminAddress, chain.addressPrefix);
       if (adminAddress && addressErrorMsg) {
-        setAdminAddressError(
-          `Invalid address for network ${state.chain.chainId}: ${addressErrorMsg}`,
-        );
+        setAdminAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
         return false;
       }
 
@@ -111,7 +103,7 @@ const MsgInstantiateContractForm = ({
           return Decimal.fromUserInput(amount, 0).atomics;
         }
 
-        const foundAsset = state.chain.assets?.find((asset) => asset.symbol === denom);
+        const foundAsset = chain.assets?.find((asset) => asset.symbol === denom);
         const exponent =
           foundAsset?.denom_units.find((unit) => unit.denom === foundAsset.symbol.toLowerCase())
             ?.exponent ?? 0;
@@ -140,6 +132,9 @@ const MsgInstantiateContractForm = ({
   }, [
     adminAddress,
     amount,
+    chain.addressPrefix,
+    chain.assets,
+    chain.chainId,
     codeId,
     customDenom,
     fromAddress,
@@ -147,10 +142,6 @@ const MsgInstantiateContractForm = ({
     msgContent,
     selectedDenom.value,
     setMsgGetter,
-    state.chain.addressPrefix,
-    state.chain.assets,
-    state.chain.chainId,
-    state.chain.denom,
   ]);
 
   return (
@@ -183,7 +174,7 @@ const MsgInstantiateContractForm = ({
           value={adminAddress}
           onChange={({ target }) => setAdminAddress(target.value)}
           error={adminAddressError}
-          placeholder={`E.g. ${exampleAddress(0, state.chain.addressPrefix)}`}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">
