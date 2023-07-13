@@ -14,8 +14,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "16"
-      - run: npm install
+          node-version: 18
       - run: npm run lint
 
   test:
@@ -25,8 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "16"
-      - run: npm install
+          node-version: 18
       - run: npm run test:ci
 
   build:
@@ -36,7 +34,6 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "16"
-      - run: npm install
+          node-version: 18
       - run: cp .env.sample .env.local
       - run: npm run build
