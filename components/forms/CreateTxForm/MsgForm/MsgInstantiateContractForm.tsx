@@ -1,6 +1,7 @@
 import { MsgInstantiateContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { toUtf8 } from "@cosmjs/encoding";
 import { Decimal } from "@cosmjs/math";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
@@ -10,6 +11,8 @@ import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
 import StackableContainer from "../../../layout/StackableContainer";
+
+const JsonEditor = dynamic(() => import("../../../inputs/JsonEditor"), { ssr: false });
 
 const customDenomOption = { label: "Custom (enter denom below)", value: "custom" } as const;
 
@@ -46,14 +49,12 @@ const MsgInstantiateContractForm = ({
 
   const [codeIdError, setCodeIdError] = useState("");
   const [adminAddressError, setAdminAddressError] = useState("");
-  const [msgContentError, setMsgContentError] = useState("");
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
 
   useEffect(() => {
     setCodeIdError("");
     setAdminAddressError("");
-    setMsgContentError("");
     setCustomDenomError("");
     setAmountError("");
 
@@ -66,13 +67,6 @@ const MsgInstantiateContractForm = ({
       const addressErrorMsg = checkAddress(adminAddress, chain.addressPrefix);
       if (adminAddress && addressErrorMsg) {
         setAdminAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
-        return false;
-      }
-
-      try {
-        JSON.parse(msgContent);
-      } catch {
-        setMsgContentError("Msg must be valid JSON");
         return false;
       }
 
@@ -116,7 +110,7 @@ const MsgInstantiateContractForm = ({
 
     const msgValue = MsgCodecs[MsgTypeUrls.Instantiate].fromPartial({
       sender: fromAddress,
-      codeId,
+      codeId: codeId || 1,
       label,
       admin: adminAddress,
       msg: toUtf8(msgContent),
@@ -178,13 +172,12 @@ const MsgInstantiateContractForm = ({
         />
       </div>
       <div className="form-item">
-        <Input
-          label="Msg"
-          name="msg-content"
-          value={msgContent}
-          onChange={({ target }) => setMsgContent(target.value)}
-          error={msgContentError}
-          placeholder={"Enter msg JSON"}
+        <JsonEditor
+          label="Msg JSON"
+          content={{ text: msgContent }}
+          onChange={(newMsgContent) =>
+            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}")
+          }
         />
       </div>
       <div className="form-item form-select">
