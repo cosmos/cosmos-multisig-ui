@@ -133,7 +133,6 @@ const MsgInstantiateContract2Form = ({
     chain.addressPrefix,
     chain.assets,
     chain.chainId,
-    chain.denom,
     codeId,
     customDenom,
     fixMsg,
