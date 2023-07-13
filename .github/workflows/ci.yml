@@ -15,6 +15,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: "npm"
       - run: npm ci
       - run: npm run lint
 
@@ -26,6 +27,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: "npm"
       - run: npm ci
       - run: npm run test:ci
 
@@ -37,6 +39,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: "npm"
       - run: npm ci
       - run: cp .env.sample .env.local
       - run: npm run build
