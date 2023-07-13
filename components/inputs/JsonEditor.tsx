@@ -1,5 +1,5 @@
 import { CSSProperties, useEffect, useRef } from "react";
-import { JSONEditorPropsOptional, JSONEditor as VanillaJsonEditor } from "vanilla-jsoneditor";
+import { JSONEditorPropsOptional, Mode, JSONEditor as VanillaJsonEditor } from "vanilla-jsoneditor";
 
 const editorStyle: { [key: string]: string } & CSSProperties = {
   "--jse-a-color": "white",
@@ -25,7 +25,7 @@ interface JsonEditorProps extends JSONEditorPropsOptional {
 
 export default function JsonEditor({ label, ...editorProps }: JsonEditorProps) {
   const refContainer = useRef<HTMLDivElement>(null);
-  const refEditor = useRef<any>(null);
+  const refEditor = useRef<VanillaJsonEditor | null>(null);
 
   useEffect(() => {
     if (!refContainer.current) return;
@@ -42,7 +42,7 @@ export default function JsonEditor({ label, ...editorProps }: JsonEditorProps) {
 
   useEffect(() => {
     if (refEditor.current) {
-      refEditor.current.updateProps({ mode: "text", mainMenuBar: false, ...editorProps });
+      refEditor.current.updateProps({ mode: Mode.text, mainMenuBar: false, ...editorProps });
     }
   }, [editorProps]);
 
