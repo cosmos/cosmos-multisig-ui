@@ -1,5 +1,6 @@
 import { MsgMigrateContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { toUtf8 } from "@cosmjs/encoding";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
@@ -7,6 +8,8 @@ import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
+
+const JsonEditor = dynamic(() => import("../../../inputs/JsonEditor"), { ssr: false });
 
 interface MsgMigrateContractFormProps {
   readonly fromAddress: string;
@@ -27,12 +30,10 @@ const MsgMigrateContractForm = ({
 
   const [codeIdError, setCodeIdError] = useState("");
   const [contractAddressError, setContractAddressError] = useState("");
-  const [msgContentError, setMsgContentError] = useState("");
 
   useEffect(() => {
     setCodeIdError("");
     setContractAddressError("");
-    setMsgContentError("");
 
     const isMsgValid = (): boolean => {
       if (!codeId || !Number.isSafeInteger(Number(codeId)) || Number(codeId) <= 0) {
@@ -46,20 +47,13 @@ const MsgMigrateContractForm = ({
         return false;
       }
 
-      try {
-        JSON.parse(msgContent);
-      } catch {
-        setMsgContentError("Msg must be valid JSON");
-        return false;
-      }
-
       return true;
     };
 
     const msgValue = MsgCodecs[MsgTypeUrls.Migrate].fromPartial({
       sender: fromAddress,
       contract: contractAddress,
-      codeId,
+      codeId: codeId || 1,
       msg: toUtf8(msgContent),
     });
 
@@ -67,14 +61,13 @@ const MsgMigrateContractForm = ({
 
     setMsgGetter({ isMsgValid, msg });
   }, [
+    chain.addressPrefix,
+    chain.chainId,
     codeId,
     contractAddress,
     fromAddress,
     msgContent,
     setMsgGetter,
-    chain.addressPrefix,
-    chain.chainId,
-    chain.denom,
   ]);
 
   return (
@@ -103,13 +96,12 @@ const MsgMigrateContractForm = ({
         />
       </div>
       <div className="form-item">
-        <Input
-          label="Msg"
-          name="msg-content"
-          value={msgContent}
-          onChange={({ target }) => setMsgContent(target.value)}
-          error={msgContentError}
-          placeholder={"Enter msg JSON"}
+        <JsonEditor
+          label="Msg JSON"
+          content={{ text: msgContent }}
+          onChange={(newMsgContent) =>
+            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}")
+          }
         />
       </div>
       <style jsx>{`
