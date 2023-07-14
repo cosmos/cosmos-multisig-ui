@@ -40,7 +40,7 @@ const TxMsgInstantiateContract2Details = ({ msgValue }: TxMsgInstantiateContract
       </li>
       <li>
         <label>Salt:</label>
-        <div>{fromUtf8(msgValue.salt)}</div>
+        <div>{fromUtf8(msgValue.salt, true)}</div>
       </li>
       <li>
         <label>Funds:</label>
