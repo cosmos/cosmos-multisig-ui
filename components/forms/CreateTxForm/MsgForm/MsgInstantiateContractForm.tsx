@@ -48,12 +48,14 @@ const MsgInstantiateContractForm = ({
   const [amount, setAmount] = useState("0");
 
   const [codeIdError, setCodeIdError] = useState("");
+  const [labelError, setLabelError] = useState("");
   const [adminAddressError, setAdminAddressError] = useState("");
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
 
   useEffect(() => {
     setCodeIdError("");
+    setLabelError("");
     setAdminAddressError("");
     setCustomDenomError("");
     setAmountError("");
@@ -61,6 +63,11 @@ const MsgInstantiateContractForm = ({
     const isMsgValid = (): boolean => {
       if (!codeId || !Number.isSafeInteger(Number(codeId)) || Number(codeId) <= 0) {
         setCodeIdError("Code ID must be a positive integer");
+        return false;
+      }
+
+      if (!label) {
+        setLabelError("Label is required");
         return false;
       }
 
@@ -168,6 +175,7 @@ const MsgInstantiateContractForm = ({
           name="label"
           value={label}
           onChange={({ target }) => setLabel(target.value)}
+          error={labelError}
         />
       </div>
       <div className="form-item">
