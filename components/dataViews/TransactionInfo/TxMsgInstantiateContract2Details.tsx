@@ -1,8 +1,11 @@
 import { fromUtf8 } from "@cosmjs/encoding";
 import { MsgInstantiateContract2 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
+import dynamic from "next/dynamic";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import HashView from "../HashView";
+
+const JsonEditor = dynamic(() => import("../../inputs/JsonEditor"), { ssr: false });
 
 interface TxMsgInstantiateContract2DetailsProps {
   readonly msgValue: MsgInstantiateContract2;
@@ -47,8 +50,7 @@ const TxMsgInstantiateContract2Details = ({ msgValue }: TxMsgInstantiateContract
         <div>{printableCoins(msgValue.funds, chain)}</div>
       </li>
       <li>
-        <label>Msg:</label>
-        <div>{fromUtf8(msgValue.msg)}</div>
+        <JsonEditor readOnly content={{ json: JSON.parse(fromUtf8(msgValue.msg, true)) }} />
       </li>
       <style jsx>{`
         li:not(:has(h3)) {

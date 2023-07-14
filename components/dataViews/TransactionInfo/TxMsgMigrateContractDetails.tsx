@@ -1,6 +1,9 @@
 import { fromUtf8 } from "@cosmjs/encoding";
 import { MsgMigrateContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
+import dynamic from "next/dynamic";
 import HashView from "../HashView";
+
+const JsonEditor = dynamic(() => import("../../inputs/JsonEditor"), { ssr: false });
 
 interface TxMsgMigrateContractDetailsProps {
   readonly msgValue: MsgMigrateContract;
@@ -22,8 +25,7 @@ const TxMsgMigrateContractDetails = ({ msgValue }: TxMsgMigrateContractDetailsPr
       <div>{msgValue.codeId.toString()}</div>
     </li>
     <li>
-      <label>Msg:</label>
-      <div>{fromUtf8(msgValue.msg)}</div>
+      <JsonEditor readOnly content={{ json: JSON.parse(fromUtf8(msgValue.msg, true)) }} />
     </li>
     <style jsx>{`
       li:not(:has(h3)) {
