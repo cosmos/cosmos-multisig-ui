@@ -99,10 +99,19 @@ const MsgExecuteContractForm = ({
       }
     })();
 
+    const msgContentUtf8Array = (() => {
+      try {
+        // The JsonEditor does not escape \n or remove whitespaces, so we need to parse + stringify
+        return toUtf8(JSON.stringify(JSON.parse(msgContent)));
+      } catch {
+        return Uint8Array.from([]);
+      }
+    })();
+
     const msgValue = MsgCodecs[MsgTypeUrls.Execute].fromPartial({
       sender: fromAddress,
       contract: contractAddress,
-      msg: toUtf8(msgContent),
+      msg: msgContentUtf8Array,
       funds: [{ denom, amount: amountInAtomics }],
     });
 
