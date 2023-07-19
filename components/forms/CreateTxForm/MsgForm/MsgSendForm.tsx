@@ -1,5 +1,6 @@
 import { Decimal } from "@cosmjs/math";
 import { MsgSendEncodeObject } from "@cosmjs/stargate";
+import { assert } from "@cosmjs/utils";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
@@ -70,21 +71,31 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
       return true;
     };
 
-    const denom =
+    const symbol =
       selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
 
-    const amountInAtomics = (() => {
+    const [denom, amountInAtomics] = (() => {
       try {
         if (selectedDenom.value === customDenomOption.value) {
-          return Decimal.fromUserInput(amount, 0).atomics;
+          return [symbol, Decimal.fromUserInput(amount, 0).atomics];
         }
 
-        const foundAsset = chain.assets.find((asset) => asset.symbol === denom);
-        const exponent =
-          foundAsset?.denom_units.find((unit) => unit.denom === foundAsset.symbol.toLowerCase())
-            ?.exponent ?? 0;
+        const foundAsset = chain.assets.find((asset) => asset.symbol === symbol);
+        assert(foundAsset, `An asset with the given symbol ${symbol} was not found`);
+        if (!foundAsset) return [undefined, undefined];
 
-        return Decimal.fromUserInput(amount, exponent).atomics;
+        const units = foundAsset.denom_units ?? [];
+        const macroUnit = units.find(
+          (unit) => unit.denom.toLowerCase() === foundAsset.symbol.toLowerCase(),
+        );
+        assert(macroUnit, `An unit with the given denom ${symbol} was not found`);
+        if (!macroUnit) return [undefined, undefined];
+
+        const smallestUnit = units.reduce((prevUnit, currentUnit) =>
+          currentUnit.exponent < prevUnit.exponent ? currentUnit : prevUnit,
+        );
+
+        return [smallestUnit.denom, Decimal.fromUserInput(amount, macroUnit.exponent).atomics];
       } catch {
         return "0";
       }
