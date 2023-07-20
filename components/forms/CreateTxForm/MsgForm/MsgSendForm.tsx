@@ -1,8 +1,8 @@
-import { Decimal } from "@cosmjs/math";
 import { MsgSendEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
+import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { RegistryAsset } from "../../../../types/chainRegistry";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
@@ -73,27 +73,18 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
     const denom =
       selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
 
-    const amountInAtomics = (() => {
+    const microCoin = (() => {
       try {
-        if (selectedDenom.value === customDenomOption.value) {
-          return Decimal.fromUserInput(amount, 0).atomics;
-        }
-
-        const foundAsset = chain.assets.find((asset) => asset.symbol === denom);
-        const exponent =
-          foundAsset?.denom_units.find((unit) => unit.denom === foundAsset.symbol.toLowerCase())
-            ?.exponent ?? 0;
-
-        return Decimal.fromUserInput(amount, exponent).atomics;
+        return macroCoinToMicroCoin({ denom, amount }, chain.assets);
       } catch {
-        return "0";
+        return { denom, amount: "0" };
       }
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.Send].fromPartial({
       fromAddress,
       toAddress,
-      amount: [{ denom, amount: amountInAtomics }],
+      amount: [microCoin],
     });
 
     const msg: MsgSendEncodeObject = { typeUrl: MsgTypeUrls.Send, value: msgValue };

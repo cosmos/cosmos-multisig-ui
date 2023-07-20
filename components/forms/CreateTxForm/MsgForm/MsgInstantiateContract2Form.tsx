@@ -1,11 +1,11 @@
 import { MsgInstantiateContract2EncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { toUtf8 } from "@cosmjs/encoding";
-import { Decimal } from "@cosmjs/math";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { ChainInfo } from "../../../../context/ChainsContext/types";
+import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -84,13 +84,8 @@ const MsgInstantiateContract2Form = ({
         return false;
       }
 
-      if (!amount || Number(amount) <= 0) {
-        setAmountError("Amount must be greater than 0");
-        return false;
-      }
-
-      if (selectedDenom.value === customDenomOption.value && !Number.isInteger(Number(amount))) {
-        setAmountError("Amount cannot be decimal for custom denom");
+      if (amount && Number(amount) < 0) {
+        setAmountError("Amount must be empty or a positive number");
         return false;
       }
 
@@ -100,20 +95,11 @@ const MsgInstantiateContract2Form = ({
     const denom =
       selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
 
-    const amountInAtomics = (() => {
+    const microCoin = (() => {
       try {
-        if (selectedDenom.value === customDenomOption.value) {
-          return Decimal.fromUserInput(amount, 0).atomics;
-        }
-
-        const foundAsset = chain.assets?.find((asset) => asset.symbol === denom);
-        const exponent =
-          foundAsset?.denom_units.find((unit) => unit.denom === foundAsset.symbol.toLowerCase())
-            ?.exponent ?? 0;
-
-        return Decimal.fromUserInput(amount, exponent).atomics;
+        return macroCoinToMicroCoin({ denom, amount }, chain.assets);
       } catch {
-        return "0";
+        return { denom, amount: "0" };
       }
     })();
 
@@ -128,13 +114,13 @@ const MsgInstantiateContract2Form = ({
 
     const msgValue = MsgCodecs[MsgTypeUrls.Instantiate2].fromPartial({
       sender: fromAddress,
-      codeId: codeId || 1,
+      codeId: codeId || 0,
       label,
       admin: adminAddress,
       fixMsg,
       salt: toUtf8(salt),
       msg: msgContentUtf8Array,
-      funds: [{ denom, amount: amountInAtomics }],
+      funds: [microCoin],
     });
 
     const msg: MsgInstantiateContract2EncodeObject = {
