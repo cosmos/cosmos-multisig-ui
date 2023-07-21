@@ -1,10 +1,10 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import axios from "axios";
 import { NextRouter, withRouter } from "next/router";
 import { useRef, useState } from "react";
 import { useChains } from "../../../context/ChainsContext";
+import { requestJson } from "../../../lib/request";
 import { exportMsgToJson, gasOfTx } from "../../../lib/txMsgHelpers";
 import { DbTransaction } from "../../../types";
 import { MsgTypeUrl, MsgTypeUrls } from "../../../types/txMsg";
@@ -74,10 +74,8 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         memo,
       };
 
-      const {
-        data: { transactionID },
-      } = await axios.post("/api/transaction", {
-        dataJSON: JSON.stringify(tx),
+      const transactionID = await requestJson("/api/transaction", {
+        body: { dataJSON: JSON.stringify(tx) },
       });
 
       router.push(`/${chain.registryName}/${senderAddress}/transaction/${transactionID}`);

@@ -6,8 +6,8 @@ import {
 } from "@cosmjs/amino";
 import { Account, StargateClient } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import axios from "axios";
 import { checkAddress } from "./displayHelpers";
+import { requestJson } from "./request";
 
 /**
  * Turns array of compressed Secp256k1 pubkeys
@@ -41,9 +41,9 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     chainId,
   };
 
-  const res = await axios.post(`/api/chain/${chainId}/multisig`, multisig);
-  console.log(res.data);
-  return res.data.address;
+  const res = await requestJson(`/api/chain/${chainId}/multisig`, { body: multisig });
+  console.log(res);
+  return res.address;
 };
 
 /**
@@ -80,12 +80,13 @@ const getMultisigAccount = async (
     pubkey = accountOnChain.pubkey;
   } else {
     console.log("No pubkey on chain for: ", address);
-    const res = await axios.get(`/api/chain/${chainId}/multisig/${address}`);
 
-    if (res.status !== 200) {
+    try {
+      const res = await requestJson(`/api/chain/${chainId}/multisig/${address}`);
+      pubkey = JSON.parse(res.pubkeyJSON);
+    } catch {
       throw new Error("Multisig has no pubkey on node, and was not created using this tool.");
     }
-    pubkey = JSON.parse(res.data.pubkeyJSON);
   }
 
   return [pubkey, accountOnChain];
