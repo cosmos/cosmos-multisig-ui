@@ -82,8 +82,13 @@ const MsgInstantiateContractForm = ({
         return false;
       }
 
-      if (amount && Number(amount) < 0) {
-        setAmountError("Amount must be empty or a positive number");
+      if (!amount || Number(amount) <= 0) {
+        setAmountError("Amount must be greater than 0");
+        return false;
+      }
+
+      if (selectedDenom.value === customDenomOption.value && !Number.isInteger(Number(amount))) {
+        setAmountError("Amount cannot be decimal for custom denom");
         return false;
       }
 
