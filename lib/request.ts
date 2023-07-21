@@ -14,3 +14,15 @@ export const requestJson = async (
   const response = await fetch(endpoint, config);
   return response.ok ? response.json() : Promise.reject(new Error(await response.text()));
 };
+
+type RequestGraphQlJsonConfig = Omit<RequestInit, "body"> & { body: { query: string } };
+
+/**
+ * The fallback URL works for classic databases,for more information about regions see:
+ * https://docs.fauna.com/fauna/current/learn/understanding/region_groups
+ */
+export const requestGraphQlJson = (config: RequestGraphQlJsonConfig) =>
+  requestJson(process.env.FAUNADB_URL || "https://graphql.fauna.com/graphql", {
+    ...config,
+    headers: { Authorization: `Bearer ${process.env.FAUNADB_SECRET}`, ...config.headers },
+  });
