@@ -24,26 +24,26 @@ const MsgMigrateContractForm = ({
 }: MsgMigrateContractFormProps) => {
   const { chain } = useChains();
 
-  const [codeId, setCodeId] = useState("");
   const [contractAddress, setContractAddress] = useState("");
+  const [codeId, setCodeId] = useState("");
   const [msgContent, setMsgContent] = useState("{}");
 
-  const [codeIdError, setCodeIdError] = useState("");
   const [contractAddressError, setContractAddressError] = useState("");
+  const [codeIdError, setCodeIdError] = useState("");
 
   useEffect(() => {
     setCodeIdError("");
     setContractAddressError("");
 
     const isMsgValid = (): boolean => {
-      if (!codeId || !Number.isSafeInteger(Number(codeId)) || Number(codeId) <= 0) {
-        setCodeIdError("Code ID must be a positive integer");
-        return false;
-      }
-
       const addressErrorMsg = checkAddress(contractAddress, chain.addressPrefix);
       if (addressErrorMsg) {
         setContractAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
+        return false;
+      }
+
+      if (!codeId || !Number.isSafeInteger(Number(codeId)) || Number(codeId) <= 0) {
+        setCodeIdError("Code ID must be a positive integer");
         return false;
       }
 
@@ -87,21 +87,21 @@ const MsgMigrateContractForm = ({
       <h2>MsgMigrateContract</h2>
       <div className="form-item">
         <Input
-          label="Code ID"
-          name="code-id"
-          value={codeId}
-          onChange={({ target }) => setCodeId(target.value)}
-          error={codeIdError}
-        />
-      </div>
-      <div className="form-item">
-        <Input
           label="Contract Address"
           name="contract-address"
           value={contractAddress}
           onChange={({ target }) => setContractAddress(target.value)}
           error={contractAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
+        />
+      </div>
+      <div className="form-item">
+        <Input
+          label="Code ID"
+          name="code-id"
+          value={codeId}
+          onChange={({ target }) => setCodeId(target.value)}
+          error={codeIdError}
         />
       </div>
       <div className="form-item">
