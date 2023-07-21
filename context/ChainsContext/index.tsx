@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useContext, useEffect, useReducer } from "react";
-import { isChainInfoFilled, setChain, setChains, setChainsError } from "./helpers";
-import { getChain, getChainFromRegistry, getChainItemsFromRegistry } from "./service";
+import { setChain, setChains, setChainsError } from "./helpers";
+import { getChain, useChainFromRegistry, useChainsFromRegistry } from "./service";
 import { setChainInStorage, setChainInUrl } from "./storage";
 import { Action, ChainsContextType, State } from "./types";
 
@@ -35,47 +35,23 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
     chains: { mainnets: [], testnets: [] },
   });
 
-  useEffect(() => {
-    (async function getChainsFromGithubRegistry() {
-      try {
-        const newChainItems = await getChainItemsFromRegistry();
-        setChains(dispatch, newChainItems);
-      } catch (error) {
-        if (error instanceof Error) {
-          setChainsError(dispatch, error.message);
-        } else {
-          setChainsError(dispatch, "Failed to get chains from registry");
-        }
-      }
-    })();
-  }, []);
+  const { chainItems, chainItemsError } = useChainsFromRegistry();
+  const { chainFromRegistry, chainFromRegistryError } = useChainFromRegistry(
+    state.chain,
+    chainItems,
+  );
 
   useEffect(() => {
-    (async function getChainFromRegistryIfEmpty() {
-      if (
-        isChainInfoFilled(state.chain) ||
-        !state.chains.mainnets.length ||
-        !state.chains.testnets.length
-      ) {
-        return;
-      }
+    setChains(dispatch, chainItems);
+    setChainsError(dispatch, chainItemsError);
+  }, [chainItems, chainItemsError]);
 
-      const isTestnet = !!state.chains.testnets.find(
-        ({ name }) => name === state.chain.registryName,
-      );
-
-      try {
-        const chainFromRegistry = await getChainFromRegistry(state.chain.registryName, isTestnet);
-        setChain(dispatch, chainFromRegistry);
-      } catch (error) {
-        if (error instanceof Error) {
-          setChainsError(dispatch, error.message);
-        } else {
-          setChainsError(dispatch, `Failed to get chain ${state.chain.registryName} from registry`);
-        }
-      }
-    })();
-  }, [state.chain, state.chains.mainnets.length, state.chains.testnets]);
+  useEffect(() => {
+    if (chainFromRegistry !== state.chain) {
+      setChain(dispatch, chainFromRegistry);
+      setChainsError(dispatch, chainFromRegistryError);
+    }
+  }, [chainFromRegistry, chainFromRegistryError, state.chain]);
 
   return <ChainsContext.Provider value={{ state, dispatch }}>{children}</ChainsContext.Provider>;
 };
