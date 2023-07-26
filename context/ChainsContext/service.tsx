@@ -58,7 +58,6 @@ export const getChainItemFromRegistry = async (chainName: string, isTestnet?: bo
   const chainGhUrl = registryGhUrl + chainGhPath + "/chain.json";
 
   const chain: RegistryChain = await requestJson(chainGhUrl);
-  // const chain: RegistryChain = await (await fetch(chainGhUrl)).json();
   return chain;
 };
 
@@ -67,7 +66,6 @@ export const getAssetItemsFromRegistry = async (chainName: string, isTestnet?: b
   const assetsGhUrl = registryGhUrl + assetsGhPath + "/assetlist.json";
 
   const assets: readonly RegistryAsset[] = (await requestJson(assetsGhUrl)).assets;
-  // const assets: readonly RegistryAsset[] = (await (await fetch(assetsGhUrl)).json()).assets;
   return assets;
 };
 
