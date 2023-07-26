@@ -74,7 +74,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         memo,
       };
 
-      const transactionID = await requestJson("/api/transaction", {
+      const { transactionID } = await requestJson("/api/transaction", {
         body: { dataJSON: JSON.stringify(tx) },
       });
 
