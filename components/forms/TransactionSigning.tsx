@@ -11,10 +11,10 @@ import {
 } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import axios from "axios";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { useChains } from "../../context/ChainsContext";
 import { getConnectError } from "../../lib/errorHelpers";
+import { requestJson } from "../../lib/request";
 import { DbSignature, DbTransaction, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
@@ -186,10 +186,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
           signature: bases64EncodedSignature,
           address: signerAddress,
         };
-        const _res = await axios.post(
-          `/api/transaction/${props.transactionID}/signature`,
-          signature,
-        );
+        await requestJson(`/api/transaction/${props.transactionID}/signature`, { body: signature });
         props.addSignature(signature);
         setSigning("signed");
       }

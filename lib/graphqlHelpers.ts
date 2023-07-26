@@ -1,15 +1,5 @@
-import axios from "axios";
 import { DbAccount, DbSignature, DbTransaction } from "../types";
-
-// Graphql base request for Faunadb
-const graphqlReq = axios.create({
-  // The fallback URL works for classic databases. See https://docs.fauna.com/fauna/current/learn/understanding/region_groups
-  // for more information about regions.
-  baseURL: process.env.FAUNADB_URL || "https://graphql.fauna.com/graphql",
-  headers: {
-    Authorization: `Bearer ${process.env.FAUNADB_SECRET}`,
-  },
-});
+import { requestGraphQlJson } from "./request";
 
 /**
  * Creates multisig record in faunadb
@@ -19,9 +9,8 @@ const graphqlReq = axios.create({
  */
 const createMultisig = async (multisig: DbAccount) => {
   console.log(multisig);
-  return graphqlReq({
-    method: "POST",
-    data: {
+  return requestGraphQlJson({
+    body: {
       query: `
         mutation {
           createMultisig(data: {
@@ -47,9 +36,8 @@ const createMultisig = async (multisig: DbAccount) => {
  * @return Returns async function that makes a request to the faunadb graphql endpoint
  */
 const getMultisig = async (address: string, chainId: string) => {
-  return graphqlReq({
-    method: "POST",
-    data: {
+  return requestGraphQlJson({
+    body: {
       query: `
         query {
           getMultisig(address: "${address}", chainId: "${chainId}",) {
@@ -70,9 +58,8 @@ const getMultisig = async (address: string, chainId: string) => {
  * @return Returns async function that makes a request to the faunadb graphql endpoint
  */
 const createTransaction = async (transaction: DbTransaction) => {
-  return graphqlReq({
-    method: "POST",
-    data: {
+  return requestGraphQlJson({
+    body: {
       query: `
         mutation {
           createTransaction(data: {dataJSON: ${JSON.stringify(transaction)}}) {
@@ -91,9 +78,8 @@ const createTransaction = async (transaction: DbTransaction) => {
  * @return Returns async function that makes a request to the faunadb graphql endpoint
  */
 const findTransactionByID = async (id: string) => {
-  return graphqlReq({
-    method: "POST",
-    data: {
+  return requestGraphQlJson({
+    body: {
       query: `
         query {
           findTransactionByID(id: "${id}") {
@@ -122,9 +108,8 @@ const findTransactionByID = async (id: string) => {
  * @return Returns async function that makes a request to the faunadb graphql endpoint
  */
 const updateTxHash = async (id: string, txHash: string) => {
-  return graphqlReq({
-    method: "POST",
-    data: {
+  return requestGraphQlJson({
+    body: {
       query: `
         mutation {
           updateTransaction(id: ${id}, data: {txHash: "${txHash}"}) {
@@ -153,9 +138,8 @@ const updateTxHash = async (id: string, txHash: string) => {
  * @return Returns async function that makes a request to the faunadb graphql endpoint
  */
 const createSignature = async (signature: DbSignature, transactionId: string) => {
-  return graphqlReq({
-    method: "POST",
-    data: {
+  return requestGraphQlJson({
+    body: {
       query: `
         mutation {
           createSignature(data: {
@@ -177,9 +161,9 @@ const createSignature = async (signature: DbSignature, transactionId: string) =>
 
 export {
   createMultisig,
-  getMultisig,
+  createSignature,
   createTransaction,
   findTransactionByID,
+  getMultisig,
   updateTxHash,
-  createSignature,
 };

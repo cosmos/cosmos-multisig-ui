@@ -2,7 +2,6 @@ import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { fromBase64 } from "@cosmjs/encoding";
 import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
-import axios from "axios";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
@@ -16,6 +15,7 @@ import StackableContainer from "../../../../components/layout/StackableContainer
 import { useChains } from "../../../../context/ChainsContext";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
 import { getMultisigAccount } from "../../../../lib/multisigHelpers";
+import { requestJson } from "../../../../lib/request";
 import { dbTxFromJson } from "../../../../lib/txMsgHelpers";
 import { DbSignature } from "../../../../types";
 
@@ -39,9 +39,9 @@ export const getServerSideProps: GetServerSideProps = async (context): Promise<P
     console.log("Function `findTransactionByID` invoked", transactionID);
     const getRes = await findTransactionByID(transactionID);
     console.log("success", getRes.data);
-    txHash = getRes.data.data.findTransactionByID.txHash;
-    transactionJSON = getRes.data.data.findTransactionByID.dataJSON;
-    signatures = getRes.data.data.findTransactionByID.signatures.data || [];
+    txHash = getRes.data.findTransactionByID.txHash;
+    transactionJSON = getRes.data.findTransactionByID.dataJSON;
+    signatures = getRes.data.findTransactionByID.signatures.data || [];
   } catch (err: unknown) {
     console.log(err);
   }
@@ -129,8 +129,8 @@ const TransactionPage = ({
       const broadcaster = await StargateClient.connect(chain.nodeAddress);
       const result = await broadcaster.broadcastTx(signedTxBytes);
       console.log(result);
-      const _res = await axios.post(`/api/transaction/${transactionID}`, {
-        txHash: result.transactionHash,
+      await requestJson(`/api/transaction/${transactionID}`, {
+        body: { txHash: result.transactionHash },
       });
       setTransactionHash(result.transactionHash);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
