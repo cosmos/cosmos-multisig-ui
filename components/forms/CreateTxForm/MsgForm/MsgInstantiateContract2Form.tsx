@@ -1,5 +1,5 @@
 import { MsgInstantiateContract2EncodeObject } from "@cosmjs/cosmwasm-stargate";
-import { toUtf8 } from "@cosmjs/encoding";
+import { fromHex, toUtf8 } from "@cosmjs/encoding";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
@@ -42,7 +42,6 @@ const MsgInstantiateContract2Form = ({
   const [codeId, setCodeId] = useState("");
   const [label, setLabel] = useState("");
   const [adminAddress, setAdminAddress] = useState("");
-  const [fixMsg, setFixMsg] = useState(false);
   const [salt, setSalt] = useState("");
   const [msgContent, setMsgContent] = useState("{}");
   const [selectedDenom, setSelectedDenom] = useState(denomOptions[0]);
@@ -52,6 +51,7 @@ const MsgInstantiateContract2Form = ({
   const [codeIdError, setCodeIdError] = useState("");
   const [labelError, setLabelError] = useState("");
   const [adminAddressError, setAdminAddressError] = useState("");
+  const [saltError, setSaltError] = useState("");
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
 
@@ -59,6 +59,7 @@ const MsgInstantiateContract2Form = ({
     setCodeIdError("");
     setLabelError("");
     setAdminAddressError("");
+    setSaltError("");
     setCustomDenomError("");
     setAmountError("");
 
@@ -76,6 +77,13 @@ const MsgInstantiateContract2Form = ({
       const addressErrorMsg = checkAddress(adminAddress, chain.addressPrefix);
       if (adminAddress && addressErrorMsg) {
         setAdminAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
+        return false;
+      }
+
+      try {
+        fromHex(salt);
+      } catch (e) {
+        setSaltError(e instanceof Error ? e.message : "Salt needs to be an hexadecimal string");
         return false;
       }
 
@@ -108,12 +116,20 @@ const MsgInstantiateContract2Form = ({
       }
     })();
 
+    const hexSalt = (() => {
+      try {
+        return fromHex(salt);
+      } catch {
+        return undefined;
+      }
+    })();
+
     const msgContentUtf8Array = (() => {
       try {
         // The JsonEditor does not escape \n or remove whitespaces, so we need to parse + stringify
         return toUtf8(JSON.stringify(JSON.parse(msgContent)));
       } catch {
-        return Uint8Array.from([]);
+        return undefined;
       }
     })();
 
@@ -122,8 +138,8 @@ const MsgInstantiateContract2Form = ({
       codeId: codeId || 0,
       label,
       admin: adminAddress,
-      fixMsg,
-      salt: toUtf8(salt),
+      fixMsg: false,
+      salt: hexSalt,
       msg: msgContentUtf8Array,
       funds: [microCoin],
     });
@@ -142,7 +158,6 @@ const MsgInstantiateContract2Form = ({
     chain.chainId,
     codeId,
     customDenom,
-    fixMsg,
     fromAddress,
     label,
     msgContent,
@@ -187,20 +202,12 @@ const MsgInstantiateContract2Form = ({
       </div>
       <div className="form-item">
         <Input
-          type="checkbox"
-          label="Fix msg"
-          name="fix-msg"
-          checked={fixMsg}
-          value={String(fixMsg)}
-          onChange={({ target }) => setFixMsg(target.checked)}
-        />
-      </div>
-      <div className="form-item">
-        <Input
-          label="Salt"
+          label="Salt (hex encoded)"
           name="salt"
+          placeholder="E.g. 1bac68"
           value={salt}
           onChange={({ target }) => setSalt(target.value)}
+          error={saltError}
         />
       </div>
       <div className="form-item">
