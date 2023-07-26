@@ -9,7 +9,7 @@ export default async function transactionApi(req: NextApiRequest, res: NextApiRe
         console.log("Function `createTransaction` invoked", data);
         const saveRes = await createTransaction(data.dataJSON);
         console.log("success", saveRes.data);
-        res.status(200).send({ transactionID: saveRes.data.data.createTransaction._id });
+        res.status(200).send({ transactionID: saveRes.data.createTransaction._id });
         return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {

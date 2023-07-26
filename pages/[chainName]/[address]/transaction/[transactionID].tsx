@@ -39,9 +39,9 @@ export const getServerSideProps: GetServerSideProps = async (context): Promise<P
     console.log("Function `findTransactionByID` invoked", transactionID);
     const getRes = await findTransactionByID(transactionID);
     console.log("success", getRes.data);
-    txHash = getRes.data.data.findTransactionByID.txHash;
-    transactionJSON = getRes.data.data.findTransactionByID.dataJSON;
-    signatures = getRes.data.data.findTransactionByID.signatures.data || [];
+    txHash = getRes.data.findTransactionByID.txHash;
+    transactionJSON = getRes.data.findTransactionByID.dataJSON;
+    signatures = getRes.data.findTransactionByID.signatures.data || [];
   } catch (err: unknown) {
     console.log(err);
   }

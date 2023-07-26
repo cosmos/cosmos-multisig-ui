@@ -9,12 +9,12 @@ export default async function multisigAddressApi(req: NextApiRequest, res: NextA
         const chainId = req.query.chainId?.toString() || "";
         console.log("Function `getMultisig` invoked", multisigAddress, chainId);
         const getRes = await getMultisig(multisigAddress, chainId);
-        if (!getRes.data.data.getMultisig) {
+        if (!getRes.data.getMultisig) {
           res.status(404).send("Multisig not found");
           return;
         }
-        console.log("success", getRes.data.data.getMultisig);
-        res.status(200).send(getRes.data.data.getMultisig);
+        console.log("success", getRes.data.getMultisig);
+        res.status(200).send(getRes.data.getMultisig);
         return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
