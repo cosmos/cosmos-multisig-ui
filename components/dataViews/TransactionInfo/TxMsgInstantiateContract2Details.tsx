@@ -38,10 +38,6 @@ const TxMsgInstantiateContract2Details = ({ msgValue }: TxMsgInstantiateContract
         )}
       </li>
       <li>
-        <label>Fix msg:</label>
-        <div>{msgValue.fixMsg ? "Yes" : "No"}</div>
-      </li>
-      <li>
         <label>Salt:</label>
         <div>{fromUtf8(msgValue.salt, true)}</div>
       </li>
