@@ -1,6 +1,8 @@
 import { fromUtf8 } from "@cosmjs/encoding";
 import { MsgExecuteContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import dynamic from "next/dynamic";
+import { useState } from "react";
+import { JSONValue } from "vanilla-jsoneditor";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import HashView from "../HashView";
@@ -13,6 +15,20 @@ interface TxMsgExecuteContractDetailsProps {
 
 const TxMsgExecuteContractDetails = ({ msgValue }: TxMsgExecuteContractDetailsProps) => {
   const { chain } = useChains();
+  const [parseError, setParseError] = useState("");
+
+  const json: JSONValue = (() => {
+    if (parseError) {
+      return {};
+    }
+
+    try {
+      return JSON.parse(fromUtf8(msgValue.msg));
+    } catch (e) {
+      setParseError(e instanceof Error ? e.message : "Failed to decode UTF-8 msg");
+      return {};
+    }
+  })();
 
   return (
     <>
@@ -29,9 +45,15 @@ const TxMsgExecuteContractDetails = ({ msgValue }: TxMsgExecuteContractDetailsPr
         <label>Funds:</label>
         <div>{printableCoins(msgValue.funds, chain)}</div>
       </li>
-      <li>
-        <JsonEditor readOnly content={{ json: JSON.parse(fromUtf8(msgValue.msg, true)) }} />
-      </li>
+      {parseError ? (
+        <li className="parse-error">
+          <p>{parseError}</p>
+        </li>
+      ) : (
+        <li>
+          <JsonEditor readOnly content={{ json }} />
+        </li>
+      )}
       <style jsx>{`
         li:not(:has(h3)) {
           background: rgba(255, 255, 255, 0.03);
@@ -55,6 +77,12 @@ const TxMsgExecuteContractDetails = ({ msgValue }: TxMsgExecuteContractDetailsPr
           padding: 3px 6px;
           border-radius: 5px;
           display: block;
+        }
+        .parse-error p {
+          max-width: 550px;
+          color: red;
+          font-size: 16px;
+          line-height: 1.4;
         }
       `}</style>
     </>
