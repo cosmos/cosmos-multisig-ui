@@ -9,6 +9,10 @@ import { assert } from "@cosmjs/utils";
 import { checkAddress } from "./displayHelpers";
 import { requestJson } from "./request";
 
+interface CreateMultisigAccountResponse {
+  readonly address: string;
+}
+
 /**
  * Turns array of compressed Secp256k1 pubkeys
  * into a multisig using comsjs
@@ -41,10 +45,17 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     chainId,
   };
 
-  const res = await requestJson(`/api/chain/${chainId}/multisig`, { body: multisig });
-  console.log(res);
-  return res.address;
+  const { address }: CreateMultisigAccountResponse = await requestJson(
+    `/api/chain/${chainId}/multisig`,
+    { body: multisig },
+  );
+
+  return address;
 };
+
+interface GetMultisigAccountResponse {
+  readonly pubkeyJSON: string;
+}
 
 /**
  * This gets a multisigs account (pubkey, sequence, account number, etc) from
@@ -79,11 +90,11 @@ const getMultisigAccount = async (
     );
     pubkey = accountOnChain.pubkey;
   } else {
-    console.log("No pubkey on chain for: ", address);
-
     try {
-      const res = await requestJson(`/api/chain/${chainId}/multisig/${address}`);
-      pubkey = JSON.parse(res.pubkeyJSON);
+      const { pubkeyJSON }: GetMultisigAccountResponse = await requestJson(
+        `/api/chain/${chainId}/multisig/${address}`,
+      );
+      pubkey = JSON.parse(pubkeyJSON);
     } catch {
       throw new Error("Multisig has no pubkey on node, and was not created using this tool.");
     }
