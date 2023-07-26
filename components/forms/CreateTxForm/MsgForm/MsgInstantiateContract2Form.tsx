@@ -81,6 +81,10 @@ const MsgInstantiateContract2Form = ({
       }
 
       try {
+        if (!salt) {
+          throw new Error("Salt is required");
+        }
+
         fromHex(salt);
       } catch (e) {
         setSaltError(e instanceof Error ? e.message : "Salt needs to be an hexadecimal string");
