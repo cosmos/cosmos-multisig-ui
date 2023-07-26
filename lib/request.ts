@@ -6,7 +6,7 @@ export const requestJson = async (
 ) => {
   const config: RequestInit = {
     method: method ?? body ? "POST" : "GET",
-    headers: { "Content-Type": "application/json", ...headers },
+    headers: body ? { "Content-Type": "application/json", ...headers } : headers,
     body: body ? JSON.stringify(body) : null,
     ...restConfig,
   };
