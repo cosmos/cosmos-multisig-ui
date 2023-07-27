@@ -1,7 +1,14 @@
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
+import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";
 import { toBase64 } from "@cosmjs/encoding";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
-import { SigningStargateClient } from "@cosmjs/stargate";
+import { Registry } from "@cosmjs/proto-signing";
+import {
+  AminoTypes,
+  SigningStargateClient,
+  createDefaultAminoConverters,
+  defaultRegistryTypes,
+} from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { useCallback, useLayoutEffect, useState } from "react";
@@ -142,7 +149,13 @@ const TransactionSigning = (props: TransactionSigningProps) => {
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
-      const signingClient = await SigningStargateClient.offline(offlineSigner);
+      const signingClient = await SigningStargateClient.offline(offlineSigner, {
+        registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
+        aminoTypes: new AminoTypes({
+          ...createDefaultAminoConverters(),
+          ...createWasmAminoConverters(),
+        }),
+      });
 
       const signerData = {
         accountNumber: props.tx.accountNumber,

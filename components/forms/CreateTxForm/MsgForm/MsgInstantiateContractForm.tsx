@@ -1,18 +1,22 @@
-import { MsgSendEncodeObject } from "@cosmjs/stargate";
-import { useEffect, useState } from "react";
+import { MsgInstantiateContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
+import { toUtf8 } from "@cosmjs/encoding";
+import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
+import { ChainInfo } from "../../../../context/ChainsContext/types";
 import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
-import { RegistryAsset } from "../../../../types/chainRegistry";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
 import StackableContainer from "../../../layout/StackableContainer";
 
+const JsonEditor = dynamic(() => import("../../../inputs/JsonEditor"), { ssr: false });
+
 const customDenomOption = { label: "Custom (enter denom below)", value: "custom" } as const;
 
-const getDenomOptions = (assets: readonly RegistryAsset[]) => {
+const getDenomOptions = (assets: ChainInfo["assets"]) => {
   if (!assets?.length) {
     return [customDenomOption];
   }
@@ -20,35 +24,61 @@ const getDenomOptions = (assets: readonly RegistryAsset[]) => {
   return [...assets.map((asset) => ({ label: asset.symbol, value: asset })), customDenomOption];
 };
 
-interface MsgSendFormProps {
+interface MsgInstantiateContractFormProps {
   readonly fromAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps) => {
+const MsgInstantiateContractForm = ({
+  fromAddress,
+  setMsgGetter,
+  deleteMsg,
+}: MsgInstantiateContractFormProps) => {
   const { chain } = useChains();
 
   const denomOptions = getDenomOptions(chain.assets);
 
-  const [toAddress, setToAddress] = useState("");
+  const [codeId, setCodeId] = useState("");
+  const [label, setLabel] = useState("");
+  const [adminAddress, setAdminAddress] = useState("");
+  const [msgContent, setMsgContent] = useState("{}");
   const [selectedDenom, setSelectedDenom] = useState(denomOptions[0]);
   const [customDenom, setCustomDenom] = useState("");
   const [amount, setAmount] = useState("0");
 
-  const [toAddressError, setToAddressError] = useState("");
+  const jsonError = useRef(false);
+  const [codeIdError, setCodeIdError] = useState("");
+  const [labelError, setLabelError] = useState("");
+  const [adminAddressError, setAdminAddressError] = useState("");
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
 
   useEffect(() => {
-    setToAddressError("");
+    setCodeIdError("");
+    setLabelError("");
+    setAdminAddressError("");
     setCustomDenomError("");
     setAmountError("");
 
     const isMsgValid = (): boolean => {
-      const addressErrorMsg = checkAddress(toAddress, chain.addressPrefix);
-      if (addressErrorMsg) {
-        setToAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
+      if (jsonError.current) {
+        return false;
+      }
+
+      if (!codeId || !Number.isSafeInteger(Number(codeId)) || Number(codeId) <= 0) {
+        setCodeIdError("Code ID must be a positive integer");
+        return false;
+      }
+
+      if (!label) {
+        setLabelError("Label is required");
+        return false;
+      }
+
+      const addressErrorMsg = checkAddress(adminAddress, chain.addressPrefix);
+      if (adminAddress && addressErrorMsg) {
+        setAdminAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
         return false;
       }
 
@@ -81,25 +111,43 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
       }
     })();
 
-    const msgValue = MsgCodecs[MsgTypeUrls.Send].fromPartial({
-      fromAddress,
-      toAddress,
-      amount: [microCoin],
+    const msgContentUtf8Array = (() => {
+      try {
+        // The JsonEditor does not escape \n or remove whitespaces, so we need to parse + stringify
+        return toUtf8(JSON.stringify(JSON.parse(msgContent)));
+      } catch {
+        return undefined;
+      }
+    })();
+
+    const msgValue = MsgCodecs[MsgTypeUrls.Instantiate].fromPartial({
+      sender: fromAddress,
+      codeId: codeId || 1,
+      label,
+      admin: adminAddress,
+      msg: msgContentUtf8Array,
+      funds: [microCoin],
     });
 
-    const msg: MsgSendEncodeObject = { typeUrl: MsgTypeUrls.Send, value: msgValue };
+    const msg: MsgInstantiateContractEncodeObject = {
+      typeUrl: MsgTypeUrls.Instantiate,
+      value: msgValue,
+    };
 
     setMsgGetter({ isMsgValid, msg });
   }, [
+    adminAddress,
     amount,
     chain.addressPrefix,
     chain.assets,
     chain.chainId,
+    codeId,
     customDenom,
     fromAddress,
+    label,
+    msgContent,
     selectedDenom.value,
     setMsgGetter,
-    toAddress,
   ]);
 
   return (
@@ -107,15 +155,43 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
       <button className="remove" onClick={() => deleteMsg()}>
         ✕
       </button>
-      <h2>MsgSend</h2>
+      <h2>MsgInstantiateContract</h2>
       <div className="form-item">
         <Input
-          label="Recipient Address"
-          name="recipient-address"
-          value={toAddress}
-          onChange={({ target }) => setToAddress(target.value)}
-          error={toAddressError}
+          label="Code ID"
+          name="code-id"
+          value={codeId}
+          onChange={({ target }) => setCodeId(target.value)}
+          error={codeIdError}
+        />
+      </div>
+      <div className="form-item">
+        <Input
+          label="Label"
+          name="label"
+          value={label}
+          onChange={({ target }) => setLabel(target.value)}
+          error={labelError}
+        />
+      </div>
+      <div className="form-item">
+        <Input
+          label="Admin Address"
+          name="admin-address"
+          value={adminAddress}
+          onChange={({ target }) => setAdminAddress(target.value)}
+          error={adminAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
+        />
+      </div>
+      <div className="form-item">
+        <JsonEditor
+          label="Msg JSON"
+          content={{ text: msgContent }}
+          onChange={(newMsgContent, _, { contentErrors }) => {
+            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}");
+            jsonError.current = !!contentErrors;
+          }}
         />
       </div>
       <div className="form-item form-select">
@@ -187,4 +263,4 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
   );
 };
 
-export default MsgSendForm;
+export default MsgInstantiateContractForm;

@@ -1,5 +1,5 @@
 import { Coin } from "@cosmjs/stargate";
-import { ChainInfo } from "../types";
+import { ChainInfo } from "../context/ChainsContext/types";
 import { printableCoin, printableCoins, thinSpace } from "./displayHelpers";
 
 const testChainInfo: ChainInfo = {
