@@ -1,7 +1,7 @@
 import { MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { toUtf8 } from "@cosmjs/encoding";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { ChainInfo } from "../../../../context/ChainsContext/types";
@@ -45,6 +45,7 @@ const MsgExecuteContractForm = ({
   const [customDenom, setCustomDenom] = useState("");
   const [amount, setAmount] = useState("0");
 
+  const jsonError = useRef(false);
   const [contractAddressError, setContractAddressError] = useState("");
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
@@ -55,6 +56,10 @@ const MsgExecuteContractForm = ({
     setAmountError("");
 
     const isMsgValid = (): boolean => {
+      if (jsonError.current) {
+        return false;
+      }
+
       const addressErrorMsg = checkAddress(contractAddress, chain.addressPrefix);
       if (addressErrorMsg) {
         setContractAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
@@ -142,9 +147,10 @@ const MsgExecuteContractForm = ({
         <JsonEditor
           label="Msg JSON"
           content={{ text: msgContent }}
-          onChange={(newMsgContent) =>
-            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}")
-          }
+          onChange={(newMsgContent, _, { contentErrors }) => {
+            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}");
+            jsonError.current = !!contentErrors;
+          }}
         />
       </div>
       <div className="form-item form-select">

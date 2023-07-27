@@ -1,7 +1,7 @@
 import { MsgMigrateContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { toUtf8 } from "@cosmjs/encoding";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
@@ -28,6 +28,7 @@ const MsgMigrateContractForm = ({
   const [codeId, setCodeId] = useState("");
   const [msgContent, setMsgContent] = useState("{}");
 
+  const jsonError = useRef(false);
   const [contractAddressError, setContractAddressError] = useState("");
   const [codeIdError, setCodeIdError] = useState("");
 
@@ -36,6 +37,10 @@ const MsgMigrateContractForm = ({
     setContractAddressError("");
 
     const isMsgValid = (): boolean => {
+      if (jsonError.current) {
+        return false;
+      }
+
       const addressErrorMsg = checkAddress(contractAddress, chain.addressPrefix);
       if (addressErrorMsg) {
         setContractAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
@@ -108,9 +113,10 @@ const MsgMigrateContractForm = ({
         <JsonEditor
           label="Msg JSON"
           content={{ text: msgContent }}
-          onChange={(newMsgContent) =>
-            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}")
-          }
+          onChange={(newMsgContent, _, { contentErrors }) => {
+            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}");
+            jsonError.current = !!contentErrors;
+          }}
         />
       </div>
       <style jsx>{`

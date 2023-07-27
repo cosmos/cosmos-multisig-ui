@@ -1,7 +1,7 @@
 import { MsgInstantiateContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { toUtf8 } from "@cosmjs/encoding";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { ChainInfo } from "../../../../context/ChainsContext/types";
@@ -47,6 +47,7 @@ const MsgInstantiateContractForm = ({
   const [customDenom, setCustomDenom] = useState("");
   const [amount, setAmount] = useState("0");
 
+  const jsonError = useRef(false);
   const [codeIdError, setCodeIdError] = useState("");
   const [labelError, setLabelError] = useState("");
   const [adminAddressError, setAdminAddressError] = useState("");
@@ -61,6 +62,10 @@ const MsgInstantiateContractForm = ({
     setAmountError("");
 
     const isMsgValid = (): boolean => {
+      if (jsonError.current) {
+        return false;
+      }
+
       if (!codeId || !Number.isSafeInteger(Number(codeId)) || Number(codeId) <= 0) {
         setCodeIdError("Code ID must be a positive integer");
         return false;
@@ -183,9 +188,10 @@ const MsgInstantiateContractForm = ({
         <JsonEditor
           label="Msg JSON"
           content={{ text: msgContent }}
-          onChange={(newMsgContent) =>
-            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}")
-          }
+          onChange={(newMsgContent, _, { contentErrors }) => {
+            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}");
+            jsonError.current = !!contentErrors;
+          }}
         />
       </div>
       <div className="form-item form-select">
