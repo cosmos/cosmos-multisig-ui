@@ -209,21 +209,23 @@ const MsgInstantiateContractForm = ({
           }}
         />
       </div>
-      <div className="form-item">
-        <Input
-          label="Custom denom"
-          name="custom-denom"
-          value={customDenom}
-          onChange={({ target }) => setCustomDenom(target.value)}
-          placeholder={
-            selectedDenom.value === customDenomOption.value
-              ? "Enter custom denom"
-              : "Select Custom denom above"
-          }
-          disabled={selectedDenom.value !== customDenomOption.value}
-          error={customDenomError}
-        />
-      </div>
+      {selectedDenom.value === customDenomOption.value ? (
+        <div className="form-item">
+          <Input
+            label="Custom denom"
+            name="custom-denom"
+            value={customDenom}
+            onChange={({ target }) => setCustomDenom(target.value)}
+            placeholder={
+              selectedDenom.value === customDenomOption.value
+                ? "Enter custom denom"
+                : "Select Custom denom above"
+            }
+            disabled={selectedDenom.value !== customDenomOption.value}
+            error={customDenomError}
+          />
+        </div>
+      ) : null}
       <div className="form-item">
         <Input
           type="number"
