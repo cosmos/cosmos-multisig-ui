@@ -152,38 +152,90 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           onChange={({ target }) => setMemo(target.value)}
         />
       </div>
-      <StackableContainer>
-        <Button label="Add MsgSend" onClick={() => addMsgType(MsgTypeUrls.Send)} />
-        <Button label="Add MsgDelegate" onClick={() => addMsgType(MsgTypeUrls.Delegate)} />
-        <Button label="Add MsgUndelegate" onClick={() => addMsgType(MsgTypeUrls.Undelegate)} />
-        <Button
-          label="Add MsgBeginRedelegate"
-          onClick={() => addMsgType(MsgTypeUrls.BeginRedelegate)}
-        />
-        <Button
-          label="Add MsgWithdrawDelegatorReward"
-          onClick={() => addMsgType(MsgTypeUrls.WithdrawDelegatorReward)}
-        />
-        <Button
-          label="Add MsgSetWithdrawAddress"
-          onClick={() => addMsgType(MsgTypeUrls.SetWithdrawAddress)}
-        />
-        <Button
-          label="Add MsgCreateVestingAccount"
-          onClick={() => addMsgType(MsgTypeUrls.CreateVestingAccount)}
-        />
-        <Button label="Add MsgTransfer" onClick={() => addMsgType(MsgTypeUrls.Transfer)} />
-        <Button label="Add MsgExecuteContract" onClick={() => addMsgType(MsgTypeUrls.Execute)} />
-        <Button
-          label="Add MsgInstantiateContract"
-          onClick={() => addMsgType(MsgTypeUrls.Instantiate)}
-        />
-        <Button
-          label="Add MsgInstantiateContract2"
-          onClick={() => addMsgType(MsgTypeUrls.Instantiate2)}
-        />
-        <Button label="Add MsgMigrateContract" onClick={() => addMsgType(MsgTypeUrls.Migrate)} />
-      </StackableContainer>
+      <h4>Add New Msg</h4>
+      <div className="btn-cluster-grid">
+        <div className="btn-cluster">
+          <label>Bank</label>
+          <ul>
+            <li>
+              <Button label="Send" onClick={() => addMsgType(MsgTypeUrls.Send)} />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
+          <label>IBC</label>
+          <ul>
+            <li>
+              <Button label="Transfer" onClick={() => addMsgType(MsgTypeUrls.Transfer)} />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
+          <label>Vesting</label>
+          <ul>
+            <li>
+              <Button
+                label="CreateVestingAccount"
+                onClick={() => addMsgType(MsgTypeUrls.CreateVestingAccount)}
+              />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
+          <label>Staking</label>
+          <ul>
+            <li>
+              <Button label="Delegate" onClick={() => addMsgType(MsgTypeUrls.Delegate)} />
+            </li>
+            <li>
+              <Button label="Undelegate" onClick={() => addMsgType(MsgTypeUrls.Undelegate)} />
+            </li>
+            <li>
+              <Button
+                label="BeginRedelegate"
+                onClick={() => addMsgType(MsgTypeUrls.BeginRedelegate)}
+              />
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <Button
+                label="WithdrawDelegatorReward"
+                onClick={() => addMsgType(MsgTypeUrls.WithdrawDelegatorReward)}
+              />
+            </li>
+            <li>
+              <Button
+                label="SetWithdrawAddress"
+                onClick={() => addMsgType(MsgTypeUrls.SetWithdrawAddress)}
+              />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
+          <label>CosmWasm</label>
+          <ul>
+            <li>
+              <Button
+                label="InstantiateContract"
+                onClick={() => addMsgType(MsgTypeUrls.Instantiate)}
+              />
+            </li>
+            <li>
+              <Button
+                label="InstantiateContract2"
+                onClick={() => addMsgType(MsgTypeUrls.Instantiate2)}
+              />
+            </li>
+            <li>
+              <Button label="ExecuteContract" onClick={() => addMsgType(MsgTypeUrls.Execute)} />
+            </li>
+            <li>
+              <Button label="MigrateContract" onClick={() => addMsgType(MsgTypeUrls.Migrate)} />
+            </li>
+          </ul>
+        </div>
+      </div>
       {showCreateTxError ? (
         <StackableContainer lessMargin lessPadding>
           <p className="multisig-error">
@@ -214,6 +266,35 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           color: red;
           font-size: 16px;
           text-align: center;
+        }
+        .btn-cluster-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          justify-content: flex-start;
+          align-items: center;
+        }
+        .btn-cluster {
+          padding: 0.5rem;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .btn-cluster label {
+          text-decoration: underline;
+        }
+        .btn-cluster ul {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          justify-content: flex-start;
+          align-items: center;
         }
       `}</style>
     </StackableContainer>
