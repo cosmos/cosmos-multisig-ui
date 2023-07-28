@@ -38,7 +38,7 @@ const Button = (props: Props) => (
         border-radius: 10px;
         background: rgba(255, 255, 255, 0.15);
         border: none;
-        padding: 12px 0;
+        padding: 12px;
         font-size: 1rem;
         color: white;
         font-style: italic;
@@ -49,7 +49,10 @@ const Button = (props: Props) => (
       .primary {
         border: 2px solid white;
       }
-
+      button:hover,
+      button:focus {
+        outline: 1px solid white;
+      }
       button:first-child {
         margin-top: 0;
       }
