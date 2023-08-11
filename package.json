@@ -19,6 +19,7 @@
     "@cosmjs/proto-signing": "^0.31.0",
     "@cosmjs/stargate": "^0.31.0",
     "@cosmjs/utils": "^0.31.0",
+    "@keplr-wallet/cosmos": "^0.12.20",
     "@keplr-wallet/types": "^0.11.56",
     "@ledgerhq/hw-transport-webusb": "^6.27.13",
     "copy-to-clipboard": "^3.3.3",
