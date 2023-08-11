@@ -2,6 +2,14 @@ type Multisig {
   pubkeyJSON: String!
   address: String!
   chainId: String!
+  members: [User] @relation
+}
+
+type User {
+  pubkeyJSON: String!
+  address: String!
+  chainId: String!
+  nonce: Int!
 }
 
 type SourceAddress {
@@ -25,5 +33,6 @@ type Signature {
 }
 
 type Query {
+  getMultisigs(address: String!, chainId: String!): [Multisig]
   getMultisig(address: String!, chainId: String!): Multisig
 }
