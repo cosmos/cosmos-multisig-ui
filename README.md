@@ -30,7 +30,7 @@ This app relies on FaunaDB as for storing account, transaction and signature det
 
 As your instance of the app is used, you can return to the FaunaDB dashboard to view records for any accounts, transactions or signatures.
 
-### 4. Succesful Deployment
+### 4. Successful Deployment
 
 Redeploy the app and it will pickup the new environment variables and should be functioning normally.
 
@@ -42,7 +42,7 @@ Copy the `.env.sample` file and rename it to `.env.local`
 
 ### 2. Run a local cosmos-sdk Simapp instance
 
-It's recommmended that you make your simapp instance mimic the denomination of cosmoshub-4 (`uatom`). Put the local address of your node as the value for `NEXT_PUBLIC_NODE_ADDRESS` in your `.env.local` file.
+It's recommended that you make your simapp instance mimic the denomination of cosmoshub-4 (`uatom`). Put the local address of your node as the value for `NEXT_PUBLIC_NODE_ADDRESS` in your `.env.local` file.
 
 A more in depth tutorial on this is coming soon :)
 
