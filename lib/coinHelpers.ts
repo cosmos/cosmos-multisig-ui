@@ -28,7 +28,7 @@ const macroCoinToMicroCoin = (macroCoin: Coin, assets: readonly RegistryAsset[])
   assert(baseUnit, `A base unit with exponent = 0 was not found`);
 
   const denom = baseUnit.denom;
-  const amount = Decimal.fromUserInput(macroCoin.amount, macroUnit.exponent).atomics;
+  const amount = Decimal.fromUserInput(macroCoin.amount.trim() || "0", macroUnit.exponent).atomics;
 
   return { denom, amount };
 };
