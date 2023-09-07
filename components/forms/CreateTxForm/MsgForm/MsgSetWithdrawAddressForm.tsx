@@ -2,7 +2,7 @@ import { EncodeObject } from "@cosmjs/proto-signing";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -23,31 +23,32 @@ const MsgSetWithdrawAddressForm = ({
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [withdrawAddressError, setWithdrawAddressError] = useState("");
 
+  const trimmedInputs = trimStringsObj({ withdrawAddress });
+
   useEffect(() => {
-    try {
+    // eslint-disable-next-line no-shadow
+    const { withdrawAddress } = trimmedInputs;
+
+    const isMsgValid = (): boolean => {
       setWithdrawAddressError("");
 
-      const isMsgValid = (): boolean => {
-        const addressErrorMsg = checkAddress(withdrawAddress, chain.addressPrefix);
-        if (addressErrorMsg) {
-          setWithdrawAddressError(
-            `Invalid address for network ${chain.chainId}: ${addressErrorMsg}`,
-          );
-          return false;
-        }
+      const addressErrorMsg = checkAddress(withdrawAddress, chain.addressPrefix);
+      if (addressErrorMsg) {
+        setWithdrawAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
+        return false;
+      }
 
-        return true;
-      };
+      return true;
+    };
 
-      const msgValue = MsgCodecs[MsgTypeUrls.SetWithdrawAddress].fromPartial({
-        delegatorAddress,
-        withdrawAddress,
-      });
-      const msg: EncodeObject = { typeUrl: MsgTypeUrls.SetWithdrawAddress, value: msgValue };
+    const msgValue = MsgCodecs[MsgTypeUrls.SetWithdrawAddress].fromPartial({
+      delegatorAddress,
+      withdrawAddress,
+    });
+    const msg: EncodeObject = { typeUrl: MsgTypeUrls.SetWithdrawAddress, value: msgValue };
 
-      setMsgGetter({ isMsgValid, msg });
-    } catch {}
-  }, [chain.addressPrefix, chain.chainId, delegatorAddress, setMsgGetter, withdrawAddress]);
+    setMsgGetter({ isMsgValid, msg });
+  }, [chain.addressPrefix, chain.chainId, delegatorAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>
@@ -60,7 +61,10 @@ const MsgSetWithdrawAddressForm = ({
           label="Withdraw Address"
           name="withdraw-address"
           value={withdrawAddress}
-          onChange={({ target }) => setWithdrawAddress(target.value)}
+          onChange={({ target }) => {
+            setWithdrawAddress(target.value);
+            setWithdrawAddressError("");
+          }}
           error={withdrawAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />

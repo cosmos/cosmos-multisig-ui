@@ -1,9 +1,9 @@
-import { Decimal } from "@cosmjs/math";
 import { MsgUndelegateEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -27,52 +27,57 @@ const MsgUndelegateForm = ({
   const [validatorAddressError, setValidatorAddressError] = useState("");
   const [amountError, setAmountError] = useState("");
 
+  const trimmedInputs = trimStringsObj({ validatorAddress, amount });
+
   useEffect(() => {
-    try {
+    // eslint-disable-next-line no-shadow
+    const { validatorAddress, amount } = trimmedInputs;
+
+    const isMsgValid = (): boolean => {
       setValidatorAddressError("");
       setAmountError("");
 
-      const isMsgValid = (): boolean => {
-        const addressErrorMsg = checkAddress(validatorAddress, chain.addressPrefix);
-        if (addressErrorMsg) {
-          setValidatorAddressError(
-            `Invalid address for network ${chain.chainId}: ${addressErrorMsg}`,
-          );
-          return false;
-        }
+      const addressErrorMsg = checkAddress(validatorAddress, chain.addressPrefix);
+      if (addressErrorMsg) {
+        setValidatorAddressError(
+          `Invalid address for network ${chain.chainId}: ${addressErrorMsg}`,
+        );
+        return false;
+      }
 
-        if (!amount || Number(amount) <= 0) {
-          setAmountError("Amount must be greater than 0");
-          return false;
-        }
+      if (!amount || Number(amount) <= 0) {
+        setAmountError("Amount must be greater than 0");
+        return false;
+      }
 
-        return true;
-      };
+      return true;
+    };
 
-      const amountInAtomics = Decimal.fromUserInput(
-        amount || "0",
-        Number(chain.displayDenomExponent),
-      ).atomics;
+    const microCoin = (() => {
+      try {
+        return macroCoinToMicroCoin({ denom: chain.displayDenom, amount }, chain.assets);
+      } catch {
+        return { denom: chain.displayDenom, amount: "0" };
+      }
+    })();
 
-      const msgValue = MsgCodecs[MsgTypeUrls.Undelegate].fromPartial({
-        delegatorAddress,
-        validatorAddress,
-        amount: { amount: amountInAtomics, denom: chain.denom },
-      });
+    const msgValue = MsgCodecs[MsgTypeUrls.Undelegate].fromPartial({
+      delegatorAddress,
+      validatorAddress,
+      amount: microCoin,
+    });
 
-      const msg: MsgUndelegateEncodeObject = { typeUrl: MsgTypeUrls.Undelegate, value: msgValue };
+    const msg: MsgUndelegateEncodeObject = { typeUrl: MsgTypeUrls.Undelegate, value: msgValue };
 
-      setMsgGetter({ isMsgValid, msg });
-    } catch {}
+    setMsgGetter({ isMsgValid, msg });
   }, [
-    amount,
     chain.addressPrefix,
+    chain.assets,
     chain.chainId,
-    chain.denom,
-    chain.displayDenomExponent,
+    chain.displayDenom,
     delegatorAddress,
     setMsgGetter,
-    validatorAddress,
+    trimmedInputs,
   ]);
 
   return (
@@ -86,7 +91,10 @@ const MsgUndelegateForm = ({
           label="Validator Address"
           name="validator-address"
           value={validatorAddress}
-          onChange={({ target }) => setValidatorAddress(target.value)}
+          onChange={({ target }) => {
+            setValidatorAddress(target.value);
+            setValidatorAddressError("");
+          }}
           error={validatorAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
@@ -97,7 +105,10 @@ const MsgUndelegateForm = ({
           label={`Amount (${chain.displayDenom})`}
           name="amount"
           value={amount}
-          onChange={({ target }) => setAmount(target.value)}
+          onChange={({ target }) => {
+            setAmount(target.value);
+            setAmountError("");
+          }}
           error={amountError}
         />
       </div>

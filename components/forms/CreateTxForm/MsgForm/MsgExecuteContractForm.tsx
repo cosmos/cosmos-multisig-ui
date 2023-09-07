@@ -6,7 +6,7 @@ import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { ChainInfo } from "../../../../context/ChainsContext/types";
 import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
-import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
@@ -50,12 +50,17 @@ const MsgExecuteContractForm = ({
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
 
+  const trimmedInputs = trimStringsObj({ contractAddress, customDenom, amount });
+
   useEffect(() => {
-    setContractAddressError("");
-    setCustomDenomError("");
-    setAmountError("");
+    // eslint-disable-next-line no-shadow
+    const { contractAddress, customDenom, amount } = trimmedInputs;
 
     const isMsgValid = (): boolean => {
+      setContractAddressError("");
+      setCustomDenomError("");
+      setAmountError("");
+
       if (jsonError.current) {
         return false;
       }
@@ -115,16 +120,14 @@ const MsgExecuteContractForm = ({
 
     setMsgGetter({ isMsgValid, msg });
   }, [
-    amount,
     chain.addressPrefix,
     chain.assets,
     chain.chainId,
-    contractAddress,
-    customDenom,
     fromAddress,
     msgContent,
     selectedDenom.value,
     setMsgGetter,
+    trimmedInputs,
   ]);
 
   return (
@@ -138,7 +141,10 @@ const MsgExecuteContractForm = ({
           label="Contract Address"
           name="contract-address"
           value={contractAddress}
-          onChange={({ target }) => setContractAddress(target.value)}
+          onChange={({ target }) => {
+            setContractAddress(target.value);
+            setContractAddressError("");
+          }}
           error={contractAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
@@ -165,6 +171,7 @@ const MsgExecuteContractForm = ({
             if (option.value !== customDenomOption.value) {
               setCustomDenom("");
             }
+            setCustomDenomError("");
           }}
         />
       </div>
@@ -174,7 +181,10 @@ const MsgExecuteContractForm = ({
             label="Custom denom"
             name="custom-denom"
             value={customDenom}
-            onChange={({ target }) => setCustomDenom(target.value)}
+            onChange={({ target }) => {
+              setCustomDenom(target.value);
+              setCustomDenomError("");
+            }}
             placeholder={
               selectedDenom.value === customDenomOption.value
                 ? "Enter custom denom"
@@ -191,7 +201,10 @@ const MsgExecuteContractForm = ({
           label="Amount"
           name="amount"
           value={amount}
-          onChange={({ target }) => setAmount(target.value)}
+          onChange={({ target }) => {
+            setAmount(target.value);
+            setAmountError("");
+          }}
           error={amountError}
         />
       </div>

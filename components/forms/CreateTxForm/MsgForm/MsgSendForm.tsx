@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
-import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { RegistryAsset } from "../../../../types/chainRegistry";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -40,12 +40,17 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
 
+  const trimmedInputs = trimStringsObj({ toAddress, customDenom, amount });
+
   useEffect(() => {
-    setToAddressError("");
-    setCustomDenomError("");
-    setAmountError("");
+    // eslint-disable-next-line no-shadow
+    const { toAddress, customDenom, amount } = trimmedInputs;
 
     const isMsgValid = (): boolean => {
+      setToAddressError("");
+      setCustomDenomError("");
+      setAmountError("");
+
       const addressErrorMsg = checkAddress(toAddress, chain.addressPrefix);
       if (addressErrorMsg) {
         setToAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
@@ -91,15 +96,13 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
 
     setMsgGetter({ isMsgValid, msg });
   }, [
-    amount,
     chain.addressPrefix,
     chain.assets,
     chain.chainId,
-    customDenom,
     fromAddress,
     selectedDenom.value,
     setMsgGetter,
-    toAddress,
+    trimmedInputs,
   ]);
 
   return (
@@ -113,7 +116,10 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
           label="Recipient Address"
           name="recipient-address"
           value={toAddress}
-          onChange={({ target }) => setToAddress(target.value)}
+          onChange={({ target }) => {
+            setToAddress(target.value);
+            setToAddressError("");
+          }}
           error={toAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
@@ -130,6 +136,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
             if (option.value !== customDenomOption.value) {
               setCustomDenom("");
             }
+            setCustomDenomError("");
           }}
         />
       </div>
@@ -139,7 +146,10 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
             label="Custom denom"
             name="custom-denom"
             value={customDenom}
-            onChange={({ target }) => setCustomDenom(target.value)}
+            onChange={({ target }) => {
+              setCustomDenom(target.value);
+              setCustomDenomError("");
+            }}
             placeholder={
               selectedDenom.value === customDenomOption.value
                 ? "Enter custom denom"
@@ -156,7 +166,10 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
           label="Amount"
           name="amount"
           value={amount}
-          onChange={({ target }) => setAmount(target.value)}
+          onChange={({ target }) => {
+            setAmount(target.value);
+            setAmountError("");
+          }}
           error={amountError}
         />
       </div>
