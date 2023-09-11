@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import ThemeProvider from "@/context/ThemesContext";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
@@ -11,8 +12,7 @@ function MultisigApp({ Component, pageProps }: AppProps) {
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         {showChainSelect && <ChainSelect />}
         <Component {...pageProps} />
-      {showChainSelect && <ChainSelect />}
-      <Component {...pageProps} />
+        <Toaster />
       </ThemeProvider>
     </ChainsProvider>
   );
