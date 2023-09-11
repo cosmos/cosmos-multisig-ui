@@ -40,14 +40,14 @@ const Page = ({ title, goBack, children }: PageProps) => {
   return (
     <div className="page">
       <Head title={title || "Cosmos Multisig Manager"} />
-      <StackableContainer>
+      <StackableContainer divProps={{ style: { width: "auto" } }}>
         {goBack ? (
           <StackableContainer
             base
             lessPadding
             lessMargin
             divProps={{
-              style: { width: "fit-content", cursor: "pointer" },
+              style: { margin: 0, width: "fit-content", cursor: "pointer" },
               onClick: linkProps.href ? () => router.push(linkProps.href) : linkProps.onClick,
             }}
           >
@@ -89,8 +89,18 @@ const Page = ({ title, goBack, children }: PageProps) => {
       `}</style>
       <style global jsx>{`
         body {
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-            Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+          font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            Segoe UI,
+            Roboto,
+            Oxygen,
+            Ubuntu,
+            Cantarell,
+            Fira Sans,
+            Droid Sans,
+            Helvetica Neue,
+            sans-serif;
           color: white;
           min-height: 100vh;
           background: linear-gradient(240.16deg, #3f023c 10.46%, #561253 54.88%, #580a55 94.89%);

@@ -152,7 +152,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           onChange={({ target }) => setMemo(target.value)}
         />
       </div>
-      <h4>Add New Msg</h4>
+      <h4 className="mx-0 my-5 block font-bold">Add New Msg</h4>
       <div className="btn-cluster-grid">
         <div className="btn-cluster">
           <label>Bank</label>

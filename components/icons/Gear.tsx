@@ -16,6 +16,7 @@ const Gear = (props: Props) => (
     <style jsx>{`
       svg {
         width: 100%;
+        max-width: 28px;
         display: block;
       }
       i {

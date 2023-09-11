@@ -32,6 +32,12 @@ const Input = (props: InputProps) => (
         gap: ${props.type === "checkbox" ? "8px" : 0};
       }
 
+      .text-input input {
+        font-family: Arial;
+        font-size: 13.3333px;
+        line-height: normal;
+      }
+
       label {
         font-style: italic;
         font-size: 12px;

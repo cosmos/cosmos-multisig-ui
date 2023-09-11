@@ -99,7 +99,7 @@ const ChainSelect = () => {
     <div className="chain-select-container">
       <StackableContainer lessPadding base>
         <p>Chain select</p>
-        <div className="flex">
+        <div className="flex" style={{ margin: 0 }}>
           <div className="select-parent">
             <Select
               name="chain-select"
@@ -119,7 +119,7 @@ const ChainSelect = () => {
               ✕
             </button>
           ) : (
-            <button onClick={() => setShowAuxView("settings")}>
+            <button onClick={() => setShowAuxView("settings")} style={{ width: "auto" }}>
               <GearIcon color="white" />
             </button>
           )}
