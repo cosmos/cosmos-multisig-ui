@@ -11,11 +11,13 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
     case MsgTypeUrls.WithdrawDelegatorReward:
       return 100_000;
     case MsgTypeUrls.BeginRedelegate:
-      return 150_000;
+      return 400_000;
     case MsgTypeUrls.Delegate:
-      return 150_000;
+      // This is enough for 1 delegation and 1 autoclaim. But it is probably too low for
+      // a lot of auto-claims. See https://github.com/cosmos/cosmos-multisig-ui/issues/177.
+      return 400_000;
     case MsgTypeUrls.Undelegate:
-      return 150_000;
+      return 400_000;
     case MsgTypeUrls.CreateVestingAccount:
       return 100_000;
     case MsgTypeUrls.Transfer:
