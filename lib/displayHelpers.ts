@@ -168,6 +168,20 @@ const explorerLinkAccount = (link: string, address: string) => {
   return null;
 };
 
+/**
+ * Returns a new object of the same type as passed argument but with trimmed strings.
+ * */
+
+const trimStringsObj = <StringsObj extends Record<string, string>>(obj: StringsObj): StringsObj => {
+  const trimmedObj: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(obj)) {
+    trimmedObj[key] = value.trim();
+  }
+
+  return trimmedObj as StringsObj;
+};
+
 export {
   thinSpace,
   capitalizeFirstLetter,
@@ -180,4 +194,5 @@ export {
   checkAddress,
   explorerLinkTx,
   explorerLinkAccount,
+  trimStringsObj,
 };

@@ -6,7 +6,7 @@ import {
   datetimeLocalFromTimestamp,
   timestampFromDatetimeLocal,
 } from "../../../../lib/dateHelpers";
-import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -32,39 +32,48 @@ interface MsgTransferFormProps {
 const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFormProps) => {
   const { chain } = useChains();
 
-  const [sourcePort, setSourcePort] = useState("transfer");
-  const [sourceChannel, setSourceChannel] = useState("");
+  const [toAddress, setToAddress] = useState("");
   const [denom, setDenom] = useState("");
   const [amount, setAmount] = useState("0");
-  const [toAddress, setToAddress] = useState("");
+  const [sourcePort, setSourcePort] = useState("transfer");
+  const [sourceChannel, setSourceChannel] = useState("");
   const [timeout, setTimeout] = useState(
     datetimeLocalFromTimestamp(Date.now() + humanTimestampOptions[0].value),
   );
   const [memo, setMemo] = useState("");
 
-  const [sourcePortError, setSourcePortError] = useState("");
-  const [sourceChannelError, setSourceChannelError] = useState("");
+  const [toAddressError, setToAddressError] = useState("");
   const [denomError, setDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
-  const [toAddressError, setToAddressError] = useState("");
+  const [sourcePortError, setSourcePortError] = useState("");
+  const [sourceChannelError, setSourceChannelError] = useState("");
   const [timeoutError, setTimeoutError] = useState("");
 
+  const trimmedInputs = trimStringsObj({
+    toAddress,
+    denom,
+    amount,
+    sourcePort,
+    sourceChannel,
+    timeout,
+    memo,
+  });
+
   useEffect(() => {
-    setSourcePortError("");
-    setSourceChannelError("");
-    setDenomError("");
-    setAmountError("");
-    setToAddressError("");
-    setTimeoutError("");
+    // eslint-disable-next-line no-shadow
+    const { toAddress, denom, amount, sourcePort, sourceChannel, timeout, memo } = trimmedInputs;
 
     const isMsgValid = (): boolean => {
-      if (!sourcePort) {
-        setSourcePortError("Source port is required");
-        return false;
-      }
+      setToAddressError("");
+      setDenomError("");
+      setAmountError("");
+      setSourcePortError("");
+      setSourceChannelError("");
+      setTimeoutError("");
 
-      if (!sourceChannel) {
-        setSourceChannelError("Source channel is required");
+      const addressErrorMsg = checkAddress(toAddress, null); // Allow address from any chain
+      if (addressErrorMsg) {
+        setToAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
         return false;
       }
 
@@ -78,9 +87,13 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
         return false;
       }
 
-      const addressErrorMsg = checkAddress(toAddress, null); // Allow address from any chain
-      if (addressErrorMsg) {
-        setToAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
+      if (!sourcePort) {
+        setSourcePortError("Source port is required");
+        return false;
+      }
+
+      if (!sourceChannel) {
+        setSourceChannelError("Source channel is required");
         return false;
       }
 
@@ -106,18 +119,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
     const msg: MsgTransferEncodeObject = { typeUrl: MsgTypeUrls.Transfer, value: msgValue };
 
     setMsgGetter({ isMsgValid, msg });
-  }, [
-    amount,
-    chain.chainId,
-    denom,
-    fromAddress,
-    memo,
-    setMsgGetter,
-    sourceChannel,
-    sourcePort,
-    timeout,
-    toAddress,
-  ]);
+  }, [chain.chainId, fromAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>
@@ -130,7 +132,10 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
           label="Recipient Address"
           name="recipient-address"
           value={toAddress}
-          onChange={({ target }) => setToAddress(target.value)}
+          onChange={({ target }) => {
+            setToAddress(target.value);
+            setToAddressError("");
+          }}
           error={toAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
@@ -140,7 +145,10 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
           label="Denom"
           name="denom"
           value={denom}
-          onChange={({ target }) => setDenom(target.value)}
+          onChange={({ target }) => {
+            setDenom(target.value);
+            setDenomError("");
+          }}
           error={denomError}
         />
       </div>
@@ -150,7 +158,10 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
           label="Amount"
           name="amount"
           value={amount}
-          onChange={({ target }) => setAmount(target.value)}
+          onChange={({ target }) => {
+            setAmount(target.value);
+            setAmountError("");
+          }}
           error={amountError}
         />
       </div>
@@ -159,7 +170,10 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
           label="Source Port"
           name="source-port"
           value={sourcePort}
-          onChange={({ target }) => setSourcePort(target.value)}
+          onChange={({ target }) => {
+            setSourcePort(target.value);
+            setSourcePortError("");
+          }}
           error={sourcePortError}
         />
       </div>
@@ -168,7 +182,10 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
           label="Source Channel"
           name="source-channel"
           value={sourceChannel}
-          onChange={({ target }) => setSourceChannel(target.value)}
+          onChange={({ target }) => {
+            setSourceChannel(target.value);
+            setSourceChannelError("");
+          }}
           error={sourceChannelError}
         />
       </div>
@@ -179,7 +196,10 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
           label="Timeout"
           name="timeout"
           value={timeout}
-          onChange={({ target }) => setTimeout(target.value)}
+          onChange={({ target }) => {
+            setTimeout(target.value);
+            setTimeoutError("");
+          }}
           error={timeoutError}
         />
         <datalist id="timestamp-options">

@@ -1,9 +1,9 @@
-import { Decimal } from "@cosmjs/math";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -29,63 +29,67 @@ const MsgRedelegateForm = ({
   const [validatorDstAddressError, setValidatorDstAddressError] = useState("");
   const [amountError, setAmountError] = useState("");
 
+  const trimmedInputs = trimStringsObj({ validatorSrcAddress, validatorDstAddress, amount });
+
   useEffect(() => {
-    try {
+    // eslint-disable-next-line no-shadow
+    const { validatorSrcAddress, validatorDstAddress, amount } = trimmedInputs;
+
+    const isMsgValid = (): boolean => {
       setValidatorSrcAddressError("");
       setValidatorDstAddressError("");
       setAmountError("");
 
-      const isMsgValid = (): boolean => {
-        const srcAddressErrorMsg = checkAddress(validatorSrcAddress, chain.addressPrefix);
-        if (srcAddressErrorMsg) {
-          setValidatorSrcAddressError(
-            `Invalid address for network ${chain.chainId}: ${srcAddressErrorMsg}`,
-          );
-          return false;
-        }
+      const srcAddressErrorMsg = checkAddress(validatorSrcAddress, chain.addressPrefix);
+      if (srcAddressErrorMsg) {
+        setValidatorSrcAddressError(
+          `Invalid address for network ${chain.chainId}: ${srcAddressErrorMsg}`,
+        );
+        return false;
+      }
 
-        const dstAddressErrorMsg = checkAddress(validatorDstAddress, chain.addressPrefix);
-        if (dstAddressErrorMsg) {
-          setValidatorDstAddressError(
-            `Invalid address for network ${chain.chainId}: ${dstAddressErrorMsg}`,
-          );
-          return false;
-        }
+      const dstAddressErrorMsg = checkAddress(validatorDstAddress, chain.addressPrefix);
+      if (dstAddressErrorMsg) {
+        setValidatorDstAddressError(
+          `Invalid address for network ${chain.chainId}: ${dstAddressErrorMsg}`,
+        );
+        return false;
+      }
 
-        if (!amount || Number(amount) <= 0) {
-          setAmountError("Amount must be greater than 0");
-          return false;
-        }
+      if (!amount || Number(amount) <= 0) {
+        setAmountError("Amount must be greater than 0");
+        return false;
+      }
 
-        return true;
-      };
+      return true;
+    };
 
-      const amountInAtomics = Decimal.fromUserInput(
-        amount || "0",
-        Number(chain.displayDenomExponent),
-      ).atomics;
+    const microCoin = (() => {
+      try {
+        return macroCoinToMicroCoin({ denom: chain.displayDenom, amount }, chain.assets);
+      } catch {
+        return { denom: chain.displayDenom, amount: "0" };
+      }
+    })();
 
-      const msgValue = MsgCodecs[MsgTypeUrls.BeginRedelegate].fromPartial({
-        delegatorAddress,
-        validatorSrcAddress,
-        validatorDstAddress,
-        amount: { amount: amountInAtomics, denom: chain.denom },
-      });
+    const msgValue = MsgCodecs[MsgTypeUrls.BeginRedelegate].fromPartial({
+      delegatorAddress,
+      validatorSrcAddress,
+      validatorDstAddress,
+      amount: microCoin,
+    });
 
-      const msg: EncodeObject = { typeUrl: MsgTypeUrls.BeginRedelegate, value: msgValue };
+    const msg: EncodeObject = { typeUrl: MsgTypeUrls.BeginRedelegate, value: msgValue };
 
-      setMsgGetter({ isMsgValid, msg });
-    } catch {}
+    setMsgGetter({ isMsgValid, msg });
   }, [
-    amount,
     chain.addressPrefix,
+    chain.assets,
     chain.chainId,
-    chain.denom,
-    chain.displayDenomExponent,
+    chain.displayDenom,
     delegatorAddress,
     setMsgGetter,
-    validatorDstAddress,
-    validatorSrcAddress,
+    trimmedInputs,
   ]);
 
   return (
@@ -99,7 +103,10 @@ const MsgRedelegateForm = ({
           label="Source Validator Address"
           name="src-validator-address"
           value={validatorSrcAddress}
-          onChange={({ target }) => setValidatorSrcAddress(target.value)}
+          onChange={({ target }) => {
+            setValidatorSrcAddress(target.value);
+            setValidatorSrcAddressError("");
+          }}
           error={validatorSrcAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
@@ -109,7 +116,10 @@ const MsgRedelegateForm = ({
           label="Destination Validator Address"
           name="dst-validator-address"
           value={validatorDstAddress}
-          onChange={({ target }) => setValidatorDstAddress(target.value)}
+          onChange={({ target }) => {
+            setValidatorDstAddress(target.value);
+            setValidatorDstAddressError("");
+          }}
           error={validatorDstAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
@@ -120,7 +130,10 @@ const MsgRedelegateForm = ({
           label={`Amount (${chain.displayDenom})`}
           name="amount"
           value={amount}
-          onChange={({ target }) => setAmount(target.value)}
+          onChange={({ target }) => {
+            setAmount(target.value);
+            setAmountError("");
+          }}
           error={amountError}
         />
       </div>

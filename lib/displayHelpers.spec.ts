@@ -1,6 +1,6 @@
 import { Coin } from "@cosmjs/stargate";
 import { ChainInfo } from "../context/ChainsContext/types";
-import { printableCoin, printableCoins, thinSpace } from "./displayHelpers";
+import { printableCoin, printableCoins, thinSpace, trimStringsObj } from "./displayHelpers";
 
 const testChainInfo: ChainInfo = {
   registryName: "junotestnet",
@@ -93,5 +93,15 @@ describe("printableCoins", () => {
     expect(printableCoins(coins, testChainInfo)).toEqual(
       `0.001${thinSpace}JUNOX, 20000${thinSpace}UTEST, 300000${thinSpace}TEST, 4000000 ibc/C4CFF…319F9`,
     );
+  });
+});
+
+describe("trimStringsObj", () => {
+  it("works as intended", () => {
+    const state = { foo: "  bar  ", baz: "  quux  " };
+    const trimmedState = trimStringsObj(state);
+
+    expect(trimmedState).toEqual({ foo: "bar", baz: "quux" });
+    expect(state).toEqual({ foo: "  bar  ", baz: "  quux  " }); // original object is not modified
   });
 });

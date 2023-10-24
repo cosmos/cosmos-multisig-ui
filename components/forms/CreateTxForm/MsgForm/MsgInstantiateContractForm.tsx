@@ -6,7 +6,7 @@ import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { ChainInfo } from "../../../../context/ChainsContext/types";
 import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
-import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
@@ -54,14 +54,19 @@ const MsgInstantiateContractForm = ({
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
 
+  const trimmedInputs = trimStringsObj({ codeId, label, adminAddress, customDenom, amount });
+
   useEffect(() => {
-    setCodeIdError("");
-    setLabelError("");
-    setAdminAddressError("");
-    setCustomDenomError("");
-    setAmountError("");
+    // eslint-disable-next-line no-shadow
+    const { codeId, label, adminAddress, customDenom, amount } = trimmedInputs;
 
     const isMsgValid = (): boolean => {
+      setCodeIdError("");
+      setLabelError("");
+      setAdminAddressError("");
+      setCustomDenomError("");
+      setAmountError("");
+
       if (jsonError.current) {
         return false;
       }
@@ -136,18 +141,14 @@ const MsgInstantiateContractForm = ({
 
     setMsgGetter({ isMsgValid, msg });
   }, [
-    adminAddress,
-    amount,
     chain.addressPrefix,
     chain.assets,
     chain.chainId,
-    codeId,
-    customDenom,
     fromAddress,
-    label,
     msgContent,
     selectedDenom.value,
     setMsgGetter,
+    trimmedInputs,
   ]);
 
   return (
@@ -161,7 +162,10 @@ const MsgInstantiateContractForm = ({
           label="Code ID"
           name="code-id"
           value={codeId}
-          onChange={({ target }) => setCodeId(target.value)}
+          onChange={({ target }) => {
+            setCodeId(target.value);
+            setCodeIdError("");
+          }}
           error={codeIdError}
         />
       </div>
@@ -170,7 +174,10 @@ const MsgInstantiateContractForm = ({
           label="Label"
           name="label"
           value={label}
-          onChange={({ target }) => setLabel(target.value)}
+          onChange={({ target }) => {
+            setLabel(target.value);
+            setLabelError("");
+          }}
           error={labelError}
         />
       </div>
@@ -179,7 +186,10 @@ const MsgInstantiateContractForm = ({
           label="Admin Address"
           name="admin-address"
           value={adminAddress}
-          onChange={({ target }) => setAdminAddress(target.value)}
+          onChange={({ target }) => {
+            setAdminAddress(target.value);
+            setAdminAddressError("");
+          }}
           error={adminAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
@@ -206,6 +216,7 @@ const MsgInstantiateContractForm = ({
             if (option.value !== customDenomOption.value) {
               setCustomDenom("");
             }
+            setCustomDenomError("");
           }}
         />
       </div>
@@ -215,7 +226,10 @@ const MsgInstantiateContractForm = ({
             label="Custom denom"
             name="custom-denom"
             value={customDenom}
-            onChange={({ target }) => setCustomDenom(target.value)}
+            onChange={({ target }) => {
+              setCustomDenom(target.value);
+              setCustomDenomError("");
+            }}
             placeholder={
               selectedDenom.value === customDenomOption.value
                 ? "Enter custom denom"
@@ -232,7 +246,10 @@ const MsgInstantiateContractForm = ({
           label="Amount"
           name="amount"
           value={amount}
-          onChange={({ target }) => setAmount(target.value)}
+          onChange={({ target }) => {
+            setAmount(target.value);
+            setAmountError("");
+          }}
           error={amountError}
         />
       </div>

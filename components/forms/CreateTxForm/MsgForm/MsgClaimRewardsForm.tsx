@@ -2,7 +2,7 @@ import { MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -23,35 +23,38 @@ const MsgClaimRewardsForm = ({
   const [validatorAddress, setValidatorAddress] = useState("");
   const [validatorAddressError, setValidatorAddressError] = useState("");
 
+  const trimmedInputs = trimStringsObj({ validatorAddress });
+
   useEffect(() => {
-    try {
+    // eslint-disable-next-line no-shadow
+    const { validatorAddress } = trimmedInputs;
+
+    const isMsgValid = (): boolean => {
       setValidatorAddressError("");
 
-      const isMsgValid = (): boolean => {
-        const addressErrorMsg = checkAddress(validatorAddress, chain.addressPrefix);
-        if (addressErrorMsg) {
-          setValidatorAddressError(
-            `Invalid address for network ${chain.chainId}: ${addressErrorMsg}`,
-          );
-          return false;
-        }
+      const addressErrorMsg = checkAddress(validatorAddress, chain.addressPrefix);
+      if (addressErrorMsg) {
+        setValidatorAddressError(
+          `Invalid address for network ${chain.chainId}: ${addressErrorMsg}`,
+        );
+        return false;
+      }
 
-        return true;
-      };
+      return true;
+    };
 
-      const msgValue = MsgCodecs[MsgTypeUrls.WithdrawDelegatorReward].fromPartial({
-        delegatorAddress,
-        validatorAddress,
-      });
+    const msgValue = MsgCodecs[MsgTypeUrls.WithdrawDelegatorReward].fromPartial({
+      delegatorAddress,
+      validatorAddress,
+    });
 
-      const msg: MsgWithdrawDelegatorRewardEncodeObject = {
-        typeUrl: MsgTypeUrls.WithdrawDelegatorReward,
-        value: msgValue,
-      };
+    const msg: MsgWithdrawDelegatorRewardEncodeObject = {
+      typeUrl: MsgTypeUrls.WithdrawDelegatorReward,
+      value: msgValue,
+    };
 
-      setMsgGetter({ isMsgValid, msg });
-    } catch {}
-  }, [chain.addressPrefix, chain.chainId, delegatorAddress, setMsgGetter, validatorAddress]);
+    setMsgGetter({ isMsgValid, msg });
+  }, [chain.addressPrefix, chain.chainId, delegatorAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>
@@ -64,7 +67,10 @@ const MsgClaimRewardsForm = ({
           label="Validator Address"
           name="validator-address"
           value={validatorAddress}
-          onChange={({ target }) => setValidatorAddress(target.value)}
+          onChange={({ target }) => {
+            setValidatorAddress(target.value);
+            setValidatorAddressError("");
+          }}
           error={validatorAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />

@@ -1,13 +1,13 @@
-import { Decimal } from "@cosmjs/math";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
+import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
 import {
   datetimeLocalFromTimestamp,
   timestampFromDatetimeLocal,
 } from "../../../../lib/dateHelpers";
-import { checkAddress, exampleAddress } from "../../../../lib/displayHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -36,60 +36,65 @@ const MsgCreateVestingAccountForm = ({
   const [amountError, setAmountError] = useState("");
   const [endTimeError, setEndTimeError] = useState("");
 
+  const trimmedInputs = trimStringsObj({ toAddress, amount, endTime });
+
   useEffect(() => {
-    try {
+    // eslint-disable-next-line no-shadow
+    const { toAddress, amount, endTime } = trimmedInputs;
+
+    const isMsgValid = (): boolean => {
       setToAddressError("");
       setAmountError("");
       setEndTimeError("");
 
-      const isMsgValid = (): boolean => {
-        const addressErrorMsg = checkAddress(toAddress, chain.addressPrefix);
-        if (addressErrorMsg) {
-          setToAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
-          return false;
-        }
+      const addressErrorMsg = checkAddress(toAddress, chain.addressPrefix);
+      if (addressErrorMsg) {
+        setToAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
+        return false;
+      }
 
-        if (!amount || Number(amount) <= 0) {
-          setAmountError("Amount must be greater than 0");
-          return false;
-        }
+      if (!amount || Number(amount) <= 0) {
+        setAmountError("Amount must be greater than 0");
+        return false;
+      }
 
-        const timeoutDate = new Date(timestampFromDatetimeLocal(endTime).toNumber());
-        if (timeoutDate <= new Date()) {
-          setEndTimeError("End time must be a date in the future");
-          return false;
-        }
+      const timeoutDate = new Date(timestampFromDatetimeLocal(endTime).toNumber());
+      if (timeoutDate <= new Date()) {
+        setEndTimeError("End time must be a date in the future");
+        return false;
+      }
 
-        return true;
-      };
+      return true;
+    };
 
-      const amountInAtomics = amount
-        ? Decimal.fromUserInput(amount, Number(chain.displayDenomExponent)).atomics
-        : "0";
+    const microCoin = (() => {
+      try {
+        return macroCoinToMicroCoin({ denom: chain.displayDenom, amount }, chain.assets);
+      } catch {
+        return { denom: chain.displayDenom, amount: "0" };
+      }
+    })();
 
-      const msgValue = MsgCodecs[MsgTypeUrls.CreateVestingAccount].fromPartial({
-        fromAddress,
-        toAddress,
-        amount: [{ amount: amountInAtomics, denom: chain.denom }],
-        endTime: timestampFromDatetimeLocal(endTime, "s"),
-        delayed,
-      });
+    const msgValue = MsgCodecs[MsgTypeUrls.CreateVestingAccount].fromPartial({
+      fromAddress,
+      toAddress,
+      amount: [microCoin],
+      endTime: timestampFromDatetimeLocal(endTime, "s"),
+      delayed,
+    });
 
-      const msg: EncodeObject = { typeUrl: MsgTypeUrls.CreateVestingAccount, value: msgValue };
+    const msg: EncodeObject = { typeUrl: MsgTypeUrls.CreateVestingAccount, value: msgValue };
 
-      setMsgGetter({ isMsgValid, msg });
-    } catch {}
+    setMsgGetter({ isMsgValid, msg });
   }, [
-    amount,
     chain.addressPrefix,
+    chain.assets,
     chain.chainId,
-    chain.denom,
-    chain.displayDenomExponent,
+    chain.displayDenom,
     delayed,
-    endTime,
     fromAddress,
     setMsgGetter,
-    toAddress,
+    trimmedInputs,
   ]);
 
   return (
@@ -103,7 +108,10 @@ const MsgCreateVestingAccountForm = ({
           label="Recipient Address"
           name="recipient-address"
           value={toAddress}
-          onChange={({ target }) => setToAddress(target.value)}
+          onChange={({ target }) => {
+            setToAddress(target.value);
+            setToAddressError("");
+          }}
           error={toAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
@@ -114,7 +122,10 @@ const MsgCreateVestingAccountForm = ({
           label={`Amount (${chain.displayDenom})`}
           name="amount"
           value={amount}
-          onChange={({ target }) => setAmount(target.value)}
+          onChange={({ target }) => {
+            setAmount(target.value);
+            setAmountError("");
+          }}
           error={amountError}
         />
       </div>
@@ -124,7 +135,10 @@ const MsgCreateVestingAccountForm = ({
           label="End time"
           name="end-time"
           value={endTime}
-          onChange={({ target }) => setEndTime(target.value)}
+          onChange={({ target }) => {
+            setEndTime(target.value);
+            setEndTimeError("");
+          }}
           error={endTimeError}
         />
       </div>
