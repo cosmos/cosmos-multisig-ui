@@ -1,16 +1,10 @@
 import { StdFee } from "@cosmjs/amino";
 import { EncodeObject } from "@cosmjs/proto-signing";
+import { Keplr } from "@keplr-wallet/types";
 
 declare global {
   interface Window {
-    keplr: {
-      defaultOptions: {
-        sign: { preferNoSetFee: boolean; preferNoSetMemo: boolean; disableBalanceCheck: boolean };
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      enable: (chainId: string) => any;
-      getKey: (chainId: string) => Promise<WalletAccount>;
-    };
+    keplr: Keplr;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getOfflineSignerOnlyAmino: any;
   }

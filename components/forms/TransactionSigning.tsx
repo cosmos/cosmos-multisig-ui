@@ -197,6 +197,48 @@ const TransactionSigning = (props: TransactionSigningProps) => {
     }
   };
 
+  // This function would be called on the new home screen
+  const getMultisigs = async () => {
+    try {
+      const signerAddress = walletAccount?.bech32Address;
+      assert(signerAddress, "Missing signer address");
+
+      const { nonce } = await getUser(signerAddress, chain.chainId);
+
+      const {
+        signature: { signature },
+      } = await window.keplr.signAmino(chain.chainId, signerAddress, {
+        chain_id: "",
+        account_number: "0",
+        sequence: "0",
+        fee: { gas: "0", amount: [] },
+        msgs: [
+          {
+            type: "sign/MsgSignData",
+            value: {
+              signer: signerAddress,
+              // Probably needs to be Base64
+              data: JSON.stringify({
+                title: `Keplr Login to ${chain.chainId}`,
+                description: "Sign this no fee transaction to login with your Keplr wallet",
+                nonce,
+              }),
+            },
+          },
+        ],
+        memo: "",
+      });
+
+      const multisigs = await requestJson(`/api/multisigs/${signerAddress}/${chain.chainId}`, {
+        body: { signature },
+      });
+
+      console.log(`Signature: ${signature}`);
+    } catch (e) {
+      console.log("Prove err: ", e);
+    }
+  };
+
   return (
     <>
       <StackableContainer lessPadding lessMargin lessRadius>
