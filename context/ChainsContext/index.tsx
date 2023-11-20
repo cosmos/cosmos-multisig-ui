@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect, useReducer } from "react";
-import { setChain, setChains, setChainsError } from "./helpers";
-import { getChain, useChainFromRegistry, useChainsFromRegistry } from "./service";
-import { setChainInStorage, setChainInUrl } from "./storage";
+import { emptyChain, isChainInfoFilled, setChain, setChains, setChainsError } from "./helpers";
+import { getChain, getNodeFromArray, useChainsFromRegistry } from "./service";
+import { addLocalChainInStorage, addRecentChainNameInStorage, setChainInUrl } from "./storage";
 import { Action, ChainsContextType, State } from "./types";
 
 const ChainsContext = createContext<ChainsContextType | undefined>(undefined);
@@ -12,9 +12,27 @@ const chainsReducer = (state: State, action: Action) => {
       return { ...state, chains: action.payload };
     }
     case "setChain": {
-      setChainInStorage(action.payload);
-      setChainInUrl(action.payload);
+      if (!isChainInfoFilled(action.payload)) {
+        return state;
+      }
+
+      if (
+        !state.chains.mainnets.has(action.payload.registryName) &&
+        !state.chains.testnets.has(action.payload.registryName)
+      ) {
+        addLocalChainInStorage(action.payload, state.chains);
+      }
+
+      addRecentChainNameInStorage(action.payload.registryName);
+      setChainInUrl(action.payload, state.chains);
+
       return { ...state, chain: action.payload };
+    }
+    case "addNodeAddress": {
+      return { ...state, chain: { ...state.chain, nodeAddress: action.payload } };
+    }
+    case "setNewConnection": {
+      return { ...state, newConnection: action.payload };
     }
     case "setChainsError": {
       return { ...state, chainsError: action.payload };
@@ -31,27 +49,29 @@ interface ChainsProviderProps {
 
 export const ChainsProvider = ({ children }: ChainsProviderProps) => {
   const [state, dispatch] = useReducer(chainsReducer, {
-    chain: getChain(),
-    chains: { mainnets: [], testnets: [] },
+    chain: emptyChain,
+    chains: { mainnets: new Map(), testnets: new Map(), localnets: new Map() },
+    newConnection: { action: "edit" },
   });
 
   const { chainItems, chainItemsError } = useChainsFromRegistry();
-  const { chainFromRegistry, chainFromRegistryError } = useChainFromRegistry(
-    state.chain,
-    chainItems,
-  );
 
   useEffect(() => {
     setChains(dispatch, chainItems);
     setChainsError(dispatch, chainItemsError);
+
+    const loadedChain = getChain(chainItems);
+    setChain(dispatch, loadedChain);
   }, [chainItems, chainItemsError]);
 
   useEffect(() => {
-    if (chainFromRegistry !== state.chain) {
-      setChain(dispatch, chainFromRegistry);
-      setChainsError(dispatch, chainFromRegistryError);
-    }
-  }, [chainFromRegistry, chainFromRegistryError, state.chain]);
+    (async function addNodeAddress() {
+      if (isChainInfoFilled(state.chain) && !state.chain.nodeAddress) {
+        const nodeAddress = await getNodeFromArray(state.chain.nodeAddresses);
+        dispatch({ type: "addNodeAddress", payload: nodeAddress });
+      }
+    })();
+  }, [state.chain]);
 
   return <ChainsContext.Provider value={{ state, dispatch }}>{children}</ChainsContext.Provider>;
 };
