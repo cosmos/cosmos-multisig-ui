@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Head from "../head";
@@ -19,7 +20,7 @@ const Page = ({ title, goBack, children }: PageProps) => {
 
   const linkProps = (() => {
     if (!goBack) {
-      return {};
+      return { href: "" };
     }
 
     if (goBack.needsConfirm && !showConfirm) {
@@ -52,7 +53,7 @@ const Page = ({ title, goBack, children }: PageProps) => {
             }}
           >
             <p>
-              <a {...linkProps}>← Back to {goBack.title}</a>
+              <Link {...linkProps}>← Back to {goBack.title}</Link>
             </p>
             {showConfirm ? (
               <>
