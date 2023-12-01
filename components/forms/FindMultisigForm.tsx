@@ -69,7 +69,10 @@ const FindMultisigForm = (props: Props) => {
       </StackableContainer>
       <StackableContainer lessPadding>
         <p className="create-help">Don't have a multisig?</p>
-        <Button label="Create New Multisig" onClick={() => props.router.push("create")} />
+        <Button
+          label="Create New Multisig"
+          onClick={() => props.router.push(`${chain.registryName}/create`)}
+        />
       </StackableContainer>
       <style jsx>{`
         .multisig-form {
