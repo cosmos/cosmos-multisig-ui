@@ -1,6 +1,6 @@
 import { RegistryAsset } from "@/types/chainRegistry";
 import { emptyChain } from "./helpers";
-import { ChainInfo, ChainItems } from "./types";
+import { ChainInfo, ChainItems, ExplorerLink } from "./types";
 
 const registryShaStorageKey = "context-registry-sha";
 export const getShaFromStorage = () => localStorage.getItem(registryShaStorageKey);
@@ -99,7 +99,7 @@ export const getRecentChainFromStorage = (chains: ChainItems): Partial<ChainInfo
 
 export const getChainFromUrl = (chainName: string) => {
   if (!chainName) {
-    return emptyChain;
+    return { registryName: chainName };
   }
 
   const params = new URLSearchParams(location.search);
@@ -144,7 +144,7 @@ export const getChainFromUrl = (chainName: string) => {
 export const getChainFromEnvfile = (chainName: string) => {
   const registryName = process.env.NEXT_PUBLIC_REGISTRY_NAME || "";
   if (chainName && registryName !== chainName) {
-    return emptyChain;
+    return { registryName: chainName };
   }
 
   const logo = process.env.NEXT_PUBLIC_LOGO;
@@ -198,31 +198,26 @@ export const getChainFromStorage = (
 };
 
 export const setChainInUrl = (chain: ChainInfo, chains: ChainItems) => {
-  const params = new URLSearchParams();
-  const storedChain = getChainFromStorage(chain.registryName, chains);
+  const newPathname = location.pathname.includes(chain.registryName)
+    ? location.pathname
+    : `/${chain.registryName}`;
+
+  if (chains.mainnets.has(chain.registryName) || chains.testnets.has(chain.registryName)) {
+    window.history.replaceState({}, "", newPathname);
+    return;
+  }
 
   // Set full url if chain is not on chain-registry repo
-  if (!storedChain || chains.localnets.has(chain.registryName)) {
-    for (const [key, value] of Object.entries(chain)) {
-      if (typeof value === "object") {
-        params.set(key, JSON.stringify(value));
-      } else {
-        params.set(key, value);
-      }
-    }
-  } else {
-    for (const [key, value] of Object.entries(chain)) {
-      const storedValue = storedChain[key as keyof ChainInfo];
+  const params = new URLSearchParams();
 
-      if (typeof value === "object" && JSON.stringify(value) !== JSON.stringify(storedValue)) {
-        params.set(key, JSON.stringify(value));
-      } else if (value !== storedValue) {
-        params.set(key, value);
-      }
+  for (const [key, value] of Object.entries(chain)) {
+    if (typeof value === "object") {
+      params.set(key, JSON.stringify(value));
+    } else {
+      params.set(key, value);
     }
   }
 
-  const newPathname = location.pathname.includes(chain.registryName) ? location.pathname : "/";
   const newUrl = params.size ? `${newPathname}?${params}` : newPathname;
 
   window.history.replaceState({}, "", newUrl);
