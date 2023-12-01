@@ -37,7 +37,8 @@ export default function CustomChainForm() {
       bech32Prefix: z.string({ required_error: "Address prefix is required" }),
       gasPrice: z.string({ required_error: "Gas price is required" }),
       rpcNodes: z.string({ required_error: "Comma separated rpc nodes are required" }),
-      explorerLink: z.string({ required_error: "Explorer url is required" }),
+      explorerTxLink: z.string({ required_error: "Explorer tx url is required" }),
+      explorerAccountLink: z.string({ required_error: "Explorer account url is required" }),
       logo: z.string({ required_error: "Logo url is required" }),
       assets: z.string({ required_error: "Assets json is required" }),
     })
@@ -56,7 +57,8 @@ export default function CustomChainForm() {
       bech32Prefix: defaultChain.addressPrefix,
       gasPrice: defaultChain.gasPrice,
       rpcNodes: defaultChain.nodeAddresses.join(", "),
-      explorerLink: defaultChain.explorerLink,
+      explorerTxLink: defaultChain.explorerLink.tx,
+      explorerAccountLink: defaultChain.explorerLink.account,
       logo: defaultChain.logo,
       assets: JSON.stringify(defaultChain.assets),
     },
@@ -80,7 +82,10 @@ export default function CustomChainForm() {
         assets: JSON.parse(chainFromForm.assets) as RegistryAsset[],
         gasPrice: chainFromForm.gasPrice,
         addressPrefix: chainFromForm.bech32Prefix,
-        explorerLink: chainFromForm.explorerLink,
+        explorerLink: {
+          tx: chainFromForm.explorerTxLink,
+          account: chainFromForm.explorerAccountLink,
+        },
       },
     });
   }
@@ -190,14 +195,27 @@ export default function CustomChainForm() {
             )}
           />
           <FormField
-            name="explorerLink"
+            name="explorerTxLink"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Explorer Link</FormLabel>
+                <FormLabel>Explorer Tx Link</FormLabel>
                 <FormControl>
                   <Input placeholder="url" className="border-white" {...field} />
                 </FormControl>
                 <FormDescription>with {"'${txHash}'"} included</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="explorerAccountLink"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Explorer Account Link</FormLabel>
+                <FormControl>
+                  <Input placeholder="url" className="border-white" {...field} />
+                </FormControl>
+                <FormDescription>with {"'${accountAddress}'"} included</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

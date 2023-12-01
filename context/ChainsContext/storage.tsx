@@ -118,6 +118,7 @@ export const getChainFromUrl = (chainName: string) => {
 
   const nodeAddressesValue: readonly string[] = JSON.parse(nodeAddresses || "[]");
   const assetsValue: readonly RegistryAsset[] = JSON.parse(assets || "[]");
+  const explorerLinkValue: Partial<ExplorerLink> = JSON.parse(explorerLink || "{}");
 
   const urlChain: Partial<ChainInfo> = {
     registryName: chainName,
@@ -132,7 +133,9 @@ export const getChainFromUrl = (chainName: string) => {
     ...(assetsValue.length && { assets: assetsValue }),
     ...(gasPrice && { gasPrice }),
     ...(addressPrefix && { addressPrefix }),
-    ...(explorerLink && { explorerLink }),
+    ...(explorerLink && {
+      explorerLink: { tx: explorerLinkValue.tx || "", account: explorerLinkValue.account || "" },
+    }),
   };
 
   return urlChain;
@@ -158,6 +161,7 @@ export const getChainFromEnvfile = (chainName: string) => {
 
   const nodeAddressesValue: readonly string[] = JSON.parse(nodeAddresses || "[]");
   const assetsValue: readonly RegistryAsset[] = JSON.parse(assets || "[]");
+  const explorerLinkValue: Partial<ExplorerLink> = JSON.parse(explorerLink || "{}");
 
   const envfileChain: Partial<ChainInfo> = {
     registryName: chainName,
@@ -172,7 +176,9 @@ export const getChainFromEnvfile = (chainName: string) => {
     ...(assetsValue.length && { assets: assetsValue }),
     ...(gasPrice && { gasPrice }),
     ...(addressPrefix && { addressPrefix }),
-    ...(explorerLink && { explorerLink }),
+    ...(explorerLinkValue && {
+      explorerLink: { tx: explorerLinkValue.tx || "", account: explorerLinkValue.account || "" },
+    }),
   };
 
   return envfileChain;

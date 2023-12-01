@@ -40,7 +40,8 @@ export interface RegistryChainApis {
 export interface RegistryChainExplorer {
   readonly kind: string;
   readonly url: string;
-  readonly tx_page: string;
+  readonly tx_page?: string;
+  readonly account_page?: string;
 }
 
 export interface RegistryChainFeeTokens {
@@ -60,7 +61,7 @@ export interface RegistryChain {
   readonly bech32_prefix: string;
   readonly chain_id: string;
   readonly chain_name: string;
-  readonly explorers: readonly RegistryChainExplorer[];
+  readonly explorers?: readonly RegistryChainExplorer[];
   readonly fees?: RegistryChainFees;
   readonly pretty_name: string;
   readonly logo_URIs?: {

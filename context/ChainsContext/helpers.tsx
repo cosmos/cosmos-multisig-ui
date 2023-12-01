@@ -13,7 +13,7 @@ export const emptyChain: ChainInfo = {
   assets: [],
   gasPrice: "",
   addressPrefix: "",
-  explorerLink: "",
+  explorerLink: { tx: "", account: "" },
 };
 
 export const isChainInfoFilled = (chain: Partial<ChainInfo>): chain is ChainInfo =>
@@ -30,8 +30,7 @@ export const isChainInfoFilled = (chain: Partial<ChainInfo>): chain is ChainInfo
       chain.displayDenomExponent >= 0 &&
       chain.assets?.length &&
       chain.gasPrice &&
-      chain.addressPrefix &&
-      chain.explorerLink,
+      chain.addressPrefix,
   );
 
 export const setChains = (dispatch: Dispatch, chains: ChainItems) => {

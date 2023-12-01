@@ -1,5 +1,5 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { ChainInfo, ChainItems } from "@/context/ChainsContext/types";
+import { ChainInfo, ChainItems, ExplorerLink } from "@/context/ChainsContext/types";
 import { GithubChainRegistryItem, RegistryAsset, RegistryChain } from "@/types/chainRegistry";
 import { requestGhJson } from "./request";
 
@@ -123,7 +123,25 @@ const getChainInfoFromJsons = (
   const firstAsset = cdnRegistryAssets[0];
   const logo = getLogoUri(registryChain, firstAsset);
   const nodeAddresses = registryChain.apis?.rpc.map(({ address }) => address) ?? [];
-  const explorerLink = registryChain.explorers?.[0]?.tx_page ?? "";
+
+  let explorerLink: ExplorerLink = { tx: "", account: "" };
+
+  // Prefer same explorer for both tx and account links
+  for (const explorer of registryChain.explorers ?? []) {
+    if (explorer.tx_page && explorer.account_page) {
+      explorerLink = { tx: explorer.tx_page, account: explorer.account_page };
+      break;
+    }
+
+    if (!explorerLink.tx && explorer.tx_page) {
+      explorerLink = { ...explorerLink, tx: explorer.tx_page };
+    }
+
+    if (!explorerLink.account && explorer.account_page) {
+      explorerLink = { ...explorerLink, account: explorer.account_page };
+    }
+  }
+
   const firstAssetDenom = firstAsset.base;
   const displayUnit = firstAsset.denom_units.find((u) => u.denom == firstAsset.display);
   const displayDenom = displayUnit ? firstAsset.symbol : firstAsset.base;
