@@ -95,8 +95,8 @@ export const getChain = (chains: ChainItems) => {
   if (typeof window === "undefined") return emptyChain;
 
   const rootRoute = location.pathname.split("/")[1];
-  // Avoid app from thinking the /create and /api routes are registryNames
-  const chainNameFromUrl = ["create", "api"].includes(rootRoute) ? "" : rootRoute;
+  // Avoid app from thinking the /api route is a registryName
+  const chainNameFromUrl = rootRoute === "api" ? "" : rootRoute;
 
   const recentChain = getRecentChainFromStorage(chains);
   if (!chainNameFromUrl && isChainInfoFilled(recentChain)) {
