@@ -51,7 +51,7 @@ export default function AccountView() {
               ) : null}
             </div>
             <div className="mt-4">
-              <h2>PubKey</h2>
+              <h2>Public key</h2>
               <BadgeWithCopy name="pubKey" toCopy={walletInfo.pubKey} />
             </div>
           </CardContent>
