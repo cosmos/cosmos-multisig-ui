@@ -1,6 +1,7 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
 import { ChainInfo, ChainItems } from "@/context/ChainsContext/types";
 import { GithubChainRegistryItem, RegistryAsset, RegistryChain } from "@/types/chainRegistry";
+import { preventUnhandledRejections } from "./promises";
 import { requestGhJson } from "./request";
 
 const chainRegistryRepo = "cosmos/chain-registry";
@@ -15,71 +16,83 @@ const getShaFromRegistry = async () => {
   return sha;
 };
 
+interface RegistryPromises {
+  readonly chainInfo: Promise<RegistryChain>;
+  readonly assetList: Promise<{ readonly assets: readonly RegistryAsset[] }>;
+}
+
 const getChainsFromRegistry = async () => {
+  const chains: ChainItems = { mainnets: new Map(), testnets: new Map(), localnets: new Map() };
+
   const [mainnetGhItems, testnetGhItems]: [
     readonly GithubChainRegistryItem[],
     readonly GithubChainRegistryItem[],
   ] = await Promise.all([requestGhJson(mainnetsUrl), requestGhJson(testnetsUrl)]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mainnetChainJsonPromises: Promise<any>[] = [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mainnetAssetListJsonPromises: Promise<any>[] = [];
+  const mainnetPromisesMap = new Map<string, RegistryPromises>();
 
   for (const { type, path } of mainnetGhItems) {
-    if (
-      type !== "dir" ||
-      path.startsWith(".") ||
-      path.startsWith("_") ||
-      path === "testnets" ||
-      path.includes("thorchain") ||
-      path.includes("xion")
-    ) {
+    if (type !== "dir" || path.startsWith(".") || path.startsWith("_") || path === "testnets") {
       continue;
     }
 
-    mainnetChainJsonPromises.push(requestGhJson(`${registryCdnUrl}/${path}/chain.json`));
-    mainnetAssetListJsonPromises.push(requestGhJson(`${registryCdnUrl}/${path}/assetlist.json`));
+    mainnetPromisesMap.set(path, {
+      chainInfo: requestGhJson(`${registryCdnUrl}/${path}/chain.json`),
+      assetList: requestGhJson(`${registryCdnUrl}/${path}/assetlist.json`),
+    });
   }
 
-  const mainnetChainJsons: readonly RegistryChain[] = await Promise.all(mainnetChainJsonPromises);
-  const mainnetAssetListJsons = (await Promise.all(mainnetAssetListJsonPromises)).map(
-    ({ assets }: { assets: readonly RegistryAsset[] }) => assets,
-  );
+  const mainnetPromisesArray = [
+    ...Array.from(mainnetPromisesMap.values()).map(({ chainInfo }) => chainInfo),
+    ...Array.from(mainnetPromisesMap.values()).map(({ assetList }) => assetList),
+  ];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const testnetChainJsonPromises: Promise<any>[] = [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const testnetAssetListJsonPromises: Promise<any>[] = [];
+  preventUnhandledRejections(...mainnetPromisesArray);
+  await Promise.allSettled(mainnetPromisesArray);
+
+  for (const { chainInfo, assetList } of mainnetPromisesMap.values()) {
+    try {
+      const registryChain = await chainInfo;
+      const { assets }: { assets: readonly RegistryAsset[] } = await assetList;
+      const chain = getChainInfoFromJsons(registryChain, assets);
+
+      if (isChainInfoFilled(chain)) {
+        chains.mainnets.set(chain.registryName, chain);
+      }
+    } catch {}
+  }
+
+  const testnetPromisesMap = new Map<string, RegistryPromises>();
 
   for (const { type, path } of testnetGhItems) {
     if (type !== "dir" || path.startsWith("testnets/.") || path.startsWith("testnets/_")) {
       continue;
     }
 
-    testnetChainJsonPromises.push(requestGhJson(`${registryCdnUrl}/${path}/chain.json`));
-    testnetAssetListJsonPromises.push(requestGhJson(`${registryCdnUrl}/${path}/assetlist.json`));
+    testnetPromisesMap.set(path, {
+      chainInfo: requestGhJson(`${registryCdnUrl}/${path}/chain.json`),
+      assetList: requestGhJson(`${registryCdnUrl}/${path}/assetlist.json`),
+    });
   }
 
-  const testnetChainJsons: readonly RegistryChain[] = await Promise.all(testnetChainJsonPromises);
-  const testnetAssetListJsons = (await Promise.all(testnetAssetListJsonPromises)).map(
-    ({ assets }: { assets: readonly RegistryAsset[] }) => assets,
-  );
+  const testnetPromisesArray = [
+    ...Array.from(testnetPromisesMap.values()).map(({ chainInfo }) => chainInfo),
+    ...Array.from(testnetPromisesMap.values()).map(({ assetList }) => assetList),
+  ];
 
-  const chains: ChainItems = { mainnets: new Map(), testnets: new Map(), localnets: new Map() };
+  preventUnhandledRejections(...testnetPromisesArray);
+  await Promise.allSettled(testnetPromisesArray);
 
-  for (let i = 0; i < mainnetChainJsons.length; i++) {
-    const chain = getChainInfoFromJsons(mainnetChainJsons[i], mainnetAssetListJsons[i]);
-    if (isChainInfoFilled(chain)) {
-      chains.mainnets.set(chain.registryName, chain);
-    }
-  }
+  for (const { chainInfo, assetList } of testnetPromisesMap.values()) {
+    try {
+      const registryChain = await chainInfo;
+      const { assets }: { assets: readonly RegistryAsset[] } = await assetList;
+      const chain = getChainInfoFromJsons(registryChain, assets);
 
-  for (let i = 0; i < testnetChainJsons.length; i++) {
-    const chain = getChainInfoFromJsons(testnetChainJsons[i], testnetAssetListJsons[i]);
-    if (isChainInfoFilled(chain)) {
-      chains.testnets.set(chain.registryName, chain);
-    }
+      if (isChainInfoFilled(chain)) {
+        chains.testnets.set(chain.registryName, chain);
+      }
+    } catch {}
   }
 
   return chains;
