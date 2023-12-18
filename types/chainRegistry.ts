@@ -15,6 +15,19 @@ export interface GithubChainRegistryItem {
   };
 }
 
+export interface GithubTreeItem {
+  readonly path: string;
+  readonly mode: string;
+  readonly type: string;
+  readonly sha: string;
+  readonly size: number;
+  readonly url: string;
+}
+
+export interface GithubTreesResponse {
+  readonly tree: readonly GithubTreeItem[];
+}
+
 export interface RegistryChainApisRpc {
   readonly address: string;
   readonly provider: string;
@@ -27,7 +40,8 @@ export interface RegistryChainApis {
 export interface RegistryChainExplorer {
   readonly kind: string;
   readonly url: string;
-  readonly tx_page: string;
+  readonly tx_page?: string;
+  readonly account_page?: string;
 }
 
 export interface RegistryChainFeeTokens {
@@ -43,12 +57,17 @@ export interface RegistryChainFees {
 }
 
 export interface RegistryChain {
-  readonly apis: RegistryChainApis;
+  readonly apis?: RegistryChainApis;
   readonly bech32_prefix: string;
   readonly chain_id: string;
-  readonly explorers: readonly RegistryChainExplorer[];
-  readonly fees: RegistryChainFees;
+  readonly chain_name: string;
+  readonly explorers?: readonly RegistryChainExplorer[];
+  readonly fees?: RegistryChainFees;
   readonly pretty_name: string;
+  readonly logo_URIs?: {
+    readonly png?: string;
+    readonly svg?: string;
+  };
 }
 
 /**

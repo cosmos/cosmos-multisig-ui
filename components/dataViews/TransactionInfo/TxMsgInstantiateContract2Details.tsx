@@ -1,8 +1,8 @@
 import { fromUtf8, toHex } from "@cosmjs/encoding";
 import { MsgInstantiateContract2 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
+import { JSONValue } from "immutable-json-patch";
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { JSONValue } from "vanilla-jsoneditor";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import HashView from "../HashView";

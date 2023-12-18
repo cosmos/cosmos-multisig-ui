@@ -1,8 +1,8 @@
 import { fromUtf8 } from "@cosmjs/encoding";
 import { MsgMigrateContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
+import { JSONValue } from "immutable-json-patch";
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { JSONValue } from "vanilla-jsoneditor";
 import HashView from "../HashView";
 
 const JsonEditor = dynamic(() => import("../../inputs/JsonEditor"), { ssr: false });

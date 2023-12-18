@@ -51,6 +51,7 @@ export default function JsonEditor({ label, ...editorProps }: JsonEditorProps) {
       {label ? <label>{label}</label> : null}
       <style jsx>{`
         .container {
+          padding: 0;
           display: flex;
           flex-direction: column;
           gap: 0.8em;

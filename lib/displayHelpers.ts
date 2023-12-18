@@ -162,8 +162,8 @@ const explorerLinkTx = (link: string, hash: string) => {
  * for accounts. Returns null otherwise.
  */
 const explorerLinkAccount = (link: string, address: string) => {
-  if (link && link.includes("${address}")) {
-    return link.replace("${address}", address);
+  if (link && link.includes("${accountAddress}")) {
+    return link.replace("${accountAddress}", address);
   }
   return null;
 };

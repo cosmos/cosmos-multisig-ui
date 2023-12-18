@@ -1,14 +1,21 @@
+import Header from "@/components/Header";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import ThemeProvider from "@/context/ThemesContext";
+import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import ChainSelect from "../components/chainSelect/ChainSelect";
 import { ChainsProvider } from "../context/ChainsContext";
 
-function MultisigApp({ Component, pageProps }: AppProps) {
-  const showChainSelect = process.env.NEXT_PUBLIC_MULTICHAIN?.toLowerCase() === "true";
+export default function MultisigApp({ Component, pageProps }: AppProps) {
   return (
     <ChainsProvider>
-      {showChainSelect && <ChainSelect />}
-      <Component {...pageProps} />
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <TooltipProvider>
+          <Header />
+          <Component {...pageProps} />
+          <Toaster />
+        </TooltipProvider>
+      </ThemeProvider>
     </ChainsProvider>
   );
 }
-export default MultisigApp;

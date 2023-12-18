@@ -15,6 +15,13 @@ export const requestJson = async (
   return response.ok ? response.json() : Promise.reject(new Error(await response.text()));
 };
 
+export const requestGhJson = (endpoint: string, { headers, ...restConfig }: RequestConfig = {}) => {
+  return requestJson(endpoint, {
+    ...restConfig,
+    headers: { ...headers, Accept: "application/vnd.github+json" },
+  });
+};
+
 type RequestGraphQlJsonConfig = Omit<RequestInit, "body"> & { body: { query: string } };
 
 /**
