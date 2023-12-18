@@ -10,8 +10,8 @@ interface CompletedTransactionProps {
 
 const CompletedTransaction = ({ transactionHash }: CompletedTransactionProps) => {
   const { chain } = useChains();
-  const baseURL = chain.explorerLink ? chain.explorerLink : "";
-  const explorerLink = explorerLinkTx(baseURL, transactionHash);
+  const explorerLink = explorerLinkTx(chain.explorerLink.tx, transactionHash);
+
   return (
     <StackableContainer lessPadding lessMargin>
       <StackableContainer lessPadding lessMargin lessRadius>
