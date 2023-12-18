@@ -10,7 +10,7 @@ const testChainInfo: ChainInfo = {
   logo: "https://raw.githubusercontent.com/cosmos/chain-registry/master/testnets/junotestnet/images/juno.svg",
   nodeAddress: "https://rpc.uni.junonetwork.io",
   nodeAddresses: ["https://rpc.uni.junonetwork.io"],
-  explorerLink: {
+  explorerLinks: {
     tx: "https://testnet.ezstaking.tools/juno-testnet/txs/${txHash}",
     account: "https://testnet.app.ezstaking.io/juno-testnet/account/${accountAddress}",
   },

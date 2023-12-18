@@ -13,7 +13,7 @@ export const emptyChain: ChainInfo = {
   assets: [],
   gasPrice: "",
   addressPrefix: "",
-  explorerLink: { tx: "", account: "" },
+  explorerLinks: { tx: "", account: "" },
 };
 
 export const isChainInfoFilled = (chain: Partial<ChainInfo>): chain is ChainInfo =>

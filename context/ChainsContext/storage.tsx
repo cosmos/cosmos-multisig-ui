@@ -1,6 +1,6 @@
 import { RegistryAsset } from "@/types/chainRegistry";
 import { emptyChain } from "./helpers";
-import { ChainInfo, ChainItems, ExplorerLink } from "./types";
+import { ChainInfo, ChainItems, ExplorerLinks } from "./types";
 
 const registryShaStorageKey = "context-registry-sha";
 export const getShaFromStorage = () => localStorage.getItem(registryShaStorageKey);
@@ -114,11 +114,11 @@ export const getChainFromUrl = (chainName: string) => {
   const assets = params.get("assets");
   const gasPrice = params.get("gasPrice");
   const addressPrefix = params.get("addressPrefix");
-  const explorerLink = params.get("explorerLink");
+  const explorerLinks = params.get("explorerLinks");
 
   const nodeAddressesValue: readonly string[] = JSON.parse(nodeAddresses || "[]");
   const assetsValue: readonly RegistryAsset[] = JSON.parse(assets || "[]");
-  const explorerLinkValue: Partial<ExplorerLink> = JSON.parse(explorerLink || "{}");
+  const explorerLinkValue: Partial<ExplorerLinks> = JSON.parse(explorerLinks || "{}");
 
   const urlChain: Partial<ChainInfo> = {
     registryName: chainName,
@@ -133,8 +133,8 @@ export const getChainFromUrl = (chainName: string) => {
     ...(assetsValue.length && { assets: assetsValue }),
     ...(gasPrice && { gasPrice }),
     ...(addressPrefix && { addressPrefix }),
-    ...(explorerLink && {
-      explorerLink: { tx: explorerLinkValue.tx || "", account: explorerLinkValue.account || "" },
+    ...(explorerLinks && {
+      explorerLinks: { tx: explorerLinkValue.tx || "", account: explorerLinkValue.account || "" },
     }),
   };
 
@@ -157,11 +157,12 @@ export const getChainFromEnvfile = (chainName: string) => {
   const assets = process.env.NEXT_PUBLIC_ASSETS;
   const gasPrice = process.env.NEXT_PUBLIC_GAS_PRICE;
   const addressPrefix = process.env.NEXT_PUBLIC_ADDRESS_PREFIX;
-  const explorerLink = process.env.NEXT_PUBLIC_EXPLORER_LINK_TX;
+  // An object containing link templates for txs and accounts
+  const explorerLinks = process.env.NEXT_PUBLIC_EXPLORER_LINKS;
 
   const nodeAddressesValue: readonly string[] = JSON.parse(nodeAddresses || "[]");
   const assetsValue: readonly RegistryAsset[] = JSON.parse(assets || "[]");
-  const explorerLinkValue: Partial<ExplorerLink> = JSON.parse(explorerLink || "{}");
+  const explorerLinksValue: Partial<ExplorerLinks> = JSON.parse(explorerLinks || "{}");
 
   const envfileChain: Partial<ChainInfo> = {
     registryName: chainName,
@@ -176,8 +177,8 @@ export const getChainFromEnvfile = (chainName: string) => {
     ...(assetsValue.length && { assets: assetsValue }),
     ...(gasPrice && { gasPrice }),
     ...(addressPrefix && { addressPrefix }),
-    ...(explorerLinkValue && {
-      explorerLink: { tx: explorerLinkValue.tx || "", account: explorerLinkValue.account || "" },
+    ...(explorerLinksValue && {
+      explorerLinks: { tx: explorerLinksValue.tx || "", account: explorerLinksValue.account || "" },
     }),
   };
 

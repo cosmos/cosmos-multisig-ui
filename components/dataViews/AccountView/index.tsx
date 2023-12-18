@@ -19,7 +19,7 @@ export default function AccountView() {
   const [error, setError] = useState("");
 
   const explorerLink =
-    explorerLinkAccount(chain.explorerLink.account, walletInfo?.address || "") || "";
+    explorerLinkAccount(chain.explorerLinks.account, walletInfo?.address || "") || "";
 
   return (
     <div className="mt-6 flex flex-col gap-4">
