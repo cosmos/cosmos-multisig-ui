@@ -29,10 +29,7 @@ const Multipage = () => {
   const [accountError, setAccountError] = useState(null);
 
   const multisigAddress = router.query.address?.toString();
-  const explorerHref = explorerLinkAccount(
-    process.env.NEXT_PUBLIC_EXPLORER_LINK_ACCOUNT || "",
-    multisigAddress || "",
-  );
+  const explorerLink = explorerLinkAccount(chain.explorerLink.account, multisigAddress || "");
 
   const fetchMultisig = useCallback(
     async (address: string) => {
@@ -65,12 +62,12 @@ const Multipage = () => {
   }, [fetchMultisig, multisigAddress]);
 
   return (
-    <Page goBack={{ pathname: "/", title: "home" }}>
+    <Page goBack={{ pathname: `/${chain.registryName}`, title: "home" }}>
       <StackableContainer base>
         <StackableContainer>
           <label>Multisig Address</label>
           <h1>{multisigAddress ? <HashView hash={multisigAddress} /> : "No Address"}</h1>
-          {explorerHref ? <Button href={explorerHref} label="View in Explorer"></Button> : null}
+          {explorerLink ? <Button href={explorerLink} label="View in Explorer"></Button> : null}
         </StackableContainer>
         {pubkey ? (
           <MultisigMembers

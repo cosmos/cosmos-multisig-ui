@@ -39,6 +39,7 @@ const Input = (props: InputProps) => (
       }
 
       label {
+        color: white;
         font-style: italic;
         font-size: 12px;
         margin-bottom: ${props.type === "checkbox" ? 0 : "1em"};

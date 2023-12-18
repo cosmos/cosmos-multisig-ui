@@ -1,3 +1,4 @@
+import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
 import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";
 import { toBase64 } from "@cosmjs/encoding";
@@ -19,14 +20,6 @@ import { DbSignature, DbTransaction, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
-
-type SigningStatus = "not_signed" | "not_a_member" | "signed";
-
-interface LoadingStates {
-  readonly signing?: boolean;
-  readonly keplr?: boolean;
-  readonly ledger?: boolean;
-}
 
 interface TransactionSigningProps {
   readonly signatures: DbSignature[];
