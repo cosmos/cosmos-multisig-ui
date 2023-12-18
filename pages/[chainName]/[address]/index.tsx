@@ -29,7 +29,7 @@ const Multipage = () => {
   const [accountError, setAccountError] = useState(null);
 
   const multisigAddress = router.query.address?.toString();
-  const explorerLink = explorerLinkAccount(chain.explorerLink.account, multisigAddress || "");
+  const explorerLink = explorerLinkAccount(chain.explorerLinks.account, multisigAddress || "");
 
   const fetchMultisig = useCallback(
     async (address: string) => {

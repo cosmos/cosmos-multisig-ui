@@ -33,10 +33,10 @@ export interface ChainInfo {
   readonly assets: readonly RegistryAsset[];
   readonly gasPrice: string;
   readonly addressPrefix: string;
-  readonly explorerLink: ExplorerLink;
+  readonly explorerLinks: ExplorerLinks;
 }
 
-export type ExplorerLink = {
+export type ExplorerLinks = {
   readonly tx: string;
   readonly account: string;
 };

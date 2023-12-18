@@ -57,8 +57,8 @@ export default function CustomChainForm() {
       bech32Prefix: defaultChain.addressPrefix,
       gasPrice: defaultChain.gasPrice,
       rpcNodes: defaultChain.nodeAddresses.join(", "),
-      explorerTxLink: defaultChain.explorerLink.tx,
-      explorerAccountLink: defaultChain.explorerLink.account,
+      explorerTxLink: defaultChain.explorerLinks.tx,
+      explorerAccountLink: defaultChain.explorerLinks.account,
       logo: defaultChain.logo,
       assets: JSON.stringify(defaultChain.assets),
     },
@@ -82,7 +82,7 @@ export default function CustomChainForm() {
         assets: JSON.parse(chainFromForm.assets) as RegistryAsset[],
         gasPrice: chainFromForm.gasPrice,
         addressPrefix: chainFromForm.bech32Prefix,
-        explorerLink: {
+        explorerLinks: {
           tx: chainFromForm.explorerTxLink,
           account: chainFromForm.explorerAccountLink,
         },

@@ -1,5 +1,5 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { ChainInfo, ChainItems, ExplorerLink } from "@/context/ChainsContext/types";
+import { ChainInfo, ChainItems, ExplorerLinks } from "@/context/ChainsContext/types";
 import { GithubChainRegistryItem, RegistryAsset, RegistryChain } from "@/types/chainRegistry";
 import { preventUnhandledRejections } from "./promises";
 import { requestGhJson } from "./request";
@@ -137,21 +137,21 @@ const getChainInfoFromJsons = (
   const logo = getLogoUri(registryChain, firstAsset);
   const nodeAddresses = registryChain.apis?.rpc.map(({ address }) => address) ?? [];
 
-  let explorerLink: ExplorerLink = { tx: "", account: "" };
+  let explorerLinks: ExplorerLinks = { tx: "", account: "" };
 
   // Prefer same explorer for both tx and account links
   for (const explorer of registryChain.explorers ?? []) {
     if (explorer.tx_page && explorer.account_page) {
-      explorerLink = { tx: explorer.tx_page, account: explorer.account_page };
+      explorerLinks = { tx: explorer.tx_page, account: explorer.account_page };
       break;
     }
 
-    if (!explorerLink.tx && explorer.tx_page) {
-      explorerLink = { ...explorerLink, tx: explorer.tx_page };
+    if (!explorerLinks.tx && explorer.tx_page) {
+      explorerLinks = { ...explorerLinks, tx: explorer.tx_page };
     }
 
-    if (!explorerLink.account && explorer.account_page) {
-      explorerLink = { ...explorerLink, account: explorer.account_page };
+    if (!explorerLinks.account && explorer.account_page) {
+      explorerLinks = { ...explorerLinks, account: explorer.account_page };
     }
   }
 
@@ -183,7 +183,7 @@ const getChainInfoFromJsons = (
     chainDisplayName: registryChain.pretty_name,
     nodeAddresses,
     nodeAddress: "",
-    explorerLink,
+    explorerLinks: explorerLinks,
     denom: firstAssetDenom,
     displayDenom,
     displayDenomExponent,
