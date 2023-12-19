@@ -149,7 +149,7 @@ const MsgInstantiateContract2Form = ({
 
     const msgValue = MsgCodecs[MsgTypeUrls.Instantiate2].fromPartial({
       sender: fromAddress,
-      codeId: codeId || 0,
+      codeId: BigInt(codeId),
       label,
       admin: adminAddress,
       fixMsg: false,

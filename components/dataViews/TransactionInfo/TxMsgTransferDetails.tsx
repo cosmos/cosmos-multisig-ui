@@ -12,7 +12,8 @@ const TxMsgTransferDetails = ({ msgValue }: TxMsgTransferDetailsProps) => {
     msgValue.token,
     "Token must be set, same as https://github.com/osmosis-labs/telescope/issues/386",
   );
-  const timeoutDateObj = new Date(msgValue.timeoutTimestamp.divide(1_000_000).toNumber());
+  const timeoutMilis = Number(msgValue.timeoutTimestamp / 1_000_000n);
+  const timeoutDateObj = new Date(timeoutMilis);
   const timeoutDate = timeoutDateObj.toLocaleDateString();
   const timeoutTime = timeoutDateObj.toLocaleTimeString();
 

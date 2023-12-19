@@ -58,7 +58,7 @@ const MsgCreateVestingAccountForm = ({
         return false;
       }
 
-      const timeoutDate = new Date(timestampFromDatetimeLocal(endTime).toNumber());
+      const timeoutDate = new Date(Number(timestampFromDatetimeLocal(endTime, "ms")));
       if (timeoutDate <= new Date()) {
         setEndTimeError("End time must be a date in the future");
         return false;
