@@ -1,9 +1,7 @@
-import Long from "long";
-
 export const timestampFromDatetimeLocal = (
   datetimeLocal: string,
-  units?: "s" | "ms" | "ns",
-): Long => {
+  units: "s" | "ms" | "ns",
+): bigint => {
   const [date, time] = datetimeLocal.split("T");
   const [year, month, day] = date.split("-");
   const [hours, minutes] = time.split(":");
@@ -16,15 +14,17 @@ export const timestampFromDatetimeLocal = (
     Number(minutes),
   );
 
-  const timestampMillis = Long.fromNumber(dateObj.getTime());
+  const timestampMillis = BigInt(dateObj.getTime());
 
   switch (units) {
     case "s":
-      return timestampMillis.divide(1000); // seconds
+      return timestampMillis / 1000n; // seconds
     case "ns":
-      return timestampMillis.multiply(1000_000); // nanoseconds
-    default:
+      return timestampMillis * 1000_000n; // nanoseconds
+    case "ms":
       return timestampMillis; // milliseconds
+    default:
+      throw new Error("Unexpected unit value");
   }
 };
 

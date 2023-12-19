@@ -72,7 +72,7 @@ const MsgMigrateContractForm = ({
     const msgValue = MsgCodecs[MsgTypeUrls.Migrate].fromPartial({
       sender: fromAddress,
       contract: contractAddress,
-      codeId: codeId || 1,
+      codeId: BigInt(codeId),
       msg: msgContentUtf8Array,
     });
 

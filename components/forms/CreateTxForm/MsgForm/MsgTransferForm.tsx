@@ -97,7 +97,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
         return false;
       }
 
-      const timeoutDate = new Date(timestampFromDatetimeLocal(timeout).toNumber());
+      const timeoutDate = new Date(Number(timestampFromDatetimeLocal(timeout, "ms")));
       if (timeoutDate <= new Date()) {
         setTimeoutError("Timeout must be a date in the future");
         return false;
