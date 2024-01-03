@@ -61,7 +61,12 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
     setChainsError(dispatch, chainItemsError);
 
     const loadedChain = getChain(chainItems);
-    setChain(dispatch, loadedChain);
+
+    if (chainItems.mainnets.size && loadedChain === emptyChain) {
+      setChain(dispatch, chainItems.mainnets.get("cosmoshub") ?? emptyChain);
+    } else {
+      setChain(dispatch, loadedChain);
+    }
   }, [chainItems, chainItemsError]);
 
   useEffect(() => {
