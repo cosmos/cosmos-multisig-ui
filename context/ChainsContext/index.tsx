@@ -1,12 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect, useReducer } from "react";
 import { emptyChain, isChainInfoFilled, setChain, setChains, setChainsError } from "./helpers";
 import { getChain, getNodeFromArray, useChainsFromRegistry } from "./service";
-import {
-  addLocalChainInStorage,
-  addRecentChainNameInStorage,
-  getRecentChainNamesFromStorage,
-  setChainInUrl,
-} from "./storage";
+import { addLocalChainInStorage, addRecentChainNameInStorage, setChainInUrl } from "./storage";
 import { Action, ChainsContextType, State } from "./types";
 
 const ChainsContext = createContext<ChainsContextType | undefined>(undefined);
@@ -66,9 +61,8 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
     setChainsError(dispatch, chainItemsError);
 
     const loadedChain = getChain(chainItems);
-    const recentChains = getRecentChainNamesFromStorage();
 
-    if (chainItems.mainnets.size && loadedChain === emptyChain && !recentChains.length) {
+    if (chainItems.mainnets.size && loadedChain === emptyChain) {
       setChain(dispatch, chainItems.mainnets.get("cosmoshub") ?? emptyChain);
     } else {
       setChain(dispatch, loadedChain);
