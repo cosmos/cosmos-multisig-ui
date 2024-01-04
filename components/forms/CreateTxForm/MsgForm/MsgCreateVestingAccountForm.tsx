@@ -58,6 +58,13 @@ const MsgCreateVestingAccountForm = ({
         return false;
       }
 
+      try {
+        macroCoinToMicroCoin({ denom: chain.displayDenom, amount }, chain.assets);
+      } catch (e: unknown) {
+        setAmountError(e instanceof Error ? e.message : "Could not set decimals");
+        return false;
+      }
+
       const timeoutDate = new Date(Number(timestampFromDatetimeLocal(endTime, "ms")));
       if (timeoutDate <= new Date()) {
         setEndTimeError("End time must be a date in the future");

@@ -86,6 +86,13 @@ const MsgExecuteContractForm = ({
         return false;
       }
 
+      try {
+        macroCoinToMicroCoin({ denom, amount }, chain.assets);
+      } catch (e: unknown) {
+        setAmountError(e instanceof Error ? e.message : "Could not set decimals");
+        return false;
+      }
+
       return true;
     };
 

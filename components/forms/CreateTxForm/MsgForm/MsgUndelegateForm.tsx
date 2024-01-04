@@ -50,6 +50,13 @@ const MsgUndelegateForm = ({
         return false;
       }
 
+      try {
+        macroCoinToMicroCoin({ denom: chain.displayDenom, amount }, chain.assets);
+      } catch (e: unknown) {
+        setAmountError(e instanceof Error ? e.message : "Could not set decimals");
+        return false;
+      }
+
       return true;
     };
 
