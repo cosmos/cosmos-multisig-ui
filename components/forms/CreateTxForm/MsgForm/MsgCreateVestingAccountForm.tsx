@@ -78,14 +78,14 @@ const MsgCreateVestingAccountForm = ({
       try {
         return macroCoinToMicroCoin({ denom: chain.displayDenom, amount }, chain.assets);
       } catch {
-        return { denom: chain.displayDenom, amount: "0" };
+        return null;
       }
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.CreateVestingAccount].fromPartial({
       fromAddress,
       toAddress,
-      amount: [microCoin],
+      amount: microCoin ? [microCoin] : [],
       endTime: timestampFromDatetimeLocal(endTime, "s"),
       delayed,
     });

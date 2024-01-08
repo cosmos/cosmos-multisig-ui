@@ -133,7 +133,7 @@ const MsgInstantiateContract2Form = ({
       try {
         return macroCoinToMicroCoin({ denom, amount }, chain.assets);
       } catch {
-        return { denom, amount: "0" };
+        return null;
       }
     })();
 
@@ -162,7 +162,7 @@ const MsgInstantiateContract2Form = ({
       fixMsg: false,
       salt: hexSalt,
       msg: msgContentUtf8Array,
-      funds: [microCoin],
+      funds: microCoin ? [microCoin] : [],
     });
 
     const msg: MsgInstantiateContract2EncodeObject = {

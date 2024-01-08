@@ -55,6 +55,8 @@ const MsgExecuteContractForm = ({
   useEffect(() => {
     // eslint-disable-next-line no-shadow
     const { contractAddress, customDenom, amount } = trimmedInputs;
+    const denom =
+      selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
 
     const isMsgValid = (): boolean => {
       setContractAddressError("");
@@ -86,24 +88,23 @@ const MsgExecuteContractForm = ({
         return false;
       }
 
-      try {
-        macroCoinToMicroCoin({ denom, amount }, chain.assets);
-      } catch (e: unknown) {
-        setAmountError(e instanceof Error ? e.message : "Could not set decimals");
-        return false;
+      if (denom && amount) {
+        try {
+          macroCoinToMicroCoin({ denom, amount }, chain.assets);
+        } catch (e: unknown) {
+          setAmountError(e instanceof Error ? e.message : "Could not set decimals");
+          return false;
+        }
       }
 
       return true;
     };
 
-    const denom =
-      selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
-
     const microCoin = (() => {
       try {
         return macroCoinToMicroCoin({ denom, amount }, chain.assets);
       } catch {
-        return { denom, amount: "0" };
+        return null;
       }
     })();
 
@@ -120,7 +121,7 @@ const MsgExecuteContractForm = ({
       sender: fromAddress,
       contract: contractAddress,
       msg: msgContentUtf8Array,
-      funds: [microCoin],
+      funds: microCoin ? [microCoin] : [],
     });
 
     const msg: MsgExecuteContractEncodeObject = { typeUrl: MsgTypeUrls.Execute, value: msgValue };

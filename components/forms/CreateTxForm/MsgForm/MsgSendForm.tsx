@@ -89,14 +89,14 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
       try {
         return macroCoinToMicroCoin({ denom, amount }, chain.assets);
       } catch {
-        return { denom, amount: "0" };
+        return null;
       }
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.Send].fromPartial({
       fromAddress,
       toAddress,
-      amount: [microCoin],
+      amount: microCoin ? [microCoin] : [],
     });
 
     const msg: MsgSendEncodeObject = { typeUrl: MsgTypeUrls.Send, value: msgValue };
