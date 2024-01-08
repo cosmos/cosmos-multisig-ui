@@ -76,6 +76,10 @@ const MsgCreateVestingAccountForm = ({
 
     const microCoin = (() => {
       try {
+        if (!amount || amount === "0") {
+          return null;
+        }
+
         return macroCoinToMicroCoin({ denom: chain.displayDenom, amount }, chain.assets);
       } catch {
         return null;

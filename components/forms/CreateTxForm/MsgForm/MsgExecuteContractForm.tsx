@@ -73,7 +73,12 @@ const MsgExecuteContractForm = ({
         return false;
       }
 
-      if (selectedDenom.value === customDenomOption.value && !customDenom) {
+      if (
+        selectedDenom.value === customDenomOption.value &&
+        !customDenom &&
+        amount &&
+        amount !== "0"
+      ) {
         setCustomDenomError("Custom denom must be set because of selection above");
         return false;
       }
@@ -102,6 +107,10 @@ const MsgExecuteContractForm = ({
 
     const microCoin = (() => {
       try {
+        if (!denom || !amount || amount === "0") {
+          return null;
+        }
+
         return macroCoinToMicroCoin({ denom, amount }, chain.assets);
       } catch {
         return null;
@@ -123,6 +132,8 @@ const MsgExecuteContractForm = ({
       msg: msgContentUtf8Array,
       funds: microCoin ? [microCoin] : [],
     });
+
+    console.log({ msgValue });
 
     const msg: MsgExecuteContractEncodeObject = { typeUrl: MsgTypeUrls.Execute, value: msgValue };
 
