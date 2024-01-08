@@ -68,7 +68,7 @@ const TransactionInfo = ({ tx }: TransactionInfoProps) => {
                 </li>
                 <li>
                   <label>Fee:</label>
-                  <div>{printableCoins(tx.fee.amount, chain)}</div>
+                  <div>{printableCoins(tx.fee.amount, chain) || "None"}</div>
                 </li>
               </>
             ) : null}

@@ -20,7 +20,7 @@ const TxMsgCreateVestingAccountDetails = ({ msgValue }: TxMsgCreateVestingAccoun
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoins(msgValue.amount, chain)}</div>
+        <div>{printableCoins(msgValue.amount, chain) || "None"}</div>
       </li>
       <li>
         <label>From:</label>

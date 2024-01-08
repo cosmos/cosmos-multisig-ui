@@ -55,7 +55,7 @@ const TxMsgInstantiateContractDetails = ({ msgValue }: TxMsgInstantiateContractD
       </li>
       <li>
         <label>Funds:</label>
-        <div>{printableCoins(msgValue.funds, chain)}</div>
+        <div>{printableCoins(msgValue.funds, chain) || "None"}</div>
       </li>
       {parseError ? (
         <li className="parse-error">
