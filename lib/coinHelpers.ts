@@ -17,6 +17,11 @@ const macroCoinToMicroCoin = (macroCoin: Coin, assets: readonly RegistryAsset[])
       ),
   );
 
+  // Leave IBC coins as is if not found on registry assets
+  if (!asset && macroCoin.denom.toLowerCase().startsWith("ibc/")) {
+    return macroCoin;
+  }
+
   assert(asset, `An asset with the given symbol ${macroCoin.denom} was not found`);
 
   const macroUnit = asset.denom_units.find(
