@@ -1,3 +1,4 @@
+import { Validator } from "cosmjs-types/cosmos/staking/v1beta1/staking";
 import { RegistryAsset } from "../../types/chainRegistry";
 
 export interface ChainsContextType {
@@ -8,6 +9,7 @@ export interface ChainsContextType {
 export interface State {
   readonly chains: ChainItems;
   readonly chain: ChainInfo;
+  readonly validatorState: ValidatorState;
   readonly newConnection: NewConnection;
   readonly chainsError?: string | null;
 }
@@ -34,6 +36,11 @@ export interface ChainInfo {
   readonly gasPrice: string;
   readonly addressPrefix: string;
   readonly explorerLinks: ExplorerLinks;
+}
+
+export interface ValidatorState {
+  readonly validators: readonly Validator[];
+  readonly status: "initial" | "loading" | "done" | "error";
 }
 
 export type ExplorerLinks = {
@@ -63,6 +70,13 @@ export type Action =
   | {
       readonly type: "addNodeAddress";
       readonly payload: string;
+    }
+  | {
+      readonly type: "loadValidators";
+    }
+  | {
+      readonly type: "setValidatorState";
+      readonly payload: ValidatorState;
     }
   | {
       readonly type: "setNewConnection";
