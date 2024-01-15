@@ -1,3 +1,4 @@
+import { loadValidators } from "@/context/ChainsContext/helpers";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
@@ -25,7 +26,11 @@ interface CreateTxFormProps {
 }
 
 const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormProps) => {
-  const { chain } = useChains();
+  const {
+    chain,
+    validatorState: { validators },
+    chainsDispatch,
+  } = useChains();
 
   const [processing, setProcessing] = useState(false);
   const [msgTypes, setMsgTypes] = useState<readonly MsgTypeUrl[]>([]);
@@ -43,6 +48,14 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
       setGasLimit(gasOfTx(newMsgTypes));
       return newMsgTypes;
     });
+  };
+
+  const addMsgWithValidator = (newMsgType: MsgTypeUrl) => {
+    if (!validators.length) {
+      loadValidators(chainsDispatch);
+    }
+
+    addMsgType(newMsgType);
   };
 
   const createTx = async () => {
@@ -185,15 +198,18 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           <label>Staking</label>
           <ul>
             <li>
-              <Button label="Delegate" onClick={() => addMsgType(MsgTypeUrls.Delegate)} />
+              <Button label="Delegate" onClick={() => addMsgWithValidator(MsgTypeUrls.Delegate)} />
             </li>
             <li>
-              <Button label="Undelegate" onClick={() => addMsgType(MsgTypeUrls.Undelegate)} />
+              <Button
+                label="Undelegate"
+                onClick={() => addMsgWithValidator(MsgTypeUrls.Undelegate)}
+              />
             </li>
             <li>
               <Button
                 label="BeginRedelegate"
-                onClick={() => addMsgType(MsgTypeUrls.BeginRedelegate)}
+                onClick={() => addMsgWithValidator(MsgTypeUrls.BeginRedelegate)}
               />
             </li>
           </ul>
@@ -201,7 +217,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
             <li>
               <Button
                 label="WithdrawDelegatorReward"
-                onClick={() => addMsgType(MsgTypeUrls.WithdrawDelegatorReward)}
+                onClick={() => addMsgWithValidator(MsgTypeUrls.WithdrawDelegatorReward)}
               />
             </li>
             <li>
