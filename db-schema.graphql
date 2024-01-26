@@ -1,29 +1,20 @@
 type Multisig {
-  pubkeyJSON: String!
-  address: String!
+  id: ID!
   chainId: String!
-}
-
-type SourceAddress {
-  nickname: String
   address: String!
-  pubkey: String!
-  multisig: Multisig @relation
+  pubkeyJSON: String!
 }
 
 type Transaction {
-  signatures: [Signature] @relation
-  dataJSON: String
+  id: ID!
   txHash: String
+  dataJSON: String
+  signatures: [Signature] @hasInverse(field: transaction)
 }
 
 type Signature {
-  transaction: Transaction! @relation
+  transaction: Transaction!
   bodyBytes: String!
   signature: String!
   address: String!
-}
-
-type Query {
-  getMultisig(address: String!, chainId: String!): Multisig
 }
