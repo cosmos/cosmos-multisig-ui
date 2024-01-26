@@ -8,19 +8,22 @@ import { requestGraphQlJson } from "./request";
  * @return Returns async function that makes a request to the faunadb graphql endpoint
  */
 const createMultisig = async (multisig: DbAccount) => {
-  console.log(multisig);
   return requestGraphQlJson({
     body: {
       query: `
-        mutation {
-          createMultisig(data: {
-            address: "${multisig.address}"
-            pubkeyJSON: ${JSON.stringify(multisig.pubkeyJSON)}
-            chainId: "${multisig.chainId}"
-          }) {
-            _id
-            address
-            chainId
+        mutation AddMultisig {
+          addMultisig(
+            input: {
+              chainId: "${multisig.chainId}"
+              address: "${multisig.address}"
+              pubkeyJSON: ${JSON.stringify(multisig.pubkeyJSON)}
+            }
+          ) {
+            multisig {
+              id
+              chainId
+              address
+            }
           }
         }
       `,
@@ -39,11 +42,11 @@ const getMultisig = async (address: string, chainId: string) => {
   return requestGraphQlJson({
     body: {
       query: `
-        query {
-          getMultisig(address: "${address}", chainId: "${chainId}",) {
+        query GetMultisig {
+          getMultisig(chainId: "${chainId}", address: "${address}") {
+            chainId
             address
             pubkeyJSON
-            chainId
           }
         }
       `,
@@ -61,9 +64,11 @@ const createTransaction = async (transaction: DbTransaction) => {
   return requestGraphQlJson({
     body: {
       query: `
-        mutation {
-          createTransaction(data: {dataJSON: ${JSON.stringify(transaction)}}) {
-            _id
+        mutation AddTransaction {
+          addTransaction(input: { dataJSON: ${JSON.stringify(transaction)} }) {
+            transaction {
+              id
+            }
           }
         }
       `,
@@ -81,17 +86,14 @@ const findTransactionByID = async (id: string) => {
   return requestGraphQlJson({
     body: {
       query: `
-        query {
-          findTransactionByID(id: "${id}") {
-            _id
+        query GetTransaction {
+          getTransaction(id: "${id}") {
             dataJSON
             txHash
             signatures {
-              data {
-                address
-                signature
-                bodyBytes
-              }
+              address
+              signature
+              bodyBytes
             }
           }
         }
@@ -111,13 +113,15 @@ const updateTxHash = async (id: string, txHash: string) => {
   return requestGraphQlJson({
     body: {
       query: `
-        mutation {
-          updateTransaction(id: ${id}, data: {txHash: "${txHash}"}) {
-            _id
-            dataJSON
-            txHash
-            signatures {
-              data {
+        mutation UpdateTransaction {
+          updateTransaction(
+            input: { filter: { id: "${id}" }, set: { txHash: "${txHash}" } }
+          ) {
+            transaction {
+              id
+              dataJSON
+              txHash
+              signatures {
                 address
                 signature
                 bodyBytes
@@ -141,17 +145,21 @@ const createSignature = async (signature: DbSignature, transactionId: string) =>
   return requestGraphQlJson({
     body: {
       query: `
-        mutation {
-          createSignature(data: {
-            transaction: {connect: ${transactionId}}, 
-            bodyBytes: "${signature.bodyBytes}",
-            signature: "${signature.signature}",
-            address: "${signature.address}" 
-          }) {
-            _id
-            address
-            signature
-            address
+        mutation AddSignature {
+          addSignature(
+            input: {
+              transaction: { id: "${transactionId}" }
+              address: "${signature.address}"
+              signature: "${signature.signature}"
+              bodyBytes: "${signature.bodyBytes}"
+            }
+          ) {
+            signature {
+              transaction {
+                id
+              }
+              signature
+            }
           }
         }
       `,
