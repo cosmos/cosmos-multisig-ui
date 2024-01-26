@@ -29,7 +29,9 @@ type RequestGraphQlJsonConfig = Omit<RequestInit, "body"> & { body: { query: str
  * https://docs.fauna.com/fauna/current/learn/understanding/region_groups
  */
 export const requestGraphQlJson = (config: RequestGraphQlJsonConfig) =>
-  requestJson(process.env.FAUNADB_URL || "https://graphql.fauna.com/graphql", {
+  requestJson(process.env.DGRAPH_URL || "", {
     ...config,
-    headers: { Authorization: `Bearer ${process.env.FAUNADB_SECRET}`, ...config.headers },
+    headers: process.env.DGRAPH_SECRET
+      ? { "X-Auth-Token": process.env.DGRAPH_SECRET, ...config.headers }
+      : config.headers,
   });
