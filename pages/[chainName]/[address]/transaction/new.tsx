@@ -39,11 +39,15 @@ const NewTransactionPage = () => {
 
   return (
     <Page
-      goBack={{
-        pathname: `/${chain.registryName}/${multisigAddress}`,
-        title: "multisig",
-        needsConfirm: true,
-      }}
+      goBack={
+        chain.registryName
+          ? {
+              pathname: `/${chain.registryName}/${multisigAddress}`,
+              title: "multisig",
+              needsConfirm: true,
+            }
+          : undefined
+      }
     >
       <StackableContainer base>
         {accountError || !accountOnChain ? (

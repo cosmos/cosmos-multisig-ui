@@ -7,7 +7,13 @@ export default function CreatePage() {
   const { chain } = useChains();
 
   return (
-    <Page goBack={{ pathname: `/${chain.registryName}`, title: "home", needsConfirm: true }}>
+    <Page
+      goBack={
+        chain.registryName
+          ? { pathname: `/${chain.registryName}`, title: "home", needsConfirm: true }
+          : undefined
+      }
+    >
       <StackableContainer base>
         <StackableContainer lessPadding>
           <h1 className="title">Create Legacy Multisig</h1>

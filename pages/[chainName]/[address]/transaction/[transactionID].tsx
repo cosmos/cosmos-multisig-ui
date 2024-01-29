@@ -146,10 +146,14 @@ const TransactionPage = ({
 
   return (
     <Page
-      goBack={{
-        pathname: `/${chain.registryName}/${multisigAddress}`,
-        title: "multisig",
-      }}
+      goBack={
+        chain.registryName
+          ? {
+              pathname: `/${chain.registryName}/${multisigAddress}`,
+              title: "multisig",
+            }
+          : undefined
+      }
     >
       <StackableContainer base>
         <StackableContainer>
