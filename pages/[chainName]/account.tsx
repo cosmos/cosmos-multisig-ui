@@ -6,7 +6,11 @@ export default function AccountPage() {
   const { chain } = useChains();
 
   return (
-    <Page goBack={{ pathname: `/${chain.registryName}`, title: "home" }}>
+    <Page
+      goBack={
+        chain.registryName ? { pathname: `/${chain.registryName}`, title: "home" } : undefined
+      }
+    >
       <AccountView />
     </Page>
   );

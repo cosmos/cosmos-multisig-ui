@@ -1,6 +1,7 @@
+import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
 import { Account, StargateClient } from "@cosmjs/stargate";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CreateTxForm from "../../../../components/forms/CreateTxForm";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
@@ -10,46 +11,48 @@ import { getMultisigAccount } from "../../../../lib/multisigHelpers";
 const NewTransactionPage = () => {
   const { chain } = useChains();
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
-  const [accountError, setAccountError] = useState(null);
+  const [hasAccountError, setHasAccountError] = useState(false);
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
 
-  const fetchMultisig = useCallback(
-    async (address: string) => {
-      setAccountError(null);
-      try {
-        const client = await StargateClient.connect(chain.nodeAddress);
-
-        const result = await getMultisigAccount(address, chain.addressPrefix, client);
-        setAccountOnChain(result[1]);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        setAccountError(error.toString());
-        console.log("Account error:", error);
-      }
-    },
-    [chain.addressPrefix, chain.nodeAddress],
-  );
-
   useEffect(() => {
-    if (multisigAddress) {
-      fetchMultisig(multisigAddress);
-    }
-  }, [fetchMultisig, multisigAddress]);
+    (async function fetchMultisig() {
+      try {
+        if (!multisigAddress || !isChainInfoFilled(chain) || !chain.nodeAddress) {
+          return;
+        }
+
+        const client = await StargateClient.connect(chain.nodeAddress);
+        const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
+
+        setAccountOnChain(result[1]);
+        setHasAccountError(false);
+      } catch (error: unknown) {
+        setHasAccountError(true);
+        console.error(
+          error instanceof Error ? error.message : "Multisig address could not be found",
+        );
+      }
+    })();
+  }, [chain, multisigAddress]);
 
   return (
     <Page
-      goBack={{
-        pathname: `/${chain.registryName}/${multisigAddress}`,
-        title: "multisig",
-        needsConfirm: true,
-      }}
+      goBack={
+        chain.registryName
+          ? {
+              pathname: `/${chain.registryName}/${multisigAddress}`,
+              title: "multisig",
+              needsConfirm: true,
+            }
+          : undefined
+      }
     >
       <StackableContainer base>
-        {accountError || !accountOnChain ? (
+        {hasAccountError || !accountOnChain ? (
           <StackableContainer>
             <div className="multisig-error">
-              {accountError ? (
+              {hasAccountError ? (
                 <>
                   <p>
                     This multisig address's pubkeys are not available, and so it cannot be used with

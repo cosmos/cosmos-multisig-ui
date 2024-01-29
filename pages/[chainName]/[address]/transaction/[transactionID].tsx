@@ -1,10 +1,11 @@
+import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
 import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { fromBase64 } from "@cosmjs/encoding";
 import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CompletedTransaction from "../../../../components/dataViews/CompletedTransaction";
 import ThresholdInfo from "../../../../components/dataViews/ThresholdInfo";
 import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
@@ -73,7 +74,7 @@ const TransactionPage = ({
   const [transactionHash, setTransactionHash] = useState(txHash);
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
-  const [accountError, setAccountError] = useState(null);
+  const [hasAccountError, setHasAccountError] = useState(false);
   const txInfo = dbTxFromJson(transactionJSON);
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
@@ -82,28 +83,27 @@ const TransactionPage = ({
     setCurrentSignatures((prevState: DbSignature[]) => [...prevState, signature]);
   };
 
-  const fetchMultisig = useCallback(
-    async (address: string) => {
+  useEffect(() => {
+    (async function fetchMultisig() {
       try {
-        const client = await StargateClient.connect(chain.nodeAddress);
+        if (!multisigAddress || !isChainInfoFilled(chain) || !chain.nodeAddress) {
+          return;
+        }
 
-        const result = await getMultisigAccount(address, chain.addressPrefix, client);
+        const client = await StargateClient.connect(chain.nodeAddress);
+        const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
+
         setPubkey(result[0]);
         setAccountOnChain(result[1]);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        setAccountError(error.toString());
-        console.log("Account error:", error);
+        setHasAccountError(false);
+      } catch (error: unknown) {
+        setHasAccountError(true);
+        console.error(
+          error instanceof Error ? error.message : "Multisig address could not be found",
+        );
       }
-    },
-    [chain.addressPrefix, chain.nodeAddress],
-  );
-
-  useEffect(() => {
-    if (multisigAddress) {
-      fetchMultisig(multisigAddress);
-    }
-  }, [fetchMultisig, multisigAddress]);
+    })();
+  }, [chain, multisigAddress]);
 
   const broadcastTx = async () => {
     try {
@@ -146,16 +146,20 @@ const TransactionPage = ({
 
   return (
     <Page
-      goBack={{
-        pathname: `/${chain.registryName}/${multisigAddress}`,
-        title: "multisig",
-      }}
+      goBack={
+        chain.registryName
+          ? {
+              pathname: `/${chain.registryName}/${multisigAddress}`,
+              title: "multisig",
+            }
+          : undefined
+      }
     >
       <StackableContainer base>
         <StackableContainer>
           <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>
         </StackableContainer>
-        {accountError ? (
+        {hasAccountError ? (
           <StackableContainer>
             <div className="multisig-error">
               <p>Multisig address could not be found.</p>
