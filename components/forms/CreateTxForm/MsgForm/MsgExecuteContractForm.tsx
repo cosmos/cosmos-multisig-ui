@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { ChainInfo } from "../../../../context/ChainsContext/types";
-import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
+import { displayCoinToBaseCoin } from "../../../../lib/coinHelpers";
 import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -55,6 +55,8 @@ const MsgExecuteContractForm = ({
   useEffect(() => {
     // eslint-disable-next-line no-shadow
     const { contractAddress, customDenom, amount } = trimmedInputs;
+    const denom =
+      selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
 
     const isMsgValid = (): boolean => {
       setContractAddressError("");
@@ -71,7 +73,12 @@ const MsgExecuteContractForm = ({
         return false;
       }
 
-      if (selectedDenom.value === customDenomOption.value && !customDenom) {
+      if (
+        selectedDenom.value === customDenomOption.value &&
+        !customDenom &&
+        amount &&
+        amount !== "0"
+      ) {
         setCustomDenomError("Custom denom must be set because of selection above");
         return false;
       }
@@ -86,17 +93,27 @@ const MsgExecuteContractForm = ({
         return false;
       }
 
+      if (denom && amount) {
+        try {
+          displayCoinToBaseCoin({ denom, amount }, chain.assets);
+        } catch (e: unknown) {
+          setAmountError(e instanceof Error ? e.message : "Could not set decimals");
+          return false;
+        }
+      }
+
       return true;
     };
 
-    const denom =
-      selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
-
     const microCoin = (() => {
       try {
-        return macroCoinToMicroCoin({ denom, amount }, chain.assets);
+        if (!denom || !amount || amount === "0") {
+          return null;
+        }
+
+        return displayCoinToBaseCoin({ denom, amount }, chain.assets);
       } catch {
-        return { denom, amount: "0" };
+        return null;
       }
     })();
 
@@ -113,7 +130,7 @@ const MsgExecuteContractForm = ({
       sender: fromAddress,
       contract: contractAddress,
       msg: msgContentUtf8Array,
-      funds: [microCoin],
+      funds: microCoin ? [microCoin] : [],
     });
 
     const msg: MsgExecuteContractEncodeObject = { typeUrl: MsgTypeUrls.Execute, value: msgValue };

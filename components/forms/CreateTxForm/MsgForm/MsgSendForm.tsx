@@ -2,7 +2,7 @@ import { MsgSendEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
+import { displayCoinToBaseCoin } from "../../../../lib/coinHelpers";
 import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { RegistryAsset } from "../../../../types/chainRegistry";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
@@ -57,7 +57,12 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
         return false;
       }
 
-      if (selectedDenom.value === customDenomOption.value && !customDenom) {
+      if (
+        selectedDenom.value === customDenomOption.value &&
+        !customDenom &&
+        amount &&
+        amount !== "0"
+      ) {
         setCustomDenomError("Custom denom must be set because of selection above");
         return false;
       }
@@ -72,6 +77,13 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
         return false;
       }
 
+      try {
+        displayCoinToBaseCoin({ denom, amount }, chain.assets);
+      } catch (e: unknown) {
+        setAmountError(e instanceof Error ? e.message : "Could not set decimals");
+        return false;
+      }
+
       return true;
     };
 
@@ -80,16 +92,20 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
 
     const microCoin = (() => {
       try {
-        return macroCoinToMicroCoin({ denom, amount }, chain.assets);
+        if (!denom || !amount || amount === "0") {
+          return null;
+        }
+
+        return displayCoinToBaseCoin({ denom, amount }, chain.assets);
       } catch {
-        return { denom, amount: "0" };
+        return null;
       }
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.Send].fromPartial({
       fromAddress,
       toAddress,
-      amount: [microCoin],
+      amount: microCoin ? [microCoin] : [],
     });
 
     const msg: MsgSendEncodeObject = { typeUrl: MsgTypeUrls.Send, value: msgValue };

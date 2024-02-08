@@ -2,7 +2,7 @@ import { EncodeObject } from "@cosmjs/proto-signing";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
+import { displayCoinToBaseCoin } from "../../../../lib/coinHelpers";
 import {
   datetimeLocalFromTimestamp,
   timestampFromDatetimeLocal,
@@ -58,6 +58,13 @@ const MsgCreateVestingAccountForm = ({
         return false;
       }
 
+      try {
+        displayCoinToBaseCoin({ denom: chain.displayDenom, amount }, chain.assets);
+      } catch (e: unknown) {
+        setAmountError(e instanceof Error ? e.message : "Could not set decimals");
+        return false;
+      }
+
       const timeoutDate = new Date(Number(timestampFromDatetimeLocal(endTime, "ms")));
       if (timeoutDate <= new Date()) {
         setEndTimeError("End time must be a date in the future");
@@ -69,16 +76,20 @@ const MsgCreateVestingAccountForm = ({
 
     const microCoin = (() => {
       try {
-        return macroCoinToMicroCoin({ denom: chain.displayDenom, amount }, chain.assets);
+        if (!amount || amount === "0") {
+          return null;
+        }
+
+        return displayCoinToBaseCoin({ denom: chain.displayDenom, amount }, chain.assets);
       } catch {
-        return { denom: chain.displayDenom, amount: "0" };
+        return null;
       }
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.CreateVestingAccount].fromPartial({
       fromAddress,
       toAddress,
-      amount: [microCoin],
+      amount: microCoin ? [microCoin] : [],
       endTime: timestampFromDatetimeLocal(endTime, "s"),
       delayed,
     });

@@ -17,7 +17,7 @@ const TxMsgSendDetails = ({ msgValue }: TxMsgSendDetailsProps) => {
       </li>
       <li>
         <label>Amount:</label>
-        <div>{printableCoins(msgValue.amount, chain)}</div>
+        <div>{printableCoins(msgValue.amount, chain) || "None"}</div>
       </li>
       <li>
         <label>To:</label>

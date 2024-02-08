@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { ChainInfo } from "../../../../context/ChainsContext/types";
-import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
+import { displayCoinToBaseCoin } from "../../../../lib/coinHelpers";
 import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -101,7 +101,12 @@ const MsgInstantiateContract2Form = ({
         return false;
       }
 
-      if (selectedDenom.value === customDenomOption.value && !customDenom) {
+      if (
+        selectedDenom.value === customDenomOption.value &&
+        !customDenom &&
+        amount &&
+        amount !== "0"
+      ) {
         setCustomDenomError("Custom denom must be set because of selection above");
         return false;
       }
@@ -116,6 +121,13 @@ const MsgInstantiateContract2Form = ({
         return false;
       }
 
+      try {
+        displayCoinToBaseCoin({ denom, amount }, chain.assets);
+      } catch (e: unknown) {
+        setAmountError(e instanceof Error ? e.message : "Could not set decimals");
+        return false;
+      }
+
       return true;
     };
 
@@ -124,9 +136,13 @@ const MsgInstantiateContract2Form = ({
 
     const microCoin = (() => {
       try {
-        return macroCoinToMicroCoin({ denom, amount }, chain.assets);
+        if (!denom || !amount || amount === "0") {
+          return null;
+        }
+
+        return displayCoinToBaseCoin({ denom, amount }, chain.assets);
       } catch {
-        return { denom, amount: "0" };
+        return null;
       }
     })();
 
@@ -155,7 +171,7 @@ const MsgInstantiateContract2Form = ({
       fixMsg: false,
       salt: hexSalt,
       msg: msgContentUtf8Array,
-      funds: [microCoin],
+      funds: microCoin ? [microCoin] : [],
     });
 
     const msg: MsgInstantiateContract2EncodeObject = {
