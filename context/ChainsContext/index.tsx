@@ -97,7 +97,6 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
       if (state.validatorState.status === "loading" && state.chain.nodeAddress) {
         try {
           const validators = await getAllValidators(state.chain.nodeAddress);
-          console.log({ validators });
           dispatch({ type: "setValidatorState", payload: { validators, status: "done" } });
         } catch (e) {
           console.error(e instanceof Error ? e.message : "Failed to load validators");
