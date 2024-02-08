@@ -24,10 +24,6 @@ export const requestGhJson = (endpoint: string, { headers, ...restConfig }: Requ
 
 type RequestGraphQlJsonConfig = Omit<RequestInit, "body"> & { body: { query: string } };
 
-/**
- * The fallback URL works for classic databases,for more information about regions see:
- * https://docs.fauna.com/fauna/current/learn/understanding/region_groups
- */
 export const requestGraphQlJson = (config: RequestGraphQlJsonConfig) =>
   requestJson(process.env.DGRAPH_URL || "", {
     ...config,

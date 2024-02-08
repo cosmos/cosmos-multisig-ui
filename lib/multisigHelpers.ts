@@ -38,7 +38,7 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   const multisigPubkey = createMultisigThresholdPubkey(pubkeys, threshold);
   const multisigAddress = pubkeyToAddress(multisigPubkey, addressPrefix);
 
-  // save multisig to fauna
+  // save multisig to relational offchain database
   const multisig = {
     address: multisigAddress,
     pubkeyJSON: JSON.stringify(multisigPubkey),
@@ -73,7 +73,7 @@ const getMultisigAccount = async (
   // we need the multisig pubkeys to create transactions, if the multisig
   // is new, and has never submitted a transaction its pubkeys will not be
   // available from a node. If the multisig was created with this instance
-  // of this tool its pubkey will be available in the fauna datastore
+  // of this tool its pubkey will be available in the relational offchain database
   const addressError = checkAddress(address, addressPrefix);
   if (addressError) {
     throw new Error(addressError);
