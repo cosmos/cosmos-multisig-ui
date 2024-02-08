@@ -3,8 +3,8 @@ import { Coin } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { RegistryAsset } from "../types/chainRegistry";
 
-const macroCoinToMicroCoin = (macroCoin: Coin, assets: readonly RegistryAsset[]): Coin => {
-  const lowerCaseDenom = macroCoin.denom.toLowerCase();
+const displayCoinToBaseCoin = (displayCoin: Coin, assets: readonly RegistryAsset[]): Coin => {
+  const lowerCaseDenom = displayCoin.denom.toLowerCase();
 
   const asset = assets.find(
     (currentAsset) =>
@@ -18,11 +18,11 @@ const macroCoinToMicroCoin = (macroCoin: Coin, assets: readonly RegistryAsset[])
   );
 
   // Leave IBC coins as is if not found on registry assets
-  if (!asset && macroCoin.denom.toLowerCase().startsWith("ibc/")) {
-    return macroCoin;
+  if (!asset && displayCoin.denom.toLowerCase().startsWith("ibc/")) {
+    return displayCoin;
   }
 
-  assert(asset, `An asset with the given symbol ${macroCoin.denom} was not found`);
+  assert(asset, `An asset with the given symbol ${displayCoin.denom} was not found`);
 
   const macroUnit = asset.denom_units.find(
     (currentUnit) => lowerCaseDenom === currentUnit.denom.toLowerCase(),
@@ -33,9 +33,12 @@ const macroCoinToMicroCoin = (macroCoin: Coin, assets: readonly RegistryAsset[])
   assert(baseUnit, `A base unit with exponent = 0 was not found`);
 
   const denom = baseUnit.denom;
-  const amount = Decimal.fromUserInput(macroCoin.amount.trim() || "0", macroUnit.exponent).atomics;
+  const amount = Decimal.fromUserInput(
+    displayCoin.amount.trim() || "0",
+    macroUnit.exponent,
+  ).atomics;
 
   return { denom, amount };
 };
 
-export { macroCoinToMicroCoin };
+export { displayCoinToBaseCoin };

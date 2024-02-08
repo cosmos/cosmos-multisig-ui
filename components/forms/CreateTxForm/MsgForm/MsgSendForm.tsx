@@ -2,7 +2,7 @@ import { MsgSendEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
+import { displayCoinToBaseCoin } from "../../../../lib/coinHelpers";
 import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { RegistryAsset } from "../../../../types/chainRegistry";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
@@ -78,7 +78,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
       }
 
       try {
-        macroCoinToMicroCoin({ denom, amount }, chain.assets);
+        displayCoinToBaseCoin({ denom, amount }, chain.assets);
       } catch (e: unknown) {
         setAmountError(e instanceof Error ? e.message : "Could not set decimals");
         return false;
@@ -96,7 +96,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
           return null;
         }
 
-        return macroCoinToMicroCoin({ denom, amount }, chain.assets);
+        return displayCoinToBaseCoin({ denom, amount }, chain.assets);
       } catch {
         return null;
       }
