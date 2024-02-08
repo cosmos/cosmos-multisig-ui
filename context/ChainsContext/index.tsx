@@ -1,3 +1,4 @@
+import { getAllValidators } from "@/lib/staking";
 import { ReactNode, createContext, useContext, useEffect, useReducer } from "react";
 import { emptyChain, isChainInfoFilled, setChain, setChains, setChainsError } from "./helpers";
 import { getChain, getNodeFromArray, useChainsFromRegistry } from "./service";
@@ -6,7 +7,7 @@ import { Action, ChainsContextType, State } from "./types";
 
 const ChainsContext = createContext<ChainsContextType | undefined>(undefined);
 
-const chainsReducer = (state: State, action: Action) => {
+const chainsReducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "setChains": {
       return { ...state, chains: action.payload };
@@ -26,10 +27,22 @@ const chainsReducer = (state: State, action: Action) => {
       addRecentChainNameInStorage(action.payload.registryName);
       setChainInUrl(action.payload, state.chains);
 
-      return { ...state, chain: action.payload };
+      return {
+        ...state,
+        chain: action.payload,
+        validatorState: { validators: [], status: "initial" },
+      };
     }
     case "addNodeAddress": {
       return { ...state, chain: { ...state.chain, nodeAddress: action.payload } };
+    }
+    case "loadValidators": {
+      return state.validatorState.status === "initial"
+        ? { ...state, validatorState: { ...state.validatorState, status: "loading" } }
+        : state;
+    }
+    case "setValidatorState": {
+      return { ...state, validatorState: action.payload };
     }
     case "setNewConnection": {
       return { ...state, newConnection: action.payload };
@@ -52,6 +65,7 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
     chain: emptyChain,
     chains: { mainnets: new Map(), testnets: new Map(), localnets: new Map() },
     newConnection: { action: "edit" },
+    validatorState: { validators: [], status: "initial" },
   });
 
   const { chainItems, chainItemsError } = useChainsFromRegistry();
@@ -77,6 +91,20 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
       }
     })();
   }, [state.chain]);
+
+  useEffect(() => {
+    (async function loadValidators() {
+      if (state.validatorState.status === "loading" && state.chain.nodeAddress) {
+        try {
+          const validators = await getAllValidators(state.chain.nodeAddress);
+          dispatch({ type: "setValidatorState", payload: { validators, status: "done" } });
+        } catch (e) {
+          console.error(e instanceof Error ? e.message : "Failed to load validators");
+          dispatch({ type: "setValidatorState", payload: { validators: [], status: "error" } });
+        }
+      }
+    })();
+  }, [state.chain.nodeAddress, state.validatorState.status]);
 
   return <ChainsContext.Provider value={{ state, dispatch }}>{children}</ChainsContext.Provider>;
 };

@@ -1,3 +1,4 @@
+import SelectValidator from "@/components/SelectValidator";
 import { MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
@@ -63,6 +64,10 @@ const MsgClaimRewardsForm = ({
       </button>
       <h2>MsgWithdrawDelegatorReward</h2>
       <div className="form-item">
+        <SelectValidator
+          validatorAddress={validatorAddress}
+          setValidatorAddress={setValidatorAddress}
+        />
         <Input
           label="Validator Address"
           name="validator-address"

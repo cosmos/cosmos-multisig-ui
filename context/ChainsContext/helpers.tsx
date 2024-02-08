@@ -41,6 +41,10 @@ export const setChain = (dispatch: Dispatch, chain: ChainInfo) => {
   dispatch({ type: "setChain", payload: chain });
 };
 
+export const loadValidators = (dispatch: Dispatch) => {
+  dispatch({ type: "loadValidators" });
+};
+
 export const setNewConnection = (dispatch: Dispatch, newConnection: NewConnection) => {
   dispatch({ type: "setNewConnection", payload: newConnection });
 };

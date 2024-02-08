@@ -1,3 +1,4 @@
+import SelectValidator from "@/components/SelectValidator";
 import { MsgDelegateEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
@@ -90,6 +91,10 @@ const MsgDelegateForm = ({ delegatorAddress, setMsgGetter, deleteMsg }: MsgDeleg
       </button>
       <h2>MsgDelegate</h2>
       <div className="form-item">
+        <SelectValidator
+          validatorAddress={validatorAddress}
+          setValidatorAddress={setValidatorAddress}
+        />
         <Input
           label="Validator Address"
           name="validator-address"

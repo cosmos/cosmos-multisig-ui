@@ -20,6 +20,7 @@
     "@cosmjs/math": "^0.32.2",
     "@cosmjs/proto-signing": "^0.32.2",
     "@cosmjs/stargate": "^0.32.2",
+    "@cosmjs/tendermint-rpc": "^0.32.2",
     "@cosmjs/utils": "^0.32.2",
     "@hookform/resolvers": "^3.3.1",
     "@keplr-wallet/types": "^0.12.23",
