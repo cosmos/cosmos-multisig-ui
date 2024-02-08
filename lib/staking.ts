@@ -1,5 +1,5 @@
 import { QueryClient, StakingExtension, setupStakingExtension } from "@cosmjs/stargate";
-import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
+import { connectComet } from "@cosmjs/tendermint-rpc";
 import { Validator } from "cosmjs-types/cosmos/staking/v1beta1/staking";
 
 const getValidatorsPage = (
@@ -10,8 +10,8 @@ const getValidatorsPage = (
 export const getAllValidators = async (rpcUrl: string): Promise<readonly Validator[]> => {
   const validators: Validator[] = [];
 
-  const tmClient = await Tendermint34Client.connect(rpcUrl);
-  const queryClient = QueryClient.withExtensions(tmClient, setupStakingExtension);
+  const cometClient = await connectComet(rpcUrl);
+  const queryClient = QueryClient.withExtensions(cometClient, setupStakingExtension);
 
   let paginationKey: Uint8Array | undefined = undefined;
 
