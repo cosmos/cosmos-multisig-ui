@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import MigrationWarning from "@/components/MigrationWarning";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ThemeProvider from "@/context/ThemesContext";
@@ -12,6 +13,7 @@ export default function MultisigApp({ Component, pageProps }: AppProps) {
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <TooltipProvider>
           <Header />
+          <MigrationWarning />
           <Component {...pageProps} />
           <Toaster />
         </TooltipProvider>
