@@ -133,8 +133,6 @@ const MsgExecuteContractForm = ({
       funds: microCoin ? [microCoin] : [],
     });
 
-    console.log({ msgValue });
-
     const msg: MsgExecuteContractEncodeObject = { typeUrl: MsgTypeUrls.Execute, value: msgValue };
 
     setMsgGetter({ isMsgValid, msg });
