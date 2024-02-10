@@ -1,7 +1,10 @@
 type Multisig {
   id: ID!
-  chainId: String!
-  address: String!
+  # The @search annotation allows us to query the list of multisigs and filter
+  # by (chainId, address) pairs. We use "hash" since we only need exact matches.
+  # See https://dgraph.io/docs/graphql/schema/directives/search/#string
+  chainId: String! @search(by: [hash])
+  address: String! @search(by: [hash])
   pubkeyJSON: String!
 }
 
