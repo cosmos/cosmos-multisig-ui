@@ -32,27 +32,46 @@ const createMultisig = async (multisig: DbAccount) => {
 };
 
 /**
- * Gets multisig pubkey from faundb
+ * This is the format returned by the graphQL API.
+ *
+ * Keep the format in sync with `GetMultisigAccountResponse` because
+ * we return the full object in the API. Right now address and chainId
+ * are somewhat unnecessary to query but still nice for debgging.
+ */
+interface MultisigFromQuery {
+  address: string;
+  chainId: string;
+  pubkeyJSON: string;
+}
+
+/**
+ * Gets multisig pubkey from DB
  *
  * @param {string} address A multisig address.
  * @param {string} chainId The chainId the multisig belongs to.
  * @return Returns async function that makes a request to the dgraph graphql endpoint
  */
-const getMultisig = async (address: string, chainId: string) => {
-  return requestGraphQlJson({
+async function getMultisig(
+  address: string,
+  chainId: string,
+): Promise<MultisigFromQuery | undefined> {
+  const result = await requestGraphQlJson({
     body: {
       query: `
-        query GetMultisig {
-          getMultisig(chainId: "${chainId}", address: "${address}") {
-            chainId
+        query MultisigsByAddressAndChainId {
+          queryMultisig(filter: {address: {eq: "${address}"}, chainId: {eq: "${chainId}"}}) {
             address
+            chainId
             pubkeyJSON
           }
         }
       `,
     },
   });
-};
+  const elements: [MultisigFromQuery] = result.data.queryMultisig;
+  const first = elements.find(() => true);
+  return first;
+}
 
 /**
  * Creates transaction record in dgraph
