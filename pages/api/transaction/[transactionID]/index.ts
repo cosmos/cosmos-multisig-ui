@@ -10,7 +10,7 @@ export default async function transactionIDApi(req: NextApiRequest, res: NextApi
         console.log("Function `updateTransaction` invoked", txHash);
         const saveRes = await updateTxHash(transactionID, txHash);
         console.log("success", saveRes.data);
-        res.status(200).send(saveRes.data.updateTransaction);
+        res.status(200).send(saveRes.data.updateTransaction.transaction[0]);
         return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {

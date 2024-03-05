@@ -1,29 +1,23 @@
 type Multisig {
+  id: ID!
+  # The @search annotation allows us to query the list of multisigs and filter
+  # by (chainId, address) pairs. We use "hash" since we only need exact matches.
+  # See https://dgraph.io/docs/graphql/schema/directives/search/#string
+  chainId: String! @search(by: [hash])
+  address: String! @search(by: [hash])
   pubkeyJSON: String!
-  address: String!
-  chainId: String!
-}
-
-type SourceAddress {
-  nickname: String
-  address: String!
-  pubkey: String!
-  multisig: Multisig @relation
 }
 
 type Transaction {
-  signatures: [Signature] @relation
-  dataJSON: String
+  id: ID!
   txHash: String
+  dataJSON: String
+  signatures: [Signature] @hasInverse(field: transaction)
 }
 
 type Signature {
-  transaction: Transaction! @relation
+  transaction: Transaction!
   bodyBytes: String!
   signature: String!
   address: String!
-}
-
-type Query {
-  getMultisig(address: String!, chainId: String!): Multisig
 }

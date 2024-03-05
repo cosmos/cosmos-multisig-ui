@@ -8,8 +8,8 @@ export default async function multisigApi(req: NextApiRequest, res: NextApiRespo
         const data = req.body;
         console.log("Function `createMultisig` invoked", data);
         const saveRes = await createMultisig(data);
-        console.log("success", saveRes.data);
-        res.status(200).send(saveRes.data.createMultisig);
+        console.log("success", saveRes);
+        res.status(200).send(saveRes.data.addMultisig.multisig[0]);
         return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {

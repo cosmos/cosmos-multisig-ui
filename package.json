@@ -69,7 +69,6 @@
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
     "eslint-config-prettier": "^9.0.0",
-    "faunadb": "^4.8.0",
     "jest": "^29.6.4",
     "jest-environment-jsdom": "^29.6.4",
     "lucide-react": "^0.274.0",

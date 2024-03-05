@@ -2,25 +2,28 @@ import { DbAccount, DbSignature, DbTransaction } from "../types";
 import { requestGraphQlJson } from "./request";
 
 /**
- * Creates multisig record in faunadb
+ * Creates multisig record in dgraph
  *
  * @param {object} multisig an object with address (string), pubkey JSON and chainId
- * @return Returns async function that makes a request to the faunadb graphql endpoint
+ * @return Returns async function that makes a request to the dgraph graphql endpoint
  */
 const createMultisig = async (multisig: DbAccount) => {
-  console.log(multisig);
   return requestGraphQlJson({
     body: {
       query: `
-        mutation {
-          createMultisig(data: {
-            address: "${multisig.address}"
-            pubkeyJSON: ${JSON.stringify(multisig.pubkeyJSON)}
-            chainId: "${multisig.chainId}"
-          }) {
-            _id
-            address
-            chainId
+        mutation AddMultisig {
+          addMultisig(
+            input: {
+              chainId: "${multisig.chainId}"
+              address: "${multisig.address}"
+              pubkeyJSON: ${JSON.stringify(multisig.pubkeyJSON)}
+            }
+          ) {
+            multisig {
+              id
+              chainId
+              address
+            }
           }
         }
       `,
@@ -29,41 +32,62 @@ const createMultisig = async (multisig: DbAccount) => {
 };
 
 /**
- * Gets multisig pubkey from faundb
+ * This is the format returned by the graphQL API.
+ *
+ * Keep the format in sync with `GetMultisigAccountResponse` because
+ * we return the full object in the API. Right now address and chainId
+ * are somewhat unnecessary to query but still nice for debgging.
+ */
+interface MultisigFromQuery {
+  address: string;
+  chainId: string;
+  pubkeyJSON: string;
+}
+
+/**
+ * Gets multisig pubkey from DB
  *
  * @param {string} address A multisig address.
  * @param {string} chainId The chainId the multisig belongs to.
- * @return Returns async function that makes a request to the faunadb graphql endpoint
+ * @return Returns async function that makes a request to the dgraph graphql endpoint
  */
-const getMultisig = async (address: string, chainId: string) => {
-  return requestGraphQlJson({
+async function getMultisig(
+  address: string,
+  chainId: string,
+): Promise<MultisigFromQuery | undefined> {
+  const result = await requestGraphQlJson({
     body: {
       query: `
-        query {
-          getMultisig(address: "${address}", chainId: "${chainId}",) {
+        query MultisigsByAddressAndChainId {
+          queryMultisig(filter: {address: {eq: "${address}"}, chainId: {eq: "${chainId}"}}) {
             address
-            pubkeyJSON
             chainId
+            pubkeyJSON
           }
         }
       `,
     },
   });
-};
+  const elements: [MultisigFromQuery] = result.data.queryMultisig;
+  const first = elements.find(() => true);
+  return first;
+}
 
 /**
- * Creates transaction record in faunadb
+ * Creates transaction record in dgraph
  *
  * @param {object} transaction The base transaction
- * @return Returns async function that makes a request to the faunadb graphql endpoint
+ * @return Returns async function that makes a request to the dgraph graphql endpoint
  */
 const createTransaction = async (transaction: DbTransaction) => {
   return requestGraphQlJson({
     body: {
       query: `
-        mutation {
-          createTransaction(data: {dataJSON: ${JSON.stringify(transaction)}}) {
-            _id
+        mutation AddTransaction {
+          addTransaction(input: { dataJSON: ${JSON.stringify(transaction)} }) {
+            transaction {
+              id
+            }
           }
         }
       `,
@@ -72,26 +96,23 @@ const createTransaction = async (transaction: DbTransaction) => {
 };
 
 /**
- * Retrieves a transaction from faunadb
+ * Retrieves a transaction from dgraph
  *
- * @param {string} id Faunadb resource id
- * @return Returns async function that makes a request to the faunadb graphql endpoint
+ * @param {string} id dgraph resource id
+ * @return Returns async function that makes a request to the dgraph graphql endpoint
  */
 const findTransactionByID = async (id: string) => {
   return requestGraphQlJson({
     body: {
       query: `
-        query {
-          findTransactionByID(id: "${id}") {
-            _id
+        query GetTransaction {
+          getTransaction(id: "${id}") {
             dataJSON
             txHash
             signatures {
-              data {
-                address
-                signature
-                bodyBytes
-              }
+              address
+              signature
+              bodyBytes
             }
           }
         }
@@ -101,23 +122,25 @@ const findTransactionByID = async (id: string) => {
 };
 
 /**
- * Updates txHash of transaction on FaunaDB
+ * Updates txHash of transaction on dgraph
  *
- * @param {string} id Faunadb resource id
+ * @param {string} id dgraph resource id
  * @param {string} txHash tx hash returned from broadcasting a tx
- * @return Returns async function that makes a request to the faunadb graphql endpoint
+ * @return Returns async function that makes a request to the dgraph graphql endpoint
  */
 const updateTxHash = async (id: string, txHash: string) => {
   return requestGraphQlJson({
     body: {
       query: `
-        mutation {
-          updateTransaction(id: ${id}, data: {txHash: "${txHash}"}) {
-            _id
-            dataJSON
-            txHash
-            signatures {
-              data {
+        mutation UpdateTransaction {
+          updateTransaction(
+            input: { filter: { id: "${id}" }, set: { txHash: "${txHash}" } }
+          ) {
+            transaction {
+              id
+              dataJSON
+              txHash
+              signatures {
                 address
                 signature
                 bodyBytes
@@ -131,27 +154,31 @@ const updateTxHash = async (id: string, txHash: string) => {
 };
 
 /**
- * Creates signature record in faunadb
+ * Creates signature record in dgraph
  *
  * @param {object} signature an object with bodyBytes (string) and signature set (Uint8 Array)
  * @param {string} transactionId id of the transaction to relate the signature with
- * @return Returns async function that makes a request to the faunadb graphql endpoint
+ * @return Returns async function that makes a request to the dgraph graphql endpoint
  */
 const createSignature = async (signature: DbSignature, transactionId: string) => {
   return requestGraphQlJson({
     body: {
       query: `
-        mutation {
-          createSignature(data: {
-            transaction: {connect: ${transactionId}}, 
-            bodyBytes: "${signature.bodyBytes}",
-            signature: "${signature.signature}",
-            address: "${signature.address}" 
-          }) {
-            _id
-            address
-            signature
-            address
+        mutation AddSignature {
+          addSignature(
+            input: {
+              transaction: { id: "${transactionId}" }
+              address: "${signature.address}"
+              signature: "${signature.signature}"
+              bodyBytes: "${signature.bodyBytes}"
+            }
+          ) {
+            signature {
+              transaction {
+                id
+              }
+              signature
+            }
           }
         }
       `,

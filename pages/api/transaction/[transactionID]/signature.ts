@@ -10,7 +10,7 @@ export default async function transactionIDApi(req: NextApiRequest, res: NextApi
         console.log("Function `createSignature` invoked", data);
         const saveRes = await createSignature(data, transactionID);
         console.log("success", saveRes.data);
-        res.status(200).send(saveRes.data.createSignature);
+        res.status(200).send(saveRes.data.addSignature.signature[0]);
         return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
