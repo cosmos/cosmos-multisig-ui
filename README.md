@@ -1,8 +1,8 @@
 # Cosmoshub Multisig App
 
-This app allows for multisig users to create, sign and broadcast transactions on any stargate enabled chain. It's built with Cosmjs, Next.js, FaunaDB and Vercel.
+This app allows for multisig users to create, sign and broadcast transactions on any stargate enabled chain. It's built with Cosmjs, Next.js, Dgraph and Vercel.
 
-[The app is live here](https://cosmos-multisig-ui-kohl.vercel.app/).
+[The app is live here](https://multisig.confio.run).
 
 [Here is a user guide on how to use the app](https://github.com/samepant/cosmoshub-legacy-multisig/blob/master/docs/App%20User%20Guide.md)
 
@@ -16,19 +16,18 @@ This app uses Vercel for deployment and hosting, since they support next.js's se
 
 ### 2. Setup environment variables
 
-In the Vercel control panel for your new app, go to `Settings -> Environment Variables` and add in the keys and values from this repo's `.env.sample` file. The only remaining variable should be the `FAUNADB_SECRET`, which will be available once you setup your FaunaDB instance.
+In the Vercel control panel for your new app, go to `Settings -> Environment Variables` and add in the keys and values from this repo's `.env.sample` file. The only remaining variable should be the `DGRAPH_SECRET`, which will be available once you setup your DGraph instance.
 
-### 3. Initializing FaunaDB
+### 3. Initializing DGraph
 
-This app relies on FaunaDB as for storing account, transaction and signature details.
+This app relies on DGraph as for storing account, transaction and signature details.
 
-- Create a [FaunaDB](https://dashboard.fauna.com/) account
-- Create a new database
-  - Use the "Classic" region
-- Click the "Graphql" tab, and import the `db-schema.graphql` file in the root of this repo
-- Click the "Security" tab, and create a key. Copy that key into your vercel app's environment variables as the `FAUNADB_SECRET` value
+- Create a [DGraph](https://cloud.dgraph.io) account
+- Launch a new backend
+- Click the `Develop -> Schema` menu item, and past the contents of the `db-schema.graphql` file in the root of this repo
+- Click the `Admin -> Settings` menu item, and create a key. Copy that key into your vercel app's environment variables as the `DGRAPH_SECRET` value
 
-As your instance of the app is used, you can return to the FaunaDB dashboard to view records for any accounts, transactions or signatures.
+As your instance of the app is used, you can return to the DGraph dashboard to view records for any accounts, transactions or signatures.
 
 ### 4. Successful Deployment
 
@@ -46,17 +45,16 @@ It's recommended that you make your simapp instance mimic the denomination of co
 
 A more in depth tutorial on this is coming soon :)
 
-### 3. Initializing FaunaDB
+### 3. Initializing DGraph
 
-This app relies on FaunaDB as for storing account, transaction and signature details.
+This app relies on DGraph as for storing account, transaction and signature details.
 
-- Create a [FaunaDB](https://dashboard.fauna.com/) account
-- Create a new database
-  - Use the "Europe (EU)" region
-- Click the "Graphql" tab, and import the `db-schema.graphql` file in the root of this repo
-- Click the "Security" tab, and create a key. Copy that key into the `.env.local` file for the `FAUNADB_SECRET` value
+- Create a [DGraph](https://cloud.dgraph.io) account
+- Launch a new backend
+- Click the `Develop -> Schema` menu item, and past the contents of the `db-schema.graphql` file in the root of this repo
+- Click the `Admin -> Settings` menu item, and create a key. Copy that key into your vercel app's environment variables as the `DGRAPH_SECRET` value
 
-As your instance of the app is used, you can return to the FaunaDB dashboard to view records for any accounts, transactions or signatures created.
+As your instance of the app is used, you can return to the DGraph dashboard to view records for any accounts, transactions or signatures.
 
 ### 3. Run your instance
 
