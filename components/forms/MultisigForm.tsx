@@ -1,3 +1,4 @@
+import { toastError } from "@/lib/utils";
 import { StargateClient } from "@cosmjs/stargate";
 import { NextRouter, withRouter } from "next/router";
 import { useState } from "react";
@@ -67,20 +68,20 @@ const MultiSigForm = (props: Props) => {
     return accountOnChain.pubkey.value;
   };
 
-  const handleKeyBlur = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleKeyBlur = async (index: number, { target }: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const tempPubkeys = [...pubkeys];
       let pubkey;
       // use pubkey
       console.log(tempPubkeys[index]);
       if (tempPubkeys[index].isPubkey) {
-        pubkey = e.target.value;
+        pubkey = target.value;
         if (pubkey.length !== 44) {
           throw new Error("Invalid Secp256k1 pubkey");
         }
       } else {
         // use address to fetch pubkey
-        const address = e.target.value;
+        const address = target.value;
         if (address.length > 0) {
           pubkey = await getPubkeyFromNode(address);
         }
@@ -89,11 +90,10 @@ const MultiSigForm = (props: Props) => {
       tempPubkeys[index].compressedPubkey = pubkey;
       tempPubkeys[index].keyError = "";
       setPubkeys(tempPubkeys);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
+    } catch (e) {
+      console.error("Invalid address or pubkey", e);
       const tempPubkeys = [...pubkeys];
-      tempPubkeys[index].keyError = error.message;
+      tempPubkeys[index].keyError = e instanceof Error ? e.message : "Invalid address or pubkey";
       setPubkeys(tempPubkeys);
     }
   };
@@ -110,8 +110,12 @@ const MultiSigForm = (props: Props) => {
         chain.chainId,
       );
       props.router.push(`/${chain.registryName}/${multisigAddress}`);
-    } catch (error) {
-      console.log("Failed to creat multisig: ", error);
+    } catch (e) {
+      console.error("Failed to create multisig:", e);
+      toastError({
+        description: "Failed to create multisig",
+        fullError: e instanceof Error ? e : undefined,
+      });
     }
   };
 
