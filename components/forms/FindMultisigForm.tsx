@@ -1,96 +1,100 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { ChainInfo } from "@/context/ChainsContext/types";
 import { StargateClient } from "@cosmjs/stargate";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { NextRouter, withRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { useChains } from "../../context/ChainsContext";
 import { exampleAddress } from "../../lib/displayHelpers";
 import { getMultisigAccount } from "../../lib/multisigHelpers";
-import Button from "../inputs/Button";
-import Input from "../inputs/Input";
-import StackableContainer from "../layout/StackableContainer";
 
-interface Props {
+const existsMultisigAccount = async (chain: ChainInfo, address: string) => {
+  try {
+    const client = await StargateClient.connect(chain.nodeAddress);
+    const [, account] = await getMultisigAccount(address, chain.addressPrefix, client);
+    return account !== null;
+  } catch {
+    return false;
+  }
+};
+
+interface FindMultisigFormProps {
   router: NextRouter;
 }
 
-const FindMultisigForm = (props: Props) => {
+const FindMultisigForm = ({ router }: FindMultisigFormProps) => {
   const { chain } = useChains();
-  const [address, setAddress] = useState("");
-  const [multisigError, setMultisigError] = useState("");
 
-  const handleSearch = () => {
-    props.router.push(`/${chain.registryName}/${address}`);
-  };
+  const findMultisigSchema = z.object({
+    address: z
+      .string()
+      .trim()
+      .min(1, "Required")
+      .startsWith(chain.addressPrefix, `Invalid prefix for ${chain.chainDisplayName}`)
+      .refine(async (address) => await existsMultisigAccount(chain, address), {
+        message: "Multisig not found",
+      }),
+  });
 
-  useEffect(() => {
-    (async function () {
-      if (!address) {
-        setMultisigError("");
-        return;
-      }
+  const findMultisigForm = useForm<z.infer<typeof findMultisigSchema>>({
+    resolver: zodResolver(findMultisigSchema),
+    defaultValues: { address: "" },
+  });
 
-      try {
-        const client = await StargateClient.connect(chain.nodeAddress);
-        await getMultisigAccount(address, chain.addressPrefix, client);
-        setMultisigError("");
-      } catch (error) {
-        if (error instanceof Error) {
-          setMultisigError(error.message);
-        } else {
-          setMultisigError("Multisig error");
-        }
-        console.error("Multisig error:", error);
-      }
-    })();
-  }, [address, chain.addressPrefix, chain.nodeAddress]);
+  const submitFindMultisig = ({ address }: z.infer<typeof findMultisigSchema>) =>
+    router.push(`/${chain.registryName}/${address}`);
 
   return (
-    <StackableContainer>
-      <StackableContainer lessPadding>
-        <p>
-          Already have a multisig address? Enter it below. If it’s a valid address, you will be able
-          to view its transactions and create new ones.
-        </p>
-      </StackableContainer>
-      <StackableContainer lessPadding lessMargin>
-        <Input
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
-          value={address}
-          label="Multisig Address"
-          name="address"
-          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
-          error={multisigError}
-        />
-        <Button
-          label="Use this Multisig"
-          onClick={handleSearch}
-          primary
-          disabled={!address || !!multisigError}
-        />
-      </StackableContainer>
-      <StackableContainer lessPadding>
-        <p className="create-help">Don't have a multisig?</p>
-        <Button
-          label="Create New Multisig"
-          onClick={() => props.router.push(`${chain.registryName}/create`)}
-        />
-      </StackableContainer>
-      <style jsx>{`
-        .multisig-form {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        .error {
-          color: coral;
-          font-size: 0.8em;
-          text-align: left;
-          margin: 0.5em 0;
-        }
-        .create-help {
-          text-align: center;
-        }
-      `}</style>
-    </StackableContainer>
+    <Card>
+      <CardHeader>
+        <CardTitle>Already have a {chain.chainDisplayName || "Cosmos Hub"} multisig?</CardTitle>
+        <CardDescription>
+          Enter its address below to view its transactions and create new ones.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...findMultisigForm}>
+          <form onSubmit={findMultisigForm.handleSubmit(submitFindMultisig)} className="space-y-8">
+            <FormField
+              control={findMultisigForm.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Multisig address</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={`E.g. "${exampleAddress(0, chain.addressPrefix)}"`}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex flex-wrap items-center gap-4">
+              <Button type="submit">Use this multisig</Button>
+              <Button asChild variant="link" className="p-0 text-secondary">
+                <Link href={chain.registryName ? `/${chain.registryName}/create` : ""} className="">
+                  I don't have a multisig
+                </Link>
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 };
 
