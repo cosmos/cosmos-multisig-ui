@@ -1,19 +1,34 @@
 import Header from "@/components/Header";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ThemeProvider from "@/context/ThemesContext";
-import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { ChainsProvider } from "../context/ChainsContext";
+import "@/styles/globals.css";
 
 export default function MultisigApp({ Component, pageProps }: AppProps) {
   return (
     <ChainsProvider>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <TooltipProvider>
-          <Header />
-          <Component {...pageProps} />
-          <Toaster />
+          <Toaster
+            richColors
+            closeButton
+            duration={999999}
+            /* This need to be overriden or else it doesn't apply the custom styles. A bug from shadcn probably https://github.com/shadcn-ui/ui/issues/2254 */
+            toastOptions={{
+              classNames: {
+                toast:
+                  "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+                error:
+                  "group-[.toaster]:!bg-destructive group-[.toaster]:!text-destructive-foreground",
+                success: "group-[.toaster]:!bg-green-500 group-[.toaster]:!text-white",
+                description: "group-[.toast]:text-foreground",
+                actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+                cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+              },
+            }}
+          />
         </TooltipProvider>
       </ThemeProvider>
     </ChainsProvider>
