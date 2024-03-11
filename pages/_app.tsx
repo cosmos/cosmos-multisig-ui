@@ -11,6 +11,10 @@ export default function MultisigApp({ Component, pageProps }: AppProps) {
     <ChainsProvider>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <TooltipProvider>
+          <div className="flex min-h-screen flex-col items-center gap-4">
+            <Header />
+            <Component {...pageProps} />
+          </div>
           <Toaster
             richColors
             closeButton
