@@ -1,4 +1,5 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
+import { toastError, toastSuccess } from "@/lib/utils";
 import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { fromBase64 } from "@cosmjs/encoding";
 import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
@@ -6,6 +7,7 @@ import { assert } from "@cosmjs/utils";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import CompletedTransaction from "../../../../components/dataViews/CompletedTransaction";
 import ThresholdInfo from "../../../../components/dataViews/ThresholdInfo";
 import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
@@ -69,12 +71,10 @@ const TransactionPage = ({
 }) => {
   const { chain } = useChains();
   const [currentSignatures, setCurrentSignatures] = useState(signatures);
-  const [broadcastError, setBroadcastError] = useState("");
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [transactionHash, setTransactionHash] = useState(txHash);
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
-  const [hasAccountError, setHasAccountError] = useState(false);
   const txInfo = dbTxFromJson(transactionJSON);
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
@@ -95,20 +95,21 @@ const TransactionPage = ({
 
         setPubkey(result[0]);
         setAccountOnChain(result[1]);
-        setHasAccountError(false);
-      } catch (error: unknown) {
-        setHasAccountError(true);
-        console.error(
-          error instanceof Error ? error.message : "Multisig address could not be found",
-        );
+      } catch (e) {
+        console.error("Failed to find multisig address:", e);
+        toastError({
+          description: "Failed to find multisig address",
+          fullError: e instanceof Error ? e : undefined,
+        });
       }
     })();
   }, [chain, multisigAddress]);
 
   const broadcastTx = async () => {
+    const loadingToastId = toast.loading("Broadcasting transaction");
+
     try {
       setIsBroadcasting(true);
-      setBroadcastError("");
 
       assert(accountOnChain, "Account on chain value missing.");
       assert(
@@ -132,11 +133,17 @@ const TransactionPage = ({
       await requestJson(`/api/transaction/${transactionID}`, {
         body: { txHash: result.transactionHash },
       });
+      toastSuccess("Transaction broadcasted with hash", result.transactionHash);
       setTransactionHash(result.transactionHash);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
+    } catch (e) {
+      console.error("Failed to broadcast tx:", e);
+      toastError({
+        description: "Failed to broadcast tx",
+        fullError: e instanceof Error ? e : undefined,
+      });
+    } finally {
       setIsBroadcasting(false);
-      setBroadcastError(e.toString());
+      toast.dismiss(loadingToastId);
     }
   };
 
@@ -159,13 +166,6 @@ const TransactionPage = ({
         <StackableContainer>
           <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>
         </StackableContainer>
-        {hasAccountError ? (
-          <StackableContainer>
-            <div className="multisig-error">
-              <p>Multisig address could not be found.</p>
-            </div>
-          </StackableContainer>
-        ) : null}
         {transactionHash ? <CompletedTransaction transactionHash={transactionHash} /> : null}
         {!transactionHash ? (
           <StackableContainer lessPadding lessMargin>
@@ -178,7 +178,6 @@ const TransactionPage = ({
                   primary
                   disabled={isBroadcasting}
                 />
-                {broadcastError ? <div className="broadcast-error">{broadcastError}</div> : null}
               </>
             ) : null}
             {pubkey && txInfo ? (
@@ -194,23 +193,6 @@ const TransactionPage = ({
         ) : null}
         {txInfo ? <TransactionInfo tx={txInfo} /> : null}
       </StackableContainer>
-      <style jsx>{`
-        .broadcast-error {
-          background: firebrick;
-          margin: 20px auto;
-          padding: 15px;
-          border-radius: 10px;
-          text-align: center;
-          font-family: monospace;
-          max-width: 475px;
-        }
-        .multisig-error p {
-          max-width: 550px;
-          color: red;
-          font-size: 16px;
-          line-height: 1.4;
-        }
-      `}</style>
     </Page>
   );
 };
