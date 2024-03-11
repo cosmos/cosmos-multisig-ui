@@ -1,9 +1,8 @@
 import BadgeWithCopy from "@/components/BadgeWithCopy";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { explorerLinkAccount } from "@/lib/displayHelpers";
 import { WalletInfo } from "@/types/signing";
-import { AlertCircle, Unplug } from "lucide-react";
+import { Unplug } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useChains } from "../../../context/ChainsContext";
@@ -16,7 +15,6 @@ export default function AccountView() {
 
   const walletInfoState = useState<WalletInfo | null>();
   const [walletInfo, setWalletInfo] = walletInfoState;
-  const [error, setError] = useState("");
 
   const explorerLink =
     explorerLinkAccount(chain.explorerLinks.account, walletInfo?.address || "") || "";
@@ -43,7 +41,7 @@ export default function AccountView() {
             <div className="flex flex-col gap-4">
               <BadgeWithCopy name="address" toCopy={walletInfo.address} />
               {explorerLink ? (
-                <Button asChild className="self-center">
+                <Button asChild variant="secondary" className="self-center">
                   <a href={explorerLink} target="_blank">
                     View in explorer
                   </a>
@@ -57,15 +55,9 @@ export default function AccountView() {
           </CardContent>
         ) : null}
         <CardFooter className="my-8 flex w-full flex-col gap-4 p-0">
-          {error ? (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          ) : null}
           {walletInfo?.type ? (
             <Button
+              variant="secondary"
               onClick={() => {
                 setWalletInfo(null);
               }}
@@ -75,26 +67,14 @@ export default function AccountView() {
             </Button>
           ) : (
             <div className="flex w-full flex-col gap-4">
-              <ButtonConnectWallet
-                walletType="Keplr"
-                walletInfoState={walletInfoState}
-                setError={setError}
-              />
-              <ButtonConnectWallet
-                walletType="Ledger"
-                walletInfoState={walletInfoState}
-                setError={setError}
-              />
+              <ButtonConnectWallet walletType="Keplr" walletInfoState={walletInfoState} />
+              <ButtonConnectWallet walletType="Ledger" walletInfoState={walletInfoState} />
             </div>
           )}
         </CardFooter>
       </Card>
       {walletInfo?.address ? (
-        <BalancesList
-          key={walletInfo.address}
-          walletAddress={walletInfo.address}
-          setError={setError}
-        />
+        <BalancesList key={walletInfo.address} walletAddress={walletInfo.address} />
       ) : null}
     </div>
   );

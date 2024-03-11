@@ -1,3 +1,4 @@
+import { toastError } from "@/lib/utils";
 import { LoadingStates, WalletInfo, WalletType } from "@/types/signing";
 import { makeCosmoshubPath } from "@cosmjs/amino";
 import { toBase64 } from "@cosmjs/encoding";
@@ -16,20 +17,17 @@ interface ButtonConnectWalletProps {
     WalletInfo | null | undefined,
     Dispatch<SetStateAction<WalletInfo | null | undefined>>,
   ];
-  readonly setError: Dispatch<SetStateAction<string>>;
 }
 
 export default function ButtonConnectWallet({
   walletType,
   walletInfoState: [walletInfo, setWalletInfo],
-  setError,
 }: ButtonConnectWalletProps) {
   const { chain } = useChains();
   const [loading, setLoading] = useState<LoadingStates>({});
 
   const connectKeplr = useCallback(async () => {
     try {
-      setError("");
       setLoading((oldLoading) => ({ ...oldLoading, keplr: true }));
 
       await window.keplr.enable(chain.chainId);
@@ -44,12 +42,16 @@ export default function ButtonConnectWallet({
 
       setWalletInfo({ type: "Keplr", address, pubKey });
     } catch (e) {
-      console.error(e);
-      setError(getConnectError(e));
+      const connectError = getConnectError(e);
+      console.error(connectError, e);
+      toastError({
+        description: connectError,
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, keplr: false }));
     }
-  }, [chain.chainId, setError, setWalletInfo]);
+  }, [chain.chainId, setWalletInfo]);
 
   useLayoutEffect(() => {
     if (!walletInfo?.address) {
@@ -67,7 +69,6 @@ export default function ButtonConnectWallet({
 
   const connectLedger = async () => {
     try {
-      setError("");
       setLoading((newLoading) => ({ ...newLoading, ledger: true }));
 
       const ledgerTransport = await TransportWebUSB.create(120000, 120000);
@@ -81,8 +82,12 @@ export default function ButtonConnectWallet({
 
       setWalletInfo({ type: "Ledger", address, pubKey });
     } catch (e) {
-      console.error(e);
-      setError(getConnectError(e));
+      const connectError = getConnectError(e);
+      console.error(connectError, e);
+      toastError({
+        description: connectError,
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, ledger: false }));
     }
