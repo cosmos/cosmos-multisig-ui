@@ -1,3 +1,4 @@
+import { toastError, toastSuccess } from "@/lib/utils";
 import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
 import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";
@@ -13,6 +14,7 @@ import {
 import { assert } from "@cosmjs/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { useCallback, useLayoutEffect, useState } from "react";
+import { toast } from "sonner";
 import { useChains } from "../../context/ChainsContext";
 import { getConnectError } from "../../lib/errorHelpers";
 import { requestJson } from "../../lib/request";
@@ -34,8 +36,6 @@ const TransactionSigning = (props: TransactionSigningProps) => {
 
   const { chain } = useChains();
   const [walletAccount, setWalletAccount] = useState<WalletAccount>();
-  const [sigError, setSigError] = useState("");
-  const [connectError, setConnectError] = useState("");
   const [signing, setSigning] = useState<SigningStatus>("not_signed");
   const [walletType, setWalletType] = useState<"Keplr" | "Ledger">();
   const [ledgerSigner, setLedgerSigner] = useState({});
@@ -68,10 +68,13 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       }
 
       setWalletType("Keplr");
-      setConnectError("");
     } catch (e) {
-      console.error(e);
-      setConnectError(getConnectError(e));
+      const connectError = getConnectError(e);
+      console.error(connectError, e);
+      toastError({
+        description: connectError,
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, keplr: false }));
     }
@@ -124,16 +127,21 @@ const TransactionSigning = (props: TransactionSigningProps) => {
 
       setLedgerSigner(offlineSigner);
       setWalletType("Ledger");
-      setConnectError("");
     } catch (e) {
-      console.error(e);
-      setConnectError(getConnectError(e));
+      const connectError = getConnectError(e);
+      console.error(connectError, e);
+      toastError({
+        description: connectError,
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, ledger: false }));
     }
   };
 
   const signTransaction = async () => {
+    const loadingToastId = toast.loading("Signing transaction");
+
     try {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
 
@@ -172,21 +180,27 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       );
 
       if (prevSigMatch > -1) {
-        setSigError("This account has already signed.");
-      } else {
-        const signature = {
-          bodyBytes: bases64EncodedBodyBytes,
-          signature: bases64EncodedSignature,
-          address: signerAddress,
-        };
-        await requestJson(`/api/transaction/${props.transactionID}/signature`, { body: signature });
-        props.addSignature(signature);
-        setSigning("signed");
+        throw new Error("This account has already signed");
       }
+
+      const signature = {
+        bodyBytes: bases64EncodedBodyBytes,
+        signature: bases64EncodedSignature,
+        address: signerAddress,
+      };
+      await requestJson(`/api/transaction/${props.transactionID}/signature`, { body: signature });
+      toastSuccess("Transaction signed by", signerAddress);
+      props.addSignature(signature);
+      setSigning("signed");
     } catch (e) {
-      console.log("signing err: ", e);
+      console.error("Failed to sign the tx:", e);
+      toastError({
+        description: "Failed to sign the tx",
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, signing: false }));
+      toast.dismiss(loadingToastId);
     }
   };
 
@@ -242,20 +256,6 @@ const TransactionSigning = (props: TransactionSigningProps) => {
             )}
           </>
         ) : null}
-        {sigError ? (
-          <StackableContainer lessPadding lessRadius lessMargin>
-            <div className="signature-error">
-              <p>This account has already signed this transaction</p>
-            </div>
-          </StackableContainer>
-        ) : null}
-        {connectError ? (
-          <StackableContainer lessPadding lessRadius lessMargin>
-            <div className="signature-error">
-              <p>{connectError}</p>
-            </div>
-          </StackableContainer>
-        ) : null}
       </StackableContainer>
       <style jsx>{`
         p {
@@ -272,15 +272,6 @@ const TransactionSigning = (props: TransactionSigningProps) => {
           list-style: none;
           padding: 0;
           margin: 0;
-        }
-        .signature-error p {
-          max-width: 550px;
-          color: red;
-          font-size: 16px;
-          line-height: 1.4;
-        }
-        .signature-error p:first-child {
-          margin-top: 0;
         }
         .confirmation {
           display: flex;

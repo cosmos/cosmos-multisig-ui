@@ -1,4 +1,5 @@
 import { getChainsFromRegistry, getShaFromRegistry } from "@/lib/chainRegistry";
+import { toastError } from "@/lib/utils";
 import { StargateClient } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { emptyChain, isChainInfoFilled } from "./helpers";
@@ -56,12 +57,12 @@ export const useChainsFromRegistry = () => {
           return;
         }
 
-        if (e instanceof Error) {
-          console.error(e.message);
-          setChainItemsError(e.message);
-        } else {
-          setChainItemsError("Failed to get chains from registry");
-        }
+        console.error("Failed to get chains from registry:", e);
+        setChainItemsError(e instanceof Error ? e.message : "Failed to get chains from registry");
+        toastError({
+          description: "Failed to get chains from registry",
+          fullError: e instanceof Error ? e : undefined,
+        });
       }
     })();
   }, [chainItems.mainnets.size, chainItems.testnets.size]);

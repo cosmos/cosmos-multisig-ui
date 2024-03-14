@@ -1,9 +1,11 @@
 import { loadValidators } from "@/context/ChainsContext/helpers";
+import { toastError, toastSuccess } from "@/lib/utils";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { NextRouter, withRouter } from "next/router";
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { useChains } from "../../../context/ChainsContext";
 import { requestJson } from "../../../lib/request";
 import { exportMsgToJson, gasOfTx } from "../../../lib/txMsgHelpers";
@@ -39,7 +41,6 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   const [memo, setMemo] = useState("");
   const [gasLimit, setGasLimit] = useState(gasOfTx([]));
   const [gasLimitError, setGasLimitError] = useState("");
-  const [showCreateTxError, setShowTxError] = useState(false);
 
   const addMsgType = (newMsgType: MsgTypeUrl) => {
     setMsgKeys((oldMsgKeys) => [...oldMsgKeys, crypto.randomUUID()]);
@@ -59,9 +60,9 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   };
 
   const createTx = async () => {
-    try {
-      setShowTxError(false);
+    const loadingToastId = toast.loading("Creating transaction");
 
+    try {
       assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
       assert(msgGetters.current.length, "form filled incorrectly");
 
@@ -90,13 +91,17 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
       const { transactionID } = await requestJson("/api/transaction", {
         body: { dataJSON: JSON.stringify(tx) },
       });
-
+      toastSuccess("Transaction created with ID", transactionID);
       router.push(`/${chain.registryName}/${senderAddress}/transaction/${transactionID}`);
-    } catch (error) {
-      console.error("Creat transaction error:", error);
-      setShowTxError(true);
+    } catch (e) {
+      console.error("Failed to create transaction:", e);
+      toastError({
+        description: "Failed to create transaction",
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setProcessing(false);
+      toast.dismiss(loadingToastId);
     }
   };
 
@@ -252,13 +257,6 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           </ul>
         </div>
       </div>
-      {showCreateTxError ? (
-        <StackableContainer lessMargin lessPadding>
-          <p className="multisig-error">
-            Error when creating the transaction. See console for more details.
-          </p>
-        </StackableContainer>
-      ) : null}
       <Button
         label="Create Transaction"
         onClick={createTx}

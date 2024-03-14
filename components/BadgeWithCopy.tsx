@@ -1,7 +1,7 @@
 import copy from "copy-to-clipboard";
 import { Copy } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "./ui/badge";
-import { useToast } from "./ui/use-toast";
 
 interface BadgeWithCopyProps {
   readonly name: string;
@@ -9,13 +9,11 @@ interface BadgeWithCopyProps {
 }
 
 export default function BadgeWithCopy({ name, toCopy }: BadgeWithCopyProps) {
-  const { toast } = useToast();
-
   return (
     <Badge
-      onClick={() => {
+      onClick={async () => {
         copy(toCopy);
-        toast({ description: `Copied ${name} to clipboard` });
+        toast(`Copied ${name} to clipboard`, { description: toCopy });
       }}
       className="max-w-md self-start truncate hover:cursor-pointer"
     >

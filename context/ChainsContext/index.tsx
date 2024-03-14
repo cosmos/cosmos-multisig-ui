@@ -1,4 +1,5 @@
 import { getAllValidators } from "@/lib/staking";
+import { toastError } from "@/lib/utils";
 import { ReactNode, createContext, useContext, useEffect, useReducer } from "react";
 import { emptyChain, isChainInfoFilled, setChain, setChains, setChainsError } from "./helpers";
 import { getChain, getNodeFromArray, useChainsFromRegistry } from "./service";
@@ -99,7 +100,11 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
           const validators = await getAllValidators(state.chain.nodeAddress);
           dispatch({ type: "setValidatorState", payload: { validators, status: "done" } });
         } catch (e) {
-          console.error(e instanceof Error ? e.message : "Failed to load validators");
+          console.error("Failed to load validators:", e);
+          toastError({
+            description: "Failed to load validators",
+            fullError: e instanceof Error ? e : undefined,
+          });
           dispatch({ type: "setValidatorState", payload: { validators: [], status: "error" } });
         }
       }
