@@ -16,7 +16,7 @@ This app uses Vercel for deployment and hosting, since they support next.js's se
 
 ### 2. Setup environment variables
 
-In the Vercel control panel for your new app, go to `Settings -> Environment Variables` and add in the keys and values from this repo's `.env.sample` file. The only remaining variable should be the `DGRAPH_SECRET`, which will be available once you setup your DGraph instance.
+In the Vercel control panel for your new app, go to `Settings -> Environment Variables` and add in the keys and values from this repo's `.env.sample` file.
 
 ### 3. Initializing DGraph
 
@@ -25,7 +25,6 @@ This app relies on DGraph as for storing account, transaction and signature deta
 - Create a [DGraph](https://cloud.dgraph.io) account
 - Launch a new backend
 - Click the `Develop -> Schema` menu item, and past the contents of the `db-schema.graphql` file in the root of this repo
-- Click the `Admin -> Settings` menu item, and create a key. Copy that key into your vercel app's environment variables as the `DGRAPH_SECRET` value
 
 As your instance of the app is used, you can return to the DGraph dashboard to view records for any accounts, transactions or signatures.
 
@@ -52,7 +51,6 @@ This app relies on DGraph as for storing account, transaction and signature deta
 - Create a [DGraph](https://cloud.dgraph.io) account
 - Launch a new backend
 - Click the `Develop -> Schema` menu item, and past the contents of the `db-schema.graphql` file in the root of this repo
-- Click the `Admin -> Settings` menu item, and create a key. Copy that key into your vercel app's environment variables as the `DGRAPH_SECRET` value
 
 As your instance of the app is used, you can return to the DGraph dashboard to view records for any accounts, transactions or signatures.
 
