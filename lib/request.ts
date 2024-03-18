@@ -25,9 +25,4 @@ export const requestGhJson = (endpoint: string, { headers, ...restConfig }: Requ
 type RequestGraphQlJsonConfig = Omit<RequestInit, "body"> & { body: { query: string } };
 
 export const requestGraphQlJson = (config: RequestGraphQlJsonConfig) =>
-  requestJson(process.env.DGRAPH_URL || "", {
-    ...config,
-    headers: process.env.DGRAPH_SECRET
-      ? { "X-Auth-Token": process.env.DGRAPH_SECRET, ...config.headers }
-      : config.headers,
-  });
+  requestJson(process.env.DGRAPH_URL || "", config);
