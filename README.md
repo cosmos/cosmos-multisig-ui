@@ -25,6 +25,7 @@ This app relies on DGraph as for storing account, transaction and signature deta
 - Create a [DGraph](https://cloud.dgraph.io) account
 - Launch a new backend
 - Click the `Develop -> Schema` menu item, and past the contents of the `db-schema.graphql` file in the root of this repo
+- On the `Develop -> Schema` view, click the `Access` tab, and make sure Anonymous Access is OFF.
 - Click the `Admin -> Settings` menu item, and create a key. Copy that key into your vercel app's environment variables as the `DGRAPH_SECRET` value
 
 As your instance of the app is used, you can return to the DGraph dashboard to view records for any accounts, transactions or signatures.
@@ -52,6 +53,7 @@ This app relies on DGraph as for storing account, transaction and signature deta
 - Create a [DGraph](https://cloud.dgraph.io) account
 - Launch a new backend
 - Click the `Develop -> Schema` menu item, and past the contents of the `db-schema.graphql` file in the root of this repo
+- On the `Develop -> Schema` view, click the `Access` tab, and make sure Anonymous Access is OFF.
 - Click the `Admin -> Settings` menu item, and create a key. Copy that key into your vercel app's environment variables as the `DGRAPH_SECRET` value
 
 As your instance of the app is used, you can return to the DGraph dashboard to view records for any accounts, transactions or signatures.
