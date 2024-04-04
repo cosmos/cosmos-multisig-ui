@@ -97,7 +97,7 @@ export default function AccountView() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <BalancesTable key={walletInfo.address} walletAddress={walletInfo.address} />
+            <BalancesTable walletAddress={walletInfo.address} />
           </CardContent>
         </Card>
       ) : null}
