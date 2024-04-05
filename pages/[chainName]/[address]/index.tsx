@@ -21,7 +21,7 @@ export default function MultisigPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink>
-              <Link href={`/${chain.registryName}`}>Home</Link>
+              {chain.registryName ? <Link href={`/${chain.registryName}`}>Home</Link> : null}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
