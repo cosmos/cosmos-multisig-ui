@@ -8,7 +8,7 @@ import { toastError } from "@/lib/utils";
 import { SinglePubkey, isSecp256k1Pubkey, pubkeyToAddress } from "@cosmjs/amino";
 import { StargateClient } from "@cosmjs/stargate";
 import copy from "copy-to-clipboard";
-import { AlertCircle, ArrowUpRightSquare, Copy, Info } from "lucide-react";
+import { AlertCircle, ArrowUpRightSquare, Copy, Info, Loader2 } from "lucide-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -178,6 +178,12 @@ export default function MultisigView() {
                 </Alert>
               ) : null}
             </>
+          ) : null}
+          {multisigInfo.status === "loading" ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="animate-spin" />
+              <p>Loading multisig info</p>
+            </div>
           ) : null}
         </CardContent>
       </Card>
