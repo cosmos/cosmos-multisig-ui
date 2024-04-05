@@ -4,8 +4,8 @@ import { toastError } from "@/lib/utils";
 import { Coin } from "@cosmjs/amino";
 import { StargateClient } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
-import { useChains } from "../../../context/ChainsContext";
-import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
+import { useChains } from "../../context/ChainsContext";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface BalancesTableProps {
   readonly walletAddress: string;
