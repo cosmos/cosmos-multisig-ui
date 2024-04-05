@@ -1,5 +1,4 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
 import { explorerLinkAccount } from "@/lib/displayHelpers";
@@ -136,15 +135,9 @@ export default function MultisigView() {
                   );
                 })}
               </div>
-              <div className="flex gap-2">
-                <Badge variant="secondary">Threshold = {multisigInfo.threshold}</Badge>
-              </div>
               <div className="flex items-center gap-1 text-sm text-secondary">
                 <Info className="text-secondary" />
-                <p>
-                  Transactions need to be signed by {multisigInfo.threshold} out of the{" "}
-                  {multisigInfo.members.length} members.
-                </p>
+                <p>{multisigInfo.threshold} signatures needed to send a transaction.</p>
               </div>
             </>
           ) : null}
