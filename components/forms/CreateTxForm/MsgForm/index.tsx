@@ -3,6 +3,10 @@ import { MsgTypeUrl, MsgTypeUrls } from "../../../../types/txMsg";
 import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
 import MsgCreateVestingAccountForm from "./MsgCreateVestingAccountForm";
 import MsgDelegateForm from "./MsgDelegateForm";
+import MsgDualClaimRewardsForm from "./MsgDualClaimRewardsForm";
+import MsgDualDelegateForm from "./MsgDualDelegateForm";
+import MsgDualRedelegateForm from "./MsgDualRedelegateForm";
+import MsgDualUnbondForm from "./MsgDualUnbondForm";
 import MsgExecuteContractForm from "./MsgExecuteContractForm";
 import MsgInstantiateContract2Form from "./MsgInstantiateContract2Form";
 import MsgInstantiateContractForm from "./MsgInstantiateContractForm";
@@ -46,6 +50,14 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgInstantiateContract2Form fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Migrate:
       return <MsgMigrateContractForm fromAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.DualDelegate:
+      return <MsgDualDelegateForm delegatorAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.DualRedelegate:
+      return <MsgDualRedelegateForm delegatorAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.DualUnbond:
+      return <MsgDualUnbondForm delegatorAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.DualClaimRewards:
+      return <MsgDualClaimRewardsForm delegatorAddress={senderAddress} {...restProps} />;
     default:
       return null;
   }

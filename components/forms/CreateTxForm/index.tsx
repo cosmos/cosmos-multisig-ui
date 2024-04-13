@@ -234,6 +234,29 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           </ul>
         </div>
         <div className="btn-cluster">
+          <label>Dualstaking</label>
+          <ul>
+            <li>
+              <Button
+                label="Delegate"
+                onClick={() => addMsgWithValidator(MsgTypeUrls.DualDelegate)}
+              />
+            </li>
+            <li>
+              <Button label="Unbond" onClick={() => addMsgWithValidator(MsgTypeUrls.DualUnbond)} />
+            </li>
+            <li>
+              <Button label="Redelegate" onClick={() => addMsgType(MsgTypeUrls.DualRedelegate)} />
+            </li>
+            <li>
+              <Button
+                label="ClaimRewards"
+                onClick={() => addMsgType(MsgTypeUrls.DualClaimRewards)}
+              />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
           <label>CosmWasm</label>
           <ul>
             <li>
