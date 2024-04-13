@@ -30,6 +30,14 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
       return 150_000;
     case MsgTypeUrls.Migrate:
       return 150_000;
+    case MsgTypeUrls.DualDelegate:
+      return 400_000;
+    case MsgTypeUrls.DualRedelegate:
+      return 400_000;
+    case MsgTypeUrls.DualUnbond:
+      return 400_000;
+    case MsgTypeUrls.DualClaimRewards:
+      return 400_000;
     default:
       throw new Error("Unknown msg type");
   }
