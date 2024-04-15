@@ -1,80 +1,105 @@
-import BadgeWithCopy from "@/components/BadgeWithCopy";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { explorerLinkAccount } from "@/lib/displayHelpers";
+import { cn } from "@/lib/utils";
 import { WalletInfo } from "@/types/signing";
-import { Unplug } from "lucide-react";
+import copy from "copy-to-clipboard";
+import { ArrowUpRightSquare, Copy } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useChains } from "../../../context/ChainsContext";
 import { Button } from "../../ui/button";
-import BalancesList from "./BalancesList";
+import BalancesTable from "./BalancesTable";
 import ButtonConnectWallet from "./ButtonConnectWallet";
 
 export default function AccountView() {
   const { chain } = useChains();
 
   const walletInfoState = useState<WalletInfo | null>();
-  const [walletInfo, setWalletInfo] = walletInfoState;
+  const [walletInfo] = walletInfoState;
 
   const explorerLink =
     explorerLinkAccount(chain.explorerLinks.account, walletInfo?.address || "") || "";
 
   return (
     <div className="mt-6 flex flex-col gap-4">
-      <Card className="bg-fuchsia-850 min-w-[400px] border-transparent">
-        <CardHeader className="p-0">
-          <CardTitle className="flex items-baseline gap-2">
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="flex items-center text-2xl">
             {walletInfo?.type ? (
               <Image
                 alt=""
                 src={`/assets/icons/${walletInfo.type.toLowerCase()}.svg`}
-                width={20}
-                height={20}
+                width={walletInfo.type === "Ledger" ? 30 : 27}
+                height={walletInfo.type === "Ledger" ? 30 : 27}
+                className={cn("mr-2", walletInfo.type === "Ledger" && "bg-white p-0.5")}
               />
             ) : null}
-            {walletInfo?.type ? `${walletInfo.type} wallet connected` : "Connect wallet"}
+            {walletInfo?.type ? `Connected to ${walletInfo.type}` : "Connect to a wallet"}
           </CardTitle>
+          <CardDescription>Choose between Keplr or Ledger to show its account info</CardDescription>
         </CardHeader>
-        {walletInfo ? (
-          <CardContent className="mt-4 max-w-md p-0">
-            <h2>Address</h2>
-            <div className="flex flex-col gap-4">
-              <BadgeWithCopy name="address" toCopy={walletInfo.address} />
-              {explorerLink ? (
-                <Button asChild variant="secondary" className="self-center">
-                  <a href={explorerLink} target="_blank">
-                    View in explorer
-                  </a>
-                </Button>
-              ) : null}
-            </div>
-            <div className="mt-4">
-              <h2>Public key</h2>
-              <BadgeWithCopy name="pubKey" toCopy={walletInfo.pubKey} />
-            </div>
-          </CardContent>
-        ) : null}
-        <CardFooter className="my-8 flex w-full flex-col gap-4 p-0">
-          {walletInfo?.type ? (
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setWalletInfo(null);
-              }}
-            >
-              <Unplug className="mr-2 h-auto w-5 text-red-500" />
-              Disconnect {walletInfo.type}
-            </Button>
-          ) : (
-            <div className="flex w-full flex-col gap-4">
-              <ButtonConnectWallet walletType="Keplr" walletInfoState={walletInfoState} />
-              <ButtonConnectWallet walletType="Ledger" walletInfoState={walletInfoState} />
-            </div>
-          )}
-        </CardFooter>
+        <CardContent className="grid gap-4">
+          <div className="grid grid-cols-2 gap-6">
+            <ButtonConnectWallet walletType="Keplr" walletInfoState={walletInfoState} />
+            <ButtonConnectWallet walletType="Ledger" walletInfoState={walletInfoState} />
+          </div>
+        </CardContent>
       </Card>
       {walletInfo?.address ? (
-        <BalancesList key={walletInfo.address} walletAddress={walletInfo.address} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Account info</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-5">
+            <div
+              onClick={async () => {
+                copy(walletInfo.address);
+                toast(`Copied address to clipboard`, { description: walletInfo.address });
+              }}
+              className=" flex items-center space-x-4 rounded-md border p-4 transition-colors hover:cursor-pointer hover:bg-muted/50"
+            >
+              <Copy className="w-5" />
+              <div className="flex-1 space-y-1">
+                <p className="text-sm font-medium leading-none">Address</p>
+                <p className="text-sm text-muted-foreground">{walletInfo.address}</p>
+              </div>
+            </div>
+            <div
+              onClick={async () => {
+                copy(walletInfo.pubKey);
+                toast(`Copied public key to clipboard`, { description: walletInfo.pubKey });
+              }}
+              className=" flex items-center space-x-4 rounded-md border p-4 transition-colors hover:cursor-pointer hover:bg-muted/50"
+            >
+              <Copy className="w-5" />
+              <div className="flex-1 space-y-1">
+                <p className="text-sm font-medium leading-none">Public key</p>
+                <p className="text-sm text-muted-foreground">{walletInfo.pubKey}</p>
+              </div>
+            </div>
+            {explorerLink ? (
+              <Button asChild variant="secondary">
+                <a href={explorerLink} target="_blank">
+                  View in explorer <ArrowUpRightSquare className="ml-1" />
+                </a>
+              </Button>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
+      {walletInfo?.address ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Balances</CardTitle>
+            <CardDescription>
+              Your list of tokens on {chain.chainDisplayName || "Cosmos Hub"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BalancesTable walletAddress={walletInfo.address} />
+          </CardContent>
+        </Card>
       ) : null}
     </div>
   );

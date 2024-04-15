@@ -59,7 +59,7 @@ const FindMultisigForm = ({ router }: FindMultisigFormProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Already have a {chain.chainDisplayName || "Cosmos Hub"} multisig?</CardTitle>
+        <CardTitle>Already have a multisig on {chain.chainDisplayName || "Cosmos Hub"}?</CardTitle>
         <CardDescription>
           Enter its address below to view its transactions and create new ones.
         </CardDescription>
