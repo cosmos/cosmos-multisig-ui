@@ -2,7 +2,7 @@ import FindMultisigForm from "@/components/forms/FindMultisigForm";
 import Head from "@/components/head";
 import { useChains } from "@/context/ChainsContext";
 
-const MultiPage = () => {
+const FindMultisigPage = () => {
   const { chain } = useChains();
 
   return (
@@ -13,4 +13,4 @@ const MultiPage = () => {
   );
 };
 
-export default MultiPage;
+export default FindMultisigPage;

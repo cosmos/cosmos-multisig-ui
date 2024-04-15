@@ -9,7 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useChains } from "../../../context/ChainsContext";
 import { Button } from "../../ui/button";
-import BalancesTable from "./BalancesTable";
+import BalancesTable from "../BalancesTable";
 import ButtonConnectWallet from "./ButtonConnectWallet";
 
 export default function AccountView() {
