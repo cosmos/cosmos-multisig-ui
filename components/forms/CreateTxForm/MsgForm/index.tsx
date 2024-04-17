@@ -12,6 +12,7 @@ import MsgSendForm from "./MsgSendForm";
 import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
 import MsgTransferForm from "./MsgTransferForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
+import MsgUpdateAdminContractForm from "@/components/forms/CreateTxForm/MsgForm/MsgUpdateAdminContractForm";
 
 interface MsgFormProps {
   readonly msgType: MsgTypeUrl;
@@ -46,6 +47,8 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgInstantiateContract2Form fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Migrate:
       return <MsgMigrateContractForm fromAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.UpdateAdmin:
+      return <MsgUpdateAdminContractForm fromAddress={senderAddress} {...restProps} />;
     default:
       return null;
   }
