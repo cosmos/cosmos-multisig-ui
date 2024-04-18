@@ -16,7 +16,7 @@ import TxMsgSendDetails from "./TxMsgSendDetails";
 import TxMsgSetWithdrawAddressDetails from "./TxMsgSetWithdrawAddressDetails";
 import TxMsgTransferDetails from "./TxMsgTransferDetails";
 import TxMsgUndelegateDetails from "./TxMsgUndelegateDetails";
-import TxMsgUpdateAdminContractDetails from "./TxMsgUpdateAdminContractDetails";
+import TxMsgUpdateAdminDetails from "./TxMsgUpdateAdminDetails";
 
 const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
   switch (typeUrl) {
@@ -45,7 +45,7 @@ const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
     case MsgTypeUrls.Migrate:
       return <TxMsgMigrateContractDetails msgValue={msgValue} />;
     case MsgTypeUrls.UpdateAdmin:
-      return <TxMsgUpdateAdminContractDetails msgValue={msgValue} />;
+      return <TxMsgUpdateAdminDetails msgValue={msgValue} />;
     default:
       return null;
   }

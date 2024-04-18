@@ -7,17 +7,17 @@ import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
-interface MsgUpdateAdminContractFormProps {
+interface MsgUpdateAdminFormProps {
   readonly fromAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgUpdateAdminContractForm = ({
+const MsgUpdateAdminForm = ({
                                       fromAddress,
                                       setMsgGetter,
                                       deleteMsg,
-                                    }: MsgUpdateAdminContractFormProps) => {
+                                    }: MsgUpdateAdminFormProps) => {
   const { chain } = useChains();
 
   const [contractAddress, setContractAddress] = useState("");
@@ -67,7 +67,7 @@ const MsgUpdateAdminContractForm = ({
       <button className="remove" onClick={() => deleteMsg()}>
         ✕
       </button>
-      <h2>MsgUpdateAdminContract</h2>
+      <h2>MsgUpdateAdmin</h2>
       <div className="form-item">
         <Input
           label="Contract Address"
@@ -125,4 +125,4 @@ const MsgUpdateAdminContractForm = ({
   );
 };
 
-export default MsgUpdateAdminContractForm;
+export default MsgUpdateAdminForm;
