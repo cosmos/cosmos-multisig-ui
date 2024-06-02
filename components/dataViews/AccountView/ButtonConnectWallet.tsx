@@ -1,10 +1,10 @@
-import { toastError } from "@/lib/utils";
+import { cn, toastError } from "@/lib/utils";
 import { LoadingStates, WalletInfo, WalletType } from "@/types/signing";
 import { makeCosmoshubPath } from "@cosmjs/amino";
 import { toBase64 } from "@cosmjs/encoding";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import { Loader2 } from "lucide-react";
+import { Loader2, Unplug } from "lucide-react";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
 import { useChains } from "../../../context/ChainsContext";
@@ -108,17 +108,27 @@ export default function ButtonConnectWallet({
   const isLoading =
     (walletType === "Keplr" && loading.keplr) || (walletType === "Ledger" && loading.ledger);
 
-  return (
-    <Button onClick={onClick} disabled={loading.keplr || loading.ledger}>
+  return walletInfo?.type === walletType ? (
+    <Button
+      variant="outline"
+      onClick={() => {
+        setWalletInfo(null);
+      }}
+    >
+      <Unplug className="mr-2 h-auto w-5 text-destructive" />
+      Disconnect {walletInfo.type}
+    </Button>
+  ) : (
+    <Button onClick={onClick} disabled={loading.keplr || loading.ledger} variant="outline">
       {isLoading ? (
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
       ) : (
         <Image
           alt=""
           src={`/assets/icons/${walletType.toLowerCase()}.svg`}
-          width={20}
-          height={20}
-          className="mr-2"
+          width={walletType === "Ledger" ? 23 : 20}
+          height={walletType === "Ledger" ? 23 : 20}
+          className={cn("mr-2", walletType === "Ledger" && "bg-white p-0.5")}
         />
       )}
       Connect {walletType}
