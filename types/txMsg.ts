@@ -16,6 +16,7 @@ import {
   MsgMigrateContract,
 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
+import { MsgDualClaimRewards, MsgDualDelegate, MsgDualRedelegate, MsgDualUnbond } from "./lava";
 
 export const MsgTypeUrls = {
   Send: "/cosmos.bank.v1beta1.MsgSend",
@@ -30,6 +31,10 @@ export const MsgTypeUrls = {
   Instantiate: "/cosmwasm.wasm.v1.MsgInstantiateContract",
   Instantiate2: "/cosmwasm.wasm.v1.MsgInstantiateContract2",
   Migrate: "/cosmwasm.wasm.v1.MsgMigrateContract",
+  DualDelegate: "/lavanet.lava.dualstaking.MsgDelegate",
+  DualRedelegate: "/lavanet.lava.dualstaking.MsgRedelegate",
+  DualUnbond: "/lavanet.lava.dualstaking.MsgUnbond",
+  DualClaimRewards: "/lavanet.lava.dualstaking.MsgClaimRewards",
 } as const;
 
 export type MsgTypeUrl = (typeof MsgTypeUrls)[keyof typeof MsgTypeUrls];
@@ -47,4 +52,8 @@ export const MsgCodecs = {
   [MsgTypeUrls.Instantiate]: MsgInstantiateContract,
   [MsgTypeUrls.Instantiate2]: MsgInstantiateContract2,
   [MsgTypeUrls.Migrate]: MsgMigrateContract,
+  [MsgTypeUrls.DualDelegate]: MsgDualDelegate,
+  [MsgTypeUrls.DualRedelegate]: MsgDualRedelegate,
+  [MsgTypeUrls.DualUnbond]: MsgDualUnbond,
+  [MsgTypeUrls.DualClaimRewards]: MsgDualClaimRewards,
 };

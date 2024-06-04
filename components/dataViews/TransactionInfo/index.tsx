@@ -7,6 +7,10 @@ import StackableContainer from "../../layout/StackableContainer";
 import TxMsgClaimRewardsDetails from "./TxMsgClaimRewardsDetails";
 import TxMsgCreateVestingAccountDetails from "./TxMsgCreateVestingAccountDetails";
 import TxMsgDelegateDetails from "./TxMsgDelegateDetails";
+import TxMsgDualClaimRewardsDetails from "./TxMsgDualClaimRewardsDetails";
+import TxMsgDualDelegateDetails from "./TxMsgDualDelegateDetails";
+import TxMsgDualRedelegateDetails from "./TxMsgDualRedelegateDetails";
+import TxMsgDualUnbondDetails from "./TxMsgDualUnbondDetails";
 import TxMsgExecuteContractDetails from "./TxMsgExecuteContractDetails";
 import TxMsgInstantiateContract2Details from "./TxMsgInstantiateContract2Details";
 import TxMsgInstantiateContractDetails from "./TxMsgInstantiateContractDetails";
@@ -43,6 +47,14 @@ const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
       return <TxMsgInstantiateContract2Details msgValue={msgValue} />;
     case MsgTypeUrls.Migrate:
       return <TxMsgMigrateContractDetails msgValue={msgValue} />;
+    case MsgTypeUrls.DualDelegate:
+      return <TxMsgDualDelegateDetails msgValue={msgValue} />;
+    case MsgTypeUrls.DualRedelegate:
+      return <TxMsgDualRedelegateDetails msgValue={msgValue} />;
+    case MsgTypeUrls.DualUnbond:
+      return <TxMsgDualUnbondDetails msgValue={msgValue} />;
+    case MsgTypeUrls.DualClaimRewards:
+      return <TxMsgDualClaimRewardsDetails msgValue={msgValue} />;
     default:
       return null;
   }
