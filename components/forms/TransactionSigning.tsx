@@ -12,6 +12,7 @@ import {
   defaultRegistryTypes,
 } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
+import * as lavajs from "@lavanet/lavajs";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { toast } from "sonner";
@@ -155,6 +156,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         aminoTypes: new AminoTypes({
           ...createDefaultAminoConverters(),
           ...createWasmAminoConverters(),
+          ...lavajs.lavanetAminoConverters,
         }),
       });
 
