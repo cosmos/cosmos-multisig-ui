@@ -6,6 +6,8 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
   switch (msgType) {
     case MsgTypeUrls.Send:
       return 100_000;
+    case MsgTypeUrls.Vote:
+      return 100_000;
     case MsgTypeUrls.SetWithdrawAddress:
       return 100_000;
     case MsgTypeUrls.WithdrawDelegatorReward:

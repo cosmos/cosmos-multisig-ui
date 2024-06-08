@@ -20,11 +20,14 @@ import TxMsgSendDetails from "./TxMsgSendDetails";
 import TxMsgSetWithdrawAddressDetails from "./TxMsgSetWithdrawAddressDetails";
 import TxMsgTransferDetails from "./TxMsgTransferDetails";
 import TxMsgUndelegateDetails from "./TxMsgUndelegateDetails";
+import TxMsgVoteDetails from "./TxMsgVoteDetails";
 
 const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
   switch (typeUrl) {
     case MsgTypeUrls.Send:
       return <TxMsgSendDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Vote:
+      return <TxMsgVoteDetails msgValue={msgValue} />;
     case MsgTypeUrls.Delegate:
       return <TxMsgDelegateDetails msgValue={msgValue} />;
     case MsgTypeUrls.Undelegate:

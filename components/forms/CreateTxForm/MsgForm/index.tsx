@@ -16,6 +16,7 @@ import MsgSendForm from "./MsgSendForm";
 import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
 import MsgTransferForm from "./MsgTransferForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
+import MsgVoteForm from "./MsgVoteForm";
 
 interface MsgFormProps {
   readonly msgType: MsgTypeUrl;
@@ -40,6 +41,8 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgSetWithdrawAddressForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.CreateVestingAccount:
       return <MsgCreateVestingAccountForm fromAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.Vote:
+      return <MsgVoteForm fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Transfer:
       return <MsgTransferForm fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Execute:
