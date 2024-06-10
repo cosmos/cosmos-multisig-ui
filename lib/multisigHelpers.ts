@@ -1,15 +1,14 @@
+import { ChainInfo } from "@/context/ChainsContext/types";
 import {
   createMultisigThresholdPubkey,
-  isMultisigThresholdPubkey,
   MultisigThresholdPubkey,
   pubkeyToAddress,
 } from "@cosmjs/amino";
 import { Account, StargateClient } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
-import { checkAddress } from "./displayHelpers";
+import { checkAddress, explorerLinkAccount } from "./displayHelpers";
 import { requestJson } from "./request";
 
-interface CreateMultisigAccountResponse {
+export interface CreateMultisigAccountResponse {
   readonly address: string;
 }
 
@@ -23,7 +22,7 @@ interface CreateMultisigAccountResponse {
  * @param {string} chainId chain-id for the multisig (e.g. 'cosmoshub-4')
  * @return {string} The multisig address.
  */
-const createMultisigFromCompressedSecp256k1Pubkeys = async (
+export const createMultisigFromCompressedSecp256k1Pubkeys = async (
   compressedPubkeys: string[],
   threshold: number,
   addressPrefix: string,
@@ -53,54 +52,87 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   return address;
 };
 
-interface GetMultisigAccountResponse {
+export interface GetMultisigAccountResponse {
   readonly pubkeyJSON: string;
 }
 
-/**
- * This gets a multisigs account (pubkey, sequence, account number, etc) from
- * a node and/or the api if the multisig was made on this app.
- *
- * The public key should always be available, either on chain or in the app's database.
- * The account is only available when the there was any on-chain activity such as
- * receipt of tokens.
- */
-const getMultisigAccount = async (
-  address: string,
-  addressPrefix: string,
-  client: StargateClient,
-): Promise<[MultisigThresholdPubkey, Account | null]> => {
-  // we need the multisig pubkeys to create transactions, if the multisig
-  // is new, and has never submitted a transaction its pubkeys will not be
-  // available from a node. If the multisig was created with this instance
-  // of this tool its pubkey will be available in the relational offchain database
-  const addressError = checkAddress(address, addressPrefix);
+export type HostedMultisig =
+  | {
+      readonly hosted: "nowhere";
+    }
+  | {
+      readonly hosted: "db";
+      readonly pubkeyOnDb: MultisigThresholdPubkey;
+    }
+  | {
+      readonly hosted: "chain";
+      readonly accountOnChain: Partial<Account> | null;
+      readonly explorerLink: string | null;
+    }
+  | {
+      readonly hosted: "db+chain";
+      readonly pubkeyOnDb: MultisigThresholdPubkey;
+      readonly accountOnChain: Partial<Account> | null;
+      readonly explorerLink: string | null;
+    };
+
+export const getHostedMultisig = async (
+  multisigAddress: string,
+  { addressPrefix, chainId, nodeAddress, explorerLinks }: ChainInfo,
+  providedClient?: StargateClient,
+): Promise<HostedMultisig> => {
+  const addressError = checkAddress(multisigAddress, addressPrefix);
   if (addressError) {
     throw new Error(addressError);
   }
 
-  const accountOnChain = await client.getAccount(address);
-  const chainId = await client.getChainId();
+  let hostedMultisig: HostedMultisig = { hosted: "nowhere" };
 
-  let pubkey: MultisigThresholdPubkey;
-  if (accountOnChain?.pubkey) {
-    assert(
-      isMultisigThresholdPubkey(accountOnChain.pubkey),
-      "Pubkey on chain is not of type MultisigThreshold",
-    );
-    pubkey = accountOnChain.pubkey;
-  } else {
+  hostedMultisig = await (async () => {
     try {
       const { pubkeyJSON }: GetMultisigAccountResponse = await requestJson(
-        `/api/chain/${chainId}/multisig/${address}`,
+        `/api/chain/${chainId}/multisig/${multisigAddress}`,
       );
-      pubkey = JSON.parse(pubkeyJSON);
-    } catch {
-      throw new Error("Multisig has no pubkey on node, and was not created using this tool.");
-    }
-  }
 
-  return [pubkey, accountOnChain];
+      const pubkeyOnDb = JSON.parse(pubkeyJSON);
+      return { hosted: "db", pubkeyOnDb };
+    } catch {
+      return hostedMultisig;
+    }
+  })();
+
+  hostedMultisig = await (async () => {
+    try {
+      const client = providedClient ?? (await StargateClient.connect(nodeAddress));
+      const accountOnChain = await client.getAccount(multisigAddress);
+
+      if (!accountOnChain) {
+        return hostedMultisig;
+      }
+
+      const explorerLink = explorerLinkAccount(explorerLinks.account, multisigAddress);
+
+      if (hostedMultisig.hosted === "db") {
+        return {
+          hosted: "db+chain",
+          pubkeyOnDb: hostedMultisig.pubkeyOnDb,
+          accountOnChain,
+          explorerLink,
+        };
+      }
+
+      return { hosted: "chain", accountOnChain, explorerLink };
+    } catch {
+      return hostedMultisig;
+    }
+  })();
+
+  return hostedMultisig;
 };
 
-export { createMultisigFromCompressedSecp256k1Pubkeys, getMultisigAccount };
+export const isAccount = (account: Partial<Account> | null): account is Account =>
+  Boolean(
+    account?.address &&
+      typeof account.accountNumber === "number" &&
+      typeof account.sequence === "number",
+  );
