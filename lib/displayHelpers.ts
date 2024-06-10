@@ -113,6 +113,25 @@ function examplePubkey(index: number): string {
   return toBase64(data);
 }
 
+function digestAddressError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return "Expected a bech32 address";
+  }
+
+  const msg = error.message.toLowerCase();
+
+  switch (true) {
+    case msg.includes("too short"):
+      return "Too short";
+    case msg.includes("no separator character"):
+      return "No separator character found";
+    case msg.includes("invalid checksum"):
+      return "Invalid checksum";
+    default:
+      return error.message;
+  }
+}
+
 /**
  * Returns an error message for invalid addresses.
  * Returns null of there is no error.
@@ -126,9 +145,8 @@ const checkAddress = (input: string, chainAddressPrefix: string | null) => {
   let prefix;
   try {
     ({ data, prefix } = fromBech32(input));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    return error.toString();
+  } catch (error: unknown) {
+    return digestAddressError(error);
   }
 
   if (chainAddressPrefix) {
@@ -144,6 +162,27 @@ const checkAddress = (input: string, chainAddressPrefix: string | null) => {
   }
 
   return null;
+};
+
+/**
+ * Returns an error message for invalid addresses or pubkeys.
+ * Returns null of there is no error.
+ */
+const checkAddressOrPubkey = (input: string, chainAddressPrefix: string) => {
+  if (!input) {
+    return "Empty";
+  }
+
+  if (!input.startsWith(chainAddressPrefix)) {
+    try {
+      fromBase64(input);
+      return null;
+    } catch {
+      return "Public key should be valid Base64";
+    }
+  }
+
+  return checkAddress(input, chainAddressPrefix);
 };
 
 /**
@@ -183,16 +222,17 @@ const trimStringsObj = <StringsObj extends Record<string, string>>(obj: StringsO
 };
 
 export {
-  thinSpace,
   capitalizeFirstLetter,
+  checkAddress,
+  checkAddressOrPubkey,
   ellideMiddle,
+  exampleAddress,
+  examplePubkey,
+  exampleValidatorAddress,
+  explorerLinkAccount,
+  explorerLinkTx,
   printableCoin,
   printableCoins,
-  exampleAddress,
-  exampleValidatorAddress,
-  examplePubkey,
-  checkAddress,
-  explorerLinkTx,
-  explorerLinkAccount,
+  thinSpace,
   trimStringsObj,
 };
