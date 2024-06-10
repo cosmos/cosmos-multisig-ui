@@ -8,18 +8,25 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ClipboardEventHandler } from "react";
-import { UseFormReturn, useFieldArray } from "react-hook-form";
+import { UseFieldArrayReplace, UseFormReturn } from "react-hook-form";
 import { useChains } from "../../../context/ChainsContext";
 import { exampleAddress, examplePubkey } from "../../../lib/displayHelpers";
 
 interface MemberFormFieldProps {
   readonly createMultisigForm: UseFormReturn<{ members: { member: string }[]; threshold: number }>;
   readonly index: number;
+  readonly membersReplace: UseFieldArrayReplace<
+    { members: { member: string }[]; threshold: number },
+    "members"
+  >;
 }
 
-export default function MemberFormField({ createMultisigForm, index }: MemberFormFieldProps) {
+export default function MemberFormField({
+  createMultisigForm,
+  index,
+  membersReplace,
+}: MemberFormFieldProps) {
   const { chain } = useChains();
-  const { replace } = useFieldArray({ name: "members", control: createMultisigForm.control });
 
   const onPaste: ClipboardEventHandler<HTMLInputElement> = (ev) => {
     const rawData = ev.clipboardData.getData("text");
@@ -33,7 +40,7 @@ export default function MemberFormField({ createMultisigForm, index }: MemberFor
             .map((el) => el.trim())
             .filter((el) => el !== "");
 
-    replace(finalValues.map((el) => ({ member: el })));
+    membersReplace(finalValues.map((el) => ({ member: el })));
 
     ev.preventDefault();
   };

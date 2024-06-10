@@ -37,6 +37,7 @@ export default function CreateMultisigForm() {
     fields: membersFields,
     append: membersAppend,
     remove: membersRemove,
+    replace: membersReplace,
   } = useFieldArray({ name: "members", control: createMultisigForm.control });
 
   const watchedMembers = useWatch({ control: createMultisigForm.control, name: "members" });
@@ -135,6 +136,7 @@ export default function CreateMultisigForm() {
                   key={arrayField.id}
                   createMultisigForm={createMultisigForm}
                   index={index}
+                  membersReplace={membersReplace}
                 />
               ))}
               <FormField
