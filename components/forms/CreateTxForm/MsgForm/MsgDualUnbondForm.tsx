@@ -30,6 +30,7 @@ const MsgDualUnbondForm = ({
 
   const [validatorAddressError, setValidatorAddressError] = useState("");
   const [providerAddressError, setProviderAddressError] = useState("");
+  const [chainIDError, setChainIDError] = useState("");
   const [amountError, setAmountError] = useState("");
 
   const trimmedInputs = trimStringsObj({ validatorAddress, providerAddress, chainID, amount });
@@ -41,6 +42,7 @@ const MsgDualUnbondForm = ({
     const isMsgValid = (): boolean => {
       setValidatorAddressError("");
       setProviderAddressError("");
+      setChainIDError("");
       setAmountError("");
 
       const validatorAddressErrorMsg = checkAddress(validatorAddress, chain.addressPrefix);
@@ -48,6 +50,11 @@ const MsgDualUnbondForm = ({
         setValidatorAddressError(
           `Invalid address for network ${chain.chainId}: ${validatorAddressErrorMsg}`,
         );
+        return false;
+      }
+
+      if (!chainID) {
+        setChainIDError("Chain ID is required");
         return false;
       }
 
@@ -138,7 +145,9 @@ const MsgDualUnbondForm = ({
           value={chainID}
           onChange={({ target }) => {
             setChainID(target.value);
+            setChainIDError("");
           }}
+          error={chainIDError}
         />
       </div>
       <div className="form-item">
