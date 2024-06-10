@@ -20,7 +20,7 @@ export default function AccountPage() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink>
+            <BreadcrumbLink asChild>
               {chain.registryName ? <Link href={`/${chain.registryName}`}>Home</Link> : null}
             </BreadcrumbLink>
           </BreadcrumbItem>
