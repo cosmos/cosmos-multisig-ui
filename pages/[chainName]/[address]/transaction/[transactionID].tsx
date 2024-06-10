@@ -17,7 +17,7 @@ import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import { useChains } from "../../../../context/ChainsContext";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
-import { getMultisigAccount } from "../../../../lib/multisigHelpers";
+import { isAccount, getHostedMultisig } from "../../../../lib/multisigHelpers";
 import { requestJson } from "../../../../lib/request";
 import { dbTxFromJson } from "../../../../lib/txMsgHelpers";
 import { DbSignature } from "../../../../types";
@@ -90,11 +90,15 @@ const TransactionPage = ({
           return;
         }
 
-        const client = await StargateClient.connect(chain.nodeAddress);
-        const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
+        const hostedMultisig = await getHostedMultisig(multisigAddress, chain);
 
-        setPubkey(result[0]);
-        setAccountOnChain(result[1]);
+        assert(
+          hostedMultisig.hosted === "db+chain" && isAccount(hostedMultisig.accountOnChain),
+          "Multisig address could not be found",
+        );
+
+        setPubkey(hostedMultisig.pubkeyOnDb);
+        setAccountOnChain(hostedMultisig.accountOnChain);
       } catch (e) {
         console.error("Failed to find multisig address:", e);
         toastError({

@@ -1,12 +1,13 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { Account, StargateClient } from "@cosmjs/stargate";
+import { Account } from "@cosmjs/stargate";
+import { assert } from "@cosmjs/utils";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import CreateTxForm from "../../../../components/forms/CreateTxForm";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import { useChains } from "../../../../context/ChainsContext";
-import { getMultisigAccount } from "../../../../lib/multisigHelpers";
+import { isAccount, getHostedMultisig } from "../../../../lib/multisigHelpers";
 
 const NewTransactionPage = () => {
   const { chain } = useChains();
@@ -16,16 +17,20 @@ const NewTransactionPage = () => {
   const multisigAddress = router.query.address?.toString();
 
   useEffect(() => {
-    (async function fetchMultisig() {
+    (async function fetchAccount() {
       try {
         if (!multisigAddress || !isChainInfoFilled(chain) || !chain.nodeAddress) {
           return;
         }
 
-        const client = await StargateClient.connect(chain.nodeAddress);
-        const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
+        const hostedMultisig = await getHostedMultisig(multisigAddress, chain);
 
-        setAccountOnChain(result[1]);
+        assert(
+          hostedMultisig.hosted === "db+chain" && isAccount(hostedMultisig.accountOnChain),
+          "Multisig address could not be found",
+        );
+
+        setAccountOnChain(hostedMultisig.accountOnChain);
         setHasAccountError(false);
       } catch (error: unknown) {
         setHasAccountError(true);
