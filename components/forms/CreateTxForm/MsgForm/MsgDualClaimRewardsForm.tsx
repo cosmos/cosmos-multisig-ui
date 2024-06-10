@@ -1,3 +1,4 @@
+import SelectProvider from "@/components/SelectProvider";
 import { MsgDualClaimRewardsEncodeObject } from "@/types/lava";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
@@ -20,6 +21,7 @@ const MsgDualClaimRewardsForm = ({
 }: MsgDualClaimRewardsFormProps) => {
   const { chain } = useChains();
 
+  const [chainID, setChainID] = useState("");
   const [providerAddress, setProviderAddress] = useState("");
   const [providerAddressError, setProviderAddressError] = useState("");
 
@@ -59,8 +61,24 @@ const MsgDualClaimRewardsForm = ({
       <button className="remove" onClick={() => deleteMsg()}>
         ✕
       </button>
-      <h2>MsgWithdrawDelegatorReward</h2>
+      <h2>Dualstaking MsgClaimRewards</h2>
       <div className="form-item">
+        <Input
+          label="Chain ID"
+          name="chain-id"
+          value={chainID}
+          onChange={({ target }) => {
+            setChainID(target.value);
+          }}
+        />
+      </div>
+      <div className="form-item">
+        <SelectProvider
+          key={chainID}
+          chainID={chainID}
+          providerAddress={providerAddress}
+          setProviderAddress={setProviderAddress}
+        />
         <Input
           label="Provider Address"
           name="provider-address"
