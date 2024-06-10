@@ -1,25 +1,36 @@
-import MultisigForm from "@/components/forms/MultisigForm";
-import Page from "@/components/layout/Page";
-import StackableContainer from "@/components/layout/StackableContainer";
+import CreateMultisigForm from "@/components/forms/CreateMultisigForm";
+import Head from "@/components/head";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { useChains } from "@/context/ChainsContext";
+import Link from "next/link";
 
-export default function CreatePage() {
+export default function CreateMultisigPage() {
   const { chain } = useChains();
 
   return (
-    <Page
-      goBack={
-        chain.registryName
-          ? { pathname: `/${chain.registryName}`, title: "home", needsConfirm: true }
-          : undefined
-      }
-    >
-      <StackableContainer base>
-        <StackableContainer lessPadding>
-          <h1 className="title">Create Legacy Multisig</h1>
-        </StackableContainer>
-        <MultisigForm />
-      </StackableContainer>
-    </Page>
+    <div className="m-4 mt-8 flex max-w-xl flex-1 flex-col justify-center gap-4">
+      <Head title={`${chain.chainDisplayName || "Cosmos Hub"} Multisig Manager`} />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href={`/${chain.registryName || ""}`}>Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Create multisig</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <CreateMultisigForm />
+    </div>
   );
 }
