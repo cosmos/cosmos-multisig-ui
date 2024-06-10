@@ -18,13 +18,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useChains } from "../../context/ChainsContext";
 import { exampleAddress } from "../../lib/displayHelpers";
-import { getMultisigAccount } from "../../lib/multisigHelpers";
 
 const existsMultisigAccount = async (chain: ChainInfo, address: string) => {
   try {
     const client = await StargateClient.connect(chain.nodeAddress);
-    const [, account] = await getMultisigAccount(address, chain.addressPrefix, client);
-    return account !== null;
+    const accountOnChain = await client.getAccount(address);
+    return accountOnChain !== null;
   } catch {
     return false;
   }
