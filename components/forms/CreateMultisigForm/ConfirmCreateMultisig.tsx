@@ -38,7 +38,7 @@ export default function ConfirmCreateMultisig({ createMultisigForm }: ConfirmCre
         </Button>
       </DialogTrigger>
       <DialogContent className={"overflow-y-auto bg-fuchsia-900"} style={{ width: "auto" }}>
-        <DialogTitle>Create a new multisig on "{chain.registryName}"?</DialogTitle>
+        <DialogTitle>Create a new multisig on "{chain.chainDisplayName}"?</DialogTitle>
         <h4 className="font-bold">Members</h4>
         <div className="flex flex-col gap-2">
           {members
