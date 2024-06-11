@@ -39,7 +39,8 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
 
 export const gasOfTx = (msgTypes: readonly MsgTypeUrl[]): number => {
   const txFlatGas = 100_000;
-  return msgTypes.reduce((acc, msgType) => acc + gasOfMsg(msgType), txFlatGas);
+  const totalTxGas = msgTypes.reduce((acc, msgType) => acc + gasOfMsg(msgType), txFlatGas);
+  return totalTxGas;
 };
 
 export const isKnownMsgTypeUrl = (typeUrl: string): typeUrl is MsgTypeUrl =>

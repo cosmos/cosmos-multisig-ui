@@ -19,7 +19,9 @@ const TxMsgUpdateAdminDetails = ({ msgValue }: TxMsgUpdateAdminDetailsProps) => 
       </li>
       <li>
         <label>New admin:</label>
-        <div>{msgValue.newAdmin.toString()}</div>
+        <div title={msgValue.newAdmin}>
+          <HashView hash={msgValue.newAdmin} />
+        </div>
       </li>
       <style jsx>{`
         li:not(:has(h3)) {

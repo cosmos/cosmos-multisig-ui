@@ -12,7 +12,7 @@ import MsgSendForm from "./MsgSendForm";
 import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
 import MsgTransferForm from "./MsgTransferForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
-import MsgUpdateAdminForm from "@/components/forms/CreateTxForm/MsgForm/MsgUpdateAdminForm";
+import MsgUpdateAdminForm from "./MsgUpdateAdminForm";
 
 interface MsgFormProps {
   readonly msgType: MsgTypeUrl;

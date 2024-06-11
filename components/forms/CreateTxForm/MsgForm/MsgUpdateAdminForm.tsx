@@ -1,5 +1,5 @@
 import { MsgUpdateAdminEncodeObject } from "@cosmjs/cosmwasm-stargate";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
@@ -13,38 +13,38 @@ interface MsgUpdateAdminFormProps {
   readonly deleteMsg: () => void;
 }
 
-const MsgUpdateAdminForm = ({
-                                      fromAddress,
-                                      setMsgGetter,
-                                      deleteMsg,
-                                    }: MsgUpdateAdminFormProps) => {
+const MsgUpdateAdminForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgUpdateAdminFormProps) => {
   const { chain } = useChains();
 
   const [contractAddress, setContractAddress] = useState("");
-  const [newAdmin, setNewAdmin] = useState("");
+  const [newAdminAddress, setNewAdminAddress] = useState("");
 
   const [contractAddressError, setContractAddressError] = useState("");
-  const [codeIdError, setNewAdminError] = useState("");
+  const [newAdminAddressError, setNewAdminAddressError] = useState("");
 
-  const trimmedInputs = trimStringsObj({ contractAddress, newAdmin });
+  const trimmedInputs = trimStringsObj({ contractAddress, newAdminAddress });
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
-    const { contractAddress, newAdmin } = trimmedInputs;
+    const { contractAddress, newAdminAddress } = trimmedInputs;
 
     const isMsgValid = (): boolean => {
       setContractAddressError("");
-      setNewAdminError("");
+      setNewAdminAddressError("");
 
-      const addressErrorMsg = checkAddress(contractAddress, chain.addressPrefix);
-      if (addressErrorMsg) {
-        setContractAddressError(`Invalid address for network ${chain.chainId}: ${addressErrorMsg}`);
+      const contractAddressErrorMsg = checkAddress(contractAddress, chain.addressPrefix);
+      if (contractAddressErrorMsg) {
+        setContractAddressError(
+          `Invalid address for network ${chain.chainId}: ${contractAddressErrorMsg}`,
+        );
         return false;
       }
 
-      const newAdminErrorMsg = checkAddress(newAdmin, chain.addressPrefix);
-      if (newAdminErrorMsg) {
-        setNewAdminError("New admin should be a valid bech32 address.");
+      const newAdminAddressErrorMsg = checkAddress(newAdminAddress, chain.addressPrefix);
+      if (newAdminAddressErrorMsg) {
+        setNewAdminAddressError(
+          `Invalid address for network ${chain.chainId}: ${newAdminAddressErrorMsg}`,
+        );
         return false;
       }
 
@@ -54,7 +54,7 @@ const MsgUpdateAdminForm = ({
     const msgValue = MsgCodecs[MsgTypeUrls.UpdateAdmin].fromPartial({
       sender: fromAddress,
       contract: contractAddress,
-      newAdmin: newAdmin,
+      newAdmin: newAdminAddress,
     });
 
     const msg: MsgUpdateAdminEncodeObject = { typeUrl: MsgTypeUrls.UpdateAdmin, value: msgValue };
@@ -85,41 +85,42 @@ const MsgUpdateAdminForm = ({
         <Input
           label="New Admin"
           name="new-admin"
-          value={newAdmin}
+          value={newAdminAddress}
           onChange={({ target }) => {
-            setNewAdmin(target.value);
-            setNewAdminError("");
+            setNewAdminAddress(target.value);
+            setNewAdminAddressError("");
           }}
-          error={codeIdError}
+          error={newAdminAddressError}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <style jsx>{`
-          .form-item {
-              margin-top: 1.5em;
-          }
+        .form-item {
+          margin-top: 1.5em;
+        }
 
-          .form-item label {
-              font-style: italic;
-              font-size: 12px;
-          }
+        .form-item label {
+          font-style: italic;
+          font-size: 12px;
+        }
 
-          .form-select {
-              display: flex;
-              flex-direction: column;
-              gap: 0.8em;
-          }
+        .form-select {
+          display: flex;
+          flex-direction: column;
+          gap: 0.8em;
+        }
 
-          button.remove {
-              background: rgba(255, 255, 255, 0.2);
-              width: 30px;
-              height: 30px;
-              border-radius: 50%;
-              border: none;
-              color: white;
-              position: absolute;
-              right: 10px;
-              top: 10px;
-          }
+        button.remove {
+          background: rgba(255, 255, 255, 0.2);
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: none;
+          color: white;
+          position: absolute;
+          right: 10px;
+          top: 10px;
+        }
       `}</style>
     </StackableContainer>
   );

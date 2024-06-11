@@ -14,7 +14,7 @@ import {
   MsgInstantiateContract,
   MsgInstantiateContract2,
   MsgMigrateContract,
-  MsgUpdateAdmin
+  MsgUpdateAdmin,
 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 
