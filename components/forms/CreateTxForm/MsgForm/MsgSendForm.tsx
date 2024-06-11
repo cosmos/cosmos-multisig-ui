@@ -21,12 +21,12 @@ const getDenomOptions = (assets: readonly RegistryAsset[]) => {
 };
 
 interface MsgSendFormProps {
-  readonly fromAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps) => {
+const MsgSendForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgSendFormProps) => {
   const { chain } = useChains();
 
   const denomOptions = getDenomOptions(chain.assets);
@@ -103,7 +103,7 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.Send].fromPartial({
-      fromAddress,
+      fromAddress: senderAddress,
       toAddress,
       amount: microCoin ? [microCoin] : [],
     });
@@ -115,8 +115,8 @@ const MsgSendForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgSendFormProps)
     chain.addressPrefix,
     chain.assets,
     chain.chainId,
-    fromAddress,
     selectedDenom.value,
+    senderAddress,
     setMsgGetter,
     trimmedInputs,
   ]);

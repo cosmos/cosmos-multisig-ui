@@ -13,13 +13,13 @@ import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
 interface MsgCreateVestingAccountFormProps {
-  readonly fromAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
 const MsgCreateVestingAccountForm = ({
-  fromAddress,
+  senderAddress,
   setMsgGetter,
   deleteMsg,
 }: MsgCreateVestingAccountFormProps) => {
@@ -87,7 +87,7 @@ const MsgCreateVestingAccountForm = ({
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.CreateVestingAccount].fromPartial({
-      fromAddress,
+      fromAddress: senderAddress,
       toAddress,
       amount: microCoin ? [microCoin] : [],
       endTime: timestampFromDatetimeLocal(endTime, "s"),
@@ -103,7 +103,7 @@ const MsgCreateVestingAccountForm = ({
     chain.chainId,
     chain.displayDenom,
     delayed,
-    fromAddress,
+    senderAddress,
     setMsgGetter,
     trimmedInputs,
   ]);

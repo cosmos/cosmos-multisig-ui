@@ -8,13 +8,13 @@ import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
 interface MsgSetWithdrawAddressFormProps {
-  readonly delegatorAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
 const MsgSetWithdrawAddressForm = ({
-  delegatorAddress,
+  senderAddress,
   setMsgGetter,
   deleteMsg,
 }: MsgSetWithdrawAddressFormProps) => {
@@ -42,13 +42,13 @@ const MsgSetWithdrawAddressForm = ({
     };
 
     const msgValue = MsgCodecs[MsgTypeUrls.SetWithdrawAddress].fromPartial({
-      delegatorAddress,
+      delegatorAddress: senderAddress,
       withdrawAddress,
     });
     const msg: EncodeObject = { typeUrl: MsgTypeUrls.SetWithdrawAddress, value: msgValue };
 
     setMsgGetter({ isMsgValid, msg });
-  }, [chain.addressPrefix, chain.chainId, delegatorAddress, setMsgGetter, trimmedInputs]);
+  }, [chain.addressPrefix, chain.chainId, senderAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>

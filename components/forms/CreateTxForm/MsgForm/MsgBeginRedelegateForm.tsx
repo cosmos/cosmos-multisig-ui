@@ -1,5 +1,5 @@
 import SelectValidator from "@/components/SelectValidator";
-import { EncodeObject } from "@cosmjs/proto-signing";
+import { MsgBeginRedelegateEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
@@ -9,17 +9,17 @@ import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
-interface MsgRedelegateFormProps {
-  readonly delegatorAddress: string;
+interface MsgBeginRedelegateFormProps {
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgRedelegateForm = ({
-  delegatorAddress,
+const MsgBeginRedelegateForm = ({
+  senderAddress,
   setMsgGetter,
   deleteMsg,
-}: MsgRedelegateFormProps) => {
+}: MsgBeginRedelegateFormProps) => {
   const { chain } = useChains();
 
   const [validatorSrcAddress, setValidatorSrcAddress] = useState("");
@@ -81,13 +81,16 @@ const MsgRedelegateForm = ({
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.BeginRedelegate].fromPartial({
-      delegatorAddress,
+      delegatorAddress: senderAddress,
       validatorSrcAddress,
       validatorDstAddress,
       amount: microCoin,
     });
 
-    const msg: EncodeObject = { typeUrl: MsgTypeUrls.BeginRedelegate, value: msgValue };
+    const msg: MsgBeginRedelegateEncodeObject = {
+      typeUrl: MsgTypeUrls.BeginRedelegate,
+      value: msgValue,
+    };
 
     setMsgGetter({ isMsgValid, msg });
   }, [
@@ -95,7 +98,7 @@ const MsgRedelegateForm = ({
     chain.assets,
     chain.chainId,
     chain.displayDenom,
-    delegatorAddress,
+    senderAddress,
     setMsgGetter,
     trimmedInputs,
   ]);
@@ -173,4 +176,4 @@ const MsgRedelegateForm = ({
   );
 };
 
-export default MsgRedelegateForm;
+export default MsgBeginRedelegateForm;

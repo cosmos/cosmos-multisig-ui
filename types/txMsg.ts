@@ -1,5 +1,6 @@
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import {
+  MsgFundCommunityPool,
   MsgSetWithdrawAddress,
   MsgWithdrawDelegatorReward,
 } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
@@ -20,37 +21,53 @@ import {
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 
 export const MsgTypeUrls = {
+  // Bank
   Send: "/cosmos.bank.v1beta1.MsgSend",
-  SetWithdrawAddress: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
-  WithdrawDelegatorReward: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
-  BeginRedelegate: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
+  // Staking
   Delegate: "/cosmos.staking.v1beta1.MsgDelegate",
   Undelegate: "/cosmos.staking.v1beta1.MsgUndelegate",
+  BeginRedelegate: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
+  // Distribution
+  FundCommunityPool: "/cosmos.distribution.v1beta1.MsgFundCommunityPool",
+  SetWithdrawAddress: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
+  WithdrawDelegatorReward: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+  // Vesting
   CreateVestingAccount: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount",
+  // Governance
   Vote: "/cosmos.gov.v1beta1.MsgVote",
+  // IBC
   Transfer: "/ibc.applications.transfer.v1.MsgTransfer",
-  Execute: "/cosmwasm.wasm.v1.MsgExecuteContract",
-  Instantiate: "/cosmwasm.wasm.v1.MsgInstantiateContract",
-  Instantiate2: "/cosmwasm.wasm.v1.MsgInstantiateContract2",
-  Migrate: "/cosmwasm.wasm.v1.MsgMigrateContract",
+  // CosmWasm
+  InstantiateContract: "/cosmwasm.wasm.v1.MsgInstantiateContract",
+  InstantiateContract2: "/cosmwasm.wasm.v1.MsgInstantiateContract2",
   UpdateAdmin: "/cosmwasm.wasm.v1.MsgUpdateAdmin",
+  ExecuteContract: "/cosmwasm.wasm.v1.MsgExecuteContract",
+  MigrateContract: "/cosmwasm.wasm.v1.MsgMigrateContract",
 } as const;
 
 export type MsgTypeUrl = (typeof MsgTypeUrls)[keyof typeof MsgTypeUrls];
 
 export const MsgCodecs = {
+  // Bank
   [MsgTypeUrls.Send]: MsgSend,
-  [MsgTypeUrls.SetWithdrawAddress]: MsgSetWithdrawAddress,
-  [MsgTypeUrls.WithdrawDelegatorReward]: MsgWithdrawDelegatorReward,
-  [MsgTypeUrls.BeginRedelegate]: MsgBeginRedelegate,
+  // Staking
   [MsgTypeUrls.Delegate]: MsgDelegate,
   [MsgTypeUrls.Undelegate]: MsgUndelegate,
+  [MsgTypeUrls.BeginRedelegate]: MsgBeginRedelegate,
+  // Distribution
+  [MsgTypeUrls.FundCommunityPool]: MsgFundCommunityPool,
+  [MsgTypeUrls.SetWithdrawAddress]: MsgSetWithdrawAddress,
+  [MsgTypeUrls.WithdrawDelegatorReward]: MsgWithdrawDelegatorReward,
+  // Vesting
   [MsgTypeUrls.CreateVestingAccount]: MsgCreateVestingAccount,
+  // Governance
   [MsgTypeUrls.Vote]: MsgVote,
+  // IBC
   [MsgTypeUrls.Transfer]: MsgTransfer,
-  [MsgTypeUrls.Execute]: MsgExecuteContract,
-  [MsgTypeUrls.Instantiate]: MsgInstantiateContract,
-  [MsgTypeUrls.Instantiate2]: MsgInstantiateContract2,
-  [MsgTypeUrls.Migrate]: MsgMigrateContract,
+  // CosmWasm
+  [MsgTypeUrls.InstantiateContract]: MsgInstantiateContract,
+  [MsgTypeUrls.InstantiateContract2]: MsgInstantiateContract2,
   [MsgTypeUrls.UpdateAdmin]: MsgUpdateAdmin,
+  [MsgTypeUrls.ExecuteContract]: MsgExecuteContract,
+  [MsgTypeUrls.MigrateContract]: MsgMigrateContract,
 };

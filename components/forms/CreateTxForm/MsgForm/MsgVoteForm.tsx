@@ -20,12 +20,12 @@ const selectVoteOptions = voteOptions.map((opt) => {
 });
 
 interface MsgVoteFormProps {
-  readonly fromAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgVoteForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgVoteFormProps) => {
+const MsgVoteForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgVoteFormProps) => {
   const [proposalId, setProposalId] = useState("0");
   const [selectedVote, setSelectedVote] = useState(selectVoteOptions[0]);
 
@@ -64,7 +64,7 @@ const MsgVoteForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgVoteFormProps)
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.Vote].fromPartial({
-      voter: fromAddress,
+      voter: senderAddress,
       proposalId: proposalIdBigInt,
       option: selectedVote.value,
     });
@@ -72,7 +72,7 @@ const MsgVoteForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgVoteFormProps)
     const msg: MsgVoteEncodeObject = { typeUrl: MsgTypeUrls.Vote, value: msgValue };
 
     setMsgGetter({ isMsgValid, msg });
-  }, [fromAddress, selectedVote.value, setMsgGetter, trimmedInputs]);
+  }, [selectedVote.value, senderAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>

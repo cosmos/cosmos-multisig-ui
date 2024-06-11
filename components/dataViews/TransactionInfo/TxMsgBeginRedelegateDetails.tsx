@@ -4,11 +4,11 @@ import { useChains } from "../../../context/ChainsContext";
 import { printableCoin } from "../../../lib/displayHelpers";
 import HashView from "../HashView";
 
-interface TxMsgRedelegateDetailsProps {
+interface TxMsgBeginRedelegateDetailsProps {
   readonly msgValue: MsgBeginRedelegate;
 }
 
-const TxMsgRedelegateDetails = ({ msgValue }: TxMsgRedelegateDetailsProps) => {
+const TxMsgBeginRedelegateDetails = ({ msgValue }: TxMsgBeginRedelegateDetailsProps) => {
   const { chain } = useChains();
   assert(
     msgValue.amount,
@@ -65,4 +65,4 @@ const TxMsgRedelegateDetails = ({ msgValue }: TxMsgRedelegateDetailsProps) => {
   );
 };
 
-export default TxMsgRedelegateDetails;
+export default TxMsgBeginRedelegateDetails;

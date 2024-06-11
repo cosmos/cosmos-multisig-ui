@@ -1,19 +1,20 @@
 import { MsgGetter } from "..";
 import { MsgTypeUrl, MsgTypeUrls } from "../../../../types/txMsg";
-import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
+import MsgBeginRedelegateForm from "./MsgBeginRedelegateForm";
 import MsgCreateVestingAccountForm from "./MsgCreateVestingAccountForm";
 import MsgDelegateForm from "./MsgDelegateForm";
 import MsgExecuteContractForm from "./MsgExecuteContractForm";
+import MsgFundCommunityPoolForm from "./MsgFundCommunityPoolForm";
 import MsgInstantiateContract2Form from "./MsgInstantiateContract2Form";
 import MsgInstantiateContractForm from "./MsgInstantiateContractForm";
 import MsgMigrateContractForm from "./MsgMigrateContractForm";
-import MsgRedelegateForm from "./MsgRedelegateForm";
 import MsgSendForm from "./MsgSendForm";
 import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
 import MsgTransferForm from "./MsgTransferForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
 import MsgUpdateAdminForm from "./MsgUpdateAdminForm";
 import MsgVoteForm from "./MsgVoteForm";
+import MsgWithdrawDelegatorRewardForm from "./MsgWithdrawDelegatorRewardForm";
 
 interface MsgFormProps {
   readonly msgType: MsgTypeUrl;
@@ -22,36 +23,45 @@ interface MsgFormProps {
   readonly deleteMsg: () => void;
 }
 
-const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
+const MsgForm = ({ msgType, ...restProps }: MsgFormProps) => {
   switch (msgType) {
+    // Bank
     case MsgTypeUrls.Send:
-      return <MsgSendForm fromAddress={senderAddress} {...restProps} />;
+      return <MsgSendForm {...restProps} />;
+    // Staking
     case MsgTypeUrls.Delegate:
-      return <MsgDelegateForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgDelegateForm {...restProps} />;
     case MsgTypeUrls.Undelegate:
-      return <MsgUndelegateForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgUndelegateForm {...restProps} />;
     case MsgTypeUrls.BeginRedelegate:
-      return <MsgRedelegateForm delegatorAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.WithdrawDelegatorReward:
-      return <MsgClaimRewardsForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgBeginRedelegateForm {...restProps} />;
+    // Distribution
+    case MsgTypeUrls.FundCommunityPool:
+      return <MsgFundCommunityPoolForm {...restProps} />;
     case MsgTypeUrls.SetWithdrawAddress:
-      return <MsgSetWithdrawAddressForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgSetWithdrawAddressForm {...restProps} />;
+    case MsgTypeUrls.WithdrawDelegatorReward:
+      return <MsgWithdrawDelegatorRewardForm {...restProps} />;
+    // Vesting
     case MsgTypeUrls.CreateVestingAccount:
-      return <MsgCreateVestingAccountForm fromAddress={senderAddress} {...restProps} />;
+      return <MsgCreateVestingAccountForm {...restProps} />;
+    // Governance
     case MsgTypeUrls.Vote:
-      return <MsgVoteForm fromAddress={senderAddress} {...restProps} />;
+      return <MsgVoteForm {...restProps} />;
+    // IBC
     case MsgTypeUrls.Transfer:
-      return <MsgTransferForm fromAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Execute:
-      return <MsgExecuteContractForm fromAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Instantiate:
-      return <MsgInstantiateContractForm fromAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Instantiate2:
-      return <MsgInstantiateContract2Form fromAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Migrate:
-      return <MsgMigrateContractForm fromAddress={senderAddress} {...restProps} />;
+      return <MsgTransferForm {...restProps} />;
+    // CosmWasm
+    case MsgTypeUrls.InstantiateContract:
+      return <MsgInstantiateContractForm {...restProps} />;
+    case MsgTypeUrls.InstantiateContract2:
+      return <MsgInstantiateContract2Form {...restProps} />;
     case MsgTypeUrls.UpdateAdmin:
-      return <MsgUpdateAdminForm fromAddress={senderAddress} {...restProps} />;
+      return <MsgUpdateAdminForm {...restProps} />;
+    case MsgTypeUrls.ExecuteContract:
+      return <MsgExecuteContractForm {...restProps} />;
+    case MsgTypeUrls.MigrateContract:
+      return <MsgMigrateContractForm {...restProps} />;
     default:
       return null;
   }

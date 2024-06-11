@@ -229,17 +229,26 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
               />
             </li>
           </ul>
+        </div>
+        <div className="btn-cluster">
+          <label>Distribution</label>
           <ul>
             <li>
               <Button
-                label="WithdrawDelegatorReward"
-                onClick={() => addMsgWithValidator(MsgTypeUrls.WithdrawDelegatorReward)}
+                label="FundCommunityPool"
+                onClick={() => addMsgType(MsgTypeUrls.FundCommunityPool)}
               />
             </li>
             <li>
               <Button
                 label="SetWithdrawAddress"
                 onClick={() => addMsgType(MsgTypeUrls.SetWithdrawAddress)}
+              />
+            </li>
+            <li>
+              <Button
+                label="WithdrawDelegatorReward"
+                onClick={() => addMsgWithValidator(MsgTypeUrls.WithdrawDelegatorReward)}
               />
             </li>
           </ul>
@@ -250,20 +259,26 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
             <li>
               <Button
                 label="InstantiateContract"
-                onClick={() => addMsgType(MsgTypeUrls.Instantiate)}
+                onClick={() => addMsgType(MsgTypeUrls.InstantiateContract)}
               />
             </li>
             <li>
               <Button
                 label="InstantiateContract2"
-                onClick={() => addMsgType(MsgTypeUrls.Instantiate2)}
+                onClick={() => addMsgType(MsgTypeUrls.InstantiateContract2)}
               />
             </li>
             <li>
-              <Button label="ExecuteContract" onClick={() => addMsgType(MsgTypeUrls.Execute)} />
+              <Button
+                label="ExecuteContract"
+                onClick={() => addMsgType(MsgTypeUrls.ExecuteContract)}
+              />
             </li>
             <li>
-              <Button label="MigrateContract" onClick={() => addMsgType(MsgTypeUrls.Migrate)} />
+              <Button
+                label="MigrateContract"
+                onClick={() => addMsgType(MsgTypeUrls.MigrateContract)}
+              />
             </li>
             <li>
               <Button

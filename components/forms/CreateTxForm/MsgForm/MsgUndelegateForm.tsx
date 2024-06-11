@@ -10,16 +10,12 @@ import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
 interface MsgUndelegateFormProps {
-  readonly delegatorAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgUndelegateForm = ({
-  delegatorAddress,
-  setMsgGetter,
-  deleteMsg,
-}: MsgUndelegateFormProps) => {
+const MsgUndelegateForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgUndelegateFormProps) => {
   const { chain } = useChains();
 
   const [validatorAddress, setValidatorAddress] = useState("");
@@ -70,7 +66,7 @@ const MsgUndelegateForm = ({
     })();
 
     const msgValue = MsgCodecs[MsgTypeUrls.Undelegate].fromPartial({
-      delegatorAddress,
+      delegatorAddress: senderAddress,
       validatorAddress,
       amount: microCoin,
     });
@@ -83,7 +79,7 @@ const MsgUndelegateForm = ({
     chain.assets,
     chain.chainId,
     chain.displayDenom,
-    delegatorAddress,
+    senderAddress,
     setMsgGetter,
     trimmedInputs,
   ]);

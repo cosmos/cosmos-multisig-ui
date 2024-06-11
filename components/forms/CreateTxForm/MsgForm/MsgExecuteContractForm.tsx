@@ -25,13 +25,13 @@ const getDenomOptions = (assets: ChainInfo["assets"]) => {
 };
 
 interface MsgExecuteContractFormProps {
-  readonly fromAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
 const MsgExecuteContractForm = ({
-  fromAddress,
+  senderAddress,
   setMsgGetter,
   deleteMsg,
 }: MsgExecuteContractFormProps) => {
@@ -126,23 +126,26 @@ const MsgExecuteContractForm = ({
       }
     })();
 
-    const msgValue = MsgCodecs[MsgTypeUrls.Execute].fromPartial({
-      sender: fromAddress,
+    const msgValue = MsgCodecs[MsgTypeUrls.ExecuteContract].fromPartial({
+      sender: senderAddress,
       contract: contractAddress,
       msg: msgContentUtf8Array,
       funds: microCoin ? [microCoin] : [],
     });
 
-    const msg: MsgExecuteContractEncodeObject = { typeUrl: MsgTypeUrls.Execute, value: msgValue };
+    const msg: MsgExecuteContractEncodeObject = {
+      typeUrl: MsgTypeUrls.ExecuteContract,
+      value: msgValue,
+    };
 
     setMsgGetter({ isMsgValid, msg });
   }, [
     chain.addressPrefix,
     chain.assets,
     chain.chainId,
-    fromAddress,
     msgContent,
     selectedDenom.value,
+    senderAddress,
     setMsgGetter,
     trimmedInputs,
   ]);

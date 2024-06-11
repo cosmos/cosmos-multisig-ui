@@ -4,35 +4,44 @@ import { MsgCodecs, MsgTypeUrl, MsgTypeUrls } from "../types/txMsg";
 
 const gasOfMsg = (msgType: MsgTypeUrl): number => {
   switch (msgType) {
+    // Bank
     case MsgTypeUrls.Send:
       return 100_000;
-    case MsgTypeUrls.SetWithdrawAddress:
-      return 100_000;
-    case MsgTypeUrls.WithdrawDelegatorReward:
-      return 100_000;
-    case MsgTypeUrls.BeginRedelegate:
-      return 400_000;
+    // Staking
     case MsgTypeUrls.Delegate:
       // This is enough for 1 delegation and 1 autoclaim. But it is probably too low for
       // a lot of auto-claims. See https://github.com/cosmos/cosmos-multisig-ui/issues/177.
       return 400_000;
     case MsgTypeUrls.Undelegate:
       return 400_000;
+    case MsgTypeUrls.BeginRedelegate:
+      return 400_000;
+    // Distribution
+    case MsgTypeUrls.FundCommunityPool:
+      return 100_000;
+    case MsgTypeUrls.SetWithdrawAddress:
+      return 100_000;
+    case MsgTypeUrls.WithdrawDelegatorReward:
+      return 100_000;
+    // Vesting
     case MsgTypeUrls.CreateVestingAccount:
       return 100_000;
+    // Governance
     case MsgTypeUrls.Vote:
       return 100_000;
+    // IBC
     case MsgTypeUrls.Transfer:
       return 180_000;
-    case MsgTypeUrls.Execute:
+    // CosmWasm
+    case MsgTypeUrls.InstantiateContract:
       return 150_000;
-    case MsgTypeUrls.Instantiate:
-      return 150_000;
-    case MsgTypeUrls.Instantiate2:
-      return 150_000;
-    case MsgTypeUrls.Migrate:
+    case MsgTypeUrls.InstantiateContract2:
       return 150_000;
     case MsgTypeUrls.UpdateAdmin:
+      return 150_000;
+    case MsgTypeUrls.ExecuteContract:
+      return 150_000;
+    case MsgTypeUrls.MigrateContract:
       return 150_000;
     default:
       throw new Error("Unknown msg type");

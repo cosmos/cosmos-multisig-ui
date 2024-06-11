@@ -12,13 +12,13 @@ import StackableContainer from "../../../layout/StackableContainer";
 const JsonEditor = dynamic(() => import("../../../inputs/JsonEditor"), { ssr: false });
 
 interface MsgMigrateContractFormProps {
-  readonly fromAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
 const MsgMigrateContractForm = ({
-  fromAddress,
+  senderAddress,
   setMsgGetter,
   deleteMsg,
 }: MsgMigrateContractFormProps) => {
@@ -69,17 +69,20 @@ const MsgMigrateContractForm = ({
       }
     })();
 
-    const msgValue = MsgCodecs[MsgTypeUrls.Migrate].fromPartial({
-      sender: fromAddress,
+    const msgValue = MsgCodecs[MsgTypeUrls.MigrateContract].fromPartial({
+      sender: senderAddress,
       contract: contractAddress,
       codeId: BigInt(codeId),
       msg: msgContentUtf8Array,
     });
 
-    const msg: MsgMigrateContractEncodeObject = { typeUrl: MsgTypeUrls.Migrate, value: msgValue };
+    const msg: MsgMigrateContractEncodeObject = {
+      typeUrl: MsgTypeUrls.MigrateContract,
+      value: msgValue,
+    };
 
     setMsgGetter({ isMsgValid, msg });
-  }, [chain.addressPrefix, chain.chainId, fromAddress, msgContent, setMsgGetter, trimmedInputs]);
+  }, [chain.addressPrefix, chain.chainId, msgContent, senderAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>
