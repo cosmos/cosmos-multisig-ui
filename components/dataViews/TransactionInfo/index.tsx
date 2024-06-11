@@ -17,6 +17,7 @@ import TxMsgSetWithdrawAddressDetails from "./TxMsgSetWithdrawAddressDetails";
 import TxMsgTransferDetails from "./TxMsgTransferDetails";
 import TxMsgUndelegateDetails from "./TxMsgUndelegateDetails";
 import TxMsgUpdateAdminDetails from "./TxMsgUpdateAdminDetails";
+import TxMsgVoteDetails from "./TxMsgVoteDetails";
 
 const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
   switch (typeUrl) {
@@ -34,6 +35,8 @@ const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
       return <TxMsgSetWithdrawAddressDetails msgValue={msgValue} />;
     case MsgTypeUrls.CreateVestingAccount:
       return <TxMsgCreateVestingAccountDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Vote:
+      return <TxMsgVoteDetails msgValue={msgValue} />;
     case MsgTypeUrls.Transfer:
       return <TxMsgTransferDetails msgValue={msgValue} />;
     case MsgTypeUrls.Execute:
