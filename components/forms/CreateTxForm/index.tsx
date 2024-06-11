@@ -254,6 +254,12 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
             <li>
               <Button label="MigrateContract" onClick={() => addMsgType(MsgTypeUrls.Migrate)} />
             </li>
+            <li>
+              <Button
+                label="UpdateAdminContract"
+                onClick={() => addMsgType(MsgTypeUrls.UpdateAdmin)}
+              />
+            </li>
           </ul>
         </div>
       </div>
