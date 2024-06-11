@@ -3,6 +3,7 @@ import {
   MsgSetWithdrawAddress,
   MsgWithdrawDelegatorReward,
 } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
+import { MsgVote } from "cosmjs-types/cosmos/gov/v1beta1/tx";
 import {
   MsgBeginRedelegate,
   MsgDelegate,
@@ -26,6 +27,7 @@ export const MsgTypeUrls = {
   Delegate: "/cosmos.staking.v1beta1.MsgDelegate",
   Undelegate: "/cosmos.staking.v1beta1.MsgUndelegate",
   CreateVestingAccount: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount",
+  Vote: "/cosmos.gov.v1beta1.MsgVote",
   Transfer: "/ibc.applications.transfer.v1.MsgTransfer",
   Execute: "/cosmwasm.wasm.v1.MsgExecuteContract",
   Instantiate: "/cosmwasm.wasm.v1.MsgInstantiateContract",
@@ -44,6 +46,7 @@ export const MsgCodecs = {
   [MsgTypeUrls.Delegate]: MsgDelegate,
   [MsgTypeUrls.Undelegate]: MsgUndelegate,
   [MsgTypeUrls.CreateVestingAccount]: MsgCreateVestingAccount,
+  [MsgTypeUrls.Vote]: MsgVote,
   [MsgTypeUrls.Transfer]: MsgTransfer,
   [MsgTypeUrls.Execute]: MsgExecuteContract,
   [MsgTypeUrls.Instantiate]: MsgInstantiateContract,

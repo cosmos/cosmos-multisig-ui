@@ -20,6 +20,8 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
       return 400_000;
     case MsgTypeUrls.CreateVestingAccount:
       return 100_000;
+    case MsgTypeUrls.Vote:
+      return 100_000;
     case MsgTypeUrls.Transfer:
       return 180_000;
     case MsgTypeUrls.Execute:

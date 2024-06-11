@@ -2,7 +2,7 @@ import { loadValidators } from "@/context/ChainsContext/helpers";
 import { toastError, toastSuccess } from "@/lib/utils";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { Account, calculateFee } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
+import { assert, sleep } from "@cosmjs/utils";
 import { NextRouter, withRouter } from "next/router";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -61,6 +61,9 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
 
   const createTx = async () => {
     const loadingToastId = toast.loading("Creating transaction");
+    setProcessing(true);
+    // If it fails too fast, toast.dismiss does not work
+    await sleep(500);
 
     try {
       assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
@@ -70,14 +73,14 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         .filter(({ isMsgValid }) => isMsgValid())
         .map(({ msg }) => exportMsgToJson(msg));
 
-      if (!msgs.length || msgs.length !== msgTypes.length) return;
+      if (!msgs.length || msgs.length !== msgTypes.length) {
+        return;
+      }
 
       if (!Number.isSafeInteger(gasLimit) || gasLimit <= 0) {
         setGasLimitError("gas limit must be a positive integer");
         return;
       }
-
-      setProcessing(true);
 
       const tx: DbTransaction = {
         accountNumber: accountOnChain.accountNumber,
@@ -177,6 +180,14 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           <ul>
             <li>
               <Button label="Send" onClick={() => addMsgType(MsgTypeUrls.Send)} />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
+          <label>Governance</label>
+          <ul>
+            <li>
+              <Button label="Vote" onClick={() => addMsgType(MsgTypeUrls.Vote)} />
             </li>
           </ul>
         </div>
