@@ -4,51 +4,61 @@ import { printableCoins } from "../../../lib/displayHelpers";
 import { DbTransaction } from "../../../types";
 import { MsgTypeUrls } from "../../../types/txMsg";
 import StackableContainer from "../../layout/StackableContainer";
-import TxMsgClaimRewardsDetails from "./TxMsgClaimRewardsDetails";
+import TxMsgBeginRedelegateDetails from "./TxMsgBeginRedelegateDetails";
 import TxMsgCreateVestingAccountDetails from "./TxMsgCreateVestingAccountDetails";
 import TxMsgDelegateDetails from "./TxMsgDelegateDetails";
 import TxMsgExecuteContractDetails from "./TxMsgExecuteContractDetails";
+import TxMsgFundCommunityPoolDetails from "./TxMsgFundCommunityPoolDetails";
 import TxMsgInstantiateContract2Details from "./TxMsgInstantiateContract2Details";
 import TxMsgInstantiateContractDetails from "./TxMsgInstantiateContractDetails";
 import TxMsgMigrateContractDetails from "./TxMsgMigrateContractDetails";
-import TxMsgRedelegateDetails from "./TxMsgRedelegateDetails";
 import TxMsgSendDetails from "./TxMsgSendDetails";
 import TxMsgSetWithdrawAddressDetails from "./TxMsgSetWithdrawAddressDetails";
 import TxMsgTransferDetails from "./TxMsgTransferDetails";
 import TxMsgUndelegateDetails from "./TxMsgUndelegateDetails";
 import TxMsgUpdateAdminDetails from "./TxMsgUpdateAdminDetails";
 import TxMsgVoteDetails from "./TxMsgVoteDetails";
+import TxMsgWithdrawDelegatorRewardDetails from "./TxMsgWithdrawDelegatorRewardDetails";
 
 const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
   switch (typeUrl) {
+    // Bank
     case MsgTypeUrls.Send:
       return <TxMsgSendDetails msgValue={msgValue} />;
+    // Staking
     case MsgTypeUrls.Delegate:
       return <TxMsgDelegateDetails msgValue={msgValue} />;
     case MsgTypeUrls.Undelegate:
       return <TxMsgUndelegateDetails msgValue={msgValue} />;
     case MsgTypeUrls.BeginRedelegate:
-      return <TxMsgRedelegateDetails msgValue={msgValue} />;
-    case MsgTypeUrls.WithdrawDelegatorReward:
-      return <TxMsgClaimRewardsDetails msgValue={msgValue} />;
+      return <TxMsgBeginRedelegateDetails msgValue={msgValue} />;
+    // Distribution
+    case MsgTypeUrls.FundCommunityPool:
+      return <TxMsgFundCommunityPoolDetails msgValue={msgValue} />;
     case MsgTypeUrls.SetWithdrawAddress:
       return <TxMsgSetWithdrawAddressDetails msgValue={msgValue} />;
+    case MsgTypeUrls.WithdrawDelegatorReward:
+      return <TxMsgWithdrawDelegatorRewardDetails msgValue={msgValue} />;
+    // Vesting
     case MsgTypeUrls.CreateVestingAccount:
       return <TxMsgCreateVestingAccountDetails msgValue={msgValue} />;
+    // Governance
     case MsgTypeUrls.Vote:
       return <TxMsgVoteDetails msgValue={msgValue} />;
+    // IBC
     case MsgTypeUrls.Transfer:
       return <TxMsgTransferDetails msgValue={msgValue} />;
-    case MsgTypeUrls.Execute:
-      return <TxMsgExecuteContractDetails msgValue={msgValue} />;
-    case MsgTypeUrls.Instantiate:
+    // CosmWasm
+    case MsgTypeUrls.InstantiateContract:
       return <TxMsgInstantiateContractDetails msgValue={msgValue} />;
-    case MsgTypeUrls.Instantiate2:
+    case MsgTypeUrls.InstantiateContract2:
       return <TxMsgInstantiateContract2Details msgValue={msgValue} />;
-    case MsgTypeUrls.Migrate:
-      return <TxMsgMigrateContractDetails msgValue={msgValue} />;
     case MsgTypeUrls.UpdateAdmin:
       return <TxMsgUpdateAdminDetails msgValue={msgValue} />;
+    case MsgTypeUrls.ExecuteContract:
+      return <TxMsgExecuteContractDetails msgValue={msgValue} />;
+    case MsgTypeUrls.MigrateContract:
+      return <TxMsgMigrateContractDetails msgValue={msgValue} />;
     default:
       return null;
   }
