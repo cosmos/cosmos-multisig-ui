@@ -1,11 +1,13 @@
 import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import HashView from "../HashView";
 
-interface TxMsgClaimRewardsDetailsProps {
+interface TxMsgWithdrawDelegatorRewardDetailsProps {
   readonly msgValue: MsgWithdrawDelegatorReward;
 }
 
-const TxMsgClaimRewardsDetails = ({ msgValue }: TxMsgClaimRewardsDetailsProps) => (
+const TxMsgWithdrawDelegatorRewardDetails = ({
+  msgValue,
+}: TxMsgWithdrawDelegatorRewardDetailsProps) => (
   <>
     <li>
       <h3>MsgWithdrawDelegatorReward</h3>
@@ -44,4 +46,4 @@ const TxMsgClaimRewardsDetails = ({ msgValue }: TxMsgClaimRewardsDetailsProps) =
   </>
 );
 
-export default TxMsgClaimRewardsDetails;
+export default TxMsgWithdrawDelegatorRewardDetails;

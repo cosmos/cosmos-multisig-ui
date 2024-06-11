@@ -24,12 +24,12 @@ const humanTimestampOptions = [
 ];
 
 interface MsgTransferFormProps {
-  readonly fromAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFormProps) => {
+const MsgTransferForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgTransferFormProps) => {
   const { chain } = useChains();
 
   const [toAddress, setToAddress] = useState("");
@@ -107,7 +107,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
     };
 
     const msgValue = MsgCodecs[MsgTypeUrls.Transfer].fromPartial({
-      sender: fromAddress,
+      sender: senderAddress,
       receiver: toAddress,
       token: { denom, amount },
       sourcePort,
@@ -119,7 +119,7 @@ const MsgTransferForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgTransferFo
     const msg: MsgTransferEncodeObject = { typeUrl: MsgTypeUrls.Transfer, value: msgValue };
 
     setMsgGetter({ isMsgValid, msg });
-  }, [chain.chainId, fromAddress, setMsgGetter, trimmedInputs]);
+  }, [chain.chainId, senderAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>

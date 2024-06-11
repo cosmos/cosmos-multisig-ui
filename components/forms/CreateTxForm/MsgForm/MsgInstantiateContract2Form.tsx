@@ -25,13 +25,13 @@ const getDenomOptions = (assets: ChainInfo["assets"]) => {
 };
 
 interface MsgInstantiateContract2FormProps {
-  readonly fromAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
 const MsgInstantiateContract2Form = ({
-  fromAddress,
+  senderAddress,
   setMsgGetter,
   deleteMsg,
 }: MsgInstantiateContract2FormProps) => {
@@ -163,8 +163,8 @@ const MsgInstantiateContract2Form = ({
       }
     })();
 
-    const msgValue = MsgCodecs[MsgTypeUrls.Instantiate2].fromPartial({
-      sender: fromAddress,
+    const msgValue = MsgCodecs[MsgTypeUrls.InstantiateContract2].fromPartial({
+      sender: senderAddress,
       codeId: BigInt(codeId),
       label,
       admin: adminAddress,
@@ -175,7 +175,7 @@ const MsgInstantiateContract2Form = ({
     });
 
     const msg: MsgInstantiateContract2EncodeObject = {
-      typeUrl: MsgTypeUrls.Instantiate2,
+      typeUrl: MsgTypeUrls.InstantiateContract2,
       value: msgValue,
     };
 
@@ -184,9 +184,9 @@ const MsgInstantiateContract2Form = ({
     chain.addressPrefix,
     chain.assets,
     chain.chainId,
-    fromAddress,
     msgContent,
     selectedDenom.value,
+    senderAddress,
     setMsgGetter,
     trimmedInputs,
   ]);

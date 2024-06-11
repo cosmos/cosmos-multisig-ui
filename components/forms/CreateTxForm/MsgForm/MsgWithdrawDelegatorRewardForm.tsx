@@ -8,17 +8,17 @@ import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
-interface MsgClaimRewardsFormProps {
-  readonly delegatorAddress: string;
+interface MsgWithdrawDelegatorRewardFormProps {
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgClaimRewardsForm = ({
-  delegatorAddress,
+const MsgWithdrawDelegatorRewardForm = ({
+  senderAddress,
   setMsgGetter,
   deleteMsg,
-}: MsgClaimRewardsFormProps) => {
+}: MsgWithdrawDelegatorRewardFormProps) => {
   const { chain } = useChains();
 
   const [validatorAddress, setValidatorAddress] = useState("");
@@ -45,7 +45,7 @@ const MsgClaimRewardsForm = ({
     };
 
     const msgValue = MsgCodecs[MsgTypeUrls.WithdrawDelegatorReward].fromPartial({
-      delegatorAddress,
+      delegatorAddress: senderAddress,
       validatorAddress,
     });
 
@@ -55,7 +55,7 @@ const MsgClaimRewardsForm = ({
     };
 
     setMsgGetter({ isMsgValid, msg });
-  }, [chain.addressPrefix, chain.chainId, delegatorAddress, setMsgGetter, trimmedInputs]);
+  }, [chain.addressPrefix, chain.chainId, senderAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>
@@ -100,4 +100,4 @@ const MsgClaimRewardsForm = ({
   );
 };
 
-export default MsgClaimRewardsForm;
+export default MsgWithdrawDelegatorRewardForm;

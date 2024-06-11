@@ -8,12 +8,16 @@ import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 
 interface MsgUpdateAdminFormProps {
-  readonly fromAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-const MsgUpdateAdminForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgUpdateAdminFormProps) => {
+const MsgUpdateAdminForm = ({
+  senderAddress,
+  setMsgGetter,
+  deleteMsg,
+}: MsgUpdateAdminFormProps) => {
   const { chain } = useChains();
 
   const [contractAddress, setContractAddress] = useState("");
@@ -52,7 +56,7 @@ const MsgUpdateAdminForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgUpdateA
     };
 
     const msgValue = MsgCodecs[MsgTypeUrls.UpdateAdmin].fromPartial({
-      sender: fromAddress,
+      sender: senderAddress,
       contract: contractAddress,
       newAdmin: newAdminAddress,
     });
@@ -60,7 +64,7 @@ const MsgUpdateAdminForm = ({ fromAddress, setMsgGetter, deleteMsg }: MsgUpdateA
     const msg: MsgUpdateAdminEncodeObject = { typeUrl: MsgTypeUrls.UpdateAdmin, value: msgValue };
 
     setMsgGetter({ isMsgValid, msg });
-  }, [chain.addressPrefix, chain.chainId, fromAddress, setMsgGetter, trimmedInputs]);
+  }, [chain.addressPrefix, chain.chainId, senderAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>
