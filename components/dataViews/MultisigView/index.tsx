@@ -43,11 +43,19 @@ export default function MultisigView() {
             "Pubkey on chain is not of type MultisigThreshold",
           );
 
+          await window.keplr.enable(chain.chainId);
+          window.keplr.defaultOptions = {
+            sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
+          };
+
+          const { bech32Address: address } = await window.keplr.getKey(chain.chainId);
+
           await createMultisigFromCompressedSecp256k1Pubkeys(
             newHostedMultisig.accountOnChain.pubkey.value.pubkeys.map((p) => p.value),
             Number(newHostedMultisig.accountOnChain.pubkey.value.threshold),
             chain.addressPrefix,
             chain.chainId,
+            address,
           );
 
           router.reload();

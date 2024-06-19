@@ -91,11 +91,19 @@ export default function CreateMultisigForm() {
     );
 
     try {
+      await window.keplr.enable(chain.chainId);
+      window.keplr.defaultOptions = {
+        sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
+      };
+
+      const { bech32Address: address } = await window.keplr.getKey(chain.chainId);
+
       const multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
         pubkeys,
         Number(threshold),
         chain.addressPrefix,
         chain.chainId,
+        address,
       );
 
       router.push(`/${chain.registryName}/${multisigAddress}`);

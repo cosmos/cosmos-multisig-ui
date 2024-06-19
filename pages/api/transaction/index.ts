@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createTransaction } from "../../../lib/graphqlHelpers";
+import { createTransaction, getMultisigId } from "../../../lib/graphqlHelpers";
 
 export default async function transactionApi(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
@@ -7,7 +7,13 @@ export default async function transactionApi(req: NextApiRequest, res: NextApiRe
       try {
         const data = req.body;
         console.log("Function `createTransaction` invoked", data);
-        const createTransactionResult = await createTransaction(data.dataJSON);
+
+        const multisigId = await getMultisigId(data.creator, data.chainId);
+        if (!multisigId) {
+          throw new Error("Multisig not found");
+        }
+
+        const createTransactionResult = await createTransaction(data.dataJSON, multisigId);
         console.log("createTransactionResult:", createTransactionResult);
         res
           .status(200)
