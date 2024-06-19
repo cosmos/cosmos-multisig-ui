@@ -1,3 +1,4 @@
+import { getKeplrAminoSigner, getKeplrKey, useKeplrReconnect } from "@/lib/keplr";
 import { toastError, toastSuccess } from "@/lib/utils";
 import { DbSignature, DbTransactionJsonObj } from "@/types/db";
 import { LoadingStates, SigningStatus } from "@/types/signing";
@@ -13,13 +14,13 @@ import {
   defaultRegistryTypes,
 } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
+import { Key } from "@keplr-wallet/types";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useChains } from "../../context/ChainsContext";
 import { getConnectError } from "../../lib/errorHelpers";
 import { requestJson } from "../../lib/request";
-import { DbSignature, DbTransactionJsonObj, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
@@ -36,7 +37,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
   const memberPubkeys = props.pubkey.value.pubkeys.map(({ value }) => value);
 
   const { chain } = useChains();
-  const [walletAccount, setWalletAccount] = useState<WalletAccount>();
+  const [walletAccount, setWalletAccount] = useState<Partial<Key>>();
   const [signing, setSigning] = useState<SigningStatus>("not_signed");
   const [walletType, setWalletType] = useState<"Keplr" | "Ledger">();
   const [ledgerSigner, setLedgerSigner] = useState<OfflineSigner | null>(null);
@@ -46,17 +47,13 @@ const TransactionSigning = (props: TransactionSigningProps) => {
     try {
       setLoading((oldLoading) => ({ ...oldLoading, keplr: true }));
 
-      await window.keplr.enable(chain.chainId);
-      window.keplr.defaultOptions = {
-        sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
-      };
-      const tempWalletAccount = await window.keplr.getKey(chain.chainId);
-      setWalletAccount(tempWalletAccount);
+      const newWalletAccount = await getKeplrKey(chain.chainId);
+      setWalletAccount(newWalletAccount);
 
-      const pubkey = toBase64(tempWalletAccount.pubKey);
+      const pubkey = toBase64(newWalletAccount.pubKey);
       const isMember = memberPubkeys.includes(pubkey);
       const hasSigned = isMember
-        ? props.signatures.some((sig) => sig.address === tempWalletAccount.bech32Address)
+        ? props.signatures.some((sig) => sig.address === newWalletAccount.bech32Address)
         : false;
       if (!isMember) {
         setSigning("not_a_member");
@@ -81,15 +78,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
     }
   }, [chain.chainId, memberPubkeys, props.signatures]);
 
-  useLayoutEffect(() => {
-    const accountChangeKey = "keplr_keystorechange";
-
-    if (walletType === "Keplr") {
-      window.addEventListener(accountChangeKey, connectKeplr);
-    } else {
-      window.removeEventListener(accountChangeKey, connectKeplr);
-    }
-  }, [connectKeplr, walletType]);
+  useKeplrReconnect(!!walletAccount?.address, connectKeplr);
 
   const connectLedger = async () => {
     try {
@@ -104,7 +93,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         prefix: chain.addressPrefix,
       });
       const accounts = await offlineSigner.getAccounts();
-      const tempWalletAccount: WalletAccount = {
+      const tempWalletAccount = {
         bech32Address: accounts[0].address,
         pubKey: accounts[0].pubkey,
         algo: accounts[0].algo,
@@ -147,9 +136,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
 
       const offlineSigner =
-        walletType === "Keplr"
-          ? window.keplr.getOfflineSignerOnlyAmino(chain.chainId)
-          : ledgerSigner;
+        walletType === "Keplr" ? await getKeplrAminoSigner(chain.chainId) : ledgerSigner;
 
       if (!offlineSigner) {
         throw new Error("Offline signer not found");

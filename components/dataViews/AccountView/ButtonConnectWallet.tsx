@@ -1,3 +1,4 @@
+import { getKeplrKey, useKeplrReconnect } from "@/lib/keplr";
 import { cn, toastError } from "@/lib/utils";
 import { LoadingStates, WalletInfo, WalletType } from "@/types/signing";
 import { makeCosmoshubPath } from "@cosmjs/amino";
@@ -6,7 +7,7 @@ import { LedgerSigner } from "@cosmjs/ledger-amino";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { Loader2, Unplug } from "lucide-react";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { useChains } from "../../../context/ChainsContext";
 import { getConnectError } from "../../../lib/errorHelpers";
 import { Button } from "../../ui/button";
@@ -30,16 +31,8 @@ export default function ButtonConnectWallet({
     try {
       setLoading((oldLoading) => ({ ...oldLoading, keplr: true }));
 
-      await window.keplr.enable(chain.chainId);
-      window.keplr.defaultOptions = {
-        sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
-      };
-
-      const { bech32Address: address, pubKey: pubKeyArray } = await window.keplr.getKey(
-        chain.chainId,
-      );
+      const { bech32Address: address, pubKey: pubKeyArray } = await getKeplrKey(chain.chainId);
       const pubKey = toBase64(pubKeyArray);
-
       setWalletInfo({ type: "Keplr", address, pubKey });
     } catch (e) {
       const connectError = getConnectError(e);
@@ -53,19 +46,7 @@ export default function ButtonConnectWallet({
     }
   }, [chain.chainId, setWalletInfo]);
 
-  useLayoutEffect(() => {
-    if (!walletInfo?.address) {
-      return;
-    }
-
-    const accountChangeKey = "keplr_keystorechange";
-
-    if (walletInfo.type === "Keplr") {
-      window.addEventListener(accountChangeKey, connectKeplr);
-    } else {
-      window.removeEventListener(accountChangeKey, connectKeplr);
-    }
-  }, [connectKeplr, walletInfo]);
+  useKeplrReconnect(!!walletInfo?.address, connectKeplr);
 
   const connectLedger = async () => {
     try {

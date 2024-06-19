@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { getKeplrKey } from "@/lib/keplr";
 import { toastError } from "@/lib/utils";
 import { StargateClient } from "@cosmjs/stargate";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -91,12 +92,7 @@ export default function CreateMultisigForm() {
     );
 
     try {
-      await window.keplr.enable(chain.chainId);
-      window.keplr.defaultOptions = {
-        sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
-      };
-
-      const { bech32Address: address } = await window.keplr.getKey(chain.chainId);
+      const { bech32Address: address } = await getKeplrKey(chain.chainId);
 
       const multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
         pubkeys,

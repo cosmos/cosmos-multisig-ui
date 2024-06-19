@@ -1,6 +1,7 @@
 import { useChains } from "@/context/ChainsContext";
 import { getConnectError } from "@/lib/errorHelpers";
 import { MultisigFromQuery } from "@/lib/graphqlHelpers";
+import { getKeplrKey, getKeplrVerifySignature, useKeplrReconnect } from "@/lib/keplr";
 import { requestJson } from "@/lib/request";
 import { toastError } from "@/lib/utils";
 import { DbNonce } from "@/types/db";
@@ -11,7 +12,7 @@ import { StargateClient } from "@cosmjs/stargate";
 import { Loader2, MoveRightIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -44,36 +45,10 @@ export default function ListUserMultisigs() {
         `/api/chain/${chain.chainId}/nonce/${accountOnChain.address}`,
       );
 
-      const { signature } = await window.keplr.signAmino(chain.chainId, accountOnChain.address, {
-        chain_id: "",
-        account_number: "0",
-        sequence: "0",
-        fee: { gas: "0", amount: [] },
-        msgs: [
-          {
-            type: "sign/MsgSignData",
-            value: {
-              signer: accountOnChain.address,
-              data: toBase64(
-                new Uint8Array(
-                  Buffer.from(
-                    JSON.stringify({
-                      title: `Keplr Login to ${chain.chainDisplayName}`,
-                      description: "Sign this no fee transaction to login with your Keplr wallet",
-                      nonce,
-                    }),
-                  ),
-                ),
-              ),
-            },
-          },
-        ],
-        memo: "",
-      });
-
+      const signature = await getKeplrVerifySignature(accountOnChain.address, chain, nonce);
       return signature;
     },
-    [chain.chainDisplayName, chain.chainId, chain.nodeAddress],
+    [chain],
   );
 
   const fetchMultisigs = useCallback(
@@ -104,17 +79,8 @@ export default function ListUserMultisigs() {
     try {
       setLoading(true);
 
-      await window.keplr.enable(chain.chainId);
-      window.keplr.defaultOptions = {
-        sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
-      };
-
-      const { bech32Address: address, pubKey: pubKeyArray } = await window.keplr.getKey(
-        chain.chainId,
-      );
-
+      const { bech32Address: address, pubKey: pubKeyArray } = await getKeplrKey(chain.chainId);
       const pubKey = toBase64(pubKeyArray);
-
       setWalletInfo({ address, pubKey });
 
       await fetchMultisigs(address);
@@ -130,18 +96,7 @@ export default function ListUserMultisigs() {
     }
   }, [chain.chainId, fetchMultisigs]);
 
-  useLayoutEffect(() => {
-    if (!walletInfo?.address) {
-      return;
-    }
-
-    const accountChangeKey = "keplr_keystorechange";
-    window.addEventListener(accountChangeKey, connectWallet);
-
-    return () => {
-      window.removeEventListener(accountChangeKey, connectWallet);
-    };
-  }, [connectWallet, walletInfo?.address]);
+  useKeplrReconnect(!!walletInfo?.address, connectWallet);
 
   return (
     <Card>
