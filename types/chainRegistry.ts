@@ -79,6 +79,19 @@ export interface RegistryAssetDenomUnit {
   readonly aliases?: readonly string[];
 }
 
+export interface AssetTrace {
+  readonly type?: "string";
+  readonly chain?: {
+    readonly channel_id?: string;
+    readonly path?: string;
+  };
+  readonly counterparty?: {
+    readonly chain_name?: string;
+    readonly base_denom?: string;
+    readonly channel_id?: string;
+  };
+}
+
 /**
  * See https://github.com/cosmos/chain-registry/blob/1e9ecde770951cab90f0853a624411d79af90b83/provenance/assetlist.json#L5-L28
  */
@@ -94,4 +107,5 @@ export interface RegistryAsset {
     readonly svg: string;
   };
   readonly coingecko_id?: string;
+  readonly traces?: readonly AssetTrace[];
 }
