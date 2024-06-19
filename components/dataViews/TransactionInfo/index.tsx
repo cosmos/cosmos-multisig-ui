@@ -1,7 +1,7 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
-import { DbTransaction } from "../../../types";
+import { DbTransactionJsonObj } from "../../../types";
 import { MsgTypeUrls } from "../../../types/txMsg";
 import StackableContainer from "../../layout/StackableContainer";
 import TxMsgBeginRedelegateDetails from "./TxMsgBeginRedelegateDetails";
@@ -65,7 +65,7 @@ const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
 };
 
 interface TransactionInfoProps {
-  readonly tx: DbTransaction;
+  readonly tx: DbTransactionJsonObj;
 }
 
 const TransactionInfo = ({ tx }: TransactionInfoProps) => {

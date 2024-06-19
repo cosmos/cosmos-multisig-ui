@@ -18,14 +18,14 @@ import { toast } from "sonner";
 import { useChains } from "../../context/ChainsContext";
 import { getConnectError } from "../../lib/errorHelpers";
 import { requestJson } from "../../lib/request";
-import { DbSignature, DbTransaction, WalletAccount } from "../../types";
+import { DbSignature, DbTransactionJsonObj, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 
 interface TransactionSigningProps {
   readonly signatures: DbSignature[];
-  readonly tx: DbTransaction;
+  readonly tx: DbTransactionJsonObj;
   readonly pubkey: MultisigThresholdPubkey;
   readonly transactionID: string;
   readonly addSignature: (signature: DbSignature) => void;
@@ -146,7 +146,9 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
 
       const offlineSigner =
-        walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
+        walletType === "Keplr"
+          ? window.keplr.getOfflineSignerOnlyAmino(chain.chainId)
+          : ledgerSigner;
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
