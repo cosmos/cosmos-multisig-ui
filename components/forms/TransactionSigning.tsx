@@ -4,7 +4,7 @@ import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
 import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";
 import { toBase64 } from "@cosmjs/encoding";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
-import { Registry } from "@cosmjs/proto-signing";
+import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import {
   AminoTypes,
   SigningStargateClient,
@@ -38,7 +38,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
   const [walletAccount, setWalletAccount] = useState<WalletAccount>();
   const [signing, setSigning] = useState<SigningStatus>("not_signed");
   const [walletType, setWalletType] = useState<"Keplr" | "Ledger">();
-  const [ledgerSigner, setLedgerSigner] = useState({});
+  const [ledgerSigner, setLedgerSigner] = useState<OfflineSigner | null>(null);
   const [loading, setLoading] = useState<LoadingStates>({});
 
   const connectKeplr = useCallback(async () => {
@@ -149,6 +149,10 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         walletType === "Keplr"
           ? window.keplr.getOfflineSignerOnlyAmino(chain.chainId)
           : ledgerSigner;
+
+      if (!offlineSigner) {
+        throw new Error("Offline signer not found");
+      }
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
