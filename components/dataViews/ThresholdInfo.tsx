@@ -1,6 +1,6 @@
+import { DbSignature } from "@/types/db";
 import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { useEffect, useState } from "react";
-import { DbSignature } from "../../types";
 import StackableContainer from "../layout/StackableContainer";
 import CopyAndPaste from "./CopyAndPaste";
 

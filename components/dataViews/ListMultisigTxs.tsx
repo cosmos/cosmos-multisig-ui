@@ -4,7 +4,7 @@ import { getConnectError } from "@/lib/errorHelpers";
 import { requestJson } from "@/lib/request";
 import { msgTypeCountsFromJson } from "@/lib/txMsgHelpers";
 import { cn, toastError } from "@/lib/utils";
-import { DbNonce, DbTransaction } from "@/types";
+import { DbNonce, DbTransaction } from "@/types/db";
 import { WalletInfo } from "@/types/signing";
 import { toBase64 } from "@cosmjs/encoding";
 import { StargateClient } from "@cosmjs/stargate";

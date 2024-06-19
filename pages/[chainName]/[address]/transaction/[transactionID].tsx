@@ -1,5 +1,6 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
 import { toastError, toastSuccess } from "@/lib/utils";
+import { DbSignature } from "@/types/db";
 import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { fromBase64 } from "@cosmjs/encoding";
 import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
@@ -17,10 +18,9 @@ import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import { useChains } from "../../../../context/ChainsContext";
 import { findTransactionByID } from "../../../../lib/graphqlHelpers";
-import { isAccount, getHostedMultisig } from "../../../../lib/multisigHelpers";
+import { getHostedMultisig, isAccount } from "../../../../lib/multisigHelpers";
 import { requestJson } from "../../../../lib/request";
 import { dbTxFromJson } from "../../../../lib/txMsgHelpers";
-import { DbSignature } from "../../../../types";
 
 interface Props {
   props: {

@@ -1,4 +1,5 @@
 import { toastError, toastSuccess } from "@/lib/utils";
+import { DbSignature, DbTransactionJsonObj } from "@/types/db";
 import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
 import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";

@@ -3,7 +3,7 @@ import { getConnectError } from "@/lib/errorHelpers";
 import { MultisigFromQuery } from "@/lib/graphqlHelpers";
 import { requestJson } from "@/lib/request";
 import { toastError } from "@/lib/utils";
-import { DbNonce } from "@/types";
+import { DbNonce } from "@/types/db";
 import { WalletInfo } from "@/types/signing";
 import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { toBase64 } from "@cosmjs/encoding";

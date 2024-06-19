@@ -1,6 +1,6 @@
+import { DbTransactionJsonObj } from "@/types/db";
+import { MsgCodecs, MsgTypeUrl, MsgTypeUrls } from "@/types/txMsg";
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { DbTransactionJsonObj } from "../types";
-import { MsgCodecs, MsgTypeUrl, MsgTypeUrls } from "../types/txMsg";
 
 const gasOfMsg = (msgType: MsgTypeUrl): number => {
   switch (msgType) {
