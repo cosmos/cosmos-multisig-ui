@@ -136,7 +136,7 @@ const MsgTransferForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgTransfer
       return;
     }
 
-    setSourcePort(trace.chain?.path?.split("/")[0] || "transfer");
+    setSourcePort(trace.chain?.path?.split("/")?.[0] || "transfer");
     setSourceChannel(trace.chain?.channel_id || "");
   }, [chain.assets, denom]);
 
