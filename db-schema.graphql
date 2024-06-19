@@ -5,12 +5,15 @@ type Multisig {
   # See https://dgraph.io/docs/graphql/schema/directives/search/#string
   chainId: String! @search(by: [hash])
   address: String! @search(by: [hash])
-  pubkeyJSON: String!
+  creator: String @search(by: [hash])
+  pubkeyJSON: String! @search(by: [fulltext])
+  transactions: [Transaction] @hasInverse(field: creator)
 }
 
 type Transaction {
   id: ID!
   txHash: String
+  creator: Multisig
   dataJSON: String
   signatures: [Signature] @hasInverse(field: transaction)
 }
@@ -20,4 +23,11 @@ type Signature {
   bodyBytes: String!
   signature: String!
   address: String!
+}
+
+type Nonce {
+  id: ID!
+  chainId: String! @search(by: [hash])
+  address: String! @search(by: [hash])
+  nonce: Int!
 }
