@@ -89,11 +89,14 @@ export default function ListMultisigTxs({
       try {
         const signature = await getSignature(address);
 
-        const transactions: readonly DbTransaction[] = await requestJson(`/api/transaction/list`, {
-          body: { signature, chain, multisigAddress },
-        });
+        const fetchedTransactions: readonly DbTransaction[] = await requestJson(
+          `/api/transaction/list`,
+          {
+            body: { signature, chain, multisigAddress },
+          },
+        );
 
-        setTransactions(transactions);
+        setTransactions(fetchedTransactions);
       } catch (e: unknown) {
         console.error("Failed to fetch transactions:", e);
         toastError({
