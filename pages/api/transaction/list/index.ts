@@ -71,7 +71,7 @@ export default async function transactionsApi(req: NextApiRequest, res: NextApiR
             throw new Error("Multisig not found");
           }
           console.log("Function `getTransactions` invoked", chain.chainId, address);
-          const transactions = (await getTransactions(multisigId)).toReversed();
+          const transactions = await getTransactions(multisigId);
           console.log("success", transactions);
           res.status(200).send(transactions);
           return;

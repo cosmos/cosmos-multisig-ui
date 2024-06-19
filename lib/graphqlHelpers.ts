@@ -229,7 +229,7 @@ const getTransactions = async (creator: string): Promise<readonly DbTransaction[
     },
   });
 
-  return result.data.getMultisig.transactions;
+  return result.data.getMultisig.transactions.reverse();
 };
 
 /**
