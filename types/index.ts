@@ -1,18 +1,10 @@
 import { StdFee } from "@cosmjs/amino";
 import { EncodeObject } from "@cosmjs/proto-signing";
+import { Keplr } from "@keplr-wallet/types";
 
 declare global {
   interface Window {
-    keplr: {
-      defaultOptions: {
-        sign: { preferNoSetFee: boolean; preferNoSetMemo: boolean; disableBalanceCheck: boolean };
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      enable: (chainId: string) => any;
-      getKey: (chainId: string) => Promise<WalletAccount>;
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getOfflineSignerOnlyAmino: any;
+    keplr: Keplr;
   }
 }
 
@@ -23,6 +15,13 @@ export interface DbSignature {
 }
 
 export interface DbTransaction {
+  id: string;
+  txHash: string;
+  dataJSON: string;
+  signatures: DbSignature[];
+}
+
+export interface DbTransactionJsonObj {
   accountNumber: number;
   sequence: number;
   chainId: string;
@@ -31,11 +30,18 @@ export interface DbTransaction {
   memo: string;
 }
 
-export interface DbAccount {
-  address: string;
-  pubkeyJSON: string;
+export interface DbMultisig {
   chainId: string;
+  address: string;
+  creator: string;
+  pubkeyJSON: string;
 }
+
+export type DbNonce = {
+  readonly chainId: string;
+  readonly address: string;
+  readonly nonce: number;
+};
 
 export interface WalletAccount {
   address?: Uint8Array;
