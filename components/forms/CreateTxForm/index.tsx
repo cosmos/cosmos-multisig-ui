@@ -1,5 +1,7 @@
 import { loadValidators } from "@/context/ChainsContext/helpers";
 import { toastError, toastSuccess } from "@/lib/utils";
+import { DbTransactionJsonObj } from "@/types/db";
+import { MsgTypeUrl, MsgTypeUrls } from "@/types/txMsg";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { Account, calculateFee } from "@cosmjs/stargate";
 import { assert, sleep } from "@cosmjs/utils";
@@ -9,8 +11,6 @@ import { toast } from "sonner";
 import { useChains } from "../../../context/ChainsContext";
 import { requestJson } from "../../../lib/request";
 import { exportMsgToJson, gasOfTx } from "../../../lib/txMsgHelpers";
-import { DbTransactionJsonObj } from "../../../types";
-import { MsgTypeUrl, MsgTypeUrls } from "../../../types/txMsg";
 import Button from "../../inputs/Button";
 import Input from "../../inputs/Input";
 import StackableContainer from "../../layout/StackableContainer";

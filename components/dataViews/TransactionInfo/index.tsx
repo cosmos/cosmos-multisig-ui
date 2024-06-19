@@ -1,8 +1,8 @@
+import { DbTransactionJsonObj } from "@/types/db";
+import { MsgTypeUrls } from "@/types/txMsg";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
-import { DbTransactionJsonObj } from "../../../types";
-import { MsgTypeUrls } from "../../../types/txMsg";
 import StackableContainer from "../../layout/StackableContainer";
 import TxMsgBeginRedelegateDetails from "./TxMsgBeginRedelegateDetails";
 import TxMsgCreateVestingAccountDetails from "./TxMsgCreateVestingAccountDetails";

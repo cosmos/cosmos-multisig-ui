@@ -1,4 +1,4 @@
-import { DbMultisig, DbNonce, DbSignature, DbTransaction, DbTransactionJsonObj } from "../types";
+import { DbMultisig, DbNonce, DbSignature, DbTransaction, DbTransactionJsonObj } from "../types/db";
 import { requestGraphQlJson } from "./request";
 
 /**

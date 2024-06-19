@@ -2,6 +2,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
 import { checkAddress } from "@/lib/displayHelpers";
+import { getKeplrKey } from "@/lib/keplr";
 import {
   HostedMultisig,
   createMultisigFromCompressedSecp256k1Pubkeys,
@@ -44,12 +45,7 @@ export default function MultisigView() {
             "Pubkey on chain is not of type MultisigThreshold",
           );
 
-          await window.keplr.enable(chain.chainId);
-          window.keplr.defaultOptions = {
-            sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
-          };
-
-          const { bech32Address: address } = await window.keplr.getKey(chain.chainId);
+          const { bech32Address: address } = await getKeplrKey(chain.chainId);
 
           await createMultisigFromCompressedSecp256k1Pubkeys(
             newHostedMultisig.accountOnChain.pubkey.value.pubkeys.map((p) => p.value),

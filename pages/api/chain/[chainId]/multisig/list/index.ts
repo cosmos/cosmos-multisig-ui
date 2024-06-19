@@ -5,10 +5,10 @@ import {
   getNonce,
   updateNonce,
 } from "@/lib/graphqlHelpers";
+import { verifyKeplrSignature } from "@/lib/keplr";
 import { decodeSignature, pubkeyToAddress } from "@cosmjs/amino";
 import { toBase64 } from "@cosmjs/encoding";
 import { StargateClient } from "@cosmjs/stargate";
-import { verifyADR36Amino } from "@keplr-wallet/cosmos";
 import { StdSignature } from "@keplr-wallet/types";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -38,27 +38,17 @@ export default async function multisigsApi(req: NextApiRequest, res: NextApiResp
           throw new Error(`Nonce not found on ${chainId} for ${address}`);
         }
 
-        const { pubkey: decodedPubKey, signature: decodedSignature } = decodeSignature(signature);
-        const data = JSON.stringify({
-          title: `Keplr Login to ${chain.chainDisplayName}`,
-          description: "Sign this no fee transaction to login with your Keplr wallet",
-          nonce: dbNonce.nonce,
-        });
-
         await updateNonce(chainId, address, dbNonce.nonce + 1);
-
-        const verified = verifyADR36Amino(
-          chain.addressPrefix,
-          address,
-          data,
-          decodedPubKey,
-          decodedSignature,
-        );
+        const verified = verifyKeplrSignature(signature, chain, dbNonce.nonce);
 
         if (verified) {
           console.log("Function `getMultisigs` invoked", chainId, address);
+
           const created = await getCreatedMultisigs(chainId, address);
+
+          const { pubkey: decodedPubKey } = decodeSignature(signature);
           const belonged = await getBelongedMultisigs(chainId, toBase64(decodedPubKey));
+
           console.log("success", { created, belonged });
           res.status(200).send({ created, belonged });
           return;
