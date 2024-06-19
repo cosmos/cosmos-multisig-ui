@@ -121,6 +121,25 @@ const MsgTransferForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgTransfer
     setMsgGetter({ isMsgValid, msg });
   }, [chain.chainId, senderAddress, setMsgGetter, trimmedInputs]);
 
+  useEffect(() => {
+    if (!denom || !denom.startsWith("ibc/")) {
+      return;
+    }
+
+    const foundDenom = chain.assets.find((asset) => asset.base === denom);
+    if (!foundDenom) {
+      return;
+    }
+
+    const trace = foundDenom.traces?.[0];
+    if (!trace) {
+      return;
+    }
+
+    setSourcePort(trace.chain?.path?.split("/")[0] || "transfer");
+    setSourceChannel(trace.chain?.channel_id || "");
+  }, [chain.assets, denom]);
+
   return (
     <StackableContainer lessPadding lessMargin>
       <button className="remove" onClick={() => deleteMsg()}>
