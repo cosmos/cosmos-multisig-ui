@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useChains } from "../../../context/ChainsContext";
 import { requestJson } from "../../../lib/request";
 import { exportMsgToJson, gasOfTx } from "../../../lib/txMsgHelpers";
-import { DbTransaction } from "../../../types";
+import { DbTransactionJsonObj } from "../../../types";
 import { MsgTypeUrl, MsgTypeUrls } from "../../../types/txMsg";
 import Button from "../../inputs/Button";
 import Input from "../../inputs/Input";
@@ -82,7 +82,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         return;
       }
 
-      const tx: DbTransaction = {
+      const tx: DbTransactionJsonObj = {
         accountNumber: accountOnChain.accountNumber,
         sequence: accountOnChain.sequence,
         chainId: chain.chainId,
@@ -92,7 +92,11 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
       };
 
       const { transactionID } = await requestJson("/api/transaction", {
-        body: { dataJSON: JSON.stringify(tx) },
+        body: {
+          dataJSON: JSON.stringify(tx),
+          creator: accountOnChain.address,
+          chainId: chain.chainId,
+        },
       });
       toastSuccess("Transaction created with ID", transactionID);
       router.push(`/${chain.registryName}/${senderAddress}/transaction/${transactionID}`);

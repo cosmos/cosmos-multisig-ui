@@ -4,7 +4,7 @@ import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
 import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";
 import { toBase64 } from "@cosmjs/encoding";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
-import { Registry } from "@cosmjs/proto-signing";
+import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import {
   AminoTypes,
   SigningStargateClient,
@@ -18,14 +18,14 @@ import { toast } from "sonner";
 import { useChains } from "../../context/ChainsContext";
 import { getConnectError } from "../../lib/errorHelpers";
 import { requestJson } from "../../lib/request";
-import { DbSignature, DbTransaction, WalletAccount } from "../../types";
+import { DbSignature, DbTransactionJsonObj, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 
 interface TransactionSigningProps {
   readonly signatures: DbSignature[];
-  readonly tx: DbTransaction;
+  readonly tx: DbTransactionJsonObj;
   readonly pubkey: MultisigThresholdPubkey;
   readonly transactionID: string;
   readonly addSignature: (signature: DbSignature) => void;
@@ -38,7 +38,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
   const [walletAccount, setWalletAccount] = useState<WalletAccount>();
   const [signing, setSigning] = useState<SigningStatus>("not_signed");
   const [walletType, setWalletType] = useState<"Keplr" | "Ledger">();
-  const [ledgerSigner, setLedgerSigner] = useState({});
+  const [ledgerSigner, setLedgerSigner] = useState<OfflineSigner | null>(null);
   const [loading, setLoading] = useState<LoadingStates>({});
 
   const connectKeplr = useCallback(async () => {
@@ -146,7 +146,13 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
 
       const offlineSigner =
-        walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
+        walletType === "Keplr"
+          ? window.keplr.getOfflineSignerOnlyAmino(chain.chainId)
+          : ledgerSigner;
+
+      if (!offlineSigner) {
+        throw new Error("Offline signer not found");
+      }
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");

@@ -1,5 +1,5 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { DbTransaction } from "../types";
+import { DbTransactionJsonObj } from "../types";
 import { MsgCodecs, MsgTypeUrl, MsgTypeUrls } from "../types/txMsg";
 
 const gasOfMsg = (msgType: MsgTypeUrl): number => {
@@ -74,9 +74,9 @@ const importMsgFromJson = (msg: EncodeObject): EncodeObject => {
   throw new Error("Unknown msg type");
 };
 
-export const dbTxFromJson = (txJson: string): DbTransaction | null => {
+export const dbTxFromJson = (txJson: string): DbTransactionJsonObj | null => {
   try {
-    const dbTx: DbTransaction = JSON.parse(txJson);
+    const dbTx: DbTransactionJsonObj = JSON.parse(txJson);
     dbTx.msgs = dbTx.msgs.map(importMsgFromJson);
 
     return dbTx;
@@ -89,4 +89,32 @@ export const dbTxFromJson = (txJson: string): DbTransaction | null => {
 
     return null;
   }
+};
+
+interface MsgTypeCount {
+  readonly msgType: string;
+  readonly count: number;
+}
+
+export const msgTypeCountsFromJson = (txJson: string): readonly MsgTypeCount[] => {
+  const tx = dbTxFromJson(txJson);
+  if (!tx) {
+    return [];
+  }
+
+  const msgTypeCounts: { msgType: string; count: number }[] = [];
+
+  const msgTypes = tx.msgs.map(({ typeUrl }) => typeUrl.split(".Msg")[1]);
+
+  for (const msgType of msgTypes) {
+    const foundIndex = msgTypeCounts.findIndex((msgTypeCount) => msgTypeCount.msgType === msgType);
+
+    if (foundIndex !== -1) {
+      msgTypeCounts[foundIndex].count++;
+    } else {
+      msgTypeCounts.push({ msgType, count: 1 });
+    }
+  }
+
+  return msgTypeCounts;
 };

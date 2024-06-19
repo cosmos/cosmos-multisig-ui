@@ -27,6 +27,7 @@ export const createMultisigFromCompressedSecp256k1Pubkeys = async (
   threshold: number,
   addressPrefix: string,
   chainId: string,
+  creator: string,
 ): Promise<string> => {
   const pubkeys = compressedPubkeys.map((compressedPubkey) => {
     return {
@@ -41,6 +42,7 @@ export const createMultisigFromCompressedSecp256k1Pubkeys = async (
   const multisig = {
     address: multisigAddress,
     pubkeyJSON: JSON.stringify(multisigPubkey),
+    creator,
     chainId,
   };
 

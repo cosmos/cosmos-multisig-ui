@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { useChains } from "../../../context/ChainsContext";
 import { Button } from "../../ui/button";
 import BalancesTable from "../BalancesTable";
+import ListMultisigTxs from "../ListMultisigTxs";
 
 export default function MultisigView() {
   const router = useRouter();
@@ -43,11 +44,19 @@ export default function MultisigView() {
             "Pubkey on chain is not of type MultisigThreshold",
           );
 
+          await window.keplr.enable(chain.chainId);
+          window.keplr.defaultOptions = {
+            sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
+          };
+
+          const { bech32Address: address } = await window.keplr.getKey(chain.chainId);
+
           await createMultisigFromCompressedSecp256k1Pubkeys(
             newHostedMultisig.accountOnChain.pubkey.value.pubkeys.map((p) => p.value),
             Number(newHostedMultisig.accountOnChain.pubkey.value.threshold),
             chain.addressPrefix,
             chain.chainId,
+            address,
           );
 
           router.reload();
@@ -203,6 +212,12 @@ export default function MultisigView() {
             </CardContent>
           </Card>
         </>
+      ) : null}
+      {hostedMultisig?.hosted === "db+chain" && multisigAddress ? (
+        <ListMultisigTxs
+          multisigAddress={multisigAddress}
+          multisigThreshold={Number(hostedMultisig.pubkeyOnDb.value.threshold)}
+        />
       ) : null}
     </div>
   );
