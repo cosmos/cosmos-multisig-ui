@@ -1,5 +1,6 @@
 {
   "name": "cosmos-multisig-ui",
+  "license": "Apache-2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
