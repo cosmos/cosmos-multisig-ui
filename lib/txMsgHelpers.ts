@@ -1,4 +1,4 @@
-import { DbTransactionJsonObj } from "@/types/db";
+import { DbTransactionParsedDataJson } from "@/graphql";
 import { MsgCodecs, MsgTypeUrl, MsgTypeUrls } from "@/types/txMsg";
 import { EncodeObject } from "@cosmjs/proto-signing";
 
@@ -74,10 +74,10 @@ const importMsgFromJson = (msg: EncodeObject): EncodeObject => {
   throw new Error("Unknown msg type");
 };
 
-export const dbTxFromJson = (txJson: string): DbTransactionJsonObj | null => {
+export const dbTxFromJson = (txJson: string): DbTransactionParsedDataJson | null => {
   try {
-    const dbTx: DbTransactionJsonObj = JSON.parse(txJson);
-    dbTx.msgs = dbTx.msgs.map(importMsgFromJson);
+    const parsedDbTx: DbTransactionParsedDataJson = JSON.parse(txJson);
+    const dbTx = { ...parsedDbTx, msgs: parsedDbTx.msgs.map(importMsgFromJson) };
 
     return dbTx;
   } catch (error) {

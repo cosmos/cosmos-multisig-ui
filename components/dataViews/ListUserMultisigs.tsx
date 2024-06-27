@@ -1,10 +1,8 @@
 import { useChains } from "@/context/ChainsContext";
+import { FetchedMultisigs, getDbNonce, getDbUserMultisigs } from "@/lib/api";
 import { getConnectError } from "@/lib/errorHelpers";
-import { MultisigFromQuery } from "@/lib/graphqlHelpers";
 import { getKeplrKey, getKeplrVerifySignature, useKeplrReconnect } from "@/lib/keplr";
-import { requestJson } from "@/lib/request";
 import { toastError } from "@/lib/utils";
-import { DbNonce } from "@/types/db";
 import { WalletInfo } from "@/types/signing";
 import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { toBase64 } from "@cosmjs/encoding";
@@ -19,11 +17,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-
-type FetchedMultisigs = {
-  readonly created: readonly MultisigFromQuery[];
-  readonly belonged: readonly MultisigFromQuery[];
-};
 
 export default function ListUserMultisigs() {
   const { chain } = useChains();
@@ -41,9 +34,7 @@ export default function ListUserMultisigs() {
         throw new Error(`Account not found on chain for ${address}`);
       }
 
-      const { nonce }: DbNonce = await requestJson(
-        `/api/chain/${chain.chainId}/nonce/${accountOnChain.address}`,
-      );
+      const nonce = await getDbNonce(accountOnChain.address, chain.chainId);
 
       const signature = await getKeplrVerifySignature(accountOnChain.address, chain, nonce);
       return signature;
@@ -55,15 +46,8 @@ export default function ListUserMultisigs() {
     async (address: string) => {
       try {
         const signature = await getSignature(address);
-
-        const newMultisigs: FetchedMultisigs = await requestJson(
-          `/api/chain/${chain.chainId}/multisig/list`,
-          {
-            body: { signature, chain },
-          },
-        );
-
-        setMultisigs(newMultisigs);
+        const fetchedMultisigs = await getDbUserMultisigs(signature, chain);
+        setMultisigs(fetchedMultisigs);
       } catch (e: unknown) {
         console.error("Failed to fetch multisigs:", e);
         toastError({

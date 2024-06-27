@@ -1,6 +1,7 @@
+import { DbSignatureObj, DbSignatureObjDraft, DbTransactionParsedDataJson } from "@/graphql";
+import { createDbSignature } from "@/lib/api";
 import { getKeplrAminoSigner, getKeplrKey, useKeplrReconnect } from "@/lib/keplr";
 import { toastError, toastSuccess } from "@/lib/utils";
-import { DbSignature, DbTransactionJsonObj } from "@/types/db";
 import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
 import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";
@@ -20,17 +21,16 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useChains } from "../../context/ChainsContext";
 import { getConnectError } from "../../lib/errorHelpers";
-import { requestJson } from "../../lib/request";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 
 interface TransactionSigningProps {
-  readonly signatures: DbSignature[];
-  readonly tx: DbTransactionJsonObj;
+  readonly signatures: DbSignatureObj[];
+  readonly tx: DbTransactionParsedDataJson;
   readonly pubkey: MultisigThresholdPubkey;
   readonly transactionID: string;
-  readonly addSignature: (signature: DbSignature) => void;
+  readonly addSignature: (signature: DbSignatureObj) => void;
 }
 
 const TransactionSigning = (props: TransactionSigningProps) => {
@@ -177,12 +177,12 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         throw new Error("This account has already signed");
       }
 
-      const signature = {
+      const signature: Omit<DbSignatureObjDraft, "transaction"> = {
         bodyBytes: bases64EncodedBodyBytes,
         signature: bases64EncodedSignature,
         address: signerAddress,
       };
-      await requestJson(`/api/transaction/${props.transactionID}/signature`, { body: signature });
+      await createDbSignature(props.transactionID, signature);
       toastSuccess("Transaction signed by", signerAddress);
       props.addSignature(signature);
       setSigning("signed");

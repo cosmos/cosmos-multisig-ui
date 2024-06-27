@@ -1,4 +1,4 @@
-import { DbTransactionJsonObj } from "@/types/db";
+import { DbTransactionParsedDataJson } from "@/graphql";
 import { MsgTypeUrls } from "@/types/txMsg";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { useChains } from "../../../context/ChainsContext";
@@ -65,7 +65,7 @@ const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
 };
 
 interface TransactionInfoProps {
-  readonly tx: DbTransactionJsonObj;
+  readonly tx: DbTransactionParsedDataJson;
 }
 
 const TransactionInfo = ({ tx }: TransactionInfoProps) => {
