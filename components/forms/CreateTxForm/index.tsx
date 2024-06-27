@@ -1,6 +1,7 @@
 import { loadValidators } from "@/context/ChainsContext/helpers";
+import { DbTransactionParsedDataJson } from "@/graphql";
+import { createDbTx } from "@/lib/api";
 import { toastError, toastSuccess } from "@/lib/utils";
-import { DbTransactionJsonObj } from "@/types/db";
 import { MsgTypeUrl, MsgTypeUrls } from "@/types/txMsg";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { Account, calculateFee } from "@cosmjs/stargate";
@@ -9,7 +10,6 @@ import { NextRouter, withRouter } from "next/router";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useChains } from "../../../context/ChainsContext";
-import { requestJson } from "../../../lib/request";
 import { exportMsgToJson, gasOfTx } from "../../../lib/txMsgHelpers";
 import Button from "../../inputs/Button";
 import Input from "../../inputs/Input";
@@ -82,7 +82,7 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         return;
       }
 
-      const tx: DbTransactionJsonObj = {
+      const txData: DbTransactionParsedDataJson = {
         accountNumber: accountOnChain.accountNumber,
         sequence: accountOnChain.sequence,
         chainId: chain.chainId,
@@ -91,15 +91,9 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         memo,
       };
 
-      const { transactionID } = await requestJson("/api/transaction", {
-        body: {
-          dataJSON: JSON.stringify(tx),
-          creator: accountOnChain.address,
-          chainId: chain.chainId,
-        },
-      });
-      toastSuccess("Transaction created with ID", transactionID);
-      router.push(`/${chain.registryName}/${senderAddress}/transaction/${transactionID}`);
+      const txId = await createDbTx(accountOnChain.address, chain.chainId, txData);
+      toastSuccess("Transaction created with ID", txId);
+      router.push(`/${chain.registryName}/${senderAddress}/transaction/${txId}`);
     } catch (e) {
       console.error("Failed to create transaction:", e);
       toastError({

@@ -1,11 +1,11 @@
 import { useChains } from "@/context/ChainsContext";
+import { DbTransaction } from "@/graphql";
+import { getDbMultisigTxs, getDbNonce } from "@/lib/api";
 import { ellideMiddle } from "@/lib/displayHelpers";
 import { getConnectError } from "@/lib/errorHelpers";
 import { getKeplrKey, getKeplrVerifySignature, useKeplrReconnect } from "@/lib/keplr";
-import { requestJson } from "@/lib/request";
 import { msgTypeCountsFromJson } from "@/lib/txMsgHelpers";
 import { cn, toastError } from "@/lib/utils";
-import { DbNonce, DbTransaction } from "@/types/db";
 import { WalletInfo } from "@/types/signing";
 import { toBase64 } from "@cosmjs/encoding";
 import { StargateClient } from "@cosmjs/stargate";
@@ -47,9 +47,7 @@ export default function ListMultisigTxs({
         throw new Error(`Account not found on chain for ${address}`);
       }
 
-      const { nonce }: DbNonce = await requestJson(
-        `/api/chain/${chain.chainId}/nonce/${accountOnChain.address}`,
-      );
+      const nonce = await getDbNonce(accountOnChain.address, chain.chainId);
 
       const signature = await getKeplrVerifySignature(accountOnChain.address, chain, nonce);
       return signature;
@@ -61,14 +59,7 @@ export default function ListMultisigTxs({
     async (address: string) => {
       try {
         const signature = await getSignature(address);
-
-        const fetchedTransactions: readonly DbTransaction[] = await requestJson(
-          `/api/transaction/list`,
-          {
-            body: { signature, chain, multisigAddress },
-          },
-        );
-
+        const fetchedTransactions = await getDbMultisigTxs(multisigAddress, chain, signature);
         setTransactions(fetchedTransactions);
       } catch (e: unknown) {
         console.error("Failed to fetch transactions:", e);
@@ -136,81 +127,79 @@ export default function ListMultisigTxs({
             <p>Loading transactions</p>
           </div>
         ) : null}
+        {walletInfo && transactions ? (
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="multisigs-type"
+              checked={showBroadcasted}
+              onCheckedChange={(checked) => {
+                setShowBroadcasted(checked);
+              }}
+            />
+            <Label htmlFor="multisigs-type">Also show broadcasted transactions</Label>
+          </div>
+        ) : null}
         {!showBroadcasted && pendingTxs && !pendingTxs.length
           ? "No pending transactions found"
           : null}
         {showBroadcasted && transactions && !transactions.length ? "No transactions found" : null}
         {transactions?.length || pendingTxs?.length ? (
-          <>
-            {transactions?.length !== pendingTxs?.length ? (
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="multisigs-type"
-                  checked={showBroadcasted}
-                  onCheckedChange={(checked) => {
-                    setShowBroadcasted(checked);
-                  }}
-                />
-                <Label htmlFor="multisigs-type">Also show broadcasted transactions</Label>
-              </div>
-            ) : null}
-            <div className="flex flex-col gap-2">
-              {((showBroadcasted ? transactions : pendingTxs) ?? []).map((tx) => {
-                const msgTypeCounts = msgTypeCountsFromJson(tx.dataJSON);
-                const hasSigned = Boolean(
-                  tx.signatures.find(({ address }) => address === walletInfo?.address),
-                );
+          <div className="flex flex-col gap-2">
+            {((showBroadcasted ? transactions : pendingTxs) ?? []).map((tx) => {
+              const msgTypeCounts = msgTypeCountsFromJson(tx.dataJSON);
+              const hasSigned = Boolean(
+                tx.signatures.find(({ address }) => address === walletInfo?.address),
+              );
 
-                return (
-                  <Link
-                    key={tx.id}
-                    href={`/${chain.registryName}/${multisigAddress}/transaction/${tx.id}`}
-                    className="flex items-center space-x-2 rounded-md border p-2 transition-colors hover:cursor-pointer hover:bg-muted/50"
-                  >
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Badge
-                          className={cn(
-                            "font-mono text-white",
-                            hasSigned && "bg-yellow-600 hover:bg-yellow-500",
-                            tx.txHash && "bg-green-600 hover:bg-green-500",
-                          )}
-                        >
-                          {tx.signatures.length}/{multisigThreshold}
+              return (
+                <Link
+                  key={tx.id}
+                  href={`/${chain.registryName}/${multisigAddress}/transaction/${tx.id}`}
+                  className="flex items-center space-x-2 rounded-md border p-2 transition-colors hover:cursor-pointer hover:bg-muted/50"
+                >
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge
+                        className={cn(
+                          "font-mono text-white",
+                          hasSigned && "bg-yellow-600 hover:bg-yellow-500",
+                          tx.txHash && "bg-green-600 hover:bg-green-500",
+                        )}
+                      >
+                        {tx.signatures.length}/{multisigThreshold}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div>
+                        <p>signatures: {tx.signatures.length}</p>
+                        <p>threshold: {multisigThreshold}</p>
+                        <p>{hasSigned ? "Signed by you" : "Not signed by you"}</p>
+                        <p>
+                          {tx.txHash
+                            ? `Broadcasted with hash: ${ellideMiddle(tx.txHash, 12)}`
+                            : "Not broadcasted"}
+                        </p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex-1 flex-col space-x-0.5">
+                      {msgTypeCounts.map(({ msgType, count }) => (
+                        <Badge key={msgType} className="pointer-events-none">
+                          {msgType}
+                          {count > 1 ? ` (${count})` : ""}
                         </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <div>
-                          <p>signatures: {tx.signatures.length}</p>
-                          <p>threshold: {multisigThreshold}</p>
-                          <p>{hasSigned ? "Signed by you" : "Not signed by you"}</p>
-                          <p>
-                            {tx.txHash
-                              ? `Broadcasted with hash: ${ellideMiddle(tx.txHash, 12)}`
-                              : "Not broadcasted"}
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex-1 flex-col space-x-0.5">
-                        {msgTypeCounts.map(({ msgType, count }) => (
-                          <Badge key={msgType} className="pointer-events-none">
-                            {msgType}
-                            {count > 1 ? ` (${count})` : ""}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex-1 flex-col space-x-0.5">
-                        <p className="font-mono text-sm text-muted-foreground">{tx.id}</p>
-                      </div>
+                      ))}
                     </div>
-                    <MoveRightIcon className="w-5" />
-                  </Link>
-                );
-              })}
-            </div>
-          </>
+                    <div className="flex-1 flex-col space-x-0.5">
+                      <p className="font-mono text-sm text-muted-foreground">{tx.id}</p>
+                    </div>
+                  </div>
+                  <MoveRightIcon className="w-5" />
+                </Link>
+              );
+            })}
+          </div>
         ) : null}
       </CardContent>
     </Card>

@@ -1,11 +1,11 @@
-import { DbSignature } from "@/types/db";
+import { DbSignatureObj } from "@/graphql";
 import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { useEffect, useState } from "react";
 import StackableContainer from "../layout/StackableContainer";
 import CopyAndPaste from "./CopyAndPaste";
 
 interface Props {
-  signatures: DbSignature[];
+  signatures: DbSignatureObj[];
   pubkey: MultisigThresholdPubkey;
 }
 
