@@ -14,7 +14,7 @@ type Transaction {
   id: ID!
   txHash: String
   creator: Multisig
-  dataJSON: String
+  dataJSON: String!
   signatures: [Signature] @hasInverse(field: transaction)
 }
 
