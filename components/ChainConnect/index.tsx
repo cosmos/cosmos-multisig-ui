@@ -1,7 +1,7 @@
 import { useChains } from "@/context/ChainsContext";
 import { setNewConnection } from "@/context/ChainsContext/helpers";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList } from "../ui/tabs";
 import ChooseChain from "./ChooseChain";
 import ConfirmConnection from "./ConfirmConnection";
@@ -25,9 +25,11 @@ export default function ChainConnect() {
     >
       <DialogButton />
       <DialogContent
+        aria-describedby={undefined}
         className={"max-h-[75%] max-w-[75%] overflow-y-auto bg-fuchsia-900"}
         style={newConnection.action === "confirm" ? { width: "auto" } : {}}
       >
+        <DialogTitle className="hidden">Connect to a new chain</DialogTitle>
         {newConnection.action === "confirm" ? (
           <ConfirmConnection closeDialog={() => setDialogOpen(false)} />
         ) : (
