@@ -100,8 +100,8 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         description: "Failed to create transaction",
         fullError: e instanceof Error ? e : undefined,
       });
-      setProcessing(false);
     } finally {
+      setProcessing(false);
       toast.dismiss(loadingToastId);
     }
   };
