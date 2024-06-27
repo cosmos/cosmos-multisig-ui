@@ -1,6 +1,8 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
+import { DbSignatureObj } from "@/graphql";
+import { getTransaction } from "@/graphql/transaction";
+import { updateDbTxHash } from "@/lib/api";
 import { toastError, toastSuccess } from "@/lib/utils";
-import { DbSignature } from "@/types/db";
 import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { fromBase64 } from "@cosmjs/encoding";
 import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
@@ -17,9 +19,7 @@ import Button from "../../../../components/inputs/Button";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import { useChains } from "../../../../context/ChainsContext";
-import { findTransactionByID } from "../../../../lib/graphqlHelpers";
 import { getHostedMultisig, isAccount } from "../../../../lib/multisigHelpers";
-import { requestJson } from "../../../../lib/request";
 import { dbTxFromJson } from "../../../../lib/txMsgHelpers";
 
 interface Props {
@@ -27,7 +27,7 @@ interface Props {
     transactionJSON: string;
     transactionID: string;
     txHash: string;
-    signatures: DbSignature[];
+    signatures: readonly DbSignatureObj[];
   };
 }
 
@@ -35,25 +35,19 @@ export const getServerSideProps: GetServerSideProps = async (context): Promise<P
   // get transaction info
   const transactionID = context.params?.transactionID?.toString();
   assert(transactionID, "Transaction ID missing");
-  let transactionJSON;
-  let txHash;
-  let signatures;
-  try {
-    console.log("Function `findTransactionByID` invoked", transactionID);
-    const getRes = await findTransactionByID(transactionID);
-    console.log("success", getRes.data);
-    txHash = getRes.data.getTransaction.txHash;
-    transactionJSON = getRes.data.getTransaction.dataJSON;
-    signatures = getRes.data.getTransaction.signatures;
-  } catch (err: unknown) {
-    console.log(err);
+  console.log("Function `findTransactionByID` invoked", transactionID);
+  const tx = await getTransaction(transactionID);
+  if (!tx) {
+    throw new Error("Transaction not found");
   }
+  console.log("success", tx);
+
   return {
     props: {
-      transactionJSON,
-      txHash,
+      transactionJSON: tx.dataJSON,
+      txHash: tx.txHash || "",
       transactionID,
-      signatures,
+      signatures: tx.signatures ?? [],
     },
   };
 };
@@ -66,7 +60,7 @@ const TransactionPage = ({
 }: {
   transactionJSON: string;
   transactionID: string;
-  signatures: DbSignature[];
+  signatures: DbSignatureObj[];
   txHash: string;
 }) => {
   const { chain } = useChains();
@@ -79,8 +73,8 @@ const TransactionPage = ({
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
 
-  const addSignature = (signature: DbSignature) => {
-    setCurrentSignatures((prevState: DbSignature[]) => [...prevState, signature]);
+  const addSignature = (signature: DbSignatureObj) => {
+    setCurrentSignatures((prevState: DbSignatureObj[]) => [...prevState, signature]);
   };
 
   useEffect(() => {
@@ -133,10 +127,7 @@ const TransactionPage = ({
 
       const broadcaster = await StargateClient.connect(chain.nodeAddress);
       const result = await broadcaster.broadcastTx(signedTxBytes);
-      console.log(result);
-      await requestJson(`/api/transaction/${transactionID}`, {
-        body: { txHash: result.transactionHash },
-      });
+      await updateDbTxHash(transactionID, result.transactionHash);
       toastSuccess("Transaction broadcasted with hash", result.transactionHash);
       setTransactionHash(result.transactionHash);
     } catch (e) {
