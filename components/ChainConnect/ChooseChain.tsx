@@ -1,7 +1,7 @@
 import { useChains } from "@/context/ChainsContext";
 import { getRecentChainsFromStorage } from "@/context/ChainsContext/storage";
 import { ChainInfo } from "@/context/ChainsContext/types";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Command, CommandEmpty, CommandInput, CommandList, CommandSeparator } from "../ui/command";
 import ChainsGroup from "./ChainsGroup";
 
@@ -9,9 +9,12 @@ export default function ChooseChain() {
   const { chains } = useChains();
   const [recentChains, setRecentChains] = useState<readonly ChainInfo[]>([]);
 
-  useLayoutEffect(() => {
-    const newRecentChains = getRecentChainsFromStorage(chains);
-    setRecentChains(newRecentChains);
+  useEffect(() => {
+    // Unblock the main thread
+    setTimeout(() => {
+      const newRecentChains = getRecentChainsFromStorage(chains);
+      setRecentChains(newRecentChains);
+    }, 0);
   }, [chains]);
 
   return (

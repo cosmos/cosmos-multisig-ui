@@ -1,7 +1,7 @@
 import { ChainInfo } from "@/context/ChainsContext/types";
+import { useEffect, useRef, useState } from "react";
 import { CommandGroup } from "../ui/command";
 import ChainItem from "./ChainItem";
-import { useRef } from "react";
 
 interface ChainsGroupProps {
   readonly chains: readonly ChainInfo[];
@@ -11,6 +11,16 @@ interface ChainsGroupProps {
 
 export default function ChainsGroup({ chains, heading, emptyMsg }: ChainsGroupProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [numChainsToRender, setNumChainsToRender] = useState(10);
+
+  useEffect(() => {
+    // Unblock the main thread
+    setTimeout(() => {
+      if (numChainsToRender < chains.length) {
+        setNumChainsToRender((prev) => prev + 10);
+      }
+    }, 0);
+  }, [chains.length, numChainsToRender]);
 
   return (
     <CommandGroup
@@ -19,7 +29,7 @@ export default function ChainsGroup({ chains, heading, emptyMsg }: ChainsGroupPr
     >
       {chains.length ? (
         <div ref={containerRef} className="flex flex-wrap gap-2">
-          {chains.map((chain) => (
+          {chains.slice(0, numChainsToRender).map((chain) => (
             <ChainItem
               key={chain.registryName}
               chain={chain}
