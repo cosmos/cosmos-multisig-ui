@@ -1,32 +1,35 @@
+import { getMultisig } from "@/graphql/multisig";
+import { createTransaction } from "@/graphql/transaction";
+import { CreateDbTxBody } from "@/lib/api";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createTransaction, getMultisigId } from "../../../lib/graphqlHelpers";
 
-export default async function transactionApi(req: NextApiRequest, res: NextApiResponse) {
-  switch (req.method) {
-    case "POST":
-      try {
-        const data = req.body;
-        console.log("Function `createTransaction` invoked", data);
+const endpointErrMsg = "Failed to create transaction";
 
-        const multisigId = await getMultisigId(data.creator, data.chainId);
-        if (!multisigId) {
-          throw new Error("Multisig not found");
-        }
-
-        const createTransactionResult = await createTransaction(data.dataJSON, multisigId);
-        console.log("createTransactionResult:", createTransactionResult);
-        res
-          .status(200)
-          .send({ transactionID: createTransactionResult.data.addTransaction.transaction[0].id });
-        return;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        console.log(err);
-        res.status(400).send(err.message);
-        return;
-      }
+export default async function apiCreateTransaction(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") {
+    res.status(405).end();
+    return;
   }
-  // no route matched
-  res.status(405).end();
-  return;
+
+  const body: CreateDbTxBody = req.body;
+
+  try {
+    const multisig = await getMultisig(body.chainId, body.creator);
+    if (!multisig) {
+      throw new Error(`multisig not found with address ${body.creator} on chain ${body.chainId}`);
+    }
+
+    const txId = await createTransaction({
+      dataJSON: JSON.stringify(body.dataJSON),
+      creator: { id: multisig.id },
+    });
+
+    res.status(200).send({ txId });
+    console.log("Create transaction success", JSON.stringify({ txId }, null, 2));
+  } catch (err: unknown) {
+    console.error(err);
+    res
+      .status(400)
+      .send(err instanceof Error ? `${endpointErrMsg}: ${err.message}` : endpointErrMsg);
+  }
 }

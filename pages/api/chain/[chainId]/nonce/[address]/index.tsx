@@ -1,37 +1,31 @@
-import { createNonce, getNonce } from "@/lib/graphqlHelpers";
+import { getNonce } from "@/graphql/nonce";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function nonceApi(req: NextApiRequest, res: NextApiResponse) {
-  switch (req.method) {
-    case "GET":
-      try {
-        const chainId = req.query.chainId?.toString() || "";
-        const address = req.query.address?.toString() || "";
+const endpointErrMsg = "Failed to get nonce";
 
-        console.log("Function `getNonce` invoked", chainId, address);
-        let nonce = await getNonce(chainId, address);
-        if (nonce) {
-          console.log("success", nonce);
-          res.status(200).send(nonce);
-          return;
-        }
+export default async function apiGetNonce(req: NextApiRequest, res: NextApiResponse) {
+  const chainId = req.query.chainId;
+  const address = req.query.address;
 
-        nonce = await createNonce(chainId, address);
-        if (!nonce) {
-          throw new Error(`Nonce could not be created on ${chainId} for ${address}`);
-        }
-
-        console.log("success", nonce);
-        res.status(200).send(nonce);
-        return;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        console.log(err);
-        res.status(400).send(err.message);
-        return;
-      }
+  if (
+    req.method !== "GET" ||
+    typeof chainId !== "string" ||
+    !chainId ||
+    typeof address !== "string" ||
+    !address
+  ) {
+    res.status(405).end();
+    return;
   }
-  // no route matched
-  res.status(405).end();
-  return;
+
+  try {
+    const nonce = await getNonce(chainId, address);
+    res.status(200).send({ nonce });
+    console.log("Get nonce success", JSON.stringify({ nonce }, null, 2));
+  } catch (err: unknown) {
+    console.error(err);
+    res
+      .status(400)
+      .send(err instanceof Error ? `${endpointErrMsg}: ${err.message}` : endpointErrMsg);
+  }
 }
