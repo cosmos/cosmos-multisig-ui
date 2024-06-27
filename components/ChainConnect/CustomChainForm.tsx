@@ -3,6 +3,7 @@ import { setNewConnection } from "@/context/ChainsContext/helpers";
 import { RegistryAsset } from "@/types/chainRegistry";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "../ui/button";
@@ -21,6 +22,14 @@ const JsonEditor = dynamic(() => import("../inputs/JsonEditor"), { ssr: false })
 
 export default function CustomChainForm() {
   const { chain, chains, newConnection, chainsDispatch } = useChains();
+  const [showAssetsEditor, setShowAssetsEditor] = useState(false);
+
+  useEffect(() => {
+    // Unblock the main thread
+    setTimeout(() => {
+      setShowAssetsEditor(true);
+    }, 0);
+  }, []);
 
   const formSchema = z
     .object({
@@ -246,25 +255,27 @@ export default function CustomChainForm() {
             </FormItem>
           )}
         />
-        <FormField
-          name="assets"
-          render={({ field }) => (
-            <FormItem className="mt-4">
-              <FormLabel>Assets</FormLabel>
-              <FormControl>
-                <div>
-                  <JsonEditor
-                    content={{ text: field.value }}
-                    onChange={(newMsgContent) => {
-                      field.onChange("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}");
-                    }}
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {showAssetsEditor ? (
+          <FormField
+            name="assets"
+            render={({ field }) => (
+              <FormItem className="mt-4">
+                <FormLabel>Assets</FormLabel>
+                <FormControl>
+                  <div>
+                    <JsonEditor
+                      content={{ text: field.value }}
+                      onChange={(newMsgContent) => {
+                        field.onChange("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}");
+                      }}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : null}
         <Button type="submit" className="mt-4">
           Submit
         </Button>

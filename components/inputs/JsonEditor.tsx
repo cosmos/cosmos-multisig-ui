@@ -28,9 +28,9 @@ export default function JsonEditor({ label, ...editorProps }: JsonEditorProps) {
   const refEditor = useRef<VanillaJsonEditor | null>(null);
 
   useEffect(() => {
-    if (!refContainer.current) return;
-
-    refEditor.current = new VanillaJsonEditor({ target: refContainer.current, props: {} });
+    if (refContainer.current) {
+      refEditor.current = new VanillaJsonEditor({ target: refContainer.current, props: {} });
+    }
 
     return () => {
       if (refEditor.current) {
