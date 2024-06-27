@@ -1,16 +1,13 @@
 import { ChainInfo } from "@/context/ChainsContext/types";
+import { DbMultisigDraft } from "@/graphql";
 import {
-  createMultisigThresholdPubkey,
   MultisigThresholdPubkey,
+  createMultisigThresholdPubkey,
   pubkeyToAddress,
 } from "@cosmjs/amino";
 import { Account, StargateClient } from "@cosmjs/stargate";
+import { createDbMultisig, getDbMultisig } from "./api";
 import { checkAddress, explorerLinkAccount } from "./displayHelpers";
-import { requestJson } from "./request";
-
-export interface CreateMultisigAccountResponse {
-  readonly address: string;
-}
 
 /**
  * Turns array of compressed Secp256k1 pubkeys
@@ -39,24 +36,17 @@ export const createMultisigFromCompressedSecp256k1Pubkeys = async (
   const multisigAddress = pubkeyToAddress(multisigPubkey, addressPrefix);
 
   // save multisig to relational offchain database
-  const multisig = {
+  const multisig: DbMultisigDraft = {
     address: multisigAddress,
     pubkeyJSON: JSON.stringify(multisigPubkey),
     creator,
     chainId,
   };
 
-  const { address }: CreateMultisigAccountResponse = await requestJson(
-    `/api/chain/${chainId}/multisig`,
-    { body: multisig },
-  );
+  const dbMultisigAddress = await createDbMultisig(multisig, chainId);
 
-  return address;
+  return dbMultisigAddress;
 };
-
-export interface GetMultisigAccountResponse {
-  readonly pubkeyJSON: string;
-}
 
 export type HostedMultisig =
   | {
@@ -92,9 +82,7 @@ export const getHostedMultisig = async (
 
   hostedMultisig = await (async () => {
     try {
-      const { pubkeyJSON }: GetMultisigAccountResponse = await requestJson(
-        `/api/chain/${chainId}/multisig/${multisigAddress}`,
-      );
+      const { pubkeyJSON } = await getDbMultisig(multisigAddress, chainId);
 
       const pubkeyOnDb = JSON.parse(pubkeyJSON);
       return { hosted: "db", pubkeyOnDb };
