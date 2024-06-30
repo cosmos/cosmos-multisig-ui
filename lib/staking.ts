@@ -10,16 +10,21 @@ const getValidatorsPage = (
 export const getAllValidators = async (rpcUrl: string): Promise<readonly Validator[]> => {
   const validators: Validator[] = [];
 
+  console.log({ rpcUrl });
   const cometClient = await connectComet(rpcUrl);
+  console.log({ cometClient });
   const queryClient = QueryClient.withExtensions(cometClient, setupStakingExtension);
+  console.log({ queryClient });
 
   let paginationKey: Uint8Array | undefined = undefined;
 
   do {
     const response = await getValidatorsPage(queryClient, paginationKey);
+    console.log({ response });
     validators.push(...response.validators);
     paginationKey = response.pagination?.nextKey;
   } while (paginationKey?.length);
 
+  console.log({ validators });
   return validators;
 };
