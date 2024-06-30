@@ -7,6 +7,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useChains } from "@/context/ChainsContext";
@@ -39,9 +40,8 @@ export default function SelectValidator({
           className="mb-4 w-full max-w-[300px] justify-between border-white bg-fuchsia-900 hover:bg-fuchsia-900"
         >
           {validatorAddress
-            ? validators?.find(
-                (validatorItem) => validatorAddress === validatorItem.operatorAddress,
-              )?.description.moniker || "Unknown validator"
+            ? validators.find((validatorItem) => validatorAddress === validatorItem.operatorAddress)
+                ?.description.moniker || "Unknown validator"
             : "Select validator…"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -53,29 +53,31 @@ export default function SelectValidator({
             value={searchText}
             onValueChange={setSearchText}
           />
-          <CommandEmpty>No framework found.</CommandEmpty>
-          <CommandGroup className="max-h-[400px] overflow-y-auto">
-            {validators?.map((validatorItem) => (
-              <CommandItem
-                className="aria-selected:bg-fuchsia-800"
-                key={validatorItem.operatorAddress}
-                onSelect={() => {
-                  setValidatorAddress(validatorItem.operatorAddress);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    validatorAddress === validatorItem.operatorAddress
-                      ? "opacity-100"
-                      : "opacity-0",
-                  )}
-                />
-                {validatorItem.description.moniker}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandEmpty>No validators found.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              {validators.map((validatorItem) => (
+                <CommandItem
+                  className="aria-selected:bg-fuchsia-800"
+                  key={validatorItem.operatorAddress}
+                  onSelect={() => {
+                    setValidatorAddress(validatorItem.operatorAddress);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      validatorAddress === validatorItem.operatorAddress
+                        ? "opacity-100"
+                        : "opacity-0",
+                    )}
+                  />
+                  {validatorItem.description.moniker}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
