@@ -65,14 +65,14 @@ export default function CreateMultisigForm() {
   }, [createMultisigForm, watchedMembers]);
 
   const submitCreateMultisig = async () => {
-    // Caution: threshold is string instead of number
-    const { members, threshold } = createMultisigForm.getValues();
+    try {
+      // Caution: threshold is string instead of number
+      const { members, threshold } = createMultisigForm.getValues();
 
-    const pubkeys = await Promise.all(
-      members
-        .filter(({ member }) => member !== "")
-        .map(async ({ member }) => {
-          try {
+      const pubkeys = await Promise.all(
+        members
+          .filter(({ member }) => member !== "")
+          .map(async ({ member }) => {
             if (!member.startsWith(chain.addressPrefix)) {
               return member;
             }
@@ -81,17 +81,15 @@ export default function CreateMultisigForm() {
             const accountOnChain = await client.getAccount(member);
 
             if (!accountOnChain || !accountOnChain.pubkey) {
-              return member;
+              throw new Error(
+                `Member "${member}" is not a pubkey and is not on chain. It needs to send a transaction to appear on chain or you can provide its pubkey`,
+              );
             }
 
             return String(accountOnChain.pubkey.value);
-          } catch {
-            return member;
-          }
-        }),
-    );
+          }),
+      );
 
-    try {
       const { bech32Address: address } = await getKeplrKey(chain.chainId);
 
       const multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
