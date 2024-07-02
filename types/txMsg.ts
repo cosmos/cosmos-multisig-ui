@@ -3,6 +3,7 @@ import {
   MsgSetWithdrawAddress,
   MsgWithdrawDelegatorReward,
 } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
+import { MsgVote } from "cosmjs-types/cosmos/gov/v1beta1/tx";
 import {
   MsgBeginRedelegate,
   MsgDelegate,
@@ -20,6 +21,7 @@ import { MsgDualClaimRewards, MsgDualDelegate, MsgDualRedelegate, MsgDualUnbond 
 
 export const MsgTypeUrls = {
   Send: "/cosmos.bank.v1beta1.MsgSend",
+  Vote: "/cosmos.gov.v1beta1.MsgVote",
   SetWithdrawAddress: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
   WithdrawDelegatorReward: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
   BeginRedelegate: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
@@ -41,6 +43,7 @@ export type MsgTypeUrl = (typeof MsgTypeUrls)[keyof typeof MsgTypeUrls];
 
 export const MsgCodecs = {
   [MsgTypeUrls.Send]: MsgSend,
+  [MsgTypeUrls.Vote]: MsgVote,
   [MsgTypeUrls.SetWithdrawAddress]: MsgSetWithdrawAddress,
   [MsgTypeUrls.WithdrawDelegatorReward]: MsgWithdrawDelegatorReward,
   [MsgTypeUrls.BeginRedelegate]: MsgBeginRedelegate,

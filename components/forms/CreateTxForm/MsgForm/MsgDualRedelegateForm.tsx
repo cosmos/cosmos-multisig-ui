@@ -1,9 +1,10 @@
+import SelectProvider from "@/components/SelectProvider";
 import { MsgDualRedelegateEncodeObject } from "@/types/lava";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { displayCoinToBaseCoin } from "../../../../lib/coinHelpers";
-import { exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
+import { checkAddress, exampleAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -29,8 +30,6 @@ const MsgDualRedelegateForm = ({
 
   const [fromProviderAddressError, setFromProviderAddressError] = useState("");
   const [toProviderAddressError, setToProviderAddressError] = useState("");
-  const [fromChainIDError, setFromChainIDError] = useState("");
-  const [toChainIDError, setToChainIDError] = useState("");
   const [amountError, setAmountError] = useState("");
 
   const trimmedInputs = trimStringsObj({
@@ -49,27 +48,31 @@ const MsgDualRedelegateForm = ({
     const isMsgValid = (): boolean => {
       setFromProviderAddressError("");
       setToProviderAddressError("");
-      setFromChainIDError("");
-      setToChainIDError("");
       setAmountError("");
 
-      if (!fromProviderAddress) {
+      if (fromChainID && !fromProviderAddress) {
         setFromProviderAddressError("From Provider address is required");
         return false;
       }
 
-      if (!toProviderAddress) {
+      if (toChainID && !toProviderAddress) {
         setToProviderAddressError("To Provider address is required");
         return false;
       }
 
-      if (!fromChainID) {
-        setFromChainIDError("From Chain ID is required");
+      const fromProviderAddressErrorMsg = checkAddress(fromProviderAddress, chain.addressPrefix);
+      if (fromChainID && fromProviderAddressErrorMsg) {
+        setFromProviderAddressError(
+          `Invalid address for network ${chain.chainId}: ${fromProviderAddressErrorMsg}`,
+        );
         return false;
       }
 
-      if (!toChainID) {
-        setToChainIDError("To Chain ID is required");
+      const toProviderAddressErrorMsg = checkAddress(toProviderAddress, chain.addressPrefix);
+      if (toChainID && toProviderAddressErrorMsg) {
+        setToProviderAddressError(
+          `Invalid address for network ${chain.chainId}: ${toProviderAddressErrorMsg}`,
+        );
         return false;
       }
 
@@ -98,10 +101,10 @@ const MsgDualRedelegateForm = ({
 
     const msgValue = MsgCodecs[MsgTypeUrls.DualRedelegate].fromPartial({
       creator: delegatorAddress,
-      fromProvider: fromProviderAddress,
-      toProvider: toProviderAddress,
       fromChainID,
       toChainID,
+      fromProvider: fromChainID ? fromProviderAddress : "empty_provider",
+      toProvider: toChainID ? toProviderAddress : "empty_provider",
       amount: microCoin,
     });
 
@@ -111,7 +114,15 @@ const MsgDualRedelegateForm = ({
     };
 
     setMsgGetter({ isMsgValid, msg });
-  }, [chain.assets, chain.displayDenom, delegatorAddress, setMsgGetter, trimmedInputs]);
+  }, [
+    chain.addressPrefix,
+    chain.assets,
+    chain.chainId,
+    chain.displayDenom,
+    delegatorAddress,
+    setMsgGetter,
+    trimmedInputs,
+  ]);
 
   return (
     <StackableContainer lessPadding lessMargin>
@@ -120,6 +131,32 @@ const MsgDualRedelegateForm = ({
       </button>
       <h2>Dualstaking MsgRedelegate</h2>
       <div className="form-item">
+        <Input
+          label="From Chain ID"
+          name="from-chain-id"
+          value={fromChainID}
+          onChange={({ target }) => {
+            setFromChainID(target.value);
+          }}
+        />
+      </div>
+      <div className="form-item">
+        <Input
+          label="To Chain ID"
+          name="to-chain-id"
+          value={toChainID}
+          onChange={({ target }) => {
+            setToChainID(target.value);
+          }}
+        />
+      </div>
+      <div className="form-item">
+        <SelectProvider
+          key={fromChainID}
+          chainID={fromChainID}
+          providerAddress={fromProviderAddress}
+          setProviderAddress={setFromProviderAddress}
+        />
         <Input
           label="From Provider Address"
           name="from-provider-address"
@@ -133,6 +170,12 @@ const MsgDualRedelegateForm = ({
         />
       </div>
       <div className="form-item">
+        <SelectProvider
+          key={toChainID}
+          chainID={toChainID}
+          providerAddress={toProviderAddress}
+          setProviderAddress={setToProviderAddress}
+        />
         <Input
           label="To Provider Address"
           name="to-provider-address"
@@ -143,30 +186,6 @@ const MsgDualRedelegateForm = ({
           }}
           error={toProviderAddressError}
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
-        />
-      </div>
-      <div className="form-item">
-        <Input
-          label="From Chain ID"
-          name="from-chain-id"
-          value={fromChainID}
-          onChange={({ target }) => {
-            setFromChainID(target.value);
-            setFromChainIDError("");
-          }}
-          error={fromChainIDError}
-        />
-      </div>
-      <div className="form-item">
-        <Input
-          label="To Chain ID"
-          name="to-chain-id"
-          value={toChainID}
-          onChange={({ target }) => {
-            setToChainID(target.value);
-            setToChainIDError("");
-          }}
-          error={toChainIDError}
         />
       </div>
       <div className="form-item">

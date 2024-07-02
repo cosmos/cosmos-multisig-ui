@@ -1,3 +1,4 @@
+import SelectProvider from "@/components/SelectProvider";
 import SelectValidator from "@/components/SelectValidator";
 import { MsgDualUnbondEncodeObject } from "@/types/lava";
 import { useEffect, useState } from "react";
@@ -44,11 +45,16 @@ const MsgDualUnbondForm = ({
       setChainIDError("");
       setAmountError("");
 
-      const addressErrorMsg = checkAddress(validatorAddress, chain.addressPrefix);
-      if (addressErrorMsg) {
+      const validatorAddressErrorMsg = checkAddress(validatorAddress, chain.addressPrefix);
+      if (validatorAddressErrorMsg) {
         setValidatorAddressError(
-          `Invalid address for network ${chain.chainId}: ${addressErrorMsg}`,
+          `Invalid address for network ${chain.chainId}: ${validatorAddressErrorMsg}`,
         );
+        return false;
+      }
+
+      if (!chainID) {
+        setChainIDError("Chain ID is required");
         return false;
       }
 
@@ -57,8 +63,11 @@ const MsgDualUnbondForm = ({
         return false;
       }
 
-      if (!chainID) {
-        setChainIDError("Chain ID is required");
+      const providerAddressErrorMsg = checkAddress(providerAddress, chain.addressPrefix);
+      if (providerAddressErrorMsg) {
+        setProviderAddressError(
+          `Invalid address for network ${chain.chainId}: ${providerAddressErrorMsg}`,
+        );
         return false;
       }
 
@@ -129,20 +138,6 @@ const MsgDualUnbondForm = ({
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
-
-      <div className="form-item">
-        <Input
-          label="Provider Address"
-          name="provider-address"
-          value={providerAddress}
-          onChange={({ target }) => {
-            setProviderAddress(target.value);
-            setProviderAddressError("");
-          }}
-          error={providerAddressError}
-          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
-        />
-      </div>
       <div className="form-item">
         <Input
           label="Chain ID"
@@ -153,6 +148,25 @@ const MsgDualUnbondForm = ({
             setChainIDError("");
           }}
           error={chainIDError}
+        />
+      </div>
+      <div className="form-item">
+        <SelectProvider
+          key={chainID}
+          chainID={chainID}
+          providerAddress={providerAddress}
+          setProviderAddress={setProviderAddress}
+        />
+        <Input
+          label="Provider Address"
+          name="provider-address"
+          value={providerAddress}
+          onChange={({ target }) => {
+            setProviderAddress(target.value);
+            setProviderAddressError("");
+          }}
+          error={providerAddressError}
+          placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
       <div className="form-item">

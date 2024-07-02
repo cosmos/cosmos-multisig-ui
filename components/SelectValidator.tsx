@@ -53,7 +53,7 @@ export default function SelectValidator({
             value={searchText}
             onValueChange={setSearchText}
           />
-          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandEmpty>No validators found.</CommandEmpty>
           <CommandGroup className="max-h-[400px] overflow-y-auto">
             {validators?.map((validatorItem) => (
               <CommandItem

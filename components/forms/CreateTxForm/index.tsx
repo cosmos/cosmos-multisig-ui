@@ -38,6 +38,8 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
   const [msgTypes, setMsgTypes] = useState<readonly MsgTypeUrl[]>([]);
   const [msgKeys, setMsgKeys] = useState<readonly string[]>([]);
   const msgGetters = useRef<MsgGetter[]>([]);
+  const [sequence, setSequence] = useState(accountOnChain.sequence);
+  const [sequenceError, setSequenceError] = useState("");
   const [memo, setMemo] = useState("");
   const [gasLimit, setGasLimit] = useState(gasOfTx([]));
   const [gasLimitError, setGasLimitError] = useState("");
@@ -77,11 +79,16 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         return;
       }
 
+      if (!Number.isSafeInteger(sequence) || sequence < 0) {
+        setSequenceError("sequence can't be negative");
+        return;
+      }
+
       setProcessing(true);
 
       const tx: DbTransaction = {
         accountNumber: accountOnChain.accountNumber,
-        sequence: accountOnChain.sequence,
+        sequence,
         chainId: chain.chainId,
         msgs,
         fee: calculateFee(gasLimit, chain.gasPrice),
@@ -151,15 +158,20 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           name="gas-limit"
           value={gasLimit}
           onChange={({ target }) => setGasLimit(Number(target.value))}
+          error={gasLimitError}
         />
       </div>
       <div className="form-item">
+        <Input label="Gas Price" name="gas-price" value={chain.gasPrice} disabled={true} />
+      </div>
+      <div className="form-item">
         <Input
-          label="Gas Price"
-          name="gas-price"
-          value={chain.gasPrice}
-          disabled={true}
-          error={gasLimitError}
+          type="number"
+          label="Sequence"
+          name="sequence"
+          value={sequence}
+          onChange={({ target }) => setSequence(Number(target.value))}
+          error={sequenceError}
         />
       </div>
       <div className="form-item">
@@ -196,6 +208,14 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
                 label="CreateVestingAccount"
                 onClick={() => addMsgType(MsgTypeUrls.CreateVestingAccount)}
               />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
+          <label>Governance</label>
+          <ul>
+            <li>
+              <Button label="Vote" onClick={() => addMsgType(MsgTypeUrls.Vote)} />
             </li>
           </ul>
         </div>
