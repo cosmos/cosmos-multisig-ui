@@ -152,7 +152,11 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
-        registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
+        registry: new Registry([
+          ...defaultRegistryTypes,
+          ...wasmTypes,
+          ...lavajs.lavanetProtoRegistry,
+        ]),
         aminoTypes: new AminoTypes({
           ...createDefaultAminoConverters(),
           ...createWasmAminoConverters(),
