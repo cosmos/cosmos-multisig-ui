@@ -24,7 +24,7 @@
     "@cosmjs/utils": "^0.32.2",
     "@hookform/resolvers": "^3.3.1",
     "@keplr-wallet/types": "^0.12.76",
-    "@lavanet/lavajs": "^1.2.2",
+    "@lavanet/lavajs": "^2.2.0-mainnet",
     "@ledgerhq/hw-transport-webusb": "^6.27.19",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
