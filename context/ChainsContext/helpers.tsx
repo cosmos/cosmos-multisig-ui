@@ -26,7 +26,8 @@ export const isChainInfoFilled = (chain: Partial<ChainInfo>): chain is ChainInfo
       chain.nodeAddresses?.length &&
       chain.denom &&
       chain.displayDenom &&
-      chain.displayDenomExponent &&
+      Number.isSafeInteger(chain.displayDenomExponent) &&
+      typeof chain.displayDenomExponent === "number" &&
       chain.displayDenomExponent >= 0 &&
       chain.assets?.length &&
       chain.gasPrice &&
