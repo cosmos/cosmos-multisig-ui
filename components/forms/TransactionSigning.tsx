@@ -147,7 +147,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
 
       const offlineSigner =
-        walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
+        walletType === "Keplr" ? window.getOfflineSigner(chain.chainId) : ledgerSigner;
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
@@ -170,7 +170,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         chainId: chain.chainId,
       };
 
-      const { bodyBytes, signatures } = await signingClient.sign(
+      const { bodyBytes, signatures } = await signingClient.signDirect(
         signerAddress,
         props.tx.msgs,
         props.tx.fee,
