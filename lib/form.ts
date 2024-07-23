@@ -1,3 +1,6 @@
+import FieldAddress, {
+  getFieldAddressSchema,
+} from "@/components/forms/CreateTxForm/Fields/FieldAddress";
 import { FieldSchemaInput } from "@/components/forms/CreateTxForm/Fields/types";
 import { z } from "zod";
 
@@ -8,14 +11,28 @@ export const prettyFieldName = (fieldName: string) => {
   return capitalizedName;
 };
 
-export const getField = (_fieldName: string) => {
-  /* Will return a FormField component per fieldName */
-  return () => null;
+export const getField = (fieldName: string) => {
+  switch (fieldName) {
+    case "fromAddress":
+    case "toAddress":
+    case "delegatorAddress":
+    case "validatorAddress":
+      return FieldAddress;
+    default:
+      return () => null;
+  }
 };
 
-const getFieldSchema = (_fieldName: string) => {
-  /* Will return a zod schema getter per fieldName */
-  return (_schemaInput: unknown) => null;
+const getFieldSchema = (fieldName: string) => {
+  switch (fieldName) {
+    case "fromAddress":
+    case "toAddress":
+    case "delegatorAddress":
+    case "validatorAddress":
+      return getFieldAddressSchema;
+    default:
+      throw new Error(`No schema found for ${fieldName} field`);
+  }
 };
 
 export const getMsgSchema = (fieldNames: readonly string[], schemaInput: FieldSchemaInput) => {
