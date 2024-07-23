@@ -1,6 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getMsgRegistry } from "@/lib/msg";
 
 export default function CreateTxForm() {
+  console.log({ msgRegistry: getMsgRegistry() });
+
   return (
     <Card>
       <CardHeader>

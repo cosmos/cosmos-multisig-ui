@@ -1,19 +1,15 @@
 import { DbSignatureObj, DbSignatureObjDraft, DbTransactionParsedDataJson } from "@/graphql";
 import { createDbSignature } from "@/lib/api";
 import { getKeplrAminoSigner, getKeplrKey, useKeplrReconnect } from "@/lib/keplr";
+import { aminoConverters } from "@/lib/msg";
 import { toastError, toastSuccess } from "@/lib/utils";
 import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
-import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";
+import { wasmTypes } from "@cosmjs/cosmwasm-stargate";
 import { toBase64 } from "@cosmjs/encoding";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
 import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
-import {
-  AminoTypes,
-  SigningStargateClient,
-  createDefaultAminoConverters,
-  defaultRegistryTypes,
-} from "@cosmjs/stargate";
+import { AminoTypes, SigningStargateClient, defaultRegistryTypes } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { Key } from "@keplr-wallet/types";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
@@ -146,10 +142,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       assert(signerAddress, "Missing signer address");
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
         registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
-        aminoTypes: new AminoTypes({
-          ...createDefaultAminoConverters(),
-          ...createWasmAminoConverters(),
-        }),
+        aminoTypes: new AminoTypes(aminoConverters),
       });
 
       const signerData = {
