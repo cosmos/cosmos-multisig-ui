@@ -8,7 +8,8 @@ import { FieldSchemaInput } from "@/components/forms/CreateTxForm/Fields/types";
 import { z } from "zod";
 
 export const prettyFieldName = (fieldName: string) => {
-  const splitName = fieldName.split(/(?=[A-Z])/).join(" ");
+  const truncatedName = fieldName.slice(fieldName.indexOf(".", "msgs.".length) + 1);
+  const splitName = truncatedName.split(/(?=[A-Z])/).join(" ");
   const capitalizedName = splitName.charAt(0).toUpperCase() + splitName.slice(1);
 
   return capitalizedName;
