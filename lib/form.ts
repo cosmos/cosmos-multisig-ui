@@ -1,51 +1,30 @@
-import FieldAddress, {
+import {
+  getFieldAddress,
   getFieldAddressSchema,
-} from "@/components/forms/CreateTxForm/Fields/FieldAddress";
-import FieldAmount, {
+  getFieldAmount,
   getFieldAmountSchema,
-} from "@/components/forms/CreateTxForm/Fields/FieldAmount";
+} from "@/components/forms/CreateTxForm/Fields";
 import { FieldSchemaInput } from "@/components/forms/CreateTxForm/Fields/types";
 import { z } from "zod";
 
 export const prettyFieldName = (fieldName: string) => {
-  const splitName = fieldName.split(/(?=[A-Z])/).join(" ");
+  const truncatedName = fieldName.slice(fieldName.indexOf(".", "msgs.".length) + 1);
+  const splitName = truncatedName.split(/(?=[A-Z])/).join(" ");
   const capitalizedName = splitName.charAt(0).toUpperCase() + splitName.slice(1);
 
   return capitalizedName;
 };
 
-export const getField = (fieldName: string) => {
-  switch (fieldName) {
-    case "fromAddress":
-    case "toAddress":
-    case "delegatorAddress":
-    case "validatorAddress":
-      return FieldAddress;
-    case "amount":
-      return FieldAmount;
-    default:
-      return () => null;
-  }
-};
+export const getField = (fieldName: string) =>
+  getFieldAddress(fieldName) || getFieldAmount(fieldName) || null;
 
-const getFieldSchema = (fieldName: string) => {
-  switch (fieldName) {
-    case "fromAddress":
-    case "toAddress":
-    case "delegatorAddress":
-    case "validatorAddress":
-      return getFieldAddressSchema;
-    case "amount":
-      return getFieldAmountSchema;
-    default:
-      throw new Error(`No schema found for ${fieldName} field`);
-  }
-};
+const getFieldSchema = (fieldName: string, schemaInput: FieldSchemaInput) =>
+  getFieldAddressSchema(fieldName, schemaInput) || getFieldAmountSchema(fieldName) || null;
 
 export const getMsgSchema = (fieldNames: readonly string[], schemaInput: FieldSchemaInput) => {
   const fieldEntries = fieldNames.map((fieldName) => [
     fieldName,
-    getFieldSchema(fieldName)(schemaInput),
+    getFieldSchema(fieldName, schemaInput),
   ]);
 
   return z.object(Object.fromEntries(fieldEntries));

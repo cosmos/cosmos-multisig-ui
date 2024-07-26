@@ -68,7 +68,16 @@ export default function CreateTxForm() {
               {Object.values(msgRegistry)
                 .filter((msg) => msg.category === category)
                 .map((msg) => (
-                  <Button key={msg.typeUrl} onClick={() => addMsg(msg.typeUrl)}>
+                  <Button
+                    key={msg.typeUrl}
+                    onClick={() => addMsg(msg.typeUrl)}
+                    disabled={
+                      msg.fields.map((f: string) => getField(f)).some((v: string) => v === null) ||
+                      Object.values(getMsgSchema(msg.fields, { chain }).shape).some(
+                        (v) => v === null,
+                      )
+                    }
+                  >
                     Add {msg.name.startsWith("Msg") ? msg.name.slice(3) : msg.name}
                   </Button>
                 ))}
@@ -83,7 +92,7 @@ export default function CreateTxForm() {
                 <div key={type.key}>
                   <h3>{msg.name}</h3>
                   {msg.fields.map((fieldName: string) => {
-                    const Field = getField(fieldName);
+                    const Field = getField(fieldName) || (() => null);
                     return (
                       <Field
                         key={fieldName}
