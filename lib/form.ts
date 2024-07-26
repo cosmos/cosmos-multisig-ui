@@ -1,11 +1,9 @@
 import {
   getFieldAddress,
   getFieldAddressSchema,
-} from "@/components/forms/CreateTxForm/Fields/FieldAddress";
-import {
   getFieldAmount,
   getFieldAmountSchema,
-} from "@/components/forms/CreateTxForm/Fields/FieldAmount";
+} from "@/components/forms/CreateTxForm/Fields";
 import { FieldSchemaInput } from "@/components/forms/CreateTxForm/Fields/types";
 import { z } from "zod";
 
