@@ -83,7 +83,7 @@ export default function CreateTxForm() {
                 <div key={type.key}>
                   <h3>{msg.name}</h3>
                   {msg.fields.map((fieldName: string) => {
-                    const Field = getField(fieldName);
+                    const Field = getField(fieldName) || (() => null);
                     return (
                       <Field
                         key={fieldName}

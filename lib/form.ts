@@ -1,7 +1,9 @@
-import FieldAddress, {
+import {
+  getFieldAddress,
   getFieldAddressSchema,
 } from "@/components/forms/CreateTxForm/Fields/FieldAddress";
-import FieldAmount, {
+import {
+  getFieldAmount,
   getFieldAmountSchema,
 } from "@/components/forms/CreateTxForm/Fields/FieldAmount";
 import { FieldSchemaInput } from "@/components/forms/CreateTxForm/Fields/types";
@@ -15,69 +17,16 @@ export const prettyFieldName = (fieldName: string) => {
   return capitalizedName;
 };
 
-export const getField = (fieldName: string) => {
-  if (
-    fieldName.toLowerCase().includes("address") ||
-    fieldName === "depositor" ||
-    fieldName === "proposer" ||
-    fieldName === "voter" ||
-    fieldName === "sender" ||
-    fieldName === "receiver" ||
-    fieldName === "admin" ||
-    fieldName === "contract" ||
-    fieldName === "newAdmin"
-  ) {
-    return FieldAddress;
-  }
+export const getField = (fieldName: string) =>
+  getFieldAddress(fieldName) || getFieldAmount(fieldName) || null;
 
-  if (
-    fieldName === "amount" ||
-    fieldName === "initialDeposit" ||
-    fieldName === "value" ||
-    fieldName === "token" ||
-    fieldName === "funds"
-  ) {
-    return FieldAmount;
-  }
-
-  return () => null;
-};
-
-const getFieldSchema = (fieldName: string) => {
-  if (fieldName === "admin") {
-    return (schemaInput: FieldSchemaInput) => z.optional(getFieldAddressSchema(schemaInput));
-  }
-
-  if (
-    fieldName.toLowerCase().includes("address") ||
-    fieldName === "depositor" ||
-    fieldName === "proposer" ||
-    fieldName === "voter" ||
-    fieldName === "sender" ||
-    fieldName === "receiver" ||
-    fieldName === "contract" ||
-    fieldName === "newAdmin"
-  ) {
-    return getFieldAddressSchema;
-  }
-
-  if (
-    fieldName === "amount" ||
-    fieldName === "initialDeposit" ||
-    fieldName === "value" ||
-    fieldName === "token" ||
-    fieldName === "funds"
-  ) {
-    return getFieldAmountSchema;
-  }
-
-  throw new Error(`No schema found for ${fieldName} field`);
-};
+const getFieldSchema = (fieldName: string, schemaInput: FieldSchemaInput) =>
+  getFieldAddressSchema(fieldName, schemaInput) || getFieldAmountSchema(fieldName) || null;
 
 export const getMsgSchema = (fieldNames: readonly string[], schemaInput: FieldSchemaInput) => {
   const fieldEntries = fieldNames.map((fieldName) => [
     fieldName,
-    getFieldSchema(fieldName)(schemaInput),
+    getFieldSchema(fieldName, schemaInput),
   ]);
 
   return z.object(Object.fromEntries(fieldEntries));
