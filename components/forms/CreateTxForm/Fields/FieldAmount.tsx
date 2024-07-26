@@ -4,16 +4,24 @@ import { prettyFieldName } from "@/lib/form";
 import * as z from "zod";
 import type { FieldProps } from "./types";
 
-export const getFieldAmountSchema = () =>
-  z.object({
-    denom: z
-      .string({ invalid_type_error: "Must be a string", required_error: "Required" })
-      .trim()
-      .min(1, "Required"),
-    amount: z
-      .number({ invalid_type_error: "Must be a number", required_error: "Required" })
-      .positive("Must be positive"),
-  });
+const isFieldAmount = (fieldName: string) =>
+  ["amount", "initialDeposit", "value", "token", "funds"].includes(fieldName);
+
+export const getFieldAmount = (fieldName: string) =>
+  isFieldAmount(fieldName) ? FieldAmount : null;
+
+export const getFieldAmountSchema = (fieldName: string) =>
+  isFieldAmount(fieldName)
+    ? z.object({
+        denom: z
+          .string({ invalid_type_error: "Must be a string", required_error: "Required" })
+          .trim()
+          .min(1, "Required"),
+        amount: z.coerce
+          .number({ invalid_type_error: "Must be a number", required_error: "Required" })
+          .positive("Must be positive"),
+      })
+    : null;
 
 export default function FieldAmount({ form, fieldFormName }: FieldProps) {
   const prettyLabel = prettyFieldName(fieldFormName);
