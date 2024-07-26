@@ -3,19 +3,43 @@ import { Input } from "@/components/ui/input";
 import { useChains } from "@/context/ChainsContext";
 import { exampleAddress } from "@/lib/displayHelpers";
 import { prettyFieldName } from "@/lib/form";
+import { assert } from "@cosmjs/utils";
 import * as z from "zod";
 import type { FieldProps, FieldSchemaInput } from "./types";
 
-export const getFieldAddressSchema = ({ chain }: FieldSchemaInput) => {
-  if (!chain) {
-    throw new Error("Could not get field address schema because of missing chain parameter");
+const isFieldAddress = (fieldName: string) =>
+  fieldName.toLowerCase().includes("address") ||
+  ["depositor", "proposer", "voter", "sender", "receiver", "contract", "newAdmin"].includes(
+    fieldName,
+  );
+
+const isOptionalFieldAddress = (fieldName: string) => fieldName === "admin";
+
+export const getFieldAddress = (fieldName: string) =>
+  isFieldAddress(fieldName) || isOptionalFieldAddress(fieldName) ? FieldAddress : null;
+
+export const getFieldAddressSchema = (fieldName: string, { chain }: FieldSchemaInput) => {
+  assert(chain, "Could not get field address schema because of missing chain parameter");
+
+  if (!isFieldAddress(fieldName) && !isOptionalFieldAddress(fieldName)) {
+    return null;
   }
 
-  return z
+  const zodString = z
     .string({ invalid_type_error: "Must be a string", required_error: "Required" })
     .trim()
     .min(1, "Required")
     .startsWith(chain.addressPrefix, `Invalid prefix for ${chain.chainDisplayName}`);
+
+  if (isFieldAddress(fieldName)) {
+    return zodString;
+  }
+
+  if (isOptionalFieldAddress(fieldName)) {
+    return z.optional(zodString);
+  }
+
+  return null;
 };
 
 export default function FieldAddress({ form, fieldFormName }: FieldProps) {
