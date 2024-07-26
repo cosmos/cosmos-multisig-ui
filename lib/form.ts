@@ -3,6 +3,8 @@ import {
   getFieldAddressSchema,
   getFieldAmount,
   getFieldAmountSchema,
+  getFieldString,
+  getFieldStringSchema,
 } from "@/components/forms/CreateTxForm/Fields";
 import { FieldSchemaInput } from "@/components/forms/CreateTxForm/Fields/types";
 import { z } from "zod";
@@ -16,10 +18,13 @@ export const prettyFieldName = (fieldName: string) => {
 };
 
 export const getField = (fieldName: string) =>
-  getFieldAddress(fieldName) || getFieldAmount(fieldName) || null;
+  getFieldAddress(fieldName) || getFieldAmount(fieldName) || getFieldString(fieldName) || null;
 
 const getFieldSchema = (fieldName: string, schemaInput: FieldSchemaInput) =>
-  getFieldAddressSchema(fieldName, schemaInput) || getFieldAmountSchema(fieldName) || null;
+  getFieldAddressSchema(fieldName, schemaInput) ||
+  getFieldAmountSchema(fieldName) ||
+  getFieldStringSchema(fieldName) ||
+  null;
 
 export const getMsgSchema = (fieldNames: readonly string[], schemaInput: FieldSchemaInput) => {
   const fieldEntries = fieldNames.map((fieldName) => [
