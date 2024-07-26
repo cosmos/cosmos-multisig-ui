@@ -15,31 +15,62 @@ export const prettyFieldName = (fieldName: string) => {
 };
 
 export const getField = (fieldName: string) => {
-  switch (fieldName) {
-    case "fromAddress":
-    case "toAddress":
-    case "delegatorAddress":
-    case "validatorAddress":
-      return FieldAddress;
-    case "amount":
-      return FieldAmount;
-    default:
-      return () => null;
+  if (
+    fieldName.toLowerCase().includes("address") ||
+    fieldName === "depositor" ||
+    fieldName === "proposer" ||
+    fieldName === "voter" ||
+    fieldName === "sender" ||
+    fieldName === "receiver" ||
+    fieldName === "admin" ||
+    fieldName === "contract" ||
+    fieldName === "newAdmin"
+  ) {
+    return FieldAddress;
   }
+
+  if (
+    fieldName === "amount" ||
+    fieldName === "initialDeposit" ||
+    fieldName === "value" ||
+    fieldName === "token" ||
+    fieldName === "funds"
+  ) {
+    return FieldAmount;
+  }
+
+  return () => null;
 };
 
 const getFieldSchema = (fieldName: string) => {
-  switch (fieldName) {
-    case "fromAddress":
-    case "toAddress":
-    case "delegatorAddress":
-    case "validatorAddress":
-      return getFieldAddressSchema;
-    case "amount":
-      return getFieldAmountSchema;
-    default:
-      throw new Error(`No schema found for ${fieldName} field`);
+  if (fieldName === "admin") {
+    return (schemaInput: FieldSchemaInput) => z.optional(getFieldAddressSchema(schemaInput));
   }
+
+  if (
+    fieldName.toLowerCase().includes("address") ||
+    fieldName === "depositor" ||
+    fieldName === "proposer" ||
+    fieldName === "voter" ||
+    fieldName === "sender" ||
+    fieldName === "receiver" ||
+    fieldName === "contract" ||
+    fieldName === "newAdmin"
+  ) {
+    return getFieldAddressSchema;
+  }
+
+  if (
+    fieldName === "amount" ||
+    fieldName === "initialDeposit" ||
+    fieldName === "value" ||
+    fieldName === "token" ||
+    fieldName === "funds"
+  ) {
+    return getFieldAmountSchema;
+  }
+
+  throw new Error(`No schema found for ${fieldName} field`);
 };
 
 export const getMsgSchema = (fieldNames: readonly string[], schemaInput: FieldSchemaInput) => {
