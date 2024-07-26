@@ -16,6 +16,8 @@ export const getFieldAmountSchema = () =>
   });
 
 export default function FieldAmount({ form, fieldFormName }: FieldProps) {
+  const prettyLabel = prettyFieldName(fieldFormName);
+
   return (
     <>
       <FormField
@@ -23,7 +25,7 @@ export default function FieldAmount({ form, fieldFormName }: FieldProps) {
         name={`${fieldFormName}.denom`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{"Denom" + prettyFieldName(fieldFormName)}</FormLabel>
+            <FormLabel>{`${prettyLabel} denom`}</FormLabel>
             <FormControl>
               <Input placeholder="Enter denom" {...field} />
             </FormControl>
@@ -36,7 +38,9 @@ export default function FieldAmount({ form, fieldFormName }: FieldProps) {
         name={`${fieldFormName}.amount`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{prettyFieldName(fieldFormName)}</FormLabel>
+            <FormLabel>
+              {prettyLabel === "Amount" ? "Amount quantity" : `${prettyLabel} amount`}
+            </FormLabel>
             <FormControl>
               <Input placeholder="Enter amount" {...field} />
             </FormControl>
