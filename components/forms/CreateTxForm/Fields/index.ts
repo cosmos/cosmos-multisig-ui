@@ -6,3 +6,4 @@ export * from "./FieldDescription";
 export * from "./FieldNumber";
 export * from "./FieldString";
 export * from "./FieldTimeoutHeight";
+export * from "./FieldVoteOption";
