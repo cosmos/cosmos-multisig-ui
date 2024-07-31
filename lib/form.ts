@@ -9,6 +9,8 @@ import {
   getFieldNumberSchema,
   getFieldString,
   getFieldStringSchema,
+  getFieldTimeoutHeight,
+  getFieldTimeoutHeightSchema,
 } from "@/components/forms/CreateTxForm/Fields";
 import { FieldSchemaInput } from "@/components/forms/CreateTxForm/Fields/types";
 import { z } from "zod";
@@ -27,6 +29,7 @@ export const getField = (fieldName: string) =>
   getFieldString(fieldName) ||
   getFieldNumber(fieldName) ||
   getFieldBoolean(fieldName) ||
+  getFieldTimeoutHeight(fieldName) ||
   null;
 
 const getFieldSchema = (fieldName: string, schemaInput: FieldSchemaInput) =>
@@ -35,6 +38,7 @@ const getFieldSchema = (fieldName: string, schemaInput: FieldSchemaInput) =>
   getFieldStringSchema(fieldName) ||
   getFieldNumberSchema(fieldName) ||
   getFieldBooleanSchema(fieldName) ||
+  getFieldTimeoutHeightSchema(fieldName) ||
   null;
 
 export const getMsgSchema = (fieldNames: readonly string[], schemaInput: FieldSchemaInput) => {
