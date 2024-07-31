@@ -5,6 +5,8 @@ import {
   getFieldAmountSchema,
   getFieldBoolean,
   getFieldBooleanSchema,
+  getFieldCommission,
+  getFieldCommissionSchema,
   getFieldDescription,
   getFieldDescriptionSchema,
   getFieldNumber,
@@ -33,6 +35,7 @@ export const getField = (fieldName: string) =>
   getFieldBoolean(fieldName) ||
   getFieldTimeoutHeight(fieldName) ||
   getFieldDescription(fieldName) ||
+  getFieldCommission(fieldName) ||
   null;
 
 const getFieldSchema = (fieldName: string, schemaInput: FieldSchemaInput) =>
@@ -43,6 +46,7 @@ const getFieldSchema = (fieldName: string, schemaInput: FieldSchemaInput) =>
   getFieldBooleanSchema(fieldName) ||
   getFieldTimeoutHeightSchema(fieldName) ||
   getFieldDescriptionSchema(fieldName) ||
+  getFieldCommissionSchema(fieldName) ||
   null;
 
 export const getMsgSchema = (fieldNames: readonly string[], schemaInput: FieldSchemaInput) => {
