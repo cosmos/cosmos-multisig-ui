@@ -4,7 +4,7 @@ import { prettyFieldName } from "@/lib/form";
 import * as z from "zod";
 import type { FieldProps } from "./types";
 
-const isFieldCommission = (fieldName: string) => fieldName === "inputs" || fieldName === "outputs";
+const isFieldCommission = (fieldName: string) => fieldName === "commission";
 
 export const getFieldCommission = (fieldName: string) =>
   isFieldCommission(fieldName) ? FieldCommission : null;
