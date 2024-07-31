@@ -15,6 +15,8 @@ import {
   getFieldStringSchema,
   getFieldTimeoutHeight,
   getFieldTimeoutHeightSchema,
+  getFieldVoteOption,
+  getFieldVoteOptionSchema,
 } from "@/components/forms/CreateTxForm/Fields";
 import { FieldSchemaInput } from "@/components/forms/CreateTxForm/Fields/types";
 import { z } from "zod";
@@ -36,6 +38,7 @@ export const getField = (fieldName: string) =>
   getFieldTimeoutHeight(fieldName) ||
   getFieldDescription(fieldName) ||
   getFieldCommission(fieldName) ||
+  getFieldVoteOption(fieldName) ||
   null;
 
 const getFieldSchema = (fieldName: string, schemaInput: FieldSchemaInput) =>
@@ -47,6 +50,7 @@ const getFieldSchema = (fieldName: string, schemaInput: FieldSchemaInput) =>
   getFieldTimeoutHeightSchema(fieldName) ||
   getFieldDescriptionSchema(fieldName) ||
   getFieldCommissionSchema(fieldName) ||
+  getFieldVoteOptionSchema(fieldName) ||
   null;
 
 export const getMsgSchema = (fieldNames: readonly string[], schemaInput: FieldSchemaInput) => {
