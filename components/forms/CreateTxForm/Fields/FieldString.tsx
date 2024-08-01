@@ -1,6 +1,7 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { prettyFieldName } from "@/lib/form";
+import { fromHex } from "@cosmjs/encoding";
 import * as z from "zod";
 import type { FieldProps } from "./types";
 
@@ -9,11 +10,19 @@ const isFieldString = (fieldName: string) =>
 
 const isOptionalFieldString = (fieldName: string) => fieldName === "label";
 
+const isHexFieldString = (fieldName: string) => fieldName === "salt";
+
 export const getFieldString = (fieldName: string) =>
-  isFieldString(fieldName) || isOptionalFieldString(fieldName) ? FieldString : null;
+  isFieldString(fieldName) || isOptionalFieldString(fieldName) || isHexFieldString(fieldName)
+    ? FieldString
+    : null;
 
 export const getFieldStringSchema = (fieldName: string) => {
-  if (!isFieldString(fieldName) && !isOptionalFieldString(fieldName)) {
+  if (
+    !isFieldString(fieldName) &&
+    !isOptionalFieldString(fieldName) &&
+    !isHexFieldString(fieldName)
+  ) {
     return null;
   }
 
@@ -28,6 +37,21 @@ export const getFieldStringSchema = (fieldName: string) => {
 
   if (isOptionalFieldString(fieldName)) {
     return z.optional(zodString);
+  }
+
+  if (isHexFieldString(fieldName)) {
+    return zodString.transform((val, ctx) => {
+      try {
+        return fromHex(val);
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Must be an hexadecimal string",
+        });
+
+        return z.NEVER;
+      }
+    });
   }
 
   return null;
