@@ -75,8 +75,7 @@ export default function SelectValidator({
                         : "opacity-0",
                     )}
                   />
-                  {validatorItem.jailed ? <><strong>jailed</strong>{" "}</> : null}
-                  {validatorItem.description.moniker}
+                  {validatorItem.description.moniker + (validatorItem.jailed ? " (jailed)" : "")}
                 </CommandItem>
               ))}
             </CommandGroup>
