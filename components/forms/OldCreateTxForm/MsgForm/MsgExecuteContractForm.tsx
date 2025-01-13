@@ -174,7 +174,7 @@ const MsgExecuteContractForm = ({
           label="Msg JSON"
           content={{ text: msgContent }}
           onChange={(newMsgContent, _, { contentErrors }) => {
-            setMsgContent("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}");
+            setMsgContent("text" in newMsgContent ? (newMsgContent.text ?? "{}") : "{}");
             jsonError.current = !!contentErrors;
           }}
         />

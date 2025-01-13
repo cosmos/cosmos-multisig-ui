@@ -29,7 +29,7 @@ export default function ChainItem({ chain, hoverCardElementBoundary }: ChainItem
                 }
           }
           className={cn(
-            "group relative inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-white p-2.5 text-sm font-medium text-white focus:outline-none focus:ring-4  focus:ring-red-100 aria-selected:text-gray-900",
+            "group relative inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-white p-2.5 text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-red-100 aria-selected:text-gray-900",
             connectedChain.registryName === chain.registryName
               ? "cursor-not-allowed border-green-600 bg-green-300 text-green-900 aria-selected:bg-green-300"
               : "transparent cursor-pointer border-white",
@@ -62,7 +62,7 @@ export default function ChainItem({ chain, hoverCardElementBoundary }: ChainItem
         </CommandItem>
       </HoverCardTrigger>
       <HoverCardContent
-        className="w-auto  bg-fuchsia-900"
+        className="w-auto bg-fuchsia-900"
         collisionBoundary={hoverCardElementBoundary}
       >
         <ChainDigest chain={chain} />
