@@ -92,7 +92,7 @@ const MsgDelegateForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgDelegate
       <h2>MsgDelegate</h2>
       <div className="form-item">
         <SelectValidator
-          validatorAddress={validatorAddress}
+          selectedValidatorAddress={validatorAddress}
           setValidatorAddress={setValidatorAddress}
         />
         <Input

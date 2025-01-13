@@ -65,7 +65,7 @@ const MsgWithdrawDelegatorRewardForm = ({
       <h2>MsgWithdrawDelegatorReward</h2>
       <div className="form-item">
         <SelectValidator
-          validatorAddress={validatorAddress}
+          selectedValidatorAddress={validatorAddress}
           setValidatorAddress={setValidatorAddress}
         />
         <Input

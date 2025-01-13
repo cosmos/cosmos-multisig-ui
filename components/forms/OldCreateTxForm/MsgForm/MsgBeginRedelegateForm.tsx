@@ -111,7 +111,7 @@ const MsgBeginRedelegateForm = ({
       <h2>MsgBeginRedelegate</h2>
       <div className="form-item">
         <SelectValidator
-          validatorAddress={validatorSrcAddress}
+          selectedValidatorAddress={validatorSrcAddress}
           setValidatorAddress={setValidatorSrcAddress}
         />
         <Input
@@ -128,7 +128,7 @@ const MsgBeginRedelegateForm = ({
       </div>
       <div className="form-item">
         <SelectValidator
-          validatorAddress={validatorDstAddress}
+          selectedValidatorAddress={validatorDstAddress}
           setValidatorAddress={setValidatorDstAddress}
         />
         <Input

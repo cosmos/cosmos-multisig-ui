@@ -12,16 +12,17 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useChains } from "@/context/ChainsContext";
 import { cn } from "@/lib/utils";
+import { Validator } from "cosmjs-types/cosmos/staking/v1beta1/staking";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 
 interface SelectValidatorProps {
-  readonly validatorAddress: string;
+  readonly selectedValidatorAddress: string;
   readonly setValidatorAddress: (validatorAddress: string) => void;
 }
 
 export default function SelectValidator({
-  validatorAddress,
+  selectedValidatorAddress,
   setValidatorAddress,
 }: SelectValidatorProps) {
   const {
@@ -38,6 +39,12 @@ export default function SelectValidator({
   // reasonable filtering here.
   const validators = [...bonded, ...unbonding, ...unbonded];
 
+  function displayValidator(val: Validator): string {
+    return val.description.moniker + (val.jailed ? " (jailed)" : "")
+  }
+
+  const selectedValidator = validators.find((validatorItem) => selectedValidatorAddress === validatorItem.operatorAddress);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -47,9 +54,8 @@ export default function SelectValidator({
           aria-expanded={open}
           className="mb-4 w-full max-w-[300px] justify-between border-white bg-fuchsia-900 hover:bg-fuchsia-900"
         >
-          {validatorAddress
-            ? validators.find((validatorItem) => validatorAddress === validatorItem.operatorAddress)
-                ?.description.moniker || "Unknown validator"
+          {selectedValidatorAddress
+            ? selectedValidator ? displayValidator(selectedValidator): "Unknown validator"
             : "Select validator…"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -76,7 +82,7 @@ export default function SelectValidator({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      validatorAddress === validatorItem.operatorAddress
+                      selectedValidatorAddress === validatorItem.operatorAddress
                         ? "opacity-100"
                         : "opacity-0",
                     )}
