@@ -30,6 +30,12 @@ export default function SelectValidator({
   const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
 
+  // The list of validators includes unbonding and unbonded validators in order to
+  // be able to do undelegates and redelegates from jailed validators as well as delegate
+  // to validators who are not yet active.
+  //
+  // If this list becomes too long due to spam registrations, we can try to do some
+  // reasonable filtering here.
   const validators = [...bonded, ...unbonding, ...unbonded];
 
   return (
