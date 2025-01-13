@@ -35,4 +35,12 @@ module.exports = {
       { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
     ],
   },
+  overrides: [
+    {
+      files: ["*.config.js"],
+      rules: {
+        "@typescript-eslint/no-require-imports": "off",
+      },
+    },
+  ],
 };
