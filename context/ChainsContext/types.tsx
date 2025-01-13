@@ -1,5 +1,5 @@
-import { Validator } from "cosmjs-types/cosmos/staking/v1beta1/staking";
 import { RegistryAsset } from "../../types/chainRegistry";
+import { AllValidators } from "@/lib/staking";
 
 export interface ChainsContextType {
   readonly state: State;
@@ -39,7 +39,7 @@ export interface ChainInfo {
 }
 
 export interface ValidatorState {
-  readonly validators: readonly Validator[];
+  readonly validators: AllValidators;
   readonly status: "initial" | "loading" | "done" | "error";
 }
 

@@ -52,7 +52,8 @@ const OldCreateTxForm = ({ router, senderAddress, accountOnChain }: OldCreateTxF
   };
 
   const addMsgWithValidator = (newMsgType: MsgTypeUrl) => {
-    if (!validators.length) {
+    const validatorsLoaded = !!validators.bonded.length;
+    if (!validatorsLoaded) {
       loadValidators(chainsDispatch);
     }
 

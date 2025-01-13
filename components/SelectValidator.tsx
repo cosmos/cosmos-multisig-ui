@@ -25,10 +25,12 @@ export default function SelectValidator({
   setValidatorAddress,
 }: SelectValidatorProps) {
   const {
-    validatorState: { validators },
+    validatorState: { validators: { bonded, unbonding, unbonded} },
   } = useChains();
   const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+
+  const validators = [...bonded, ...unbonding, ...unbonded];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -73,6 +75,7 @@ export default function SelectValidator({
                         : "opacity-0",
                     )}
                   />
+                  {validatorItem.jailed ? <><strong>jailed</strong>{" "}</> : null}
                   {validatorItem.description.moniker}
                 </CommandItem>
               ))}
