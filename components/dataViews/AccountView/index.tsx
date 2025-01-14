@@ -57,7 +57,7 @@ export default function AccountView() {
                 copy(walletInfo.address);
                 toast(`Copied address to clipboard`, { description: walletInfo.address });
               }}
-              className=" flex items-center space-x-4 rounded-md border p-4 transition-colors hover:cursor-pointer hover:bg-muted/50"
+              className="flex items-center space-x-4 rounded-md border p-4 transition-colors hover:cursor-pointer hover:bg-muted/50"
             >
               <Copy className="w-5" />
               <div className="flex-1 space-y-1">
@@ -70,7 +70,7 @@ export default function AccountView() {
                 copy(walletInfo.pubKey);
                 toast(`Copied public key to clipboard`, { description: walletInfo.pubKey });
               }}
-              className=" flex items-center space-x-4 rounded-md border p-4 transition-colors hover:cursor-pointer hover:bg-muted/50"
+              className="flex items-center space-x-4 rounded-md border p-4 transition-colors hover:cursor-pointer hover:bg-muted/50"
             >
               <Copy className="w-5" />
               <div className="flex-1 space-y-1">

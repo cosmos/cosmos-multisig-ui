@@ -30,12 +30,12 @@ export default function DialogButton() {
 
   return showChainSelect ? (
     <DialogTrigger>
-      <div className="group relative m-1 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-white p-2.5 text-sm font-medium text-white hover:bg-white hover:text-gray-900  focus:outline-none focus:ring-4 focus:ring-red-100">
+      <div className="group relative m-1 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-white p-2.5 text-sm font-medium text-white hover:bg-white hover:text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-100">
         <ChainHeader />
       </div>
     </DialogTrigger>
   ) : (
-    <div className="group relative m-1 inline-flex items-center justify-center gap-2  p-2.5 text-sm font-medium text-white">
+    <div className="group relative m-1 inline-flex items-center justify-center gap-2 p-2.5 text-sm font-medium text-white">
       <ChainHeader />
     </div>
   );

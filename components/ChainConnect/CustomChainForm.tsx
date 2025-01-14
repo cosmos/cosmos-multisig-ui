@@ -266,7 +266,9 @@ export default function CustomChainForm() {
                     <JsonEditor
                       content={{ text: field.value }}
                       onChange={(newMsgContent) => {
-                        field.onChange("text" in newMsgContent ? newMsgContent.text ?? "{}" : "{}");
+                        field.onChange(
+                          "text" in newMsgContent ? (newMsgContent.text ?? "{}") : "{}",
+                        );
                       }}
                     />
                   </div>
