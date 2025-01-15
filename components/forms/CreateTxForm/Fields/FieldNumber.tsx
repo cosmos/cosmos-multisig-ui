@@ -20,7 +20,7 @@ export const getFieldNumberSchema = (fieldName: string) => {
       .transform((value) => {
         try {
           return BigInt(value);
-        } catch (error) {
+        } catch {
           return value;
         }
       })
@@ -38,7 +38,7 @@ export const getFieldNumberSchema = (fieldName: string) => {
       .transform((value) => {
         try {
           return String(value);
-        } catch (error) {
+        } catch {
           return value;
         }
       });

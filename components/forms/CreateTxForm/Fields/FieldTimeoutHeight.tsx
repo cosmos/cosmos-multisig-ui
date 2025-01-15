@@ -17,7 +17,7 @@ export const getFieldTimeoutHeightSchema = (fieldName: string) =>
           .transform((value) => {
             try {
               return BigInt(value);
-            } catch (error) {
+            } catch {
               return value;
             }
           })
@@ -31,7 +31,7 @@ export const getFieldTimeoutHeightSchema = (fieldName: string) =>
           .transform((value) => {
             try {
               return BigInt(value);
-            } catch (error) {
+            } catch {
               return value;
             }
           })

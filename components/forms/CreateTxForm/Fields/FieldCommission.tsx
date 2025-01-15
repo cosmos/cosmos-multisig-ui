@@ -18,7 +18,7 @@ export const getFieldCommissionSchema = (fieldName: string) =>
           .transform((value) => {
             try {
               return String(value);
-            } catch (error) {
+            } catch {
               return value;
             }
           }),
@@ -28,7 +28,7 @@ export const getFieldCommissionSchema = (fieldName: string) =>
           .transform((value) => {
             try {
               return String(value);
-            } catch (error) {
+            } catch {
               return value;
             }
           }),
@@ -38,7 +38,7 @@ export const getFieldCommissionSchema = (fieldName: string) =>
           .transform((value) => {
             try {
               return String(value);
-            } catch (error) {
+            } catch {
               return value;
             }
           }),
