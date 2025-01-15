@@ -105,7 +105,10 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
             description: "Failed to load validators",
             fullError: e instanceof Error ? e : undefined,
           });
-          dispatch({ type: "setValidatorState", payload: { validators: emptyAllValidatorsEmpty(), status: "error" } });
+          dispatch({
+            type: "setValidatorState",
+            payload: { validators: emptyAllValidatorsEmpty(), status: "error" },
+          });
         }
       }
     })();

@@ -26,7 +26,9 @@ export default function SelectValidator({
   setValidatorAddress,
 }: SelectValidatorProps) {
   const {
-    validatorState: { validators: { bonded, unbonding, unbonded} },
+    validatorState: {
+      validators: { bonded, unbonding, unbonded },
+    },
   } = useChains();
   const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -40,10 +42,12 @@ export default function SelectValidator({
   const validators = [...bonded, ...unbonding, ...unbonded];
 
   function displayValidator(val: Validator): string {
-    return val.description.moniker + (val.jailed ? " (jailed)" : "")
+    return val.description.moniker + (val.jailed ? " (jailed)" : "");
   }
 
-  const selectedValidator = validators.find((validatorItem) => selectedValidatorAddress === validatorItem.operatorAddress);
+  const selectedValidator = validators.find(
+    (validatorItem) => selectedValidatorAddress === validatorItem.operatorAddress,
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -55,7 +59,9 @@ export default function SelectValidator({
           className="mb-4 w-full max-w-[300px] justify-between border-white bg-fuchsia-900 hover:bg-fuchsia-900"
         >
           {selectedValidatorAddress
-            ? selectedValidator ? displayValidator(selectedValidator): "Unknown validator"
+            ? selectedValidator
+              ? displayValidator(selectedValidator)
+              : "Unknown validator"
             : "Select validator…"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
