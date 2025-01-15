@@ -1,10 +1,10 @@
-import { getAllValidators } from "@/lib/staking";
+import { emptyAllValidatorsEmpty, getAllValidators } from "@/lib/staking";
 import { toastError } from "@/lib/utils";
 import { ReactNode, createContext, useContext, useEffect, useReducer } from "react";
 import { emptyChain, isChainInfoFilled, setChain, setChains, setChainsError } from "./helpers";
 import { getChain, getNodeFromArray, useChainsFromRegistry } from "./service";
 import { addLocalChainInStorage, addRecentChainNameInStorage, setChainInUrl } from "./storage";
-import { Action, ChainsContextType, State } from "./types";
+import { Action, ChainsContextType, Dispatch, State } from "./types";
 
 const ChainsContext = createContext<ChainsContextType | undefined>(undefined);
 
@@ -31,7 +31,7 @@ const chainsReducer = (state: State, action: Action): State => {
       return {
         ...state,
         chain: action.payload,
-        validatorState: { validators: [], status: "initial" },
+        validatorState: { validators: emptyAllValidatorsEmpty(), status: "initial" },
       };
     }
     case "addNodeAddress": {
@@ -66,7 +66,7 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
     chain: emptyChain,
     chains: { mainnets: new Map(), testnets: new Map(), localnets: new Map() },
     newConnection: { action: "edit" },
-    validatorState: { validators: [], status: "initial" },
+    validatorState: { validators: emptyAllValidatorsEmpty(), status: "initial" },
   });
 
   const { chainItems, chainItemsError } = useChainsFromRegistry();
@@ -105,7 +105,10 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
             description: "Failed to load validators",
             fullError: e instanceof Error ? e : undefined,
           });
-          dispatch({ type: "setValidatorState", payload: { validators: [], status: "error" } });
+          dispatch({
+            type: "setValidatorState",
+            payload: { validators: emptyAllValidatorsEmpty(), status: "error" },
+          });
         }
       }
     })();
@@ -114,7 +117,7 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
   return <ChainsContext.Provider value={{ state, dispatch }}>{children}</ChainsContext.Provider>;
 };
 
-export const useChains = () => {
+export const useChains = (): State & { chainsDispatch: Dispatch } => {
   const context = useContext(ChainsContext);
   if (context === undefined) {
     throw new Error("useChains must be used within a ChainsProvider");

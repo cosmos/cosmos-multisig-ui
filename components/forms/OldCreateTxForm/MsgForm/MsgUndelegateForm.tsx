@@ -92,7 +92,7 @@ const MsgUndelegateForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgUndele
       <h2>MsgUndelegate</h2>
       <div className="form-item">
         <SelectValidator
-          validatorAddress={validatorAddress}
+          selectedValidatorAddress={validatorAddress}
           setValidatorAddress={setValidatorAddress}
         />
         <Input
