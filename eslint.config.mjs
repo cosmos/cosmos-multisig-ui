@@ -80,11 +80,12 @@ export default [
       ],
     },
   },
+  // Be less docmatic for config files
   {
-    files: ["**/*.config.js"],
-
+    files: ["**/*.config.{mjs,js}"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
+      "import/no-anonymous-default-export": "off",
     },
   },
 ];

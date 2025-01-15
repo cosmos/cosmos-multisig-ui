@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start",
     "format": "prettier --write --log-level warn \"./**/*.{js,jsx,mjs,ts,tsx}\"",
-    "lint": "eslint --max-warnings 0 \"./**/*.{js,jsx,ts,tsx}\"",
-    "lint:fix": "eslint --max-warnings 0 \"./**/*.{js,jsx,ts,tsx}\" --fix"
+    "lint": "eslint --max-warnings 0 \"./**/*.{js,jsx,mjs,ts,tsx}\"",
+    "lint:fix": "eslint --max-warnings 0 \"./**/*.{js,jsx,mjs,ts,tsx}\" --fix"
   },
   "dependencies": {
     "@cosmjs/amino": "^0.32.4",
