@@ -13,9 +13,9 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
       // a lot of auto-claims. See https://github.com/cosmos/cosmos-multisig-ui/issues/177.
       return 400_000;
     case MsgTypeUrls.Undelegate:
-      return 400_000;
+      return 600_000;
     case MsgTypeUrls.BeginRedelegate:
-      return 400_000;
+      return 600_000;
     // Distribution
     case MsgTypeUrls.FundCommunityPool:
       return 100_000;
