@@ -6,10 +6,11 @@ import { toastError, toastSuccess } from "@/lib/utils";
 import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
 import { wasmTypes } from "@cosmjs/cosmwasm-stargate";
-import { toBase64 } from "@cosmjs/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
+import { makeSignDoc } from "@cosmjs/amino";
 import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
-import { AminoTypes, SigningStargateClient, defaultRegistryTypes } from "@cosmjs/stargate";
+import { AminoTypes, SigningStargateClient, StargateClient, defaultRegistryTypes } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { Key } from "@keplr-wallet/types";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
@@ -20,6 +21,11 @@ import { getConnectError } from "../../lib/errorHelpers";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
+import { addressToBytes, EncryptionUtilsImpl, MsgExecuteContract } from "secretjs";
+import {decodeB64ToJson} from "../../lib/txMsgHelpers";
+import { MsgExecuteContract as ProtoMsgExecuteContract } from "secretjs/dist/protobuf/secret/compute/v1beta1/msg";
+import {Any} from "secretjs/dist/protobuf/google/protobuf/any";
+import {TxBody} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 interface TransactionSigningProps {
   readonly signatures: DbSignatureObj[];
@@ -141,8 +147,21 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
-        registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
-        aminoTypes: new AminoTypes(aminoConverters),
+        registry: new Registry([...defaultRegistryTypes, ...wasmTypes,["/secret.compute.v1beta1.MsgExecuteContract", ProtoMsgExecuteContract]]),
+        aminoTypes: new AminoTypes({
+          //...aminoConverters,
+          ["/secret.compute.v1beta1.MsgExecuteContract"]: {
+            aminoType: "wasm/MsgExecuteContract",
+            toAmino: (value: any) => {
+              console.log(value);
+             return value.value;
+            },
+            fromAmino: (value: any) => {
+              console.log(value);
+              return value;
+            },
+          }
+        }),
       });
 
       const signerData = {
@@ -151,17 +170,127 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         chainId: chain.chainId,
       };
 
-      const { bodyBytes, signatures } = await signingClient.sign(
-        signerAddress,
-        props.tx.msgs,
-        props.tx.fee,
-        props.tx.memo,
-        signerData,
-      );
+      let msgs = [];
+      let encodeObj = [];
+      let protoMsg = [];
+
+      for (const msg of props.tx.msgs) {
+        if(chain.chainId === "secret-4" 
+          && window?.keplr !== undefined
+          && msg.typeUrl === "/cosmwasm.wasm.v1.MsgExecuteContract"
+        ) {
+          console.log('HERE', msg.value);
+          const jsonMsg = decodeB64ToJson(msg.value.msg);
+          const executeMsg = new MsgExecuteContract({
+            code_hash: msg.value.codeHash,
+            contract_address: msg.value.contract,
+            sender: msg.value.sender,
+            sent_funds: msg.value.funds,
+            msg: jsonMsg,
+          });
+          const encryptionUtils = new EncryptionUtilsImpl(
+             'https://secretnetwork-api.lavenderfive.com:443/',
+             new Uint8Array([1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8]),
+             'secret-4',
+          )
+          const amino = await executeMsg.toAmino(encryptionUtils);
+          const proto = await executeMsg.toProto(encryptionUtils);
+          msgs.push(amino);
+          protoMsg.push(proto);
+          encodeObj.push({
+            typeUrl: "/secret.compute.v1beta1.MsgExecuteContract",
+            value: {
+              type: "wasm/MsgExecuteContract",
+              value: {
+                sender: toBase64(addressToBytes(msg.value.sender)),
+                contract: toBase64(addressToBytes(msg.value.contract)),
+                msg: msg.value.encryptedMsg,
+                sent_funds: msg.value.funds,
+              },
+            },
+          });
+        }
+      }
+
+      console.log(props.tx.msgs);
+      console.log(msgs);
+
+      let bodyBytes; 
+      let signatures;
+      if (true || chain.chainId !== "secret-4") {
+        console.log(props.tx.msgs);
+        const { bodyBytes: bb, signatures: sig } = await signingClient.sign(
+          signerAddress,
+          encodeObj,
+          props.tx.fee,
+          props.tx.memo,
+          signerData,
+        );
+        bodyBytes = bb;
+        signatures = sig;
+      } else {
+        const queryClient = await StargateClient.connect(chain.nodeAddress)
+        const { accountNumber, sequence } = await queryClient.getSequence("secret1lexmqk4kke3rhfzdgwt0ut68xjslftzr27mzlw");
+        const signDoc = makeSignDoc(
+          msgs,
+          props.tx.fee,
+          chain.chainId,
+          props.tx.memo,
+          accountNumber,
+          sequence,
+        );
+        const txBody = {
+          type_url: "/cosmos.tx.v1beta1.TxBody",
+          value: {
+            messages: protoMsg,
+            memo: props.tx.memo,
+          },
+        };
+        const wrappedMessages = await Promise.all(
+          txBody.value.messages.map(async (message) => {
+            console.log(message);
+            const binaryValue = await message.encode();
+            return Any.fromPartial({
+              type_url: message.type_url,
+              value: binaryValue,
+            });
+          }),
+        );
+        console.log(wrappedMessages);
+        const txBodyEncoded = TxBody.fromPartial({
+          ...txBody.value,
+          messages: wrappedMessages,
+        });
+        const signedTxBytes = TxBody.encode(txBodyEncoded).finish();
+
+        console.log('signDoc', signDoc);
+        const { signed, signature: sig } = await offlineSigner.signAmino(signerAddress, signDoc);
+        /*const signedTxBody = {
+          messages: signed.msgs.map((msg) => ({
+            typeUrl: "/secret.compute.v1beta1.MsgExecuteContract",
+            value: msg.value,
+          })),
+          memo: signed.memo,
+          timeoutHeight: signed.timeoutHeight,
+        };
+        console.log(signed);
+        const registry = new Registry([...defaultRegistryTypes, ...wasmTypes]);
+        registry.register("wasm/MsgExecuteContract", ProtoMsgExecuteContract);
+        const signedTxBodyBytes = registry.encodeTxBody(signedTxBody);
+
+        console.log(signedTxBodyBytes);*/
+
+        bodyBytes = signedTxBytes;
+        signatures = [fromBase64(sig.signature)];
+      }
 
       // check existing signatures
       const bases64EncodedSignature = toBase64(signatures[0]);
       const bases64EncodedBodyBytes = toBase64(bodyBytes);
+
+      console.log('b64Sig', bases64EncodedSignature);
+      console.log('b64Body', bases64EncodedBodyBytes);
+
       const prevSigMatch = props.signatures.findIndex(
         (signature) => signature.signature === bases64EncodedSignature,
       );

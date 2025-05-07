@@ -60,6 +60,7 @@ export const isKnownMsgTypeUrl = (typeUrl: string): typeUrl is MsgTypeUrl =>
   Object.values(MsgTypeUrls).includes(typeUrl as MsgTypeUrl);
 
 export const exportMsgToJson = (msg: EncodeObject): EncodeObject => {
+  console.log(msg);
   if (isKnownMsgTypeUrl(msg.typeUrl)) {
     return { ...msg, value: MsgCodecs[msg.typeUrl].toJSON(msg.value) };
   }
@@ -120,3 +121,5 @@ export const msgTypeCountsFromJson = (txJson: string): readonly MsgTypeCount[] =
 
   return msgTypeCounts;
 };
+
+export const decodeB64ToJson = (encodedData: string) => JSON.parse(Buffer.from(encodedData, 'base64').toString('utf8'));

@@ -11,6 +11,7 @@ import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
 import StackableContainer from "../../../layout/StackableContainer";
+import {EncryptionUtilsImpl, MsgExecuteContract} from "secretjs";
 
 const JsonEditor = dynamic(() => import("../../../inputs/JsonEditor"), { ssr: false });
 
@@ -40,6 +41,7 @@ const MsgExecuteContractForm = ({
   const denomOptions = getDenomOptions(chain.assets);
 
   const [contractAddress, setContractAddress] = useState("");
+  const [codeHash, setCodeHash] = useState("");
   const [msgContent, setMsgContent] = useState("{}");
   const [selectedDenom, setSelectedDenom] = useState(denomOptions[0]);
   const [customDenom, setCustomDenom] = useState("");
@@ -47,14 +49,15 @@ const MsgExecuteContractForm = ({
 
   const jsonError = useRef(false);
   const [contractAddressError, setContractAddressError] = useState("");
+  const [codeHashError, setCodeHashError] = useState("");
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
 
-  const trimmedInputs = trimStringsObj({ contractAddress, customDenom, amount });
+  const trimmedInputs = trimStringsObj({ contractAddress, codeHash, customDenom, amount });
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
-    const { contractAddress, customDenom, amount } = trimmedInputs;
+    const { contractAddress, codeHash, customDenom, amount } = trimmedInputs;
     const denom =
       selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
 
@@ -126,12 +129,50 @@ const MsgExecuteContractForm = ({
       }
     })();
 
-    const msgValue = MsgCodecs[MsgTypeUrls.ExecuteContract].fromPartial({
+    const msgContentJSON = (() => {
+      try {
+        // The JsonEditor does not escape \n or remove whitespaces, so we need to parse + stringify
+        return JSON.parse(msgContent);
+      } catch {
+        return undefined;
+      }
+    })();
+
+    let msgValue = MsgCodecs[MsgTypeUrls.ExecuteContract].fromPartial({
       sender: senderAddress,
       contract: contractAddress,
       msg: msgContentUtf8Array,
       funds: microCoin ? [microCoin] : [],
     });
+
+    if (chain.chainId === "secret-4") {
+      if(codeHash === '') {
+        setCodeHashError("Code hash is required for Secret Network");
+        return;
+      }
+      const executeMsg = new MsgExecuteContract({
+        code_hash: codeHash,
+        contract_address: msgValue.contract,
+        sender: msgValue.sender,
+        sent_funds: msgValue.funds,
+        msg: msgContentJSON,
+      });
+      const encryptionUtils = new EncryptionUtilsImpl(
+         'https://secretnetwork-api.lavenderfive.com:443/',
+         new Uint8Array([1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8]),
+         'secret-4',
+      )
+      executeMsg.toAmino(encryptionUtils).then((amino) => {
+        console.log(amino);
+        // @ts-expect-error secret needs code hash for encryption
+        msgValue.encryptedMsg = amino.value.msg;
+      });
+      msgValue = {
+        ...msgValue,
+        // @ts-expect-error secret needs code hash for encryption
+        codeHash,
+      };
+    }
 
     const msg: MsgExecuteContractEncodeObject = {
       typeUrl: MsgTypeUrls.ExecuteContract,
@@ -169,6 +210,21 @@ const MsgExecuteContractForm = ({
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
+      {chain.chainId === "secret-4" && (
+        <div className="form-item">
+          <Input
+            label="Code Hash"
+            name="code-hash"
+            value={codeHash}
+            onChange={({ target }) => {
+              setCodeHash(target.value);
+              setCodeHashError("");
+            }}
+            error={codeHashError}
+            placeholder={``}
+          />
+        </div>
+      )}
       <div className="form-item">
         <JsonEditor
           label="Msg JSON"

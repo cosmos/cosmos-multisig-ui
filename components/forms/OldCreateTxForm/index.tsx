@@ -72,7 +72,15 @@ const OldCreateTxForm = ({ router, senderAddress, accountOnChain }: OldCreateTxF
 
       const msgs = msgGetters.current
         .filter(({ isMsgValid }) => isMsgValid())
-        .map(({ msg }) => exportMsgToJson(msg));
+        .map(({ msg }) => chain.chainId === 'secret-4'
+          ? { // Persist code hash for SecretNetwork
+             typeUrl: exportMsgToJson(msg).typeUrl,
+             value: {
+               codeHash: msg.value.codeHash,
+               encryptedMsg: msg.value.encryptedMsg,
+               ...exportMsgToJson(msg).value,
+             }
+           } : exportMsgToJson(msg));
 
       if (!msgs.length || msgs.length !== msgTypes.length) {
         return;
