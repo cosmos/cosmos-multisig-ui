@@ -71,7 +71,7 @@ const TransactionPage = ({
   const [transactionHash, setTransactionHash] = useState(txHash);
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
-  const txInfo = chain.denom === "uscrt" ? JSON.parse(transactionJSON) : dbTxFromJson(transactionJSON);
+  const txInfo = dbTxFromJson(transactionJSON);
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
 
@@ -129,6 +129,8 @@ const TransactionPage = ({
 
       const broadcaster = await StargateClient.connect(chain.nodeAddress);
       const result = await broadcaster.broadcastTx(signedTxBytes);
+      //const client = new SecretNetworkClient({ url: 'https://secretnetwork-api.lavenderfive.com:443/', chainId: chain.chainId });
+      //const result = await client.tx.broadcastSignedTx(signedTxBytes);
       await updateDbTxHash(transactionID, result.transactionHash);
       toastSuccess("Transaction broadcasted with hash", result.transactionHash);
       setTransactionHash(result.transactionHash);
@@ -179,7 +181,7 @@ const TransactionPage = ({
             ) : null}
             {pubkey && txInfo ? (
               <TransactionSigning
-                tx={txInfo}
+                tx={chain.denom === "uscrt" ? JSON.parse(transactionJSON) : txInfo}
                 transactionID={transactionID}
                 pubkey={pubkey}
                 signatures={currentSignatures}

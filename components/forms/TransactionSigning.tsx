@@ -161,10 +161,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
           ["/secret.compute.v1beta1.MsgExecuteContract"]: {
             aminoType: "wasm/MsgExecuteContract",
             toAmino: (value) => {
-             return {
-                type: "wasm/MsgExecuteContract",
-                value,
-             };
+             return value;
             },
             fromAmino: (value) => {
               return value;

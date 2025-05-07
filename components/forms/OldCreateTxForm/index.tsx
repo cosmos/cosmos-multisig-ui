@@ -76,9 +76,7 @@ const OldCreateTxForm = ({ router, senderAddress, accountOnChain }: OldCreateTxF
           ? { // Persist code hash and other metadata for SecretNetwork
              typeUrl: exportMsgToJson(msg).typeUrl,
              value: {
-               codeHash: msg.value.codeHash,
                encryptedMsg: msg.value.encryptedMsg,
-               lcd: msg.value.lcd,
                ...exportMsgToJson(msg).value,
              }
            } : exportMsgToJson(msg));

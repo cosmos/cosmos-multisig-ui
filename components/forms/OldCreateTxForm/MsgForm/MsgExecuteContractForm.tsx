@@ -172,15 +172,13 @@ const MsgExecuteContractForm = ({
          new Uint8Array(32),
          chain.chainId,
       )
+      // This encrypts the msg for execution on the Secret Network blockchain
       executeMsg.toAmino(encryptionUtils).then((amino) => {
         // @ts-expect-error secret needs the same encrypted msg to be signed everywhere
         msgValue.encryptedMsg = amino.value.msg;
       });
       msgValue = {
         ...msgValue,
-        // @ts-expect-error secret needs code hash for encryption
-        codeHash,
-        lcd,
       };
     }
 
