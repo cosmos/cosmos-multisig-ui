@@ -11,7 +11,7 @@ import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
 import StackableContainer from "../../../layout/StackableContainer";
-import {EncryptionUtilsImpl, MsgExecuteContract} from "secretjs";
+import { EncryptionUtilsImpl, MsgExecuteContract } from "secretjs";
 
 const JsonEditor = dynamic(() => import("../../../inputs/JsonEditor"), { ssr: false });
 
@@ -41,7 +41,10 @@ const MsgExecuteContractForm = ({
   const denomOptions = getDenomOptions(chain.assets);
 
   const [contractAddress, setContractAddress] = useState("");
+  // SCRT Network specific
   const [codeHash, setCodeHash] = useState("");
+  const [lcd, setLcd] = useState("");
+
   const [msgContent, setMsgContent] = useState("{}");
   const [selectedDenom, setSelectedDenom] = useState(denomOptions[0]);
   const [customDenom, setCustomDenom] = useState("");
@@ -49,15 +52,18 @@ const MsgExecuteContractForm = ({
 
   const jsonError = useRef(false);
   const [contractAddressError, setContractAddressError] = useState("");
+  // SCRT Network specific
   const [codeHashError, setCodeHashError] = useState("");
+  const [lcdError, setLcdError] = useState("");
+
   const [customDenomError, setCustomDenomError] = useState("");
   const [amountError, setAmountError] = useState("");
 
-  const trimmedInputs = trimStringsObj({ contractAddress, codeHash, customDenom, amount });
+  const trimmedInputs = trimStringsObj({ contractAddress, codeHash, lcd, customDenom, amount });
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
-    const { contractAddress, codeHash, customDenom, amount } = trimmedInputs;
+    const { contractAddress, codeHash, lcd, customDenom, amount } = trimmedInputs;
     const denom =
       selectedDenom.value === customDenomOption.value ? customDenom : selectedDenom.value.symbol;
 
@@ -145,9 +151,13 @@ const MsgExecuteContractForm = ({
       funds: microCoin ? [microCoin] : [],
     });
 
-    if (chain.chainId === "secret-4") {
+    if (chain.denom === "uscrt") {
       if(codeHash === '') {
         setCodeHashError("Code hash is required for Secret Network");
+        return;
+      }
+      if(lcd === '') {
+        setCodeHashError("LCD is required for Secret Network Execute Message");
         return;
       }
       const executeMsg = new MsgExecuteContract({
@@ -158,19 +168,19 @@ const MsgExecuteContractForm = ({
         msg: msgContentJSON,
       });
       const encryptionUtils = new EncryptionUtilsImpl(
-         'https://secretnetwork-api.lavenderfive.com:443/',
-         new Uint8Array([1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8]),
-         'secret-4',
+         lcd,
+         new Uint8Array(32),
+         chain.chainId,
       )
       executeMsg.toAmino(encryptionUtils).then((amino) => {
-        console.log(amino);
-        // @ts-expect-error secret needs code hash for encryption
+        // @ts-expect-error secret needs the same encrypted msg to be signed everywhere
         msgValue.encryptedMsg = amino.value.msg;
       });
       msgValue = {
         ...msgValue,
         // @ts-expect-error secret needs code hash for encryption
         codeHash,
+        lcd,
       };
     }
 
@@ -184,6 +194,7 @@ const MsgExecuteContractForm = ({
     chain.addressPrefix,
     chain.assets,
     chain.chainId,
+    chain.denom,
     msgContent,
     selectedDenom.value,
     senderAddress,
@@ -210,7 +221,7 @@ const MsgExecuteContractForm = ({
           placeholder={`E.g. ${exampleAddress(0, chain.addressPrefix)}`}
         />
       </div>
-      {chain.chainId === "secret-4" && (
+      {chain.denom === "uscrt" && (
         <div className="form-item">
           <Input
             label="Code Hash"
@@ -221,6 +232,21 @@ const MsgExecuteContractForm = ({
               setCodeHashError("");
             }}
             error={codeHashError}
+            placeholder={``}
+          />
+        </div>
+      )}
+      {chain.denom === "uscrt" && (
+        <div className="form-item">
+          <Input
+            label="LCD Node"
+            name="lcd"
+            value={lcd}
+            onChange={({ target }) => {
+              setLcd(target.value);
+              setLcdError("");
+            }}
+            error={lcdError}
             placeholder={``}
           />
         </div>

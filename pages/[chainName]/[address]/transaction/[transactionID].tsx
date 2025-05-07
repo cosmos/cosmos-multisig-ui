@@ -5,7 +5,7 @@ import { updateDbTxHash } from "@/lib/api";
 import { toastError, toastSuccess } from "@/lib/utils";
 import { MultisigThresholdPubkey } from "@cosmjs/amino";
 import { fromBase64 } from "@cosmjs/encoding";
-import { Account, StargateClient, makeMultisignedTxBytes, makeMultisignedTx } from "@cosmjs/stargate";
+import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
@@ -21,7 +21,6 @@ import StackableContainer from "../../../../components/layout/StackableContainer
 import { useChains } from "../../../../context/ChainsContext";
 import { getHostedMultisig, isAccount } from "../../../../lib/multisigHelpers";
 import { dbTxFromJson } from "../../../../lib/txMsgHelpers";
-import {SecretNetworkClient} from "secretjs";
 import { MsgExecuteContract as ProtoMsgExecuteContract } from "secretjs/dist/protobuf/secret/compute/v1beta1/msg";
 import {TxRaw} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
@@ -72,7 +71,7 @@ const TransactionPage = ({
   const [transactionHash, setTransactionHash] = useState(txHash);
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
-  const txInfo = chain.chainId === "secret-4" ? JSON.parse(transactionJSON) : dbTxFromJson(transactionJSON);
+  const txInfo = chain.denom === "uscrt" ? JSON.parse(transactionJSON) : dbTxFromJson(transactionJSON);
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
 
@@ -119,12 +118,7 @@ const TransactionPage = ({
       );
       assert(pubkey, "Pubkey not found on chain or in database");
       assert(txInfo, "Transaction not found in database");
-      console.log(txInfo, currentSignatures[0].bodyBytes);
-      console.log('currentSignatures', currentSignatures);
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
-      console.log("bodyBytes", new TextDecoder().decode(bodyBytes));
-
-      console.log(ProtoMsgExecuteContract.toJSON(ProtoMsgExecuteContract.decode(bodyBytes)));
       const signedTxBytes = makeMultisignedTxBytes(
         pubkey,
         txInfo.sequence,
@@ -132,19 +126,9 @@ const TransactionPage = ({
         bodyBytes,
         new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
       );
-      const tx = makeMultisignedTx(
-        pubkey,
-        txInfo.sequence,
-        txInfo.fee,
-        bodyBytes,
-        new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
-      )
-      console.log(TxRaw.toJSON(tx));
 
-      //const broadcaster = await StargateClient.connect(chain.nodeAddress);
-      //const result = await broadcaster.broadcastTx(signedTxBytes);
-      const client = new SecretNetworkClient({ url: 'https://secretnetwork-api.lavenderfive.com:443/', chainId: chain.chainId });
-      const result = await client.tx.broadcastSignedTx(signedTxBytes);
+      const broadcaster = await StargateClient.connect(chain.nodeAddress);
+      const result = await broadcaster.broadcastTx(signedTxBytes);
       await updateDbTxHash(transactionID, result.transactionHash);
       toastSuccess("Transaction broadcasted with hash", result.transactionHash);
       setTransactionHash(result.transactionHash);
