@@ -11,7 +11,7 @@ import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
 import StackableContainer from "../../../layout/StackableContainer";
-import { EncryptionUtilsImpl, MsgExecuteContract } from "secretjs";
+import { EncryptionUtilsImpl, MsgExecuteContract, SecretNetworkClient } from "secretjs";
 
 const JsonEditor = dynamic(() => import("../../../inputs/JsonEditor"), { ssr: false });
 
@@ -60,6 +60,32 @@ const MsgExecuteContractForm = ({
   const [amountError, setAmountError] = useState("");
 
   const trimmedInputs = trimStringsObj({ contractAddress, codeHash, lcd, customDenom, amount });
+
+  const generateCodeHash = async () => {
+    if (!lcd || !contractAddress) {
+      setLcdError("LCD URL and Contract Address are required");
+      return;
+    }
+
+console.log(lcd, chain.chainId, contractAddress);
+    try {
+      const client = new SecretNetworkClient({
+        url: lcd,
+        chainId: chain.chainId,
+      });
+
+      const result = await client.query.compute.codeHashByContractAddress({ contract_address: contractAddress });
+      if (result?.code_hash) {
+        setCodeHash(result.code_hash);
+        setCodeHashError("");
+      } else {
+        setCodeHashError("Could not retrieve code hash");
+      }
+    } catch (error) {
+      console.error('Failed to generate code hash:', error);
+      setCodeHashError(`Failed to generate code hash: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
@@ -157,7 +183,7 @@ const MsgExecuteContractForm = ({
         return;
       }
       if(lcd === '') {
-        setCodeHashError("LCD is required for Secret Network Execute Message");
+        setLcdError("LCD is required for Secret Network Execute Message");
         return;
       }
       const executeMsg = new MsgExecuteContract({
@@ -222,21 +248,6 @@ const MsgExecuteContractForm = ({
       {chain.denom === "uscrt" && (
         <div className="form-item">
           <Input
-            label="Code Hash"
-            name="code-hash"
-            value={codeHash}
-            onChange={({ target }) => {
-              setCodeHash(target.value);
-              setCodeHashError("");
-            }}
-            error={codeHashError}
-            placeholder={``}
-          />
-        </div>
-      )}
-      {chain.denom === "uscrt" && (
-        <div className="form-item">
-          <Input
             label="LCD Node"
             name="lcd"
             value={lcd}
@@ -245,6 +256,26 @@ const MsgExecuteContractForm = ({
               setLcdError("");
             }}
             error={lcdError}
+            placeholder={``}
+          />
+        </div>
+      )}
+      {chain.denom === "uscrt" && lcd !== '' && (
+        <button className="generate" onClick={() => generateCodeHash()}>
+          Generate Code Hash
+        </button>
+      )}
+      {chain.denom === "uscrt" && (
+        <div className="form-item">
+          <Input
+            label="Code Hash"
+            name="code-hash"
+            value={codeHash}
+            onChange={({ target }) => {
+              setCodeHash(target.value);
+              setCodeHashError("");
+            }}
+            error={codeHashError}
             placeholder={``}
           />
         </div>
@@ -331,6 +362,14 @@ const MsgExecuteContractForm = ({
           position: absolute;
           right: 10px;
           top: 10px;
+        }
+        button.generate {
+          margin-top: 20px;
+          background: rgba(255, 255, 255, 0.2);
+          height: 30px;
+          border-radius: 10px;
+          border: none;
+          color: white;
         }
       `}</style>
     </StackableContainer>
