@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import GeneralNews from "@/components/GeneralNews";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ThemeProvider from "@/context/ThemesContext";
@@ -13,6 +14,7 @@ export default function MultisigApp({ Component, pageProps }: AppProps) {
         <TooltipProvider>
           <div className="flex min-h-screen flex-col items-center gap-4">
             <Header />
+            <GeneralNews active={true} />
             <Component {...pageProps} />
           </div>
           <Toaster
