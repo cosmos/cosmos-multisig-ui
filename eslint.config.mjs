@@ -16,7 +16,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ["components/ui/"],
+    ignores: [".next/", "components/ui/"],
   },
   ...compat.extends("next/core-web-vitals", "plugin:@typescript-eslint/recommended", "prettier"),
   {
