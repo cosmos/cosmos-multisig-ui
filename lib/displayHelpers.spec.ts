@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ * See https://stackoverflow.com/a/72369912
+ */
 import { Coin } from "@cosmjs/stargate";
 import { ChainInfo } from "../context/ChainsContext/types";
 import { printableCoin, printableCoins, thinSpace, trimStringsObj } from "./displayHelpers";
