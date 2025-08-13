@@ -73,7 +73,7 @@
     "graphql-request": "^7.1.0",
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
-    "lucide-react": "^0.397.0",
+    "lucide-react": "^0.539.0",
     "next": "^14.2.23",
     "next-themes": "^0.3.0",
     "postcss": "8.4.38",
@@ -84,12 +84,11 @@
     "react-dom": "18.3.1",
     "react-hook-form": "^7.52.0",
     "react-select": "^5.8.0",
-    "recharts": "^2.12.7",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "3.4.4",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "5.5.2",
+    "typescript": "~5.9",
     "vanilla-jsoneditor": "^0.23.7",
     "zod": "^3.23.8"
   }
