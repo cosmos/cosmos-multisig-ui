@@ -1,0 +1,13 @@
+variable "name_prefix" { type = string }
+variable "tag_group" { type = map(string) }
+variable "aws_region" { type = string }
+variable "cpu" { default = 256 }
+variable "memory" { default = 512 }
+variable "execution_role_arn" { type = string }
+variable "container_image" { type = string }
+variable "neo4j_uri" { type = string }
+variable "neo4j_username" { type = string }
+variable "neo4j_password" { type = string }
+variable "subnet_ids" { type = list(string) }
+variable "sg_id" { type = string }
+variable "target_group_arn" { type = string }

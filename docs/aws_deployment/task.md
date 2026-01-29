@@ -1,0 +1,22 @@
+# タスク: Cosmos Multisig App の AWS デプロイ計画
+
+- [x] **事前準備**
+    - [x] アプリケーションの `Dockerfile` 作成
+    - [x] `terraform` ディレクトリの初期化
+- [x] **Terraform モジュール実装 (`terraform/resources/`)**
+    - [x] VPC & Subnet モジュールの作成
+    - [x] Security Group モジュールの作成
+    - [x] IAM モジュールの作成
+    - [x] ECR モジュールの作成
+    - [x] ECS (Fargate) モジュールの作成
+    - [x] ALB モジュールの作成
+    - [x] Neptune モジュールの作成
+- [/] **環境構築 (`terraform/environments/dev/`)**
+    - [x] Root `main.tf` の実装 (モジュール結合)
+    - [x] 変数 (`variables.tf`, `terraform.tfvars`) の定義
+- [x] **デプロイ & 検証**
+    - [x] `docker build` & `push` の手順確認
+        - [x] GitHub Actions Workflow の作成 (`.github/workflows/build-image.yml`)
+    - [x] `terraform validate` / `plan` の実行と確認
+    - [x] 実装内訳のドキュメント作成 (`walkthrough.md`)
+    - [x] README の更新

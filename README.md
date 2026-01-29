@@ -1,64 +1,58 @@
 # Cosmoshub Multisig App
 
-このアプリは、Stargate 対応チェーン上でマルチシグを作成・署名・ブロードキャストするための Next.js 製 UI です。CosmJS、Neo4j AuraDB、Vercel を基盤に構築されています。
+このアプリは、Stargate 対応チェーン上でマルチシグを作成・署名・ブロードキャストするための Next.js 製 UI です。
+バックエンドに Amazon Neptune (GraphDB) を使用し、AWS Fargate 上で動作するように設計されています。
 
-[本番環境はこちら](https://multisig.confio.run)。
+## AWS デプロイ手順 (Terraform)
 
-[ユーザーガイド](https://github.com/samepant/cosmoshub-legacy-multisig/blob/master/docs/App%20User%20Guide.md)
+このリポジトリは、AWS 上に以下のインフラを構築するための Terraform コードを含んでいます。
+- **Web App**: AWS Fargate (Next.js Standalone)
+- **Database**: Amazon Neptune (GraphDB)
+- **Network**: VPC, Public Subnets (No NAT Gateway), Security Groups, ALB
 
-## サポートしているトランザクション種別
+### 1. Terraform の設定
 
-`lib/msg.ts` が読み込む Cosmos SDK/CosmWasm のメッセージを UI から利用できます（Vesting 系と `MsgDeposit` は混乱回避のため非表示）。
+`terraform/environments/dev/terraform.tfvars` を作成し、必要な環境変数を設定してください。
 
-- **Bank**: `MsgSend`, `MsgMultiSend`
-- **Staking**: `MsgDelegate`, `MsgUndelegate`, `MsgBeginRedelegate`, `MsgCreateValidator`, `MsgEditValidator`
-- **Distribution**: `MsgWithdrawDelegatorReward`, `MsgWithdrawValidatorCommission`, `MsgSetWithdrawAddress`, `MsgFundCommunityPool`
-- **Governance**: `MsgSubmitProposal`, `MsgVote`, `MsgVoteWeighted`
-- **Authz**: `MsgGrant`, `MsgExec`, `MsgRevoke`
-- **Feegrant**: `MsgGrantAllowance`, `MsgRevokeAllowance`
-- **IBC Transfer**: `MsgTransfer`
-- **CosmWasm**: `MsgStoreCode`, `MsgInstantiateContract`, `MsgInstantiateContract2`, `MsgExecuteContract`, `MsgMigrateContract`, `MsgUpdateAdmin`, `MsgClearAdmin`
+```hcl
+neo4j_password = "YOUR_SECURE_PASSWORD" # Neptune (Neo4j) 用パスワード
+```
 
-## 自分の環境で動かす
+### 2. インフラの構築
 
-### 1. クローンと Vercel デプロイ設定
+```bash
+cd terraform/environments/dev
+terraform init
+terraform apply
+```
 
-Vercel 上で Next.js のサーバーレス機能を使う構成です。Vercel アカウントを用意し、下記ボタンからクローン & デプロイしてください。環境変数を入れるまではデプロイが失敗します。
+完了後、Output として表示される `repository_url` (ECR) と `lb_dns_name` (ALB) をメモしてください。
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fhello-world)
+### 3. Docker イメージのビルドとプッシュ
 
-### 2. 環境変数を設定
+**手動でプッシュする場合:**
 
-Vercel の `Settings -> Environment Variables` で `.env.sample` を参考に `NEO4J_URI` `NEO4J_USERNAME` `NEO4J_PASSWORD`（任意で `NEO4J_DATABASE`）を登録します。AuraDB の `neo4j+s://` URI をそのまま `NEO4J_URI` に使い、資格情報は安全に保管してください。
+```bash
+./scripts/deploy_image.sh ap-northeast-1 <ECR_REPOSITORY_URL>
+```
 
-### 3. Neo4j AuraDB を用意
+**GitHub Actions で自動化する場合:**
 
-[Neo4j AuraDB Free](https://neo4j.com/cloud/platform/aura-graph-database/) で新しい DB を作成し、自動生成された接続情報を控えます。追加の移行作業は不要で、この時点でマルチシグやトランザクションの保存が可能です。
+`main` ブランチへのプッシュ、または手動トリガー (`workflow_dispatch`) で GitHub Actions がコンテナをビルドし、ECR にプッシュします。
 
-### 4. 再デプロイ
-
-環境変数を入れたら再度デプロイすると、設定が反映された状態で動作します。
+GitHub Secrets に以下を設定してください (OIDC を使用する場合は Role ARN のみで可)。
+- `AWS_ROLE_ARN`: GitHub Actions 用の IAM Role ARN
 
 ## ローカル開発
 
-### 1. `.env.local` を作成
+### 1. 依存関係のインストール
 
-`.env.sample` をコピーして `.env.local` を作り、必要なキーを埋めます。
-
-### 2. Cosmos SDK Simapp を起動
-
-`uatom` など Cosmoshub4 と同じ denom に揃えた simapp をローカルで起動し、`NEXT_PUBLIC_NODE_ADDRESS` にノードのエンドポイントを書きます。
-
-### 3. Neo4j に接続
-
-AuraDB もしくはローカルの Neo4j の接続情報を `.env.local` に入れます（`NEO4J_URI`, `NEO4J_USERNAME`, `NEO4J_PASSWORD`, 必要なら `NEO4J_DATABASE`）。
-
-### 4. サーバーを起動
-
-Simapp を動かした状態で別ターミナルから以下を実行します。
-
-```
-// node v12.5.0 以上を推奨
+```bash
 npm install
+```
+
+### 2. 開発サーバーの起動
+
+```bash
 npm run dev
 ```
