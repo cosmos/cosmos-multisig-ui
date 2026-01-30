@@ -6,7 +6,10 @@ resource "aws_ecs_cluster" "main" {
     value = "disabled"
   }
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-cluster"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_ecs_task_definition" "main" {
@@ -60,7 +63,10 @@ resource "aws_ecs_task_definition" "main" {
     }
   ])
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-tg"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_ecs_service" "main" {
@@ -82,5 +88,8 @@ resource "aws_ecs_service" "main" {
     container_port   = 3000
   }
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-service"
+    group = "${var.tag_group}"
+  }
 }

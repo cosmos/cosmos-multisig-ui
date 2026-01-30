@@ -1,36 +1,54 @@
+# Terraform のバージョン指定
 terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 5.51.1"
+    }
+  }
+  backend "s3" {
+    bucket         = "omakase-terraform-state-bucket"
+    key            = "cosmos-multisig-app/terraform.tfstate"
+    region         = "ap-northeast-1"
+    encrypt        = true
+    dynamodb_table = "terraform-lock-table"
+    profile        = "omakase-testnet"
+  }
+}
+provider "aws" {
+  region  = var.aws_region
+  profile = "omakase-testnet"
+
+  default_tags {
+    tags = {
+      Name  = "${var.name_prefix}-repository"
+      Group = "${var.tag_group}"
     }
   }
 }
 
-provider "aws" {
-  region = var.aws_region
-
-  default_tags {
-    tags = var.tag_group
-  }
+module "iam" {
+  source      = "../resources/iam"
+  name_prefix = var.name_prefix
+  tag_group   = var.tag_group
 }
 
 module "vpc" {
-  source      = "../../resources/vpc"
+  source      = "../resources/vpc"
   vpc_cidr    = var.vpc_cidr
   name_prefix = var.name_prefix
   tag_group   = var.tag_group
 }
 
 module "ig" {
-  source      = "../../resources/ig"
+  source      = "../resources/ig"
   vpc_id      = module.vpc.id
   name_prefix = var.name_prefix
   tag_group   = var.tag_group
 }
 
 module "subnet" {
-  source      = "../../resources/subnet"
+  source      = "../resources/subnet"
   vpc_id      = module.vpc.id
   vpc_cidr    = var.vpc_cidr
   aws_region  = var.aws_region
@@ -39,7 +57,7 @@ module "subnet" {
 }
 
 module "rt" {
-  source             = "../../resources/rt"
+  source             = "../resources/rt"
   vpc_id             = module.vpc.id
   ig_id              = module.ig.id
   public_subnet_id   = module.subnet.public_id
@@ -51,26 +69,21 @@ module "rt" {
 }
 
 module "sg" {
-  source      = "../../resources/sg"
+  source      = "../resources/sg"
   vpc_id      = module.vpc.id
   name_prefix = var.name_prefix
   tag_group   = var.tag_group
 }
 
-module "iam" {
-  source      = "../../resources/iam"
-  name_prefix = var.name_prefix
-  tag_group   = var.tag_group
-}
 
 module "ecr" {
-  source      = "../../resources/ecr"
+  source      = "../resources/ecr"
   name_prefix = var.name_prefix
   tag_group   = var.tag_group
 }
 
 module "alb" {
-  source      = "../../resources/alb"
+  source      = "../resources/alb"
   vpc_id      = module.vpc.id
   subnet_ids  = [module.subnet.public_id, module.subnet.public2_id]
   sg_id       = module.sg.alb_sg_id
@@ -79,7 +92,7 @@ module "alb" {
 }
 
 module "neptune" {
-  source         = "../../resources/neptune"
+  source         = "../resources/neptune"
   subnet_ids     = [module.subnet.private_id, module.subnet.private2_id]
   sg_id          = module.sg.neptune_sg_id
   instance_class = var.neptune_instance_class
@@ -88,7 +101,7 @@ module "neptune" {
 }
 
 module "ecs" {
-  source             = "../../resources/ecs"
+  source             = "../resources/ecs"
   name_prefix        = var.name_prefix
   tag_group          = var.tag_group
   aws_region         = var.aws_region

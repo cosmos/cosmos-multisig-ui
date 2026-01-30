@@ -7,12 +7,10 @@ resource "aws_route_table" "public" {
     gateway_id = var.ig_id
   }
 
-  tags = merge(
-    var.tag_group,
-    {
-      Name = "${var.name_prefix}-rt-public"
-    }
-  )
+  tags = {
+    Name  = "${var.name_prefix}-rt-public"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_route_table_association" "public" {
@@ -29,12 +27,10 @@ resource "aws_route_table_association" "public2" {
 resource "aws_route_table" "private" {
   vpc_id = var.vpc_id
 
-  tags = merge(
-    var.tag_group,
-    {
-      Name = "${var.name_prefix}-rt-private"
-    }
-  )
+  tags = {
+    Name  = "${var.name_prefix}-rt-private"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_route_table_association" "private" {

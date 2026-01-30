@@ -6,5 +6,8 @@ resource "aws_ecr_repository" "main" {
     scan_on_push = true
   }
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-repo"
+    group = "${var.tag_group}"
+  }
 }

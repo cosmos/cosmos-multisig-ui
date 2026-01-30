@@ -2,7 +2,10 @@ resource "aws_neptune_subnet_group" "main" {
   name       = "${var.name_prefix}-neptune-subnet-group"
   subnet_ids = var.subnet_ids
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-neptune-subnet-group"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_neptune_cluster" "main" {
@@ -23,7 +26,10 @@ resource "aws_neptune_cluster" "main" {
   # Authentication: IAM or None (within VPC).
   # If I disable IAM auth, then it is "None" (trusted network).
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-neptune-cluster"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_neptune_cluster_instance" "main" {
@@ -33,5 +39,8 @@ resource "aws_neptune_cluster_instance" "main" {
   apply_immediately  = true
   identifier         = "${var.name_prefix}-neptune-instance-1"
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-neptune-instance-1"
+    group = "${var.tag_group}"
+  }
 }

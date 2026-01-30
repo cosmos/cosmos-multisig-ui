@@ -7,5 +7,5 @@ variable "name_prefix" {
 }
 
 variable "tag_group" {
-  type = map(string)
+  type = string
 }

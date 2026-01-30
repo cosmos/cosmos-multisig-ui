@@ -14,8 +14,8 @@ variable "vpc_cidr" {
 }
 
 variable "tag_group" {
-  description = "Tags to apply to resources"
-  type        = map(string)
+  description = "Tag group for resources"
+  type        = string
 }
 
 variable "neptune_instance_class" {

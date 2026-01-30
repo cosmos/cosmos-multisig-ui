@@ -14,7 +14,10 @@ resource "aws_iam_role" "ecs_task_execution_role" {
     ]
   })
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-ecs-task-execution-role"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {

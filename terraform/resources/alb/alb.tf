@@ -7,7 +7,10 @@ resource "aws_lb" "main" {
 
   enable_deletion_protection = false
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-alb"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_lb_target_group" "main" {
@@ -26,7 +29,10 @@ resource "aws_lb_target_group" "main" {
     matcher             = "200"
   }
 
-  tags = var.tag_group
+  tags = {
+    Name  = "${var.name_prefix}-tg"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_lb_listener" "http" {

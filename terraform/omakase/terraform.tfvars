@@ -1,12 +1,8 @@
 aws_region  = "ap-northeast-1"
-name_prefix = "cosmos-multisig-dev"
+name_prefix = "cosmos-multisig-app"
 vpc_cidr    = "10.0.0.0/16"
 
-tag_group = {
-  Project     = "cosmos-multisig"
-  Environment = "dev"
-  ManagedBy   = "terraform"
-}
+tag_group = "cosmos-multisig-app-group"
 
 neptune_instance_class = "db.t4g.medium"
 

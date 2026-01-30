@@ -20,12 +20,10 @@ resource "aws_security_group" "alb" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = merge(
-    var.tag_group,
-    {
-      Name = "${var.name_prefix}-alb-sg"
-    }
-  )
+  tags = {
+    Name  = "${var.name_prefix}-alb-sg"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_security_group" "ecs" {
@@ -49,12 +47,10 @@ resource "aws_security_group" "ecs" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = merge(
-    var.tag_group,
-    {
-      Name = "${var.name_prefix}-ecs-sg"
-    }
-  )
+  tags = {
+    Name  = "${var.name_prefix}-ecs-sg"
+    group = "${var.tag_group}"
+  }
 }
 
 resource "aws_security_group" "neptune" {
@@ -96,10 +92,8 @@ resource "aws_security_group" "neptune" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = merge(
-    var.tag_group,
-    {
-      Name = "${var.name_prefix}-neptune-sg"
-    }
-  )
+  tags = {
+    Name  = "${var.name_prefix}-neptune-sg"
+    group = "${var.tag_group}"
+  }
 }

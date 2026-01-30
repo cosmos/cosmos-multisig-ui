@@ -10,5 +10,5 @@ variable "name_prefix" {
 
 variable "tag_group" {
   description = "Common tags for resources"
-  type        = map(string)
+  type        = string
 }
